@@ -1,7 +1,18 @@
 
 Welcome to Nive CMS!
 
+Nive is professional out the box content management system based on python and the webframework
+pyramid. 
 Please refer to the website www.nive.co for detailed information.
+
+Version
+-------
+This project is a beta release. The application is stable and complete. Some internal modules will
+updated and optimized (e.g. nive.utils) and eventually replaced. The public API as documented on the 
+website will not change.
+
+The alpha series was released under the name 'poolyx'.
+
 
 Installation
 ------------
