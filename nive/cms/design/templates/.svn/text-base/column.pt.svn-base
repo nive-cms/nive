@@ -1,0 +1,5 @@
+<div tal:attributes="class string:pageelement peColumn; id string:pe${context.GetID()}"
+     i18n:domain="poolyx">
+  <span tal:repeat="el context.GetPageElements()"
+        tal:replace="structure view.RenderView(el)"/>
+</div>

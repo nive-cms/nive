@@ -1,0 +1,527 @@
+
+
+import copy
+
+import t_MySql
+try:
+    from Poolyx.utils.dataPool2.mySqlPool import *
+except:
+    pass
+
+import t_db
+from Poolyx.utils.dataPool2.sqlite3Pool import *
+
+
+mode = "mysql"
+printed = [""]
+
+def print_(*kw):
+    if type(kw)!=type(""):
+        v = ""
+        for a in kw:
+            v += " "+str(a)
+    else:
+        v = kw
+    if v == "":
+        print ".",
+        printed.append("")
+    else:
+        printed[-1] += v
+        
+
+def getConnection():
+    if mode == "mysql":
+        c = MySqlConn(t_MySql.conn, 0)
+        print_( "MySQL        -")
+    elif mode == "mysqlinno":
+        c = t_MySql.conn
+        c["dbName"] = u"ut_dataPool2inno"
+        c = MySqlConn(c, 0)
+        print_( "MySQL InnoDB -")
+    else:
+        c = Sqlite3Conn(t_db.conn, 0)
+        print_( "Sqlite 3     -")
+    return c
+
+def getPool():
+    if mode == "mysql":
+        pool = MySql(t_MySql.conf)
+        pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
+        pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
+        pool.CreateConnection(t_MySql.conn)
+        print_( "MySQL        -")
+    elif mode == "mysqlinno":
+        pool = MySql(t_MySql.conf)
+        pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
+        pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
+        c = t_MySql.conn
+        c["dbName"] = u"ut_dataPool2inno"
+        pool.CreateConnection(c)
+        print_( "MySQL InnoDB -")
+    else:
+        pool = Sqlite3(t_db.conf)
+        pool.SetStdMeta(copy.copy(t_db.stdMeta))
+        pool.GetPoolStructureObj().SetStructure(t_db.struct)
+        pool.CreateConnection(t_db.conn)
+        print_( "Sqlite 3     -")
+    return pool
+
+def empty():
+    #if mode == "mysql":
+    #    t_MySql.emptypool()
+    #elif mode == "mysqlinno":
+    #    t_MySql.emptypool()
+    #else:
+    #    t_db.emptypool()
+    pass
+
+def connects(n):
+    c = getConnection()
+
+    print_( "Connection: ")
+    t = time.time()
+    for i in range(0,n):
+        c.Connect()
+        c.Close()
+    t2 = time.time()
+    print_( n, " connects in ", t2-t, "secs. ", (t2-t)/n, " per connect")
+    print_()
+
+
+
+
+def cursors(n):
+    c = getConnection()
+    c.Connect()
+    db = c.DB()
+
+    print_( "Cursor: ")
+    t = time.time()
+    for i in range(0,n):
+        cu = db.cursor()
+        cu.close()
+    t2 = time.time()
+
+    c.Close()
+    print_( n, " cursors in ", t2-t, "secs. ", (t2-t)/n, " per cursor")
+    print_()
+
+
+def createsql(n):
+    pool = getPool()
+
+    print_( "Create SQL: ")
+    t = time.time()
+    for i in range(0,n):
+        sql = pool.GetSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+            {u"pool_type": u"data1", u"ftext": u"", u"fnumber": 3},
+            sort = u"title, id, fnumber",
+            ascending = 0,
+            dataTable = u"data1",
+            operators={u"pool_type":u"=", u"ftext": u"<>", u"fnumber": u">"},
+            start=1,
+            max=123)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " sql statements in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def sqlquery1(n, start):
+    pool = getPool()
+
+    print_( "SQL Query data+meta (join no index): ")
+    t = time.time()
+    for i in range(0,n):
+        sql = pool.GetSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+            {u"pool_type": u"data1", u"ftext": u"123", u"fnumber": i+start},
+            sort = u"title, id, fnumber",
+            ascending = 0,
+            dataTable = u"data1",
+            operators={u"pool_type":u"=", u"ftext": u"LIKE", u"fnumber": u"!="},
+            start=1,
+            max=123)
+        pool.Query(sql)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " queries in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def sqlquery2(n, start):
+    pool = getPool()
+
+    print_( "SQL Query data+meta=id (join index): ")
+    t = time.time()
+    for i in range(0,n):
+        sql = pool.GetSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+            {u"id": i+start},
+            sort = u"title",
+            ascending = 0,
+            dataTable = u"data1",
+            operators={},
+            start=1,
+            max=123)
+        pool.Query(sql)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " queries in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def sqlquery3(n, start):
+    pool = getPool()
+
+    print_( "SQL Query meta=id (index): ")
+    t = time.time()
+    for i in range(0,n):
+        sql = pool.GetSQLSelect(list(t_MySql.stdMeta),
+            {u"id": start+i},
+            sort = u"id",
+            ascending = 0,
+            dataTable = u"pool_meta",
+            singleTable = 1,
+            operators={},
+            start=1,
+            max=123)
+        pool.Query(sql)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " queries in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def sqlquery4(n, start):
+    pool = getPool()
+
+    print_( "SQL Query meta=id+pool_type=data1 (index): ")
+    t = time.time()
+    for i in range(0,n):
+        sql = pool.GetSQLSelect(list(t_MySql.stdMeta),
+            {u"id": start+i, u"pool_type": u"data1"},
+            sort = u"id",
+            ascending = 0,
+            dataTable = u"pool_meta",
+            singleTable = 1,
+            operators={u"pool_type": u"="},
+            start=1,
+            max=123)
+        pool.Query(sql)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " queries in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def sqlquery5(n, start):
+    pool = getPool()
+
+    print_( "SQL Query meta=id+pool_type=data1+data.funit (join index): ")
+    t = time.time()
+    for i in range(0,n):
+        sql = pool.GetSQLSelect(list(t_MySql.stdMeta),
+            {u"id": start+i, u"pool_type": u"data1", u"funit": 35},
+            sort = u"id",
+            ascending = 0,
+            dataTable = u"data1",
+            operators={u"pool_type": u"="},
+            start=1,
+            max=123)
+        pool.Query(sql)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " queries in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def sqlquery6(n):
+    pool = getPool()
+
+    print_( "SQL Query filename (text index): ")
+    t = time.time()
+    for i in range(0,n):
+        files = pool.SearchFilename("file1xxx.txt")
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " queries in ", t2-t, "secs. ", (t2-t)/n, " per statement")
+    print_()
+
+
+def createentries(n):
+    pool = getPool()
+
+    print_( "Create entries (nodb): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool._GetPoolEntry(i, version=None, datatbl=u"data1", preload=u"skip", virtual=True)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+
+def checkentries(n):
+    pool = getPool()
+
+    print_( "Create entries (nodb) and check exists: ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool._GetPoolEntry(i, version=None, datatbl=u"data1", preload=u"skip", virtual=True)
+        e.Exists()
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " checks in ", t2-t, "secs. ", (t2-t)/n, " per check")
+    print_()
+
+def createentries2(n):
+    pool = getPool()
+
+    print_( "Create entries (nodata): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.CreateEntry(u"data1")
+        #e.data.update(data1_1)
+        #e.meta.update(meta1)
+        e.Commit()
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def createentries3(n):
+    pool = getPool()
+
+    print_( "Create entries (data+meta): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.CreateEntry(u"data1")
+        if i==0:  id = e.GetID()
+        e.data.update(t_MySql.data1_1)
+        e.meta.update(t_MySql.meta1)
+        e.Commit()
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+    return id
+
+def createentries4(n):
+    pool = getPool()
+
+    print_( "Create entries (data+meta+file): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.CreateEntry("data1")
+        if i==0:  id = e.GetID()
+        e.data.update(t_MySql.data1_1)
+        e.meta.update(t_MySql.meta1)
+        e.SetFile(u"file1", {"file":t_MySql.file1_1, "filename": "file1.txt"})
+        e.Commit()
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+    return id
+
+
+def getentries1(n, start):
+    pool = getPool()
+
+    print_( "Get entries (all): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.GetEntry(i+start)
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def getentries2(n, start):
+    pool = getPool()
+
+    print_( "Get entries (all+file): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.GetEntry(i+start, preload=u"all")
+        f=e.GetFile(u"file1")
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def getentries5(n, start):
+    pool = getPool()
+
+    print_( "Get entries (all+filestream): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.GetEntry(i+start, preload=u"all")
+        #f=e.GetFile("file1")
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def getentries4(n, start):
+    pool = getPool()
+
+    print_( "Get entries (meta): ")
+    t = time.time()
+    for i in range(0,n):
+        e=pool.GetEntry(i+start, preload=u"meta")
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def getbatch1(n, start):
+    pool = getPool()
+
+    print_( "Get batch (no preload): ")
+    t = time.time()
+    ids = []
+    for i in range(0,n):
+        ids.append(i+start)
+    e=pool.GetBatch(ids, preload=u"skip")
+    t2 = time.time()
+
+    del e
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def getbatch2(n, start):
+    pool = getPool()
+
+    print_( "Get batch (meta): ")
+    t = time.time()
+    ids = []
+    for i in range(0,n):
+        ids.append(i+start)
+    e=pool.GetBatch(ids, preload=u"meta")
+    t2 = time.time()
+
+    del e
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def getbatch3(n, start):
+    pool = getPool()
+
+    print_( "Get batch (all): ")
+    t = time.time()
+    ids = []
+    for i in range(0,n):
+        ids.append(i+start)
+    e=pool.GetBatch(ids, preload=u"all")
+    t2 = time.time()
+
+    del e
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+def delentries(n, start):
+    pool = getPool()
+
+    print_( "Delete entries (meta+data): ")
+    t = time.time()
+    for i in range(0,n):
+        pool.DeleteEntry(i+start)
+        pool.Commit()
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+
+def delentries2(n, start):
+    pool = getPool()
+
+    print_( "Delete entries (meta+data+file): ")
+    t = time.time()
+    for i in range(0,n):
+        pool.DeleteEntry(i+start)
+        pool.Commit()
+    t2 = time.time()
+
+    pool.Close()
+    print_( n, " entries in ", t2-t, "secs. ", (t2-t)/n, " per entry")
+    print_()
+
+
+def report(modes, printed):
+    rep=[]
+    c = len(printed)/len(modes)
+    for n in range(0, c):
+        p = 0
+        for m in modes:
+            rep.append(printed[p*c+n])
+            p+=1
+    print 
+    print
+    i=0
+    for p in rep:
+        print p
+        i+=1
+        if i==len(modes):
+            print
+            i=0
+
+
+def run(modes):
+    global mode , printed
+    n = 1000
+    printed = [""]
+    for m in modes:
+        mode = m
+        print
+        print mode,
+        empty()
+        connects(n)
+        cursors(n)
+        createsql(n)
+        createentries(n)
+        checkentries(n)
+        createentries2(n)
+        id = createentries3(n)
+        id2 = createentries4(n)
+        getentries1(n, id2)
+        getentries2(n, id2)
+        getentries5(n, id2)
+        getentries4(n, id2)
+        getbatch1(n, id2)
+        getbatch2(n, id2)
+        getbatch3(n, id2)
+        sqlquery1(n, id2)
+        sqlquery2(n, id)
+        sqlquery3(n, id2)
+        sqlquery4(n, id)
+        sqlquery5(n, id2)
+        sqlquery6(n)
+        delentries(n, id)
+        delentries2(n, id2)
+    report(modes, printed)
+
+
+if __name__ == '__main__':
+    #run(("sqlite3",))
+    run(("sqlite3","mysql","mysqlinno"))

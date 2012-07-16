@@ -1,0 +1,36 @@
+<tal:block metal:use-macro="view.index_tmpl().macros['main']" i18n:domain="nive">
+   
+<tal:block metal:fill-slot="editmain">
+<div class="alert alert-success" i18n:translate="">This page lists all included <em>modules</em> for browsing in readonly mode. <br/>
+Also this will help you to easily lookup object ids and database fields for developing.</div>
+
+<h2 i18n:translate="">Object types</h2>
+<div tal:repeat="conf context.GetAllObjectConfs()"
+     tal:replace="structure view.RenderConf(conf)"></div>
+
+<h2 i18n:translate="">Root types</h2>
+<div tal:repeat="conf context.GetAllRootConfs()"
+     tal:replace="structure view.RenderConf(conf)"></div>
+
+<h2 i18n:translate="">Meta fields</h2>
+<div tal:repeat="conf context.GetAllMetaFlds(ignoreSystem=False)"
+     tal:replace="structure view.RenderConf(conf)"></div>
+
+<h2 i18n:translate="">CMS settings</h2>
+<div tal:replace="structure view.RenderConf(context.configuration)"></div>
+
+<h2 i18n:translate="">Tools</h2>
+<div tal:repeat="conf context.GetAllToolConfs()"
+     tal:replace="structure view.RenderConf(conf)"></div>
+
+<h2 i18n:translate="">Workflow processes</h2>
+<div tal:repeat="conf context.GetAllWorkflowConfs()"
+     tal:replace="structure view.RenderConf(conf)"></div>
+
+<h2 i18n:translate="">Other modules</h2>
+<div tal:repeat="conf context.QueryConf('nive.IModuleConf')"
+     tal:replace="structure view.RenderConf(conf)"></div>
+
+</tal:block>
+
+</tal:block>

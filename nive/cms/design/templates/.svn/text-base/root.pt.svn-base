@@ -1,0 +1,3 @@
+<tal:block metal:use-macro="view.index_tmpl().macros['main']">
+
+</tal:block>

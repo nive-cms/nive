@@ -1,0 +1,54 @@
+<tal:block metal:define-macro="main"><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de" i18n:domain="nive">
+<head>
+<title>nive user management</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/jquery.min.js')" type="text/javascript"></script>
+<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/js/bootstrap.min.js')" type="text/javascript"></script>
+<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap.css')" rel="stylesheet">
+<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap-responsive.css')" rel="stylesheet">
+<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/nive.css')" rel="stylesheet" type="text/css" media="all" />
+<tal:block metal:define-slot="head"></tal:block>
+<tal:block tal:condition="head|None" tal:replace="structure head" tal:on-error="nothing"></tal:block>
+</head>
+
+<body>
+<div id="container">
+<header id="header">
+  <h1 i18n:translate="">User administration</h1>
+</header>
+<nav>
+<div class="spacer"> </div>
+<a href="${view.FolderUrl(context.root())}" class="tab activeFalse" i18n:translate="">User list</a>
+<a href="${view.FolderUrl(context.root())}add" class="tab activeFalse" i18n:translate="">Add user</a>
+
+<div style="float:right" class="btn-group">
+  <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+   <span i18n:translate="">Switch location or Logout</span> <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+    <li tal:repeat="link view.AdministrationLinks()"><a href="${link.href}">${link.title}</a></li>
+    <li class="divider"></li>
+    <li><a href="/logout" i18n:translate="">Logout</a></li>
+  </ul>
+</div>
+
+</nav>
+<br style="clear:both"/>
+<div id="main">
+<div id="nive_edit">
+
+  <div tal:condition="request.session.peek_flash()" class="alert alert-sucess">
+    <ul><li tal:repeat="msg request.session.pop_flash()"
+            tal:content="msg"></li></ul>
+  </div>
+
+<tal:block metal:define-slot="editmain"></tal:block>
+</div>
+</div>
+ 
+</div>
+
+</body>
+</html>
+</tal:block>

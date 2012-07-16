@@ -1,0 +1,8 @@
+<tal:block i18n:domain="poolyx">
+<script tal:condition="context.data.codetype=='js'"
+        tal:content="structure context.data.codeblock"></script>
+<style tal:condition="context.data.codetype=='css'" 
+       tal:content="structure context.data.codeblock" type="text/css"></style>
+<tal:block tal:condition="context.data.codetype in ('html','raw','')"
+           tal:content="structure context.data.codeblock"></tal:block>
+</tal:block>

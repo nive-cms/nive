@@ -1,0 +1,90 @@
+<script tal:condition="field.view and field.view.Relocated()">
+  var url="${field.view.Relocated()}";
+  if(window!=window.parent) window.parent.close(url);
+  else location.href=url;
+</script>
+<form tal:condition="not field.view or not field.view.Relocated()"
+  id="${field.formid}"
+  action="${field.action}"
+  method="${field.method}"
+  class="${field.css_class}"
+  enctype="multipart/form-data"
+  i18n:domain="nive">
+
+    <div tal:condition="field.error" class="alert alert-error">
+      <ul>
+      <li tal:condition="field.error">
+        <h4 class="alert-heading" i18n:translate=""
+            >There was a problem with your submission</h4>
+        <p i18n:translate=""
+           >Errors have been highlighted below</p>
+        <p>${field.errormsg}</p>
+      </li>
+      </ul>
+    </div>
+      
+    <div tal:condition="field.messages|None" class="alert alert-success">
+      <ul><li tal:repeat="msg field.messages">${msg}</li></ul>
+    </div>
+      
+    <tal:block tal:define="rndr field.renderer;
+                           tmpl field.widget.item_template"
+               tal:repeat="f field.children">
+         <div tal:replace="structure rndr(tmpl,field=f,cstruct=cstruct.get(f.name, null))"/>
+    </tal:block>
+      
+    <div class="formOptions">
+        <tal:block repeat="button field.buttons">
+          <button
+              tal:attributes="disabled button.disabled"
+              id="${field.formid+button.name}"
+              name="${button.name}"
+              type="${button.type}"
+              class="btnText submit"
+              value="${button.value}">
+            <span i18n:translate="">${button.title}</span>
+          </button>
+        </tal:block>
+    </div>
+ 
+<script type="text/javascript" tal:condition="0 and field.use_ajax">
+function reform_ajaxify(response, status, xhr, form, oid, mthd) {
+  var options = { 
+    //target: '#'+oid,
+    //replaceTarget: true,
+    //success: function(response, status, xhr, form){
+	//  reform_ajaxify(response, status, xhr, form, oid); 
+	//},
+    success:  function(responseText, statusText, xhr, $form) { 
+      if(xhr.getResponseHeader('X-Relocate')) window.parent.close(xhr.getResponseHeader('X-Relocate'));
+      else {
+        $('#'+oid).replaceWith(responseText); 
+        reform_ajaxify(response, status, xhr, form, oid);
+      }
+    },
+    error:  function(responseText, statusText, xhr, $form) {
+      $('#'+oid).replaceWith(responseText); 
+      reform_ajaxify(response, status, xhr, form, oid); 
+    }
+  };
+  var extra_options = ${field.ajax_options};
+  var name;
+  if (extra_options) {
+    for (name in extra_options) {
+      options[name] = extra_options[name];
+    };
+  };
+  $('#'+oid).ajaxForm(options);
+  if(mthd){
+    mthd(response, status, xhr, form);
+  }
+}
+reform.addCallback(
+  '${field.formid}',
+  function(oid) {
+    reform_ajaxify(null, null, null, null, oid);
+  }
+);
+</script>
+
+</form>

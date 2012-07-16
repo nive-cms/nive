@@ -1,0 +1,12 @@
+<div tal:define="page python:context.GetPage();"
+     class="toolbox_widget"
+     i18n:domain="nive">
+ <!-- sub pages -->
+ <div class="widget_head" i18n:translate="">Sub pages</div>
+ <div class="widget_content">
+    <a tal:condition="not page.IsRoot()" 
+       tal:attributes="href view.PageUrl(page.parent)" class="nivecms"
+       i18n:translate="">Open parent page</a>
+    <span tal:replace="structure view.pageListWidget(page=page)"/>
+ </div>
+</div>

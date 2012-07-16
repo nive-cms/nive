@@ -1,0 +1,164 @@
+body {
+	font-family: Verdana, Arial, sans-serif;
+	font-style: normal;
+	padding: 0px;
+	margin: 0px;
+	font-size: 80%;
+}
+h2 { font-size: 110%; }
+
+header { background-color:#aaaaaa; width: 100%; height: 30px; }
+header #logo {
+  float:right;
+  font-family: courier, monospace;
+  color: white;
+  padding: 0px;
+  margin-top: 5px;
+  margin-right:20px;
+  width: auto;
+  font-size:13pt;
+  font-weight:bold;
+}
+
+#poolyx_edit { padding: 10px; min-height: 400px; }
+#breadcrumbs { clear:both; padding: 10px 0px 0px 10px; color: #999999; }
+
+#container {
+	text-align: left;
+	vertical-align: top;
+	width: 960px;
+	margin-left: auto;
+	margin-right: auto;
+}
+/*tabs--------------------------------------------------*/
+nav .spacer { width:10px; height:13px; float:left; border-right: 1px solid #ffffff; color: #aaaaaa; background-color: #aaaaaa; }
+nav a.tab {
+	display:block;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	height: 17px;
+	float: left;
+	color: #FFFFFF;
+	text-decoration: none;
+	font-size: 100%;
+	font-weight: bold;
+	background-color: #aaaaaa;
+	border-right: 1px solid #ffffff;
+	border-top: 1px solid #ffffff;
+}
+nav a.tab:hover { background-color: #999999; }
+nav a.activeTrue { background-color: #686868; }
+nav .btn-group {margin-top:5px;}
+/*forms--------------------------------------------------*/
+.poolform { }
+.poolform .formHeader { color: #999999; border-bottom: 1px solid #e5e5e5; padding-bottom: 5px; }
+.poolform .formFooter { color: #999999; border-top: 1px solid #e5e5e5; padding-top: 5px; clear:both; }
+.poolform .section { clear:both; margin-top: 10px; }
+.poolform .sectionHeader { 
+	font-size: 150%;
+	font-family: Times, serif;
+	font-weight: bold;
+	width: 100%;
+	display: block;
+	color: #999999;
+	border-bottom: 1px dotted #996600;
+	margin-bottom: 0px;
+	margin-top: 10px;
+	padding-bottom: 0px;
+}
+.poolform ul {margin:0px; padding:0px; }
+.poolform li {margin:0px; padding:0px; list-style: none; }
+.poolform .sectionDescription { display: block; }
+.poolform .fieldRow { clear:both; padding-bottom: 5px; padding-top: 5px; border-bottom: 1px solid #cdcdcd; }
+.poolform .fieldName { width: 175px; padding-left:5px; padding-right:10px; float: left; text-align: left; }
+.poolform .fieldEdit { width: 520px; float: left; }
+.poolform .fieldDescription { width: 200px; float:left; color: #999999; }
+.poolform span.clear { display:block; clear:both; }
+.poolform .formOptions { clear:both; margin-top: 10px; margin-bottom: 10px; padding-left: 190px; }
+.poolform .formOptionsleft { clear:both; margin-top: 10px; margin-bottom: 10px; }
+.poolform input, .poolform select { border: 1px solid #aaaaaa; margin: 0px; width: 500px; }
+.poolform textarea { border: 1px solid #aaaaaa; margin: 0px; width: 500px; height: 250px; }
+.poolform input[type="radio"] { margin: 0px; width: auto; }
+.poolform input[type="checkbox"] { margin: 0px; width:auto; }
+.poolform .reformSet li {margin-top: 2px;margin-bottom: 2px; width: 49%; float:left;}
+.poolform .reformSet label {display: inline; }
+.poolform div.mcb { width:500px; float:left; padding:4px; }
+.poolform .optional { color:#999999; }
+.poolform button { 
+    cursor: pointer;
+	font-weight: bold; 
+	background-color: #686868;
+	margin-top:10px;
+	padding: 0px 20px 0px 20px;
+	color: white;
+	width: auto; 
+}
+.poolform input:focus, .poolform textarea:focus { background-color: #e5ffe5; }
+.poolform .filepreview { width:494px; border: 1px solid #cdcdcd; margin-bottom: 6px; padding:3px;}
+.poolform .filepreview a.filedelete { float:right;}
+.poolform .filepreview span { font-weight:bold; }
+.poolform input.confirm {margin-top:4px;}
+  
+/* error handling, messages */
+.alert-error { border: 1px solid #999999; background-color: #ffcaca; width: auto; padding: 10px; }
+.alert-info { border: 1px solid #999999; background-color: #ecffc6; width: auto; padding: 0px; }
+.alert ul { margin:0px; padding:0px; }
+.alert li { margin:0px; padding:0px;list-style: none; }
+.poolform .req { color: red; }
+.poolform .error { background-color: #FFDFDF; }
+.poolform .error label.desc { color: #DF0000; }
+.poolform .errorMsg, .poolform .errorMsgLbl { font-size: 90%; padding:0px; margin:0px; }
+
+a.button {
+  cursor: pointer;
+  font-weight: bold; 
+  background-color: #686868;
+  margin-top:10px;
+  padding: 2px 20px 2px 20px;
+  color: white;
+  width: auto; 
+  text-decoration:none;
+}
+
+/*sorting--------------------------------------------------*/
+#sortable { list-style-type: none; padding: 0; width: auto; margin:0px; margin-bottom:30px;}
+#sortable li { 
+  margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; height: 16px; cursor: pointer; width: 50%; 
+  border: 1px solid #cdcdcd; background-color: #F4F4F4;
+}
+
+/*addlist--------------------------------------------------*/
+.addList {
+  display: block;
+}
+.addList h4 {
+  clear:both;
+  display: block;
+  padding:4px;
+  margin:0px;
+  padding-top:10px;
+  border-bottom: 1px solid #cdcdcd;
+}
+.addList a {
+  margin: 0px;
+  display: block;
+  padding: 5px;
+  float:left;
+  width:220px;
+  color: black;
+  text-decoration: none;
+}
+.addList a img {
+  padding-right: 10px;
+}
+.addList a:hover {
+  background-color: #eaeaff;
+  text-decoration:none;
+}
+
+/*table--------------------------------------------------*/
+table {border:none;width:100%;}
+table th {float:left;text-align:left;margin-right:12px;}
+table th, table td {border-top:1px solid #dddddd;}

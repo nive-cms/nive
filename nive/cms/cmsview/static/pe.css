@@ -1,0 +1,200 @@
+
+/*#container {
+	margin-left: 10px;
+	margin-right: 0px;
+}*/
+
+/* pageeditor --------------------------------------------- */
+.pageelement {
+  /*border: 1px solid white;*/
+}
+.pageelement_ov:hover {
+  /*border: 1px dashed #6e6e6e;*/
+  background-color: #ffff8e;
+}
+.pageeditorEditblock {
+  width: auto;
+  padding: 2px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  border: 1px solid #cdcdcd;
+  background-color: #ffffff;
+  position:absolute;
+  display:none;
+  z-index: 800;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.pageeditorEditblock:hover {
+  border: 1px solid #6e6e6e;
+}
+.pageeditorEditblockPage, .pageeditorEditblockColumn {
+  width: auto;
+  position:relative;
+  display:block;
+  z-index: 600;
+}
+.pageeditorEditblock a {
+  background: none;
+  float: none;
+  display: inline;
+  margin: 0px;
+  padding: 0px;
+}
+.peMenuBlock {
+  min-width:490px;
+  padding: 3px;
+  margin: 2px;
+  border: 1px solid #9e9e9e;
+  background-color: #ffff8e;
+  position:relative;
+  text-align:center;
+  font-size: 11px;
+}
+.peMenu .menuHeader a {
+  margin-right: 10px;
+  cursor: pointer;
+}
+.peMenu img {
+  vertical-align: top;
+}
+.pageblock {
+  position:relative;
+  top:5px;
+  display: block;
+}
+.pageeditorEditblock .title {
+  cursor:pointer;
+}
+.pageeditorEditblock .options_block {
+  float:left;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-right: 1px solid #cdcdcd;
+}
+.pageeditorEditblock .options_block_del {
+  float:right;
+  padding-left: 5px;
+  color: #9e9e9e;
+}
+
+/* new elements ---------------------- */
+.addElements {
+  display: none;
+  position: absolute;
+  top: 20px;
+  width: 300px;
+  border: 1px solid #cdcdcd;
+  background-color: #ffffff;
+  text-align:left;
+  z-index: 1100;
+}
+.addElements h4 {
+  display: block;
+  padding:4px;
+  margin:0px;
+  border-bottom: 1px solid #cdcdcd;
+}
+.addElements a {
+  margin: 0px;
+  display: block;
+  padding: 5px;
+  float:left;
+  width:45%;
+}
+.addElements a img {
+  padding-right: 10px;
+}
+.addElements a:hover {
+  background-color: #eaeaff;
+  text-decoration:none;
+}
+.addElements .pagedelete {
+  clear:both;
+  width:auto;
+  margin-top: 1em;
+}
+#accordion h4 {
+  display:none;
+}
+/* element list --------------------------------- */
+.listElements {
+  display: none;
+  position: absolute;
+  top: 20px;
+  width: 400px;
+  border: 1px solid #cdcdcd;
+  background-color: #ffffff;
+  text-align:left;
+  z-index: 1000;
+  margin-bottom: 20px;
+}
+.listElements h4 {
+  display: block;
+  padding:4px;
+  margin:0px;
+}
+.listElements a {
+  margin: 0px;
+  display: block;
+  padding: 0px;
+}
+.listElements a:hover {
+  background-color: #eaeaff;
+  text-decoration:none;
+}
+.listElements .element {
+  border-top: 1px solid #cdcdcd;
+  padding: 4px;
+}
+.listElements .el_title {
+  float: left;
+  padding-left: 6px;
+  width: 190px;
+}
+.listElements .el_options {
+  float:right;
+  width: 190px;
+  padding-right: 6px;
+}
+.listElements .el_options a {
+  margin: 0px;
+  width: auto;
+  display: inline;
+}
+.listElements .el_options a img {
+  padding: 0px;
+  margin: 0px;
+  width: auto;
+  display: inline;
+}
+.listElements .el_options .block {
+  float:left;
+  width: auto;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin: 0px;
+  border-right: 1px solid #cdcdcd;
+}
+.listElements .el_options .block_del {
+  width: auto;
+  float:right;
+  padding-left: 6px;
+  padding-right: 0px;
+}
+
+/* interface elements --------------------------------- */
+.boxASK {
+ border: 1px solid #999999; background-color: #eeeeca; width: auto; padding: 10px; margin-top: 10px;
+}
+.boxElements {
+  margin: 30px;
+}
+.boxElements div {
+  margin: 5px; font-weight: bold;
+}
+
+

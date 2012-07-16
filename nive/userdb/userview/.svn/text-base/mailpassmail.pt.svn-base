@@ -1,0 +1,3 @@
+<br/>
+<span tal:replace="user.data.password"/><br/>
+<br/>

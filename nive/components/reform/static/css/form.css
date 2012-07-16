@@ -1,0 +1,80 @@
+.reform .req{
+   color: red;
+}
+
+.reform label.desc{
+    display: block;
+    font-weight:bold;
+}
+
+.reform ul {
+    margin: 0;
+    padding: 0;
+}
+
+.reform li {
+    clear: left;
+    display: block;
+    margin: 6px 0px;
+    padding: 3px;
+}
+
+.reform .tinymce-preload{
+    border: 1px solid #CCC;
+    height: 240px;
+    width: 500px;
+    display: block;
+}
+
+/* reform additions*/
+
+.reformClosebuttonActive {
+   border: 0;
+   cursor: pointer;
+   float: left;
+   /* width: 1em; */
+   /* height: 1em; */
+   /* margin: .5em; */
+}
+
+.reformClosebuttonActive:before {
+    content:"✖";
+    color:red;
+    margin-right: 2px;
+}
+
+a.reformSeqAdd:visited {
+   color: blue;
+}
+
+div.reformReplaces {
+    float: left;
+}
+
+.reformSet-item {
+    padding: 1px;
+}
+
+.reform ul.inline > li{
+    display:inline-block;
+}
+
+/* error handling */
+.reform .errorLi {
+    border:1px solid red;
+    text-align: center;
+    -webkit-border-radius:20px;
+    -moz-border-radius:20px;
+}
+
+.reform li.error{
+    background-color: #FFDFDF;
+}
+
+.reform li.error label.desc, .reform p.error, .reform h3.errorMsgLbl{
+    color: #DF0000;
+}
+
+.reform p.error{
+    font-size: 70%;
+}

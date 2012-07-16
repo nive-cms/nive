@@ -1,0 +1,6 @@
+{
+    "type": "Poolyx.definitions.DatabaseConf",
+    "fileRoot": "data/poolyx_net/files",
+	"context": "Sqlite3",
+	"dbName": "data/poolyx_net/poolyx_net.db"
+}

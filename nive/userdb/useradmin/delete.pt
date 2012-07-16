@@ -1,0 +1,41 @@
+<tal:block metal:use-macro="view.index_tmpl().macros['main']" i18n:domain="nive">
+   
+<tal:block metal:fill-slot="editmain">
+
+<div class="row">
+<div class="span4 offset4">
+<div class="alert">
+  <h2 i18n:translate="">Confirm delete</h2>
+  <tal:block tal:condition="python:not result and len(msgs)">
+    <div class="boxError">
+      <div tal:repeat="msg msgs"
+           tal:content="structure msg"></div>
+    </div>
+  </tal:block>
+
+  <tal:block tal:condition="users">
+    <hr/>
+    <span i18n:translate="">Users</span>: <span class="label label-info" tal:repeat="user users">${user.GetTitle()}</span>
+    <hr/>
+    <form id="userlist" name="userlist" method="post"
+      enctype="multipart/form-data"
+      action="${view.FolderUrl(context)}delete">
+      <input name="confirm" type="hidden" value="1"/>
+      <input tal:repeat="id ids" name="ids" type="hidden" value="${id}"/>
+      <input type="submit" name="delete" value="Delete all" i18n:attributes="value" />
+    </form>
+
+  </tal:block>
+  <tal:block tal:condition="not users" i18n:translate="">
+    Please select a user first!
+  </tal:block>
+
+</div>
+
+</div>
+</div>
+
+</tal:block>
+
+</tal:block>
+

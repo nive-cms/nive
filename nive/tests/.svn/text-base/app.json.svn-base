@@ -1,0 +1,7 @@
+{
+	"type": "Poolyx.definitions.AppConf",
+	"copyFrom": "Poolyx.cms.app",
+    "title": "Poolyx CMS", 
+    "id": "cms",
+    "dbConfiguration": "Poolyx.tests:db.json"
+}

@@ -1,0 +1,27 @@
+<div class="reformFileupload" i18n:domain="poolyx">
+
+  <p tal:condition="cstruct.get('filename') and not field.widget.form.context.IsRoot()"
+       class="filepreview" id="filelink_${field.name}">
+    <a target="_blank" href="${field.widget.form.view.FileUrl(field.name)}">
+        ${cstruct.get('filename')}
+    </a>
+    (${field.widget.form.view.FmtBytes(cstruct.get('size'))})
+    <script i18n:translate="">var msg_file_upload='Delete file. Are you certain?';</script>
+    <a onclick="confirm(msg_file_upload) ? $('#filelink_${field.name}').load('delfile?fid=${field.name}'):a=1" 
+       href="#" class="filedelete btn" i18n:translate="">Delete this file</a>
+  </p>
+
+  <div class="reformReplaces" tal:condition="0 and cstruct.get('uid')">
+    <span i18n:translate="">--disabled!--</span>
+    <input type="hidden" name="uid" value="${cstruct['uid']}"
+           id="${field.oid}-uid"/>
+    <span tal:content="cstruct.get('filename')"
+          id="${field.oid}-filename"/>
+  </div>
+
+  <input type="file" name="${field.name}" 
+         tal:attributes="size field.widget.size;
+                         class field.widget.css_class"
+         id="${field.oid}"/>
+
+</div>

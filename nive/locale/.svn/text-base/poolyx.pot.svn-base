@@ -1,0 +1,1665 @@
+# Translations template for Poolyx.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the Poolyx project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Poolyx 0.9.4\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-06-28 18:06+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: Poolyx/definitions.py:1293
+msgid "String"
+msgstr ""
+
+#: Poolyx/definitions.py:1294
+msgid "Number"
+msgstr ""
+
+#: Poolyx/definitions.py:1295
+msgid "Float"
+msgstr ""
+
+#: Poolyx/definitions.py:1296
+msgid "Bool"
+msgstr ""
+
+#: Poolyx/definitions.py:1297 Poolyx/cms/file.py:61 Poolyx/cms/file.py:70
+msgid "File"
+msgstr ""
+
+#: Poolyx/definitions.py:1298
+msgid "HTML Text"
+msgstr ""
+
+#: Poolyx/definitions.py:1299 Poolyx/definitions.py:1365 Poolyx/cms/image.py:64 Poolyx/cms/media.py:61
+#: Poolyx/cms/media.py:62 Poolyx/cms/news.py:53 Poolyx/cms/text.py:54 Poolyx/cms/text.py:63
+#: Poolyx/components/tools/sendMail.py:61
+msgid "Text"
+msgstr ""
+
+#: Poolyx/definitions.py:1300 Poolyx/cms/news.py:54
+msgid "Date"
+msgstr ""
+
+#: Poolyx/definitions.py:1301
+msgid "Datetime"
+msgstr ""
+
+#: Poolyx/definitions.py:1302
+msgid "List"
+msgstr ""
+
+#: Poolyx/definitions.py:1303
+msgid "Radio Selection"
+msgstr ""
+
+#: Poolyx/definitions.py:1304
+msgid "Multiple Selection"
+msgstr ""
+
+#: Poolyx/definitions.py:1305
+msgid "Multiple Checkboxes"
+msgstr ""
+
+#: Poolyx/definitions.py:1306
+msgid "URL"
+msgstr ""
+
+#: Poolyx/definitions.py:1307
+msgid "URL List"
+msgstr ""
+
+#: Poolyx/definitions.py:1308 Poolyx/userdb/user.py:172
+msgid "Email"
+msgstr ""
+
+#: Poolyx/definitions.py:1309 Poolyx/components/reform/templates/checked_password.pt:2
+#: Poolyx/userdb/root.py:262 Poolyx/userdb/user.py:171 Poolyx/userdb/userview/view.py:78
+#: Poolyx/userdb/userview/view.py:81
+msgid "Password"
+msgstr ""
+
+#: Poolyx/definitions.py:1310
+msgid "ID Reference"
+msgstr ""
+
+#: Poolyx/definitions.py:1311
+msgid "ID Reference List"
+msgstr ""
+
+#: Poolyx/definitions.py:1312
+msgid "Code (Html, Javascript, Css)"
+msgstr ""
+
+#: Poolyx/definitions.py:1313
+msgid "Json"
+msgstr ""
+
+#: Poolyx/definitions.py:1314 Poolyx/definitions.py:1373
+msgid "Timestamp"
+msgstr ""
+
+#: Poolyx/definitions.py:1320 Poolyx/definitions.py:1364 Poolyx/definitions.py:1370
+#: Poolyx/components/tools/dbStructureUpdater.py:228
+msgid "ID"
+msgstr ""
+
+#: Poolyx/definitions.py:1321 Poolyx/cms/code.py:56 Poolyx/components/tools/dbStructureUpdater.py:229
+msgid "Type"
+msgstr ""
+
+#: Poolyx/definitions.py:1322
+msgid "Reference"
+msgstr ""
+
+#: Poolyx/definitions.py:1323
+msgid "State"
+msgstr ""
+
+#: Poolyx/definitions.py:1324
+msgid "Select Number"
+msgstr ""
+
+#: Poolyx/definitions.py:1325
+msgid "Data Table Name"
+msgstr ""
+
+#: Poolyx/definitions.py:1326
+msgid "Data Table Reference"
+msgstr ""
+
+#: Poolyx/definitions.py:1327 Poolyx/components/tools/sendMail.py:60
+msgid "Title"
+msgstr ""
+
+#: Poolyx/definitions.py:1328 Poolyx/cms/cmsview/sort.pt:18
+msgid "Sort"
+msgstr ""
+
+#: Poolyx/definitions.py:1329
+msgid "Workflow Process"
+msgstr ""
+
+#: Poolyx/definitions.py:1330
+msgid "Workflow Activity"
+msgstr ""
+
+#: Poolyx/definitions.py:1331
+msgid "Category"
+msgstr ""
+
+#: Poolyx/definitions.py:1332 Poolyx/definitions.py:1356
+msgid "Filename"
+msgstr ""
+
+#: Poolyx/definitions.py:1333
+msgid "Created"
+msgstr ""
+
+#: Poolyx/definitions.py:1334
+msgid "Changed"
+msgstr ""
+
+#: Poolyx/definitions.py:1335
+msgid "Created by"
+msgstr ""
+
+#: Poolyx/definitions.py:1336
+msgid "Changed by"
+msgstr ""
+
+#: Poolyx/definitions.py:1353
+msgid "Unique ID"
+msgstr ""
+
+#: Poolyx/definitions.py:1354
+msgid "Entry ID"
+msgstr ""
+
+#: Poolyx/definitions.py:1355
+msgid "File key"
+msgstr ""
+
+#: Poolyx/definitions.py:1357
+msgid "Internal file path"
+msgstr ""
+
+#: Poolyx/definitions.py:1358
+msgid "File size"
+msgstr ""
+
+#: Poolyx/definitions.py:1359
+msgid "File extension"
+msgstr ""
+
+#: Poolyx/definitions.py:1360
+msgid "Version"
+msgstr ""
+
+#: Poolyx/definitions.py:1366
+msgid "Files"
+msgstr ""
+
+#: Poolyx/definitions.py:1371
+msgid "Unique identifier"
+msgstr ""
+
+#: Poolyx/definitions.py:1372 Poolyx/components/reform/widget.py:772
+msgid "Value"
+msgstr ""
+
+#: Poolyx/forms.py:869 Poolyx/forms.py:903 Poolyx/adminview/view.py:146
+msgid "OK. Data saved."
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:4
+msgid ""
+"This page lists all included <dynamic element> for browsing in readonly mode. <dynamic element>\n"
+"Also this will help you to easily lookup object ids and database fields for developing."
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:7
+msgid "Object types"
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:11
+msgid "Root types"
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:15
+msgid "Meta fields"
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:19
+msgid "CMS settings"
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:22 Poolyx/adminview/view.py:69
+msgid "Tools"
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:26
+msgid "Workflow processes"
+msgstr ""
+
+#: Poolyx/adminview/modules.pt:30 Poolyx/adminview/views.pt:18
+msgid "Other modules"
+msgstr ""
+
+#: Poolyx/adminview/root.pt:5
+msgid "Administration sections"
+msgstr ""
+
+#: Poolyx/adminview/tools.pt:4
+msgid "This page lists all <dynamic element> like database export or database schema manager."
+msgstr ""
+
+#: Poolyx/adminview/tools.pt:14
+msgid "Administration tools"
+msgstr ""
+
+#: Poolyx/adminview/view.py:47 Poolyx/cms/cmsview/widgets/widget_settings.pt:23
+msgid "Administration"
+msgstr ""
+
+#: Poolyx/adminview/view.py:66
+msgid "Basics"
+msgstr ""
+
+#: Poolyx/adminview/view.py:71
+msgid "Modules"
+msgstr ""
+
+#: Poolyx/adminview/view.py:72
+msgid "Read only listing of all registered modules and settings."
+msgstr ""
+
+#: Poolyx/adminview/view.py:73
+msgid "Views"
+msgstr ""
+
+#: Poolyx/adminview/view.py:74
+msgid "Read only listing of all registered views grouped by view modules."
+msgstr ""
+
+#: Poolyx/adminview/view.py:87
+msgid "Database Administration"
+msgstr ""
+
+#: Poolyx/adminview/view.py:98
+msgid "Database"
+msgstr ""
+
+#: Poolyx/adminview/view.py:148
+msgid "No persistent storage for configurations activated. Nothing saved."
+msgstr ""
+
+#: Poolyx/adminview/view.py:248 Poolyx/adminview/tests/tviews.py:64
+msgid "Application title"
+msgstr ""
+
+#: Poolyx/adminview/view.py:249 Poolyx/adminview/tests/tviews.py:65
+msgid "Application description"
+msgstr ""
+
+#: Poolyx/adminview/view.py:250 Poolyx/adminview/tests/tviews.py:66
+msgid "Enable workflow engine"
+msgstr ""
+
+#: Poolyx/adminview/view.py:251 Poolyx/adminview/tests/tviews.py:67
+msgid "Enable fulltext index"
+msgstr ""
+
+#: Poolyx/adminview/view.py:252 Poolyx/adminview/tests/tviews.py:68
+msgid "Codepage used in html frontend"
+msgstr ""
+
+#: Poolyx/adminview/view.py:265
+msgid "Database type to be used"
+msgstr ""
+
+#: Poolyx/adminview/view.py:266
+msgid "Supports 'Sqlite3' and 'MySql' by default. MySql requires python-mysqldb installed."
+msgstr ""
+
+#: Poolyx/adminview/view.py:267
+msgid "Relative or absolute root directory for files"
+msgstr ""
+
+#: Poolyx/adminview/view.py:268
+msgid "Database file path or name"
+msgstr ""
+
+#: Poolyx/adminview/view.py:269
+msgid "Sqlite3=database file path, MySql=database name"
+msgstr ""
+
+#: Poolyx/adminview/view.py:270
+msgid "Database server host"
+msgstr ""
+
+#: Poolyx/adminview/view.py:271
+msgid "Database server port"
+msgstr ""
+
+#: Poolyx/adminview/view.py:272
+msgid "Database server user"
+msgstr ""
+
+#: Poolyx/adminview/view.py:273
+msgid "Database server password"
+msgstr ""
+
+#: Poolyx/adminview/view.py:285
+msgid "Redirect for portal root (/) requests"
+msgstr ""
+
+#: Poolyx/adminview/view.py:286
+msgid "Favicon asset path"
+msgstr ""
+
+#: Poolyx/adminview/view.py:287
+msgid "robots.txt contents"
+msgstr ""
+
+#: Poolyx/adminview/view.py:288
+msgid "Login form url"
+msgstr ""
+
+#: Poolyx/adminview/view.py:289
+msgid "Redirect for unauthorized requests"
+msgstr ""
+
+#: Poolyx/adminview/view.py:290
+msgid "Redirect on logout"
+msgstr ""
+
+#: Poolyx/adminview/view.py:291
+msgid "User account page url"
+msgstr ""
+
+#: Poolyx/adminview/views.pt:4
+msgid "This page lists all included <dynamic element> for browsing in readonly mode."
+msgstr ""
+
+#: Poolyx/adminview/views.pt:6
+msgid "View Modules"
+msgstr ""
+
+#: Poolyx/adminview/views.pt:10
+msgid "Single Views"
+msgstr ""
+
+#: Poolyx/adminview/views.pt:14
+msgid "Widgets"
+msgstr ""
+
+#: Poolyx/cms/app.py:97
+msgid "Permission"
+msgstr ""
+
+#: Poolyx/cms/app.py:97
+msgid "Only displayed to users in the selected group"
+msgstr ""
+
+#: Poolyx/cms/box.py:57
+msgid "Box"
+msgstr ""
+
+#: Poolyx/cms/box.py:63
+msgid ""
+"A box is a container to group elements on a page. It can be used as anadvanced styling element "
+"for web pages. The box itself only stores a title and styling selector."
+msgstr ""
+
+#: Poolyx/cms/box.py:68 Poolyx/cms/menublock.py:60
+msgid "50 % width left"
+msgstr ""
+
+#: Poolyx/cms/box.py:69 Poolyx/cms/menublock.py:61
+msgid "33 % width left"
+msgstr ""
+
+#: Poolyx/cms/box.py:70 Poolyx/cms/menublock.py:62
+msgid "66 % width left"
+msgstr ""
+
+#: Poolyx/cms/box.py:71 Poolyx/cms/menublock.py:63
+msgid "50 % width right"
+msgstr ""
+
+#: Poolyx/cms/box.py:72 Poolyx/cms/menublock.py:64
+msgid "33 % width right"
+msgstr ""
+
+#: Poolyx/cms/box.py:73 Poolyx/cms/menublock.py:65
+msgid "66 % width right"
+msgstr ""
+
+#: Poolyx/cms/box.py:78
+msgid "Size and alignment"
+msgstr ""
+
+#: Poolyx/cms/code.py:41 Poolyx/cms/code.py:57
+msgid "Code"
+msgstr ""
+
+#: Poolyx/cms/code.py:46
+msgid "Text element to add code snippets to web pages. Supports Javascript, HTML and CSS."
+msgstr ""
+
+#: Poolyx/cms/code.py:49
+msgid "No format"
+msgstr ""
+
+#: Poolyx/cms/code.py:50
+msgid "Javascript"
+msgstr ""
+
+#: Poolyx/cms/code.py:51
+msgid "HTML"
+msgstr ""
+
+#: Poolyx/cms/code.py:52
+msgid "CSS"
+msgstr ""
+
+#: Poolyx/cms/column.py:78
+msgid "Column"
+msgstr ""
+
+#: Poolyx/cms/column.py:85
+msgid ""
+"A column is a container to group elements on a page. Columns are not added likenormal page "
+"elements but have to be defined manually in the main template. A column canbe inherited through a"
+" hierarchy of pages."
+msgstr ""
+
+#: Poolyx/cms/column.py:90
+msgid "Show on subpages"
+msgstr ""
+
+#: Poolyx/cms/column.py:90
+msgid "If checked the column will be displayed on sub pages until overwritten."
+msgstr ""
+
+#: Poolyx/cms/column.py:94
+msgid "Left column"
+msgstr ""
+
+#: Poolyx/cms/column.py:95
+msgid "Right column"
+msgstr ""
+
+#: Poolyx/cms/column.py:99
+msgid "Column type"
+msgstr ""
+
+#: Poolyx/cms/file.py:66
+msgid "The file element provides a simple file download with title and optional description."
+msgstr ""
+
+#: Poolyx/cms/file.py:71 Poolyx/cms/folder.py:51 Poolyx/cms/page.py:89
+msgid "Description"
+msgstr ""
+
+#: Poolyx/cms/folder.py:40
+msgid "Folder"
+msgstr ""
+
+#: Poolyx/cms/folder.py:47
+msgid "The folder is a simple container to store resources."
+msgstr ""
+
+#: Poolyx/cms/image.py:46
+msgid "Image"
+msgstr ""
+
+#: Poolyx/cms/image.py:51
+msgid "The image element inserts images into the web page."
+msgstr ""
+
+#: Poolyx/cms/image.py:54
+msgid "Simple"
+msgstr ""
+
+#: Poolyx/cms/image.py:55
+msgid "Float right"
+msgstr ""
+
+#: Poolyx/cms/image.py:56 Poolyx/cms/news.py:47
+msgid "Teaser"
+msgstr ""
+
+#: Poolyx/cms/image.py:57 Poolyx/cms/news.py:48
+msgid "Teaser small"
+msgstr ""
+
+#: Poolyx/cms/image.py:58
+msgid "Headline"
+msgstr ""
+
+#: Poolyx/cms/image.py:62 Poolyx/cms/news.py:52
+msgid "Imagefile"
+msgstr ""
+
+#: Poolyx/cms/image.py:63
+msgid "Imagefile fullsize"
+msgstr ""
+
+#: Poolyx/cms/image.py:65 Poolyx/cms/menublock.py:73 Poolyx/cms/news.py:55 Poolyx/cms/spacer.py:56
+msgid "Styling"
+msgstr ""
+
+#: Poolyx/cms/image.py:66 Poolyx/cms/link.py:40 Poolyx/cms/news.py:56
+msgid "Link"
+msgstr ""
+
+#: Poolyx/cms/link.py:45
+msgid "With the link element you can add internal or external links into the web page."
+msgstr ""
+
+#: Poolyx/cms/link.py:48
+msgid "Same window"
+msgstr ""
+
+#: Poolyx/cms/link.py:48
+msgid "New window"
+msgstr ""
+
+#: Poolyx/cms/link.py:50
+msgid "Link url"
+msgstr ""
+
+#: Poolyx/cms/link.py:50
+msgid ""
+"External links must start with http:// or similar. Internal links can be referenced as page id "
+"(the number) and are resolved automatically."
+msgstr ""
+
+#: Poolyx/cms/link.py:51
+msgid "Target window"
+msgstr ""
+
+#: Poolyx/cms/media.py:45
+msgid "Media"
+msgstr ""
+
+#: Poolyx/cms/media.py:50
+msgid ""
+"Element to insert audio or video files into the web page. Uses HTML 5 mediaand audio tags and the"
+" browser's default player."
+msgstr ""
+
+#: Poolyx/cms/media.py:54
+msgid "Video player"
+msgstr ""
+
+#: Poolyx/cms/media.py:55
+msgid "Audio player"
+msgstr ""
+
+#: Poolyx/cms/media.py:58
+msgid "Mediafile"
+msgstr ""
+
+#: Poolyx/cms/media.py:60
+msgid "Alternative format"
+msgstr ""
+
+#: Poolyx/cms/media.py:60
+msgid "To support all browsers you need to provide two different file formats."
+msgstr ""
+
+#: Poolyx/cms/menublock.py:52
+msgid "Navigation"
+msgstr ""
+
+#: Poolyx/cms/menublock.py:57
+msgid ""
+"Element to render navigation trees and linked table of contents. The menublock can be used as "
+"main navigation for the web page."
+msgstr ""
+
+#: Poolyx/cms/menublock.py:67 Poolyx/cms/cmsview/widgets/widget_subpages.pt:7
+msgid "Sub pages"
+msgstr ""
+
+#: Poolyx/cms/menublock.py:68
+msgid "Same level pages"
+msgstr ""
+
+#: Poolyx/cms/menublock.py:69
+msgid "Tree navigation"
+msgstr ""
+
+#: Poolyx/cms/menublock.py:70
+msgid "Tree navigation - first level as base"
+msgstr ""
+
+#: Poolyx/cms/menublock.py:74
+msgid "Menu type"
+msgstr ""
+
+#: Poolyx/cms/news.py:38
+msgid "News"
+msgstr ""
+
+#: Poolyx/cms/news.py:43
+msgid "Simple news item with title, text, image, publish date and link."
+msgstr ""
+
+#: Poolyx/cms/news.py:46
+msgid "Block"
+msgstr ""
+
+#: Poolyx/cms/news.py:49
+msgid "Single line, fold out"
+msgstr ""
+
+#: Poolyx/cms/news.py:54
+msgid "Used as publish date on the website."
+msgstr ""
+
+#: Poolyx/cms/note.py:49 Poolyx/cms/note.py:58
+msgid "Note"
+msgstr ""
+
+#: Poolyx/cms/note.py:54
+msgid "Simple text note for authors. The note is only visible to cms authors and not published."
+msgstr ""
+
+#: Poolyx/cms/page.py:73
+msgid "Page"
+msgstr ""
+
+#: Poolyx/cms/page.py:80
+msgid "Pages are rendered as html files and make up the website."
+msgstr ""
+
+#: Poolyx/cms/page.py:85
+msgid "Page header"
+msgstr ""
+
+#: Poolyx/cms/page.py:85
+msgid "Text shown at top of the page"
+msgstr ""
+
+#: Poolyx/cms/page.py:87
+msgid "Title image"
+msgstr ""
+
+#: Poolyx/cms/page.py:89
+msgid "Description used in meta tag for search engines etc."
+msgstr ""
+
+#: Poolyx/cms/page.py:91
+msgid "Keywords"
+msgstr ""
+
+#: Poolyx/cms/page.py:91
+msgid "Keywords used in meta tag (not really used by search engines)."
+msgstr ""
+
+#: Poolyx/cms/page.py:94
+msgid "Hide in navigation"
+msgstr ""
+
+#: Poolyx/cms/page.py:94
+msgid "Hide the page in navigation. It will only be accessible by direct links."
+msgstr ""
+
+#: Poolyx/cms/page.py:96
+msgid "Page is a menu"
+msgstr ""
+
+#: Poolyx/cms/page.py:96
+msgid "Used in some navigation lists. If checked the page is handled as menu."
+msgstr ""
+
+#: Poolyx/cms/page.py:98
+msgid "Page is redirected to this link"
+msgstr ""
+
+#: Poolyx/cms/page.py:98
+msgid "Automatically redirect the page to the linked page. Only in view mode."
+msgstr ""
+
+#: Poolyx/cms/page.py:100
+msgid "Enter page filename manually"
+msgstr ""
+
+#: Poolyx/cms/page.py:100
+msgid ""
+"By default page URL-names are generated automatically by the title. Use this option to change the"
+" default behaviour."
+msgstr ""
+
+#: Poolyx/cms/root.py:53 Poolyx/cms/cmsview/cmsroot.py:48
+msgid "Home"
+msgstr ""
+
+#: Poolyx/cms/root.py:54
+msgid ""
+"The root is the home page of the website. All contained pages and elements are stored in the "
+"database."
+msgstr ""
+
+#: Poolyx/cms/spacer.py:39
+msgid "Spacer"
+msgstr ""
+
+#: Poolyx/cms/spacer.py:44
+msgid "Styling element to add line breaks and vertical space between elements."
+msgstr ""
+
+#: Poolyx/cms/spacer.py:47
+msgid "Border"
+msgstr ""
+
+#: Poolyx/cms/spacer.py:48
+msgid "Invisible"
+msgstr ""
+
+#: Poolyx/cms/spacer.py:49
+msgid "1 line"
+msgstr ""
+
+#: Poolyx/cms/spacer.py:50
+msgid "2 lines"
+msgstr ""
+
+#: Poolyx/cms/spacer.py:51
+msgid "3 lines"
+msgstr ""
+
+#: Poolyx/cms/spacer.py:52
+msgid "4 lines"
+msgstr ""
+
+#: Poolyx/cms/text.py:59
+msgid ""
+"Text element for the web page. Can be used to add headers, preformatted text and paragraphs to "
+"the web page. "
+msgstr ""
+
+#: Poolyx/cms/cmsview/add.pt:16
+msgid "Add a new page?"
+msgstr ""
+
+#: Poolyx/cms/cmsview/add.pt:18
+msgid "Add a new subpage"
+msgstr ""
+
+#: Poolyx/cms/cmsview/add.pt:20 Poolyx/cms/cmsview/widgets/widget_addpage.pt:12
+msgid "Add sub page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/add.pt:24 Poolyx/cms/cmsview/widgets/widget_addpage.pt:15
+msgid "Add a new page after this"
+msgstr ""
+
+#: Poolyx/cms/cmsview/add.pt:26 Poolyx/cms/cmsview/widgets/widget_addpage.pt:17
+msgid "Add page after this"
+msgstr ""
+
+#: Poolyx/cms/cmsview/add.pt:28 Poolyx/cms/cmsview/widgets/element_add_list.pt:6
+msgid "Add a new page element?"
+msgstr ""
+
+#: Poolyx/cms/cmsview/delete.pt:5 Poolyx/userdb/useradmin/delete.pt:8
+msgid "Confirm delete"
+msgstr ""
+
+#: Poolyx/cms/cmsview/delete.pt:18
+msgid "Warning: This will delete the element and all it's contents!"
+msgstr ""
+
+#: Poolyx/cms/cmsview/delete.pt:19
+msgid "Warning: This will delete the page and all sub pages!"
+msgstr ""
+
+#: Poolyx/cms/cmsview/delete.pt:30 Poolyx/userdb/useradmin/delete.pt:25
+msgid "Delete all"
+msgstr ""
+
+#: Poolyx/cms/cmsview/sort.pt:25
+msgid "Save"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:110
+msgid "Add new page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:111 Poolyx/cms/cmsview/widgets/widget_editpage.pt:7
+msgid "Edit page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:112
+msgid "Sub pages and parent"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:113 Poolyx/cms/cmsview/widgets/widget_settings.pt:8
+#: Poolyx/components/tools/dbStructureUpdater.py:231
+msgid "Settings"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:115 Poolyx/cms/cmsview/widgets/editblock_element.pt:21
+#: Poolyx/cms/cmsview/widgets/editblock_list.pt:8 Poolyx/cms/cmsview/widgets/editblock_list.pt:12
+#: Poolyx/cms/workflow/wf.py:46
+msgid "Edit"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:116
+msgid "Add"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:117 Poolyx/cms/cmsview/widgets/widget_editpage.pt:16
+#: Poolyx/cms/cmsview/widgets/widget_editpage.pt:18
+msgid "Sort sub pages"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:118
+msgid "Meta"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:351
+msgid "<i>empty</i>"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:352
+msgid "Page elements"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:382
+msgid "<i>no sub pages</i>"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:452
+msgid "Delete failed"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:454 Poolyx/cms/workflow/view.py:69
+#: Poolyx/components/extensions/cutcopy.py:153 Poolyx/components/extensions/cutcopy.py:168
+#: Poolyx/components/extensions/sort.py:115 Poolyx/userdb/userview/view.py:144
+msgid "OK"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:482
+msgid "Nothing to delete"
+msgstr ""
+
+#: Poolyx/cms/cmsview/view.py:487 Poolyx/components/extensions/cutcopy.py:77
+#: Poolyx/components/extensions/cutcopy.py:112
+msgid "Object not found"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:10
+msgid "Add a local column to this page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:17 Poolyx/cms/cmsview/widgets/editblock_element.pt:14
+#: Poolyx/cms/cmsview/widgets/editblock_page.pt:13
+msgid "Add a new page element"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:23 Poolyx/cms/cmsview/widgets/editblock_page.pt:20
+msgid "List existing page elements"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:28
+msgid "Edit column settings"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:33 Poolyx/cms/cmsview/widgets/editblock_page.pt:33
+msgid "Sort elements"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:39 Poolyx/cms/cmsview/widgets/editblock_element.pt:39
+#: Poolyx/cms/cmsview/widgets/editblock_list.pt:26 Poolyx/cms/cmsview/widgets/editblock_page.pt:40
+msgid "Paste here"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_column.pt:45 Poolyx/cms/cmsview/widgets/editblock_element.pt:57
+#: Poolyx/cms/cmsview/widgets/editblock_list.pt:40
+msgid "Delete"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_element.pt:29 Poolyx/cms/cmsview/widgets/editblock_list.pt:20
+msgid "Copy element"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_element.pt:34 Poolyx/cms/cmsview/widgets/editblock_list.pt:23
+msgid "Cut element"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_element.pt:46 Poolyx/cms/cmsview/widgets/editblock_list.pt:32
+msgid "Move up"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_element.pt:50 Poolyx/cms/cmsview/widgets/editblock_list.pt:34
+msgid "Move down"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/editblock_page.pt:27 Poolyx/cms/cmsview/widgets/widget_editpage.pt:11
+#: Poolyx/cms/cmsview/widgets/widget_editpage.pt:13
+msgid "Edit page settings"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/toolbox.pt:8
+msgid "toggle toolbox"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/toolbox.pt:10
+msgid "toolbox"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_addpage.pt:7
+msgid "Add a new page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_addpage.pt:10
+msgid "Add a new sub page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_editpage.pt:22 Poolyx/cms/cmsview/widgets/widget_editpage.pt:24
+msgid "Copy page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_editpage.pt:28 Poolyx/cms/cmsview/widgets/widget_editpage.pt:30
+msgid "Cut page"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_settings.pt:11 Poolyx/cms/cmsview/widgets/widget_settings.pt:13
+msgid "Enable interactive elements"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_settings.pt:16 Poolyx/cms/cmsview/widgets/widget_settings.pt:18
+msgid "Disable interactive elements"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_settings.pt:20 Poolyx/userdb/useradmin/view.py:33
+msgid "User management"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_settings.pt:26
+msgid "My account"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_settings.pt:27
+msgid "Exit editor"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_settings.pt:28 Poolyx/userdb/userview/loginpage.pt:14
+msgid "Log out"
+msgstr ""
+
+#: Poolyx/cms/cmsview/widgets/widget_subpages.pt:9
+msgid "Open parent page"
+msgstr ""
+
+#: Poolyx/cms/design/view.py:42
+msgid "Website design and view"
+msgstr ""
+
+#: Poolyx/cms/design/templates/image.pt:17 Poolyx/cms/design/templates/image.pt:29
+#: Poolyx/cms/design/templates/image.pt:43 Poolyx/cms/design/templates/image.pt:55
+#: Poolyx/cms/design/templates/news.pt:12 Poolyx/cms/design/templates/news.pt:24
+#: Poolyx/cms/design/templates/news.pt:37 Poolyx/cms/design/templates/news.pt:53
+msgid "&gt; more"
+msgstr ""
+
+#: Poolyx/cms/design/templates/news.pt:47
+msgid "&gt; open"
+msgstr ""
+
+#: Poolyx/cms/design/templates/page.pt:5
+msgid "This page is redirected in view mode:"
+msgstr ""
+
+#: Poolyx/cms/workflow/view.py:30
+msgid "CMS workflow extension"
+msgstr ""
+
+#: Poolyx/cms/workflow/view.py:45 Poolyx/cms/workflow/view.py:46
+#: Poolyx/cms/workflow/templates/widget.pt:6
+msgid "Workflow"
+msgstr ""
+
+#: Poolyx/cms/workflow/wf.py:36
+msgid "Simple Publishing Workflow"
+msgstr ""
+
+#: Poolyx/cms/workflow/wf.py:41
+msgid "New object"
+msgstr ""
+
+#: Poolyx/cms/workflow/wf.py:51
+msgid "Public"
+msgstr ""
+
+#: Poolyx/cms/workflow/wf.py:58
+msgid "Create"
+msgstr ""
+
+#: Poolyx/cms/workflow/wf.py:67
+msgid "Publish"
+msgstr ""
+
+#: Poolyx/cms/workflow/wf.py:76
+msgid "Revoke"
+msgstr ""
+
+#: Poolyx/cms/workflow/templates/editorpage.pt:12 Poolyx/cms/workflow/templates/widget.pt:9
+msgid "The page is in draft mode and not public."
+msgstr ""
+
+#: Poolyx/cms/workflow/templates/editorpage.pt:13
+msgid "The page is public."
+msgstr ""
+
+#: Poolyx/components/extensions/cutcopy.py:187
+msgid "Method unknown"
+msgstr ""
+
+#: Poolyx/components/extensions/cutcopy.py:246
+msgid "Cut and copy to clipboard"
+msgstr ""
+
+#: Poolyx/components/extensions/cutcopy.py:256
+msgid "Copy to clipboard"
+msgstr ""
+
+#: Poolyx/components/extensions/cutcopy.py:265
+msgid "Paste clipboard"
+msgstr ""
+
+#: Poolyx/components/extensions/images.py:102
+msgid "Python image library (PIL) not installed."
+msgstr ""
+
+#: Poolyx/components/extensions/images.py:139
+msgid "Image not found: "
+msgstr ""
+
+#: Poolyx/components/extensions/sort.py:94
+msgid "List is empty"
+msgstr ""
+
+#: Poolyx/components/extensions/sort.py:259 Poolyx/components/extensions/sort.py:282
+msgid "Nothing to sort."
+msgstr ""
+
+#: Poolyx/components/reform/reformed.py:130 Poolyx/components/reform/schema.py:1720
+msgid "${value} is not a dictionary"
+msgstr ""
+
+#: Poolyx/components/reform/reformed.py:137 Poolyx/components/reform/schema.py:1727
+msgid "${value} has no ${key} key"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:206
+msgid "Invalid value"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:239
+msgid "String does not match expected pattern"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:254
+msgid "Invalid email address"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:283
+msgid "${val} is less than minimum value ${min}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:284
+msgid "${val} is greater than maximum value ${max}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:316
+msgid "Shorter than minimum length ${min}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:322
+msgid "Longer than maximum length ${max}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:335
+msgid "\"${val}\" is not one of ${choices}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:427
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:451
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:544
+msgid "\"${val}\" is not iterable"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:552
+msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:734
+msgid "\"${val} cannot be serialized: ${err}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:750
+msgid "${val} is not a string: %{err}"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:770 Poolyx/components/reform/schema.py:781
+msgid "\"${val}\" is not a number"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:857
+msgid "${val} is not a string"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:917 Poolyx/components/reform/schema.py:934
+#: Poolyx/components/reform/schema.py:944
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:974
+msgid "\"${val}\" has no __name__"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:983
+msgid "\"${val}\" is not a string"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:992
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1039 Poolyx/components/reform/schema.py:1132
+msgid "Invalid date"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1067
+msgid "\"${val}\" is not a datetime object"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1153
+msgid "\"${val}\" is not a date object"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1218
+msgid "Invalid time"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1242
+msgid "\"${val}\" is not a time object"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1453 Poolyx/components/reform/schema.py:1455
+#: Poolyx/components/reform/schema.py:1768 Poolyx/components/reform/schema.py:1800
+msgid "Required"
+msgstr ""
+
+#: Poolyx/components/reform/schema.py:1764 Poolyx/components/reform/schema.py:1796
+msgid "${value} is not iterable"
+msgstr ""
+
+#: Poolyx/components/reform/widget.py:771
+msgid "Fields did not match"
+msgstr ""
+
+#: Poolyx/components/reform/widget.py:773
+msgid "Confirm Value"
+msgstr ""
+
+#: Poolyx/components/reform/widget.py:823
+msgid "Password did not match confirm"
+msgstr ""
+
+#: Poolyx/components/reform/widget.py:1007
+msgid "Incomplete date"
+msgstr ""
+
+#: Poolyx/components/reform/templates/checked_password.pt:7
+msgid "Confirm Password"
+msgstr ""
+
+#: Poolyx/components/reform/templates/dateparts.pt:4
+msgid "Year"
+msgstr ""
+
+#: Poolyx/components/reform/templates/dateparts.pt:11
+msgid "Month"
+msgstr ""
+
+#: Poolyx/components/reform/templates/dateparts.pt:18
+msgid "Day"
+msgstr ""
+
+#: Poolyx/components/reform/templates/file_upload.pt:9
+msgid "var msg_file_upload='Delete file. Are you certain?';"
+msgstr ""
+
+#: Poolyx/components/reform/templates/file_upload.pt:10
+msgid "Delete this file"
+msgstr ""
+
+#: Poolyx/components/reform/templates/file_upload.pt:15
+msgid "--disabled!--"
+msgstr ""
+
+#: Poolyx/components/reform/templates/form_original.pt:19
+msgid "There was a problem with your submission"
+msgstr ""
+
+#: Poolyx/components/reform/templates/form_original.pt:21
+msgid "Errors have been highlighted below"
+msgstr ""
+
+#: Poolyx/components/tools/dbSqldataDump.py:31
+msgid "Database sql dump"
+msgstr ""
+
+#: Poolyx/components/tools/dbSqldataDump.py:32
+msgid "This function only dumps table contents and skips 'create table' statements."
+msgstr ""
+
+#: Poolyx/components/tools/dbSqldataDump.py:36
+msgid "Exclude system columns"
+msgstr ""
+
+#: Poolyx/components/tools/dbSqldataDump.py:61 Poolyx/components/tools/dbSqldataDump.py:65
+msgid "Database connection error (${name})\n"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:62
+msgid "Database Structure"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:63
+msgid "Generate or update the database structure based on configuration settings."
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:66
+msgid "Modify existing columns"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:66
+msgid "Change existing database columns to new configuration. Depending on the changes, data may be lost!"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:67
+msgid "Show system columns"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:91
+msgid ""
+" <div class=\"well\">\n"
+"This tool compares the physically existing database structure (tables, columns) with the current "
+"configuration settings.\n"
+"The database structure is shown on the left, configuration settings on the right. <br/><br/>\n"
+"Existing database columns will only be altered if manually selected in the 'Modify' column. "
+"Modifying a table may destroy the data\n"
+"stored (e.g if converted from string to integer), so don't forget to create backups of the "
+"database before modifying anything.<br/>\n"
+"By default this tool will only create new tables and columns and never delete any column.\n"
+" </div>       "
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:109 Poolyx/components/tools/dbStructureUpdater.py:112
+msgid "<div class=\"alert alert-error\">No database connection configured</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:115
+msgid "<h4>Database '${name}' ${host} </h4><br/>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:118 Poolyx/components/tools/dbStructureUpdater.py:122
+msgid "<div class='alert alert-error'>Database connection error (${name})</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:130
+msgid "<div class='alert alert-success'>Database created: '${name}'</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:150
+msgid "<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name})</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:154
+msgid "<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name}</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:169
+msgid "<div class='alert alert-error'>Table creation failed (pool_meta)</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:179
+msgid "<div class='alert alert-error'>Table update failed (pool_meta)</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:192 Poolyx/components/tools/dbStructureUpdater.py:202
+msgid "<div class='alert alert-error'>Table creation failed (${name})</div>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:211
+msgid "Modify selected columns"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:212
+msgid ""
+"Changes on existing columns have to be applied manually. This will write selected 'Configuration "
+"settings' to the database.<br/> <b>Warning: This may destroy something!</b>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:213
+msgid "</form>"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:225
+msgid "Table"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:226
+msgid "Database settings"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:227
+msgid "Configuration settings"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:230
+msgid "Default"
+msgstr ""
+
+#: Poolyx/components/tools/dbStructureUpdater.py:232
+msgid "Modify?"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:40
+msgid "Send mails to registered users"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:44
+msgid "SMTP host"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:45
+msgid "SMTP port"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:46
+msgid "SMTP sender mail"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:47
+msgid "SMTP user"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:48
+msgid "SMTP password"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:50
+msgid "Sender name"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:51
+msgid "Sender mail"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:52
+msgid "Reply to"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:53
+msgid "Receiver role"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:54
+msgid "Receiver User IDs"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:55
+msgid "Receiver Mail"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:56
+msgid "Ignore notify settings"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:57
+msgid "CC"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:58
+msgid "BCC"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:62
+msgid "Html format"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:63
+msgid "UTF-8 encoding"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:64
+msgid "Use SSL"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:65
+msgid "Log mails"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:66
+msgid "Show all receivers in header"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:68
+msgid "Debug mode"
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:68
+msgid ""
+"All mails are sent to 'Receiver role' or 'Receiver User IDs' field default values. No external "
+"mail address is used."
+msgstr ""
+
+#: Poolyx/components/tools/sendMail.py:116
+msgid "No receiver for the e-mail! Aborting."
+msgstr ""
+
+#: Poolyx/userdb/app.py:42 Poolyx/userdb/useradmin/delete.pt:18
+msgid "Users"
+msgstr ""
+
+#: Poolyx/userdb/root.py:167
+msgid "Please enter your username"
+msgstr ""
+
+#: Poolyx/userdb/root.py:172 Poolyx/userdb/root.py:550
+msgid "Username '${name}' already in use. Please choose a different name."
+msgstr ""
+
+#: Poolyx/userdb/root.py:188
+msgid "Sorry. Account could not be created."
+msgstr ""
+
+#: Poolyx/userdb/root.py:200 Poolyx/userdb/root.py:203 Poolyx/userdb/root.py:268
+#: Poolyx/userdb/root.py:271
+msgid "The email could not be sent."
+msgstr ""
+
+#: Poolyx/userdb/root.py:229
+msgid "Account created."
+msgstr ""
+
+#: Poolyx/userdb/root.py:240
+msgid "Please enter your email address or username."
+msgstr ""
+
+#: Poolyx/userdb/root.py:247
+msgid "No account found with that email address. Please try again."
+msgstr ""
+
+#: Poolyx/userdb/root.py:254
+msgid "No email address found."
+msgstr ""
+
+#: Poolyx/userdb/root.py:274
+msgid "The password has been sent to your email address."
+msgstr ""
+
+#: Poolyx/userdb/root.py:285 Poolyx/userdb/root.py:290
+msgid "Invalid username."
+msgstr ""
+
+#: Poolyx/userdb/root.py:295
+msgid "Sorry. An error occured."
+msgstr ""
+
+#: Poolyx/userdb/root.py:298
+msgid "User deleted."
+msgstr ""
+
+#: Poolyx/userdb/root.py:315
+msgid "Login failed. Please check your username and password."
+msgstr ""
+
+#: Poolyx/userdb/root.py:320
+msgid "Logged in."
+msgstr ""
+
+#: Poolyx/userdb/root.py:474
+msgid "User account"
+msgstr ""
+
+#: Poolyx/userdb/user.py:82
+msgid "Update failed."
+msgstr ""
+
+#: Poolyx/userdb/user.py:160
+msgid "User"
+msgstr ""
+
+#: Poolyx/userdb/user.py:170
+msgid "User ID"
+msgstr ""
+
+#: Poolyx/userdb/user.py:173
+msgid "Groups"
+msgstr ""
+
+#: Poolyx/userdb/user.py:175
+msgid "Activate email notifications"
+msgstr ""
+
+#: Poolyx/userdb/user.py:177
+msgid "Surname"
+msgstr ""
+
+#: Poolyx/userdb/user.py:178
+msgid "Lastname"
+msgstr ""
+
+#: Poolyx/userdb/user.py:179
+msgid "Organisation"
+msgstr ""
+
+#: Poolyx/userdb/user.py:181
+msgid "Last login"
+msgstr ""
+
+#: Poolyx/userdb/useradmin/adminroot.py:41
+msgid "User listing"
+msgstr ""
+
+#: Poolyx/userdb/useradmin/delete.pt:29
+msgid "Please select a user first!"
+msgstr ""
+
+#: Poolyx/userdb/useradmin/root.pt:28
+msgid "Delete selected"
+msgstr ""
+
+#: Poolyx/userdb/useradmin/view.py:118
+#, python-format
+msgid "User not found. (id %(name)s)"
+msgstr ""
+
+#: Poolyx/userdb/useradmin/view.py:127
+#, python-format
+msgid "Delete failed: User '%(name)s'"
+msgstr ""
+
+#: Poolyx/userdb/useradmin/view.py:132
+msgid "OK. Users deleted."
+msgstr ""
+
+#: Poolyx/userdb/useradmin/view.py:134
+msgid "OK. User deleted."
+msgstr ""
+
+#: Poolyx/userdb/userview/loginpage.pt:8
+msgid "Please log in!"
+msgstr ""
+
+#: Poolyx/userdb/userview/loginpage.pt:9
+msgid "You have been logged out!"
+msgstr ""
+
+#: Poolyx/userdb/userview/update.pt:6
+msgid "Change account:"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:29
+msgid "User signup"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:64 Poolyx/userdb/userview/view.py:65
+msgid "Initialize"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:66
+msgid "Signup"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:67
+msgid "Confirm"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:68
+msgid "Mail password"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:69
+msgid "Login"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:216
+msgid "Your current user can only be edited on file system level."
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:222
+msgid "User not found"
+msgstr ""
+
+#: Poolyx/userdb/userview/view.py:226
+msgid "Your password"
+msgstr ""
+

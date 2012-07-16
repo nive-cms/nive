@@ -1,0 +1,42 @@
+<span tal:define="static view.StaticUrl('Poolyx.cms.cmsview:static/images/');
+                  parentUrl view.FolderUrl(obj.GetParent())"
+      onclick="peStopEvent(event)"
+      i18n:domain="poolyx">
+  <!-- add edit -->
+  <div tal:condition="obj.GetTypeID()==u'page'" class="block">
+    <a href="${view.FolderUrl(obj)}edit" rel="poolyxOverlay" 
+ 	   ><img tal:attributes="src static+'editor.png'" title="Edit" align="top" i18n:attributes="title" /> </a>
+  </div>
+  <div tal:condition="obj.GetTypeID()!=u'page'" class="block">
+    <a href="${view.FolderUrl(obj)}edit" rel="poolyxOverlay"
+ 	   ><img tal:attributes="src static+'editor.png'" title="Edit" align="top" i18n:attributes="title" /> </a>
+  </div>
+
+  <!-- cut copy paste -->
+  <div tal:condition="showCCP"
+       class="block">
+    <a tal:condition="obj.CanCopy()"
+       href="${parentUrl}copy?ids=${obj.GetID()}"
+       ><img src="${static}copy.png" title="Copy element" align="top" i18n:attributes="title" /> </a>
+    <a tal:condition="obj.CanCopy()"
+       href="${parentUrl}cut?ids=${obj.GetID()}"
+       ><img src="${static}cut.png" title="Cut element" align="top" i18n:attributes="title" /> </a>
+    <a tal:condition="elementContainer.CanPaste() and not view.ClipboardEmpty()"
+       href="${view.FolderUrl(elementContainer)}paste?pepos=${obj.GetID()}"
+       ><img src="${static}paste.png" title="Paste here" align="top" i18n:attributes="title" /> </a>
+  </div>
+
+  <!-- sort -->
+  <div class="block">
+    <a href="${view.FolderUrl(elementContainer)}moveup?id=${obj.GetID()}"
+       ><img src="${static}up.png" title="Move up" align="top" i18n:attributes="title" /> </a>
+    <a href="${view.FolderUrl(elementContainer)}movedown?id=${obj.GetID()}"
+       ><img src="${static}down.png" title="Move down" align="top" i18n:attributes="title" /> </a>
+  </div>
+
+  <!-- delete -->
+  <div class="block_del">
+    <a href="${view.FolderUrl(elementContainer)}delete?id=${obj.GetID()}" rel="poolyxOverlay"
+       ><img tal:attributes="src static+'delete.png'" title="Delete" align="top" i18n:attributes="title" /> </a>
+  </div>
+</span>

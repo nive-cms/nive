@@ -1,0 +1,53 @@
+
+import time
+import unittest
+
+from nive.portal import Portal
+from nive.definitions import ConfigurationError
+from nive.helper import Event
+
+from tnive import testapp, mApp2, mApp
+
+    
+
+class portalTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.portal = Portal()
+        self.app = testapp(mApp2)
+
+    def tearDown(self):
+        pass
+
+
+    def test_register(self):
+        self.portal.Register(mApp)
+        self.portal.Register(self.app, "another")
+        self.portal.Register("nive.tests.tnive.mApp2")
+        self.assertRaises(ImportError, self.portal.Register, "nive.tests.tnive.mApp56875854")
+        self.assertRaises(ConfigurationError, self.portal.Register, time)
+
+
+    def test_portal(self):
+        self.portal.Register(mApp2)
+        self.portal.Register(self.app, "nive")
+        self.portal.RegisterGroups(self.app)
+        self.assert_(self.portal.__getitem__("app2"))
+        self.assert_(self.portal.__getitem__("nive"))
+        self.portal.Startup(None)
+        self.assert_(len(self.portal.GetApps())==2)
+        self.assert_(self.portal.GetGroups(sort=u"id", visibleOnly=False))
+        self.assert_(self.portal.GetGroups(sort=u"name", visibleOnly=True))
+        self.assert_(self.portal.GetPortal())
+
+
+    def test_portal2(self):
+        self.portal.StartConnection(Event())
+        self.portal.FinishConnection(Event())
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+

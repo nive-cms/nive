@@ -1,0 +1,26 @@
+<tal:block metal:use-macro="view.index_tmpl().macros['main']" i18n:domain="poolyx">
+   
+<tal:block metal:fill-slot="editmain">
+<div class="alert alert-success" i18n:translate="">This page lists all <em>administration tools</em> 
+like database export or database schema manager. </div>
+
+<tal:block tal:condition="tool">
+  <h2>${tool.name}</h2>
+  <p>${tool.description}</p>
+  <span tal:replace="structure content"/>
+</tal:block>
+
+<tal:block tal:condition="not tool">
+<h2 i18n:translate="">Administration tools</h2>
+<tal:block tal:repeat="tool tools">
+<div class="well">
+<div class="row">
+  <div class="span4"><strong><a name="${tool.id}" href="?t=${tool.id}">${tool.name}</a></strong></div> <div class="span7">${tool.description}</div>
+</div>
+</div>
+</tal:block>
+</tal:block>
+
+</tal:block>
+
+</tal:block>

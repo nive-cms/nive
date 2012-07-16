@@ -1,0 +1,8 @@
+<div tal:attributes="class string:pageelement peBox ${context.data.cssClass}; id string:pe${context.GetID()}"
+     i18n:domain="poolyx">
+  <h3 tal:condition="context.meta.title"
+      tal:content="structure context.meta.title" class="boxHeader"/>
+  <span tal:repeat="el context.GetPageElements()"
+        tal:replace="structure view.RenderView(el)"/>
+  &nbsp;
+</div>

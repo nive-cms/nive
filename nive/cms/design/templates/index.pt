@@ -1,0 +1,79 @@
+<tal:block metal:define-macro="main"><!DOCTYPE html>
+<html lang="en" i18n:domain="nive">
+<head>
+<title tal:content="view.HtmlTitle()"></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="robots" content="noimageindex" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="generator" content="nive CMS" />
+
+<link tal:attributes="href view.StaticUrl('bootstrap/css/bootstrap.min.css')" rel="stylesheet" type="text/css" media="all" />
+<link tal:attributes="href view.StaticUrl('styles.css')" rel="stylesheet" type="text/css" media="all" />
+<script tal:attributes="src view.StaticUrl('jquery-1.7.2.min.js')" type="text/javascript"></script>
+<script tal:attributes="src view.StaticUrl('bootstrap/js/bootstrap.min.js')" type="text/javascript"></script>
+<tal:block tal:condition="python:cmsview"><span metal:use-macro="cmsview.cmsIndex_tmpl().macros['editorHead']"/></tal:block>
+<tal:block metal:define-slot="head"></tal:block>
+<tal:block tal:condition="head|None" tal:replace="structure head" tal:on-error="nothing"></tal:block>
+</head>
+
+<body>
+<div class="container" id="container" >
+<a name="top"></a>
+<header>
+  <div class="navbar navbar">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="${view.PageUrl(context.root())}">${context.app.configuration.title}</a>
+        <div class="nav-collapse">
+          <ul class="nav"
+              tal:content="structure view.navigationTop(addHome=0)">
+          </ul>
+        </div><!--/.nav-collapse -->
+        <div class="pull-right"> <img src="${view.StaticUrl('imgs/logo.png')}" class="logo" title="nive open source cms" /></div>
+        <!-- deactivated form class="navbar-search pull-right"><input type="text" class="search-query" placeholder="Search"></form -->
+      </div>
+    </div>
+  </div>
+</header>
+<div id="main">
+<tal:block metal:define-slot="editmain">
+
+  <ul tal:define="bc view.breadcrumbs(1)" 
+      tal:condition="bc"
+      tal:content="structure bc"
+      class="breadcrumb"> </ul>
+
+  <article>
+  <!-- content start -->
+  <tal:block metal:define-slot="content">
+    <span tal:repeat="el context.GetPageElements()"
+          tal:replace="structure view.RenderView(el)"/>
+  </tal:block>
+  <!-- content end -->
+  <span tal:condition="python:cmsview"
+        tal:replace="structure cmsview.editBlockPage(context)" />  
+  </article>
+
+<div class="footer"><span class="benchmark" tal:content="'%04f'%view.mark2()"/></div>
+</tal:block>
+</div>
+ 
+</div>
+
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsMain(context)" />
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context)" />  
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'right'))" />  
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'left'))" />  
+</body>
+</html>
+</tal:block>

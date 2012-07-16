@@ -1,0 +1,25 @@
+<span i18n:domain="nive" tal:omit-tag="">
+<ul class="inline">
+  <li>
+	  <label for="${field.oid}-year" i18n:translate="">Year</label>
+	  <input type="text" name="${name}-year" value="${year}"
+	         tal:attributes="size field.widget.size;
+	                         class field.widget.css_class"
+	         id="${field.oid}-year"/>
+  </li>
+  <li>
+	  <label for="${field.oid}-month" i18n:translate="">Month</label>
+	  <input type="text" name="${name}-month" value="${month}"
+	         tal:attributes="size field.widget.size;
+	                         class field.widget.css_class"
+	         id="${field.oid}-month"/>
+  </li>
+  <li>
+	  <label for="${field.oid}-day" i18n:translate="">Day</label>
+	  <input type="text" name="${name}-day" value="${day}"
+	         tal:attributes="size field.widget.size;
+	                         class field.widget.css_class"
+	         id="${field.oid}-day"/>
+  </li>
+</ul>
+</span>

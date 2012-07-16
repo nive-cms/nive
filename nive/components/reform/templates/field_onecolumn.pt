@@ -1,0 +1,9 @@
+<div tal:condition="field.widget.hidden">
+  <span tal:replace="structure field.serialize(cstruct)"/>
+</div>
+
+<div tal:condition="not field.widget.hidden"
+     class="fieldRow" 
+     i18n:domain="nive">
+  <div class="fieldEdit"><span tal:replace="structure field.serialize(cstruct)"/></div>
+</div>

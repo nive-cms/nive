@@ -1,0 +1,149 @@
+
+from nive.definitions import DatabaseConf, AppConf, ToolConf, ViewModuleConf
+from nive.portal import Portal
+
+
+"""
+Website configuration 
+--------------------------------
+This will start a default nive cms instance and use sqlite  
+``data/website.db`` as database and ``data/files`` as root directory for binary files.
+ 
+Default values are loaded from :py:module:``nive.cms.app``.
+
+Please refer to :py:class:``nive.definitions.AppConf`` and :py:class:``nive.definitions.DatabaseConf``
+for all configuration options. 
+"""
+website = AppConf("nive.cms.app",
+        title=u"website", 
+        id="website",
+        dbConfiguration = DatabaseConf(
+            fileRoot="data/files",
+            # MySql 
+            context="MySql",
+            dbName="{{dbcontentname}}",
+            host="{{dbhost}}",
+            port="{{dbport}}",
+            user="{{dbuser}}",
+            password="{{dbpass}}"
+        )
+)
+
+"""
+Website design
+---------------------------
+Default values are loaded from :py:module:``nive.cms.design.view``.
+
+Please refer to :py:module:``nive.definitions.ViewModuleConf`` for all configuration options.
+"""
+design = ViewModuleConf("nive.cms.design.view",
+	static="{{package}}:static",
+	templates="{{package}}:templates"
+)
+website.modules.append(design)
+
+
+"""
+User database
+-------------
+This will include the user database instance and use sqlite  
+``data/website.db`` as database and ``data/files`` as root directory for binary files.
+ 
+Default values are loaded from :py:module:``nive.cms.app``.
+
+Please refer to :py:class:``nive.definitions.AppConf`` and :py:class:``nive.definitions.DatabaseConf``
+for all configuration options. 
+"""
+userdb = AppConf("nive.userdb.app",
+        title = u"users", 
+        id = "userdb",
+        userAdmin = (u"my@email.com", u"Admin"),
+        admin = {"name": "{{adminuser}}", "password": "{{adminpass}}", "email": ""},
+        dbConfiguration = DatabaseConf(
+            fileRoot="data/filesuserdb",
+            # MySql 
+            context="MySql",
+            dbName="{{dbusername}}",
+            host="{{dbhost}}",
+            port="{{dbport}}",
+            user="{{dbuser}}",
+            password="{{dbpass}}"
+        )
+)
+
+sendMail = ToolConf("nive.components.tools.sendMail",
+    values = {"host":"",
+            "port":"",
+            "sender":"",
+            "user":"",
+            "pass_":"",
+            "sendername":"nive CMS",
+            "fromMail":""}
+)
+userdb.modules.append(sendMail)
+
+"""
+Portal
+-------------------------
+Create the portal as container for the cms and user database.  
+"""
+portal = Portal()
+portal.Register(website)
+portal.Register(userdb)
+
+
+"""
+Pyramid wsgi main function
+---------------------------
+Following options set up pyramid, sessions, authentication and more.
+This is just a basic setup. pyramid offers may more options. 
+
+nive itself is set up and started by ::
+
+    portal.Startup(config, debug=True) 
+
+Further server options like logging and debug tools are included in 
+``production.ini`` and ``development.ini``.
+"""
+
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+
+from pyramid.config import Configurator
+from pyramid.response import Response
+
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
+
+def getRoot(request):
+    return portal
+
+def main(global_config, **settings):
+    """
+    wsgi main function
+    """
+    portal = getRoot(None)
+
+    session_factory = UnencryptedCookieSessionFactoryConfig('asdfhasdfuhklqer')
+    
+    if hasattr(portal, "userdb"):
+        # authorization 
+        authn = AuthTktAuthenticationPolicy(secret='sosecret', callback=portal.userdb.Groupfinder)
+        authz = ACLAuthorizationPolicy()
+        
+        # This function returns a Pyramid WSGI application.
+        config = Configurator(root_factory = getRoot, 
+                              settings = settings,
+                              authentication_policy = authn,
+                              authorization_policy = authz,
+                              session_factory = session_factory)
+    else:
+        # This function returns a Pyramid WSGI application.
+        config = Configurator(root_factory = getRoot, 
+                              settings = settings,
+                              session_factory = session_factory)
+        
+    # init nive
+    portal.Startup(config, debug=True)
+    config.commit()
+
+    return config.make_wsgi_app()

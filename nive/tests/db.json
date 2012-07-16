@@ -1,0 +1,6 @@
+{
+    "type": "nive.definitions.DatabaseConf",
+    "fileRoot": "data/nive/files",
+	"context": "Sqlite3",
+	"dbName": "data/nive/nive.db"
+}

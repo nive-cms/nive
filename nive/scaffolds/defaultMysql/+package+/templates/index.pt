@@ -1,0 +1,102 @@
+<tal:block metal:define-macro="main"><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+<title tal:content="view.HtmlTitle()"></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="robots" content="noimageindex" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="generator" content="nive CMS" />
+
+<link tal:attributes="href view.StaticUrl('layout2.css')" rel="stylesheet" type="text/css" media="all" />
+<link tal:attributes="href view.StaticUrl('styles2.css')" rel="stylesheet" type="text/css" media="all" />
+<script tal:attributes="src view.StaticUrl('jquery-1.6.4.min.js')" type="text/javascript"></script>
+<tal:block tal:condition="python:cmsview"><span metal:use-macro="cmsview.cmsIndex_tmpl().macros['editorHead']"/></tal:block>
+<link tal:attributes="href view.StaticUrl('thumbnailviewer.css')" rel="stylesheet" type="text/css" />
+<script tal:attributes="src view.StaticUrl('thumbnailviewer.js')" type="text/javascript">
+//***********************************************
+//* Image Thumbnail Viewer Script- © Dynamic Drive (www.dynamicdrive.com)
+//* This notice must stay intact for legal use.
+//* Visit http://www.dynamicdrive.com/ for full source code
+//***********************************************
+</script>
+<tal:block metal:define-slot="head"></tal:block>
+<tal:block tal:condition="head|None" tal:replace="structure head" tal:on-error="nothing"></tal:block>
+</head>
+
+<body>
+<div id="container">
+<a name="top"></a>
+<header>
+<div id="header" onclick="location.href='${view.PageUrl(context.root())}'">
+  <div tal:content="context.app.configuration.title" class="title">nive CMS</div>
+  <em>professional * fully featured * extensible * easy to use * open source website publisher</em>
+</div>
+</header>
+<nav><div id="topnav"><span tal:replace="structure view.navigationTop(addHome=1)"/><br style="clear:both"/></div></nav>
+<div id="main">
+<tal:block metal:define-slot="editmain">
+<nav><div id="navigation">
+  <div class="breadcrumbs"></div>
+  <tal:block metal:define-slot="navigation">
+    <span tal:define="column python:context.GetPage().GetColumn(u'left')"
+          tal:condition="python:column"
+          tal:replace="structure view.RenderView(column)"/>
+  </tal:block>
+  <br style="clear:both"/>
+  <span tal:condition="python:cmsview"
+        tal:replace="structure cmsview.editBlockColumn(page=context, column=context.GetColumn(u'left'), name=u'left')" />  
+</div></nav>
+
+<div id="center">
+  <div class="breadcrumbs">
+    <span tal:replace="structure view.breadcrumbs()"/>
+  </div>
+  <article>
+  <div id="content">
+  <!-- content start -->
+  <tal:block metal:define-slot="content">
+    <span tal:repeat="el context.GetPageElements()"
+          tal:replace="structure view.RenderView(el)"/>
+  </tal:block>
+  <!-- content end -->
+  <br style="clear:both"/>
+  <span tal:condition="python:cmsview"
+        tal:replace="structure cmsview.editBlockPage(context)" />  
+  <br style="clear:both"/>
+  </div>
+  </article>
+</div>
+
+<div id="right">
+  <div class="breadcrumbs"></div>
+  <tal:block metal:define-slot="right">
+    <span tal:define="column python:context.GetPage().GetColumn(u'right')"
+          tal:condition="python:column"
+          tal:replace="structure view.RenderView(column)"/>
+  </tal:block>
+  <br style="clear:both"/>
+  <span tal:condition="python:cmsview"
+        tal:replace="structure cmsview.editBlockColumn(page=context, column=context.GetColumn(u'right'), name=u'right')" />  
+  <br style="clear:both"/>
+</div>
+
+<br style="clear:both"/>
+
+<div id="footer"></div>
+</tal:block>
+</div>
+ 
+</div>
+
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsMain(context)" />
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context)" />  
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'right'))" />  
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'left'))" />  
+</body>
+</html>
+</tal:block>

@@ -1,0 +1,4 @@
+<div tal:condition="view.IsEditmode()" class="pageelement peNote" id="pe${context.GetID()}" i18n:domain="poolyx">
+<p tal:condition="context.data.textblock" 
+   tal:content="structure context.data.textblock"></p>
+</div>

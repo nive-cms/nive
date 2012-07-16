@@ -1,0 +1,50 @@
+<div tal:define="page python:context.GetPage(); 
+                 pageUrl python:view.FolderUrl(page);
+                 elementContainer python:context.GetElementContainer();"
+     class="toolbox_widget"
+     i18n:domain="poolyx">
+ <!-- current page edit, delete and options -->
+  <div class="widget_head" i18n:translate="">Edit page</div>
+  <div class="widget_content">
+    <a tal:condition="context.GetID()!=0"
+       href="${pageUrl}edit" rel="poolyxOverlay" class="mainOption"
+   	       ><img tal:attributes="src view.StaticUrl('Poolyx.cms.cmsview:static/images/editor.png')" 
+   	             title="Edit page settings" align="top" i18n:attributes="title" /> 
+   	             <span i18n:translate="">Edit page settings</span></a>
+
+    <a href="${pageUrl}sortpages" rel="poolyxOverlay" class="mainOption"
+     	   ><img tal:attributes="src view.StaticUrl('Poolyx.cms.cmsview:static/images/sort.png')" 
+     	         title="Sort sub pages" align="top" i18n:attributes="title" /> 
+     	         <span i18n:translate="">Sort sub pages</span></a>
+
+    <a tal:condition="context.CanCopy() and context.GetID()!=0" class="mainOption"
+       href="${view.FolderUrl(elementContainer)}copy?ids=${context.GetID()}"
+           ><img src="${view.StaticUrl('Poolyx.cms.cmsview:static/images/copy.png')}" 
+                 title="Copy page" align="top" i18n:attributes="title" /> 
+                 <span i18n:translate="">Copy page</span></a>
+
+    <a tal:condition="context.CanCopy() and context.GetID()!=0" class="mainOption"
+       href="${view.FolderUrl(elementContainer)}cut?ids=${context.GetID()}"
+           ><img src="${view.StaticUrl('Poolyx.cms.cmsview:static/images/cut.png')}" 
+                 title="Cut page" align="top" i18n:attributes="title" /> 
+                 <span i18n:translate="">Cut page</span></a>
+
+    <a tal:condition="page.CanPaste() and not view.ClipboardEmpty()" class="mainOption"
+       href="${view.FolderUrl(page)}paste?pepos=${context.GetID()}" class="mainOption"
+           ><img src="${view.StaticUrl('Poolyx.cms.cmsview:static/images/paste.png')}" 
+                 title="Paste here" align="top" i18n:attributes="title" /> 
+                 <span i18n:translate="">Paste here</span></a>
+
+    <a tal:condition="context.GetID()!=0"
+       href="${pageUrl}../delete?id=${context.GetID()}" rel="poolyxOverlay" class="mainOption pagedelete"
+           ><img tal:attributes="src view.StaticUrl('Poolyx.cms.cmsview:static/images/delete.png')" 
+                 title="Delete current page and sub pages" align="top" i18n:attributes="title" /> 
+                 <span i18n:translate="">Delete current page and sub pages</span></a>
+
+    <p tal:condition="page.GetID()>0">
+      <span i18n:translate="">Page ID</span> ${page.GetID()}<br/> 
+      <span i18n:translate="">Changed</span> ${view.RenderFld('pool_change')} 
+      <span i18n:translate="">by</span> ${page.meta.pool_changedby}
+    </p>
+ </div>
+</div>

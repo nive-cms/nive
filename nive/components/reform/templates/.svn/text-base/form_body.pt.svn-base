@@ -1,0 +1,28 @@
+<tal:block i18n:domain="poolyx">
+  <tal:block tal:define="rndr field.renderer;
+                         tmpl field.widget.item_template"
+             tal:repeat="f field.children">
+       <div tal:replace="structure rndr(tmpl,field=f,cstruct=cstruct.get(f.name, null))"/>
+  </tal:block>
+      
+  <div class="formOptions">
+    <tal:block repeat="button field.buttons">
+      <button
+          tal:attributes="disabled button.disabled"
+          id="${field.formid+button.name}"
+          name="${button.name}"
+          type="${button.type}"
+          class="btnText submit"
+          value="${button.value}">
+        <span i18n:translate="">${button.title}</span>
+      </button>
+    </tal:block>
+  </div>
+      
+  <!-- /fieldset-->
+  <script type="text/javascript" tal:condition="field.use_ajax">
+    jQuery(function() {
+       reform.load();
+    });
+  </script>
+</tal:block>

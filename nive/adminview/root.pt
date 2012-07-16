@@ -1,0 +1,17 @@
+<tal:block metal:use-macro="view.index_tmpl().macros['main']" i18n:domain="nive">
+   
+<tal:block metal:fill-slot="editmain">
+
+<h2 i18n:translate="">Administration sections</h2>
+
+<tal:block tal:repeat="tab view.getAdminWidgets()">
+<div class="well">
+<div class="row">
+  <div class="span4"><strong><a href="${tab.viewmapper}">${tab.name}</a></strong></div> <div class="span7">${tab.description}</div>
+</div>
+</div>
+</tal:block>
+
+</tal:block>
+
+</tal:block>

@@ -1,0 +1,9 @@
+<tal:block metal:use-macro="view.index_tmpl().macros['main']" i18n:domain="poolyx">
+   
+<tal:block metal:fill-slot="editmain">
+
+  <span tal:replace="structure content"/>
+
+</tal:block>
+
+</tal:block>

@@ -1,0 +1,3 @@
+include *.txt *.ini *.cfg
+recursive-include nive *
+global-exclude *.pyc 
