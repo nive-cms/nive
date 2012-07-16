@@ -22,6 +22,10 @@ import string, time, re, os
 import iso8601
 from datetime import datetime
 from types import *
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
 
 from nive.utils.utils import ConvertToStr, ConvertListToStr, ConvertToList
 from nive.utils.utils import BREAK, STACKF, DUMP
@@ -216,13 +220,13 @@ class Base:
         max: maximum nubers of records in result
         ascending: result sort order ascending or descending
         """
-        aF = u""
-        aOpList = kw.get("operators",{})
-        jointype = aOpList.get("jointype", u"INNER")
+        operators = kw.get("operators",{})
+        jointype = operators.get("jointype", u"INNER")
         singleTable = kw.get("singleTable",0)
         version = kw.get("version")
-        aMetaStructure = self.structure.get(MetaTable, version=version)
+        metaStructure = self.structure.get(MetaTable, version=version)
         mapJoinFld = kw.get("mapJoinFld")
+        fields = []
         for f in flds:
             if singleTable:
                 aTable = u""
@@ -238,21 +242,21 @@ class Base:
                 f2=f
                 if asName:
                     f2 = f.split(u" as ")[0]
-                elif f2 in aMetaStructure or f2 == u"pool_stag":
+                elif f2 in metaStructure or f2 == u"pool_stag":
                     aTable = u"meta__."
                 elif dataTable != u"":
                     if jointype.lower() != u"inner":
                         if f == mapJoinFld:
-                            aF += u"IF(meta__.pool_datatbl='%s', %s, meta__.title)" % (dataTable, f)
+                            fields.append(u"IF(meta__.pool_datatbl='%s', %s, meta__.title)" % (dataTable, f))
                         else:
-                            aF += u"IF(meta__.pool_datatbl='%s', %s, '')" % (dataTable, f)
+                            fields.append(u"IF(meta__.pool_datatbl='%s', %s, '')" % (dataTable, f))
                         continue
                     aTable = u"data__."
-            if(len(aF) > 0):
-                aF += u", "
-            aF += aTable + f
+            if(len(fields) > 0):
+                fields.append(u", ")
+            fields.append(aTable + f)
+        fields = u"".join(fields)
 
-        aWhere = ""
         aCombi = kw.get("logicalOperator")
         if not aCombi:
             aCombi = u"AND"
@@ -260,17 +264,18 @@ class Base:
             aCombi = aCombi.upper()
             if not aCombi in (u"AND",u"OR",u"NOT"):
                 aCombi = u"AND"
-        aAddCombi = False
+        addCombi = False
         connection = self.GetConnection()
 
+        where = []
         for aK in parameter.keys():
             aT = type(parameter[aK])
             aKey = aK
 
             aOperator = u"="
-            if aOpList:
-                if aOpList.has_key(aK):
-                    aOperator = aOpList.get(aK)
+            if operators:
+                if operators.has_key(aK):
+                    aOperator = operators.get(aK)
 
             if singleTable:
                 aTable = u""
@@ -280,7 +285,7 @@ class Base:
                 if aK[0] == u"-":
                     aTable = u""
                     aKey = aK[1:]
-                elif aK in aMetaStructure or aK == u"pool_stag":
+                elif aK in metaStructure or aK == u"pool_stag":
                     aTable = u"meta__."
                 elif dataTable != u"":
                     aTable = u"data__."
@@ -295,29 +300,29 @@ class Base:
                     if aW.find(u"%") == -1:
                         aW = u"%%%s%%" % (aW)
                     aW = connection.FmtParam(aW)
-                    if aAddCombi:
-                        aWhere += u" " + aCombi + u" "
-                    aWhere += u"%s%s %s %s " % (aTable, aKey, aOperator, aW)
+                    if addCombi:
+                        where.append(u" %s " % aCombi)
+                    where.append(u"%s%s %s %s " % (aTable, aKey, aOperator, aW))
                 elif aOperator == u"BETWEEN":
                     if aW == u"":
                         continue
-                    if aAddCombi:
-                        aWhere += u" " + aCombi + u" "
-                    aWhere += u"%s%s %s %s " % (aTable, aKey, aOperator, aW)
+                    if addCombi:
+                        where.append(u" %s " % aCombi)
+                    where.append(u"%s%s %s %s " % (aTable, aKey, aOperator, aW))
                 else:
                     aW = connection.FmtParam(aW)
-                    if aAddCombi:
-                        aWhere += u" " + aCombi + u" "
-                    aWhere += u"%s%s %s %s " % (aTable, aKey, aOperator, aW)
-                aAddCombi = True
+                    if addCombi:
+                        where.append(u" %s " % aCombi)
+                    where.append(u"%s%s %s %s " % (aTable, aKey, aOperator, aW))
+                addCombi = True
 
             # fmt list values
             elif aT in (TupleType, ListType):
                 aW = parameter[aK]
                 if aW == None or len(aW)==0:
                     continue
-                if aAddCombi:
-                    aWhere += u" " + aCombi + u" "
+                if addCombi:
+                    where.append(u" %s " % aCombi)
                 if aOperator.upper() in (u"IN",u"NOT IN"):
                     aW = u""
                     for item in parameter[aK]:
@@ -328,41 +333,41 @@ class Base:
                         aW += connection.FmtParam(item)
                     if aW == u"":
                         aW = u"None"
-                    aWhere += u"%s%s %s (%s) " % (aTable, aKey, aOperator, aW)
+                    where.append(u"%s%s %s (%s) " % (aTable, aKey, aOperator, aW))
                 elif aOperator == u"BETWEEN":
                     if len(aW) < 2:
                         continue
-                    aWhere += u"%s%s %s %s AND %s" % (aTable, aKey, aOperator, connection.FmtParam(aW[0]), connection.FmtParam(aW[1]))
+                    where.append(u"%s%s %s %s AND %s" % (aTable, aKey, aOperator, connection.FmtParam(aW[0]), connection.FmtParam(aW[1])))
                 else:
-                    aW = ConvertToStr(aW, "list")
-                    aW = self.DecodeText(parameter[aK])
-                    aW = u"%%%s%%" % (aW)
+                    aW = u"%%%s%%" % (self.DecodeText(ConvertToStr(aW, "list")))
                     aW = connection.FmtParam(aW)
-                    aWhere += u"%s%s LIKE %s " % (aTable, aKey, aW)
-                aAddCombi = True
+                    where.append(u"%s%s LIKE %s " % (aTable, aKey, aW))
+                addCombi = True
 
             # fmt number values
             elif aT in (IntType, LongType, FloatType):
-                if aAddCombi:
-                    aWhere += u" " + aCombi + u" "
+                if addCombi:
+                    where.append(u" %s " % aCombi)
                 if aOperator == u"LIKE":
                     aOperator = u"="
                 aW = connection.FmtParam(parameter[aK])
-                aWhere += u"%s%s %s %s" % (aTable, aKey, aOperator, aW)
-                aAddCombi = True
+                where.append(u"%s%s %s %s" % (aTable, aKey, aOperator, aW))
+                addCombi = True
 
         condition = kw.get("condition")
         if condition != None and condition != u"":
-            if aWhere != u"":
-                aWhere += u" %s %s" %(aCombi, condition)
+            if len(where):
+                where.append(u" %s %s" %(aCombi, condition))
             else:
-                aWhere = condition
-        if aWhere != u"":
-            aWhere = u"WHERE %s" % aWhere
+                where = [condition]
+        if len(where):
+            where = u"WHERE %s" % u"".join(where)
+        else:
+            where = u""
 
-        aOrder = u"ASC"
+        order = u"ASC"
         if kw.get("ascending", 1) == 0:
-            aOrder = u"DESC"
+            order = u"DESC"
 
         # map sort fields
         sort = kw.get("sort", u"")
@@ -371,7 +376,7 @@ class Base:
         if sort != u"" and not singleTable:
             aTable = u"meta__."
             s = sort.split(u",")
-            sort = u""
+            sort = []
             for sortfld in s:
                 sortfld = DvString(sortfld)
                 sortfld.Trim()
@@ -379,23 +384,25 @@ class Base:
                 if len(sortfld) > 0 and sortfld[0] == u"-":
                     aTable = u""
                     sortfld = sortfld[1:]
-                #elif sortfld in aMetaStructure[1]:
+                #elif sortfld in metaStructure[1]:
                 #    aTable = "version__."
-                elif sortfld in aMetaStructure or sortfld == u"pool_stag":
-                #elif sortfld in aMetaStructure[0] or sortfld == "pool_stag":
+                elif sortfld in metaStructure or sortfld == u"pool_stag":
+                #elif sortfld in metaStructure[0] or sortfld == "pool_stag":
                     aTable = u"meta__."
                 elif dataTable != u"":
                     aTable = u"data__."
-                if sort != u"":
-                    sort += u", "
-                sort += aTable + sortfld
+                if len(sort):
+                    sort.append(u", ")
+                sort.append(aTable)
+                sort.append(sortfld)
+            sort = u"".join(sort)
 
         customJoin = kw.get("join", u"")
         if customJoin == None:
             customJoin = u""
 
         join = u""
-        aJodata = u""
+        joindata = u""
         if not singleTable:
             # joins
             if version:
@@ -405,9 +412,9 @@ class Base:
             if dataTable != u"":
                 if version:
                     BREAK("version")
-                    aJodata = u"%s JOIN %s AS data__ ON (version__.pool_dataref = data__.id) " % (jointype, dataTable)
+                    joindata = u"%s JOIN %s AS data__ ON (version__.pool_dataref = data__.id) " % (jointype, dataTable)
                 else:
-                    aJodata = u"%s JOIN %s AS data__ ON (meta__.pool_dataref = data__.id) " % (jointype, dataTable)
+                    joindata = u"%s JOIN %s AS data__ ON (meta__.pool_dataref = data__.id) " % (jointype, dataTable)
 
         limit = ""
         if max:
@@ -422,7 +429,7 @@ class Base:
             table = dataTable
 
         if sort != u"":
-            sort = u"ORDER BY %s %s" % (sort, aOrder)
+            sort = u"ORDER BY %s %s" % (sort, order)
 
         aSql = u"""
         SELECT %s
@@ -430,7 +437,7 @@ class Base:
         %s %s %s
         %s
         %s %s %s
-        """ % (aF, table, join, aJodata, customJoin, aWhere, groupby, sort, limit)
+        """ % (fields, table, join, joindata, customJoin, where, groupby, sort, limit)
         return aSql
 
 
@@ -541,29 +548,31 @@ class Base:
         codepage and dates are converted automatically
         returns the converted data 
         """
-        aSql = u"UPDATE %s SET " % (table)
+        sql = [u"UPDATE %s SET " % (table)]
         dataList = []
         ph = self.GetPlaceholder()
         for aK in data.keys():
-            aSql += aK + u"=%s,"%(ph)
+            if len(sql)>1:
+                sql.append(u",%s=%s"%(aK, ph))
+            else:
+                sql.append(u"%s=%s"%(aK, ph))
 
             if type(data[aK]) == StringType:
                 data[aK] = self.DecodeText(data[aK])
             dataList.append(self.structure.serialize(table, aK, data[aK]))
             data[aK] = dataList[-1]
 
-        aSql = aSql[:-1]
-        aSql += u" WHERE id = %d" % (id)
-
+        sql.append(u" WHERE id = %d" % (id))
+        sql = u"".join(sql)
         if self._debug:
-            STACKF(0,aSql+"\r\n",self._debug, self._log,name=self.name)
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
 
         aClose = 0
         if not cursor:
             aClose = 1
             cursor = self.GetCursor()
         try:
-            cursor.execute(aSql, dataList)
+            cursor.execute(sql, dataList)
         except self._Warning:
             pass
         except self._OperationalError, e:
@@ -581,32 +590,32 @@ class Base:
         returns the converted data 
         """
         dataList = []
-        flds = u""
-        phdata = u""
+        flds = []
+        phdata = []
         ph = self.GetPlaceholder()
         for aK in data.keys():
-            if flds != u"":
-                flds += u","
-                phdata += u","
-            flds += aK
-            phdata += ph
+            if len(flds):
+                flds.append(u",")
+                phdata.append(u",")
+            flds.append(aK)
+            phdata.append(ph)
 
             if type(data[aK]) == StringType:
                 data[aK] = self.DecodeText(data[aK])
             dataList.append(self.structure.serialize(table, aK, data[aK]))
             data[aK] = dataList[-1]
 
-        aSql = u"INSERT INTO %s (%s) VALUES (%s)" % (table, flds, phdata)
+        sql = u"INSERT INTO %s (%s) VALUES (%s)" % (table, u"".join(flds), u"".join(phdata))
 
         if self._debug:
-            STACKF(0,aSql+"\r\n",self._debug, self._log,name=self.name)
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
 
         aClose = 0
         if not cursor:
             aClose = 1
             cursor = self.GetCursor()
         try:
-            cursor.execute(aSql, dataList)
+            cursor.execute(sql, dataList)
         except self._Warning:
             pass
         except self._OperationalError, e:
@@ -658,6 +667,7 @@ class Base:
         if not rec:
             return aD
 
+        #opt
         for aI in range(len(flds)):
             aStr = flds[aI]
             # data unicode and codepage conversion
