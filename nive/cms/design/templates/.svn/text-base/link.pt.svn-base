@@ -1,5 +1,0 @@
-<div class="pageelement peLink" id="pe${context.GetID()}" i18n:domain="poolyx">
-<a href="${view.ResolveLink(context.data.linkurl)}" 
-   tal:attributes="target context.data.target" 
-   tal:content="structure context.meta.title"/>
-</div>
