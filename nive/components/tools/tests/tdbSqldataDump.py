@@ -27,7 +27,7 @@ class DBSqlDataTest1(unittest.TestCase):
 class DBSqlDataTest1_db(unittest.TestCase):
 
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
         self.app.Register(configuration)
 
     def tearDown(self):

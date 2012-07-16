@@ -32,7 +32,7 @@ class SendMailTest1(unittest.TestCase):
 class SendMailTest2_db(unittest.TestCase):
 
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
         self.app.Include(configuration)
     
     def tearDown(self):

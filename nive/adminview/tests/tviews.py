@@ -27,7 +27,7 @@ class tViews(unittest.TestCase):
         request._LOCALE_ = "en"
         self.request = request
         self.config = testing.setUp(request=request)
-        self.app = app()
+        self.app = app_db()
         self.portal = Portal()
         self.portal.Register(self.app, "nive")
         self.app.Register(view.configuration)

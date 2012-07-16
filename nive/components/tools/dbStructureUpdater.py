@@ -115,19 +115,22 @@ By default this tool will only create new tables and columns and never delete an
         self.stream.write(localizer.translate(_(u"<h4>Database '${name}' ${host} </h4><br/>", mapping={"host":conf.host, "name":conf.dbName})))
 
         if not db:
-            self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.poolTag})))
+            self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.dbConfiguration.context})))
             return 0
         
         if not connection.IsConnected():
-            self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.poolTag})))
-            return 0
-        
+            connection.Connect()
+            if not connection.IsConnected():
+                self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.dbConfiguration.context})))
+                return 0
+
         # check database exists
         if not db.IsDatabase(conf.get("dbName")):
             db.CreateDatabase(conf.get("dbName"))
             self.stream.write(u"")
             self.stream.write(u"")
             self.stream.write(localizer.translate(_(u"<div class='alert alert-success'>Database created: '${name}'</div>", mapping={"name": conf.dbName})))
+            db.dbConn.commit()
         db.UseDatabase(conf.get("dbName"))
         
         
@@ -148,16 +151,18 @@ By default this tool will only create new tables and columns and never delete an
                 if not db.UpdateStructure(aT["dbparam"], fmt, m):
                     self.stream.write(u"")
                     self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name})</div>", mapping=aT)))
+                    result = 0
                     continue
+                db.dbConn.commit()
             except Exception, e:
                 self.stream.write(u"")
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name})</div>", mapping=aT)))
                 self.stream.write(u"")
                 self.stream.write(u"<b>"+str(e)+u"</b>")
+                result = 0
                 continue
                 
             self.printStructure(db.GetColumns(aT["dbparam"], fmt), aT["dbparam"], fmt, db, localizer)
-        
 
         # check meta table exists and update ---------------------------------------------------------------
         meta = app.GetAllMetaFlds(ignoreSystem=False)
@@ -167,6 +172,7 @@ By default this tool will only create new tables and columns and never delete an
             if not db.CreateTable(tableName, inColumns=meta):
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (pool_meta)</div>")))
                 return 0
+            db.dbConn.commit()
 
         # create and check modified fields
         m = None
@@ -176,6 +182,8 @@ By default this tool will only create new tables and columns and never delete an
                 m = [m]
         if not db.UpdateStructure(tableName, meta, m):
             self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table update failed (pool_meta)</div>")))
+            result = 0
+        db.dbConn.commit()
         
         self.printStructure(db.GetColumns(tableName, meta), tableName, meta, db, localizer)
 
@@ -189,6 +197,7 @@ By default this tool will only create new tables and columns and never delete an
                 if not db.CreateTable(tableName, inColumns=fields, inCreateIdentity = bool(identity), primaryKeyName = identity):
                     self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (${name})</div>",mapping={"name":tableName})))
                     return 0
+                db.dbConn.commit()
         
             # create and check modified fields
             m = None
@@ -198,6 +207,8 @@ By default this tool will only create new tables and columns and never delete an
                     m = [m]
             if not db.UpdateStructure(tableName, fields, m):
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (${name})</div>",mapping={"name":tableName})))
+                result = 0
+            db.dbConn.commit()
 
             if showSystem:
                 self.printStructure(db.GetColumns(tableName, fields), tableName, fields, db, localizer)

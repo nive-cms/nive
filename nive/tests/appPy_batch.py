@@ -18,7 +18,7 @@ level3_2 = 10
 def test1():
     print "1) Testing objects create / delete, 3 level, no files"
     t = time.time()
-    a=db_app.app
+    a=db_app.app_db()
     print time.time() - t, "Creating db (contains", db_app.statdb(a), "Entries)"
     t2 = time.time()
     r=a.root()
@@ -59,7 +59,7 @@ def test1():
 def test2():
     print "2) Testing objects create / delete, 3 level, with files"
     t = time.time()
-    a=db_app.app
+    a=db_app.app_db()
     print time.time() - t, "Creating db (contains", db_app.statdb(a), "Entries)"
     t2 = time.time()
     r=a.root()
@@ -101,7 +101,7 @@ def test2():
 def test3():
     print "3) Testing objects create / load / load batch / delete, 3 level, no files"
     t = time.time()
-    a=db_app.app
+    a=db_app.app_db()
     print time.time() - t, "Creating db (contains", db_app.statdb(a), "Entries)"
     t2 = time.time()
     r=a.root()
@@ -130,7 +130,7 @@ def test3():
     del r
     del a
 
-    a=db_app.app
+    a=db_app.app_db()
     print time.time() - t2, "Creating db (contains", db_app.statdb(a), "Entries)"
     t2 = time.time()
     r=a.root()
@@ -163,7 +163,7 @@ def test3():
 def test4():
     print "4) Testing objects create / load cache / delete, 3 level, no files"
     t = time.time()
-    a=db_app.app
+    a=db_app.app_db()
     print time.time() - t, "Creating db (contains", db_app.statdb(a), "Entries)"
     t2 = time.time()
     r=a.root()
@@ -231,7 +231,7 @@ def test4():
 def test5():
     print "5) Testing objects create / close load cache / delete, 3 level, no files"
     t = time.time()
-    a=db_app.app
+    a=db_app.app_db()
     print time.time() - t, "Creating db (contains", db_app.statdb(a), "Entries)"
     t2 = time.time()
     r=a.root()
@@ -303,10 +303,10 @@ def test5():
 
 
 if __name__ == '__main__':
-    db_app.emptypool(db_app.app)
+    db_app.emptypool(db_app.app_db())
     test1()
     test2()
     test3()
     test4()
     test5()
-    db_app.emptypool(db_app.app)
+    db_app.emptypool(db_app.app_db())

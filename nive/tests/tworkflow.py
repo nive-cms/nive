@@ -6,7 +6,7 @@ from nive.definitions import *
 from nive.workflow import *
 from nive.security import User
 
-from nive.tests.db_app import app
+from nive.tests.db_app import app_db
 
 
 
@@ -188,7 +188,7 @@ class WfTest(unittest.TestCase):
 
 
     def test_include_app(self):
-        a = app()
+        a = app_db()
         a.Register(wf1)
         a.Register(wf2)
         self.assert_(a.GetWorkflowConf(wf1.id, self.obj)[0].id==wf1.id)

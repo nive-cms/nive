@@ -33,7 +33,7 @@ class DBStructureTest2(unittest.TestCase):
     """
     """
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
         self.app.Register(configuration)
 
     def tearDown(self):

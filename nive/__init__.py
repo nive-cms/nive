@@ -33,4 +33,4 @@ from nive.cms.cmsview.view import IToolboxWidgetConf, IEditorWidgetConf
 from nive.adminview.view import IAdminWidgetConf
 
 # exceptions
-from nive.utils.dataPool2.base import OperationalError
+from nive.utils.dataPool2.base import OperationalError, ProgrammingError, Warning

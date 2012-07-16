@@ -125,7 +125,7 @@ file2_2 = {"filename":"file2.txt", "file":file2_2_data}
 
 
 # empty -------------------------------------------------------------------------
-def app(modules=None):
+def app_db(modules=None):
     a = ApplicationBase()
     a.Register(appconf)
     a.Register(dbconf)

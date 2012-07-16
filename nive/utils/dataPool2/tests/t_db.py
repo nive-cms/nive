@@ -5,12 +5,12 @@ import unittest
 from types import *
 
 from nive.utils.dataPool2.base import *
-from nive.utils.dataPool2.sqlite3Pool import *
+from nive.utils.dataPool2.sqlite3Pool import Sqlite3
 from nive.utils.path import DvPath
 
 from sqlite3 import OperationalError
 
-from nive.tests.db_app import app
+from nive.tests.db_app import app_db
 from t_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
 
 
@@ -38,7 +38,7 @@ class dbTest:
         return c
 
     def checkdb(self):
-        app()
+        app_db()
 
 
     # entries ---------------------------------------------------------------------------
@@ -205,7 +205,7 @@ class dbTest:
         e=self.pool.GetEntry(id)
         self.assert_(e)
 
-        self.assert_(e.GetTags() == [u"file1",u"file2"])
+        self.assertItemsEqual(e.GetTags(), [u"file1",u"file2"])
 
         self.assert_(e.FileExists(u"file1"))
         self.assert_(e.FileExists(u"file2"))

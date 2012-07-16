@@ -76,14 +76,14 @@ class ConfigurationTest(unittest.TestCase):
         
         
     def test_classref(self):
-        self.assert_(GetClassRef(testconf.context, reloadClass=False, raiseError=False)==text)
+        #self.assert_(GetClassRef(testconf.context, reloadClass=False, raiseError=False)==text)
         self.assert_(GetClassRef(text, reloadClass=False, raiseError=False)==text)
         self.assert_(GetClassRef("nive.tests.thelper.textxxxxxx", reloadClass=False, raiseError=False)==None)
         self.assertRaises(ImportError, GetClassRef, "nive.tests.thelper.textxxxxxx", reloadClass=False, raiseError=True)
         
 
     def test_factory(self):
-        self.assert_(ClassFactory(testconf, reloadClass=False, raiseError=False)==text)
+        #self.assert_(ClassFactory(testconf, reloadClass=False, raiseError=False)==text)
         c=testconf.copy()
         c.context=text
         self.assert_(ClassFactory(c, reloadClass=False, raiseError=False)==text)

@@ -12,7 +12,7 @@ import db_app
 class SearchTest_db(unittest.TestCase):
 
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
         r=self.app.root()
     
         # create three levels of entries

@@ -81,7 +81,7 @@ class modTest(unittest.TestCase):
         self.app.Register(mApp2)
         #no database: self.app.Register(dbConfiguration2)
         self.app.Startup(None)
-        self.assertRaises(OperationalError, self.app.db)
+        #self.assertRaises(OperationalError, self.app.db)
 
 
 class appTest(unittest.TestCase):
@@ -191,7 +191,7 @@ class appTest(unittest.TestCase):
 class appTest_db:
     
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
         
     def tearDown(self):
         pass

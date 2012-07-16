@@ -13,7 +13,7 @@ from nive.tests.db_app import *
 class containerTest_db:
     
     def setUp(self):
-        self.app = app()
+        self.app = app_db()
         #emptypool(self.app)
         self.remove=[]
 

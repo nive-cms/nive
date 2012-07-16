@@ -1053,9 +1053,9 @@ class AppFactory:
             poolTag = self.dbConfiguration.context
             if not poolTag:
                 raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
-            if poolTag.lower() in ("sqlite","sqlite3"):
+            elif poolTag.lower() in ("sqlite","sqlite3"):
                 poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
-            if poolTag.lower() == "mysql":
+            elif poolTag.lower() == "mysql":
                 poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
 
             dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)

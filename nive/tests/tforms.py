@@ -261,7 +261,7 @@ class FormTest(unittest.TestCase):
 class FormTest_db(unittest.TestCase):
 
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
         request = testing.DummyRequest()
         request._LOCALE_ = "en"
         self.config = testing.setUp(request=request)

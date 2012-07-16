@@ -53,7 +53,8 @@ StdMetaFlds = (u"id", u"pool_dataref", u"pool_datatbl")
 
 class OperationalError(Exception):
     pass
-
+class ProgrammingError(Exception):
+    pass
 class Warning(Exception):
     pass
 
@@ -99,6 +100,7 @@ class Base:
     """
     # map db system exceptions to one type
     _OperationalError=OperationalError
+    _ProgrammingError=ProgrammingError
     _Warning=Warning
 
     def __init__(self, connParam = None, structure = None, root = "",
@@ -352,11 +354,11 @@ class Base:
         condition = kw.get("condition")
         if condition != None and condition != u"":
             if aWhere != u"":
-                aWhere += u" " + aCombi + u" " + condition
+                aWhere += u" %s %s" %(aCombi, condition)
             else:
                 aWhere = condition
         if aWhere != u"":
-            aWhere = u"WHERE " + aWhere
+            aWhere = u"WHERE %s" % aWhere
 
         aOrder = u"ASC"
         if kw.get("ascending", 1) == 0:
@@ -409,16 +411,11 @@ class Base:
 
         limit = ""
         if max:
-            limit = u"LIMIT "
-            s = start
-            m = max
-            if s != None:
-                limit += str(s) + u", "
-            limit += str(m)
+            limit = self.FmtLimit(start, max)
 
         groupby = u""
         if kw.get("groupby"):
-            groupby = u"GROUP BY " + kw.get("groupby")
+            groupby = u"GROUP BY %s" % kw.get("groupby")
 
         table = MetaTable + u" AS meta__"
         if singleTable:
@@ -435,6 +432,12 @@ class Base:
         %s %s %s
         """ % (aF, table, join, aJodata, customJoin, aWhere, groupby, sort, limit)
         return aSql
+
+
+    def FmtLimit(self, start, max):
+        if start != None:
+            return u"LIMIT %s, %s" % (unicode(start), unicode(max))
+        return u"LIMIT %s" % (unicode(max))
 
 
     def GetFulltextSQL(self, searchPhrase, flds, parameter, dataTable = "", **kw):
@@ -496,7 +499,11 @@ class Base:
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
-        r = c.fetchall()
+        try:
+            r = c.fetchall()
+        except self._ProgrammingError, e:
+            r = ()
+            pass
         c.close()
 
         set2 = []
@@ -1901,7 +1908,7 @@ class Connection:
          self.Close()
 
 
-    def    Connect(self):
+    def Connect(self):
         """ Close and connect to server """
         self.Close()
         # "please use a subclassed connection"

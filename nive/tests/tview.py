@@ -22,7 +22,7 @@ class viewTest(unittest.TestCase):
 
     def setUp(self):
         testing.setUp()
-        self.app = db_app.app
+        self.app = db_app.app_db()
         self.request = getRequest()
         user = User(u"test")
         r = self.app.root()

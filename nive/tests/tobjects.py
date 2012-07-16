@@ -14,7 +14,7 @@ from nive.tests.db_app import *
 class objTest_db:
     
     def setUp(self):
-        self.app = app()
+        self.app = app_db()
 
     def tearDown(self):
         self.app.Close()

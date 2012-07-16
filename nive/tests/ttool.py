@@ -25,7 +25,7 @@ class ToolTest1(unittest.TestCase):
 class ToolTest(unittest.TestCase):
 
     def setUp(self):
-        self.app = db_app.app
+        self.app = db_app.app_db()
 
     def tearDown(self):
         self.app.Close()

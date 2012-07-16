@@ -307,7 +307,7 @@ class MySQLManager(object):
     def UseDatabase(self, databaseName):
         if not self.IsDB():
             return False
-        self.db.execute(u"use " + databaseName)
+        #self.db.execute(u"use " + databaseName)
         return True
 
 

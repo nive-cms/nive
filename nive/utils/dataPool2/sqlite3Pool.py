@@ -30,10 +30,13 @@ import sqlite3
 from nive.utils.utils import STACKF
 from nive.utils.dateTime import DvDateTime
 
-from dbManager import Sqlite3Manager
-from base import *
-from files import *
+from nive.utils.dataPool2.dbManager import Sqlite3Manager
+from nive.utils.dataPool2.base import *
 
+from nive.utils.dataPool2.files import FileManager
+from nive.utils.dataPool2.files import FileEntry
+
+from nive import OperationalError
 
 DBEncoding = u"utf-8"
 

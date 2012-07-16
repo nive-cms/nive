@@ -11,7 +11,7 @@ from nive.tests import db_app
 class securityTest(unittest.TestCase):
 
     def test_init1(self):
-        app = db_app.app
+        app = db_app.app_db()
         GetUsers(app)
     
     def test_user(self):
