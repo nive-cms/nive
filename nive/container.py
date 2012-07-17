@@ -313,7 +313,7 @@ class ContainerEdit:
                 id = dbEntry.GetID()
                 db.DeleteEntry(id)
             db.Close()
-            raise Exception, e
+            raise 
         return obj
 
 
@@ -370,7 +370,7 @@ class ContainerEdit:
                 db = app.db
                 db.DeleteEntry(id)
                 db.Close()
-            raise Exception, e
+            raise 
 
         try:    
             if obj.IsContainer():

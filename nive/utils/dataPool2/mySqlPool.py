@@ -52,8 +52,8 @@ class MySql(FileManager, Base):
         #[i]
         aC = self.GetCursor()
         if table == u"":
-            table = MetaTable
-        if table == MetaTable:
+            table = self.MetaTable
+        if table == self.MetaTable:
             if not dataTbl:
                 raise "Missing data table", "Entry not created"
 
@@ -71,8 +71,8 @@ class MySql(FileManager, Base):
             dataref = aC.fetchone()[0]
             # sql insert empty rec in meta table
             if self._debug:
-                STACKF(0,u"INSERT INTO pool_meta (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (dataTbl, dataref),0, self._log,name=self.name)
-            aC.execute(u"INSERT INTO pool_meta (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (dataTbl, dataref))
+                STACKF(0,u"INSERT INTO %s (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (self.MetaTable, dataTbl, dataref),0, self._log,name=self.name)
+            aC.execute(u"INSERT INTO %s (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (self.MetaTable, dataTbl, dataref))
             if self._debug:
                 STACKF(0,u"SELECT LAST_INSERT_ID()\r\n",0, self._log,name=self.name)
             aC.execute(u"SELECT LAST_INSERT_ID()")
@@ -137,15 +137,15 @@ class MySql(FileManager, Base):
         """
         sql = u"""
         SELECT p0.pool_unitref as ref1,p1.pool_unitref as ref2,p2.pool_unitref as ref3,p3.pool_unitref as ref4,p4.pool_unitref as ref5,p5.pool_unitref as ref6,p6.pool_unitref as ref7
-        FROM pool_meta p0, pool_meta p1, pool_meta p2, pool_meta p3, pool_meta p4, pool_meta p5, pool_meta p6
-        WHERE  p0.id = %d
+        FROM %(meta)s p0, %(meta)s p1, %(meta)s p2, %(meta)s p3, %(meta)s p4, %(meta)s p5, %(meta)s p6
+        WHERE  p0.id = %(id)d
         and    p1.id = p0.pool_unitref
         and IF(p1.pool_unitref > 0, p2.id = p1.pool_unitref, p2.id = p0.pool_unitref)
         and IF(p2.pool_unitref > 0, p3.id = p2.pool_unitref, p3.id = p0.pool_unitref)
         and IF(p3.pool_unitref > 0, p4.id = p3.pool_unitref, p4.id = p0.pool_unitref)
         and IF(p4.pool_unitref > 0, p5.id = p4.pool_unitref, p5.id = p0.pool_unitref)
         and IF(p5.pool_unitref > 0, p6.id = p5.pool_unitref, p6.id = p0.pool_unitref)
-        Group by ref1""" % (int(id))
+        Group by ref1""" % {"meta":self.MetaTable, "id":int(id)}
         t = self.Query(sql)
         parents = []
         if len(t) == 0:
@@ -166,15 +166,15 @@ class MySql(FileManager, Base):
         """
         sql = u"""
         SELECT p0.pool_unitref as ref1,p0.title as t1,p1.pool_unitref as ref2,p1.title as t2,p2.pool_unitref as ref3,p2.title as t3,p3.pool_unitref as ref4,p3.title as t4,p4.pool_unitref as ref5,p4.title as t5,p5.pool_unitref as ref6,p5.title as t6,p6.pool_unitref as ref7,p6.title as t7
-        FROM pool_meta p0, pool_meta p1, pool_meta p2, pool_meta p3, pool_meta p4, pool_meta p5, pool_meta p6
-        WHERE  p0.id = %d
+        FROM %(meta)s p0, %(meta)s p1, %(meta)s p2, %(meta)s p3, %(meta)s p4, %(meta)s p5, %(meta)s p6
+        WHERE  p0.id = %(id)d
         and    p1.id = p0.pool_unitref
         and IF(p1.pool_unitref > 0, p2.id = p1.pool_unitref, p2.id = p0.pool_unitref)
         and IF(p2.pool_unitref > 0, p3.id = p2.pool_unitref, p3.id = p0.pool_unitref)
         and IF(p3.pool_unitref > 0, p4.id = p3.pool_unitref, p4.id = p0.pool_unitref)
         and IF(p4.pool_unitref > 0, p5.id = p4.pool_unitref, p5.id = p0.pool_unitref)
         and IF(p5.pool_unitref > 0, p6.id = p5.pool_unitref, p6.id = p0.pool_unitref)
-        Group by ref1""" % (int(id))
+        Group by ref1""" % {"meta":self.MetaTable, "id":int(id)}
         t = self.Query(sql)
         parents = []
         if len(t) == 0:

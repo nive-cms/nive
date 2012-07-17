@@ -61,7 +61,7 @@ class Sqlite3(FileManager, Base):
                 ids = _SelectIDs(e[0], ids, sql, cursor)
             return ids
         parameter = u"where pool_unitref=%d " + parameter
-        sql = u"""select id from pool_meta %s order by %s""" % (parameter, sort)
+        sql = u"""select id from %s %s order by %s""" % (self.MetaTable, parameter, sort)
         cursor = self.GetCursor()
         ids = _SelectIDs(base, [], sql, cursor)
         cursor.close()
@@ -86,7 +86,7 @@ class Sqlite3(FileManager, Base):
         if parameter != u"":
             parameter = u"and " + parameter
         parameter = u"where pool_unitref=%d " + parameter
-        sql = u"""select %s from pool_meta %s order by %s""" % (ConvertListToStr(flds), parameter, sort)
+        sql = u"""select %s from %s %s order by %s""" % (ConvertListToStr(flds), self.MetaTable, parameter, sort)
         cursor = self.GetCursor()
         tree = {"id":base, "items":[]}
         tree = _Select(base, tree, flds, sql, cursor)
@@ -151,8 +151,8 @@ class Sqlite3(FileManager, Base):
         #[i]
         aC = self.GetCursor()
         if table == "":
-            table = MetaTable
-        if table == MetaTable:
+            table = self.MetaTable
+        if table == self.MetaTable:
             if not dataTbl:
                 raise "Missing data table", "Entry not created"
 
@@ -167,8 +167,8 @@ class Sqlite3(FileManager, Base):
             dataref = aC.fetchone()[0]
             # sql insert empty rec in meta table
             if self._debug:
-                STACKF(0,u"INSERT INTO pool_meta (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (dataTbl, dataref),0, self._log,name=self.name)
-            aC.execute(u"INSERT INTO pool_meta (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (dataTbl, dataref))
+                STACKF(0,u"INSERT INTO %s (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (self.MetaTable, dataTbl, dataref),0, self._log,name=self.name)
+            aC.execute(u"INSERT INTO %s (pool_datatbl, pool_dataref) VALUES ('%s', %s)"% (self.MetaTable, dataTbl, dataref))
             if self._debug:
                 STACKF(0,u"SELECT last_insert_rowid()\r\n",0, self._log,name=self.name)
             aC.execute(u"SELECT last_insert_rowid()")
@@ -209,8 +209,8 @@ class Sqlite3(FileManager, Base):
         dataref = aC.fetchone()[0]
         # sql insert empty rec in meta table
         if self._debug:
-            STACKF(0,u"INSERT INTO %s (id, pool_datatbl, pool_dataref) VALUES (%d, '%s', %s)"% (MetaTable, id, dataTbl, dataref),0, self._log,name=self.name)
-        aC.execute(u"INSERT INTO %s (id, pool_datatbl, pool_dataref) VALUES (%d, '%s', %s)"% (MetaTable, id, dataTbl, dataref))
+            STACKF(0,u"INSERT INTO %s (id, pool_datatbl, pool_dataref) VALUES (%d, '%s', %s)"% (self.MetaTable, id, dataTbl, dataref),0, self._log,name=self.name)
+        aC.execute(u"INSERT INTO %s (id, pool_datatbl, pool_dataref) VALUES (%d, '%s', %s)"% (self.MetaTable, id, dataTbl, dataref))
         if self._debug:
             STACKF(0,u"SELECT last_insert_rowid()\r\n",0, self._log,name=self.name)
         aC.execute(u"SELECT last_insert_rowid()")

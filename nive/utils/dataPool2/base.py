@@ -47,13 +47,10 @@ error handling and messages
 # Pool Constants ---------------------------------------------------------------------------
 
 #
-MetaTable = u"pool_meta"
-VersionTable = u"pool_versions"
-VersionMapTable = u"pool_vmap"
 StdEncoding = u"utf-8"
 EncodeMapping = u"replace"
 StdMetaFlds = (u"id", u"pool_dataref", u"pool_datatbl")
-#
+
 
 class OperationalError(Exception):
     pass
@@ -63,7 +60,7 @@ class Warning(Exception):
     pass
 
 
-class Base:
+class Base(object):
     """
     Data Pool 2 SQL Base implementation
 
@@ -106,6 +103,10 @@ class Base:
     _OperationalError=OperationalError
     _ProgrammingError=ProgrammingError
     _Warning=Warning
+    
+    MetaTable = u"pool_meta"
+    FulltextTable = u"pool_fulltext"
+
 
     def __init__(self, connParam = None, structure = None, root = "",
                  useTrashcan = False, useBackups = False, 
@@ -200,8 +201,7 @@ class Base:
         Tables in statement get alias
         meta__ for pool_meta
         data__ for data table
-        version__ for version table
-
+        
         flds: select fields
         parameter: where clause parameter
         dataTable: add join statement for the table
@@ -224,7 +224,7 @@ class Base:
         jointype = operators.get("jointype", u"INNER")
         singleTable = kw.get("singleTable",0)
         version = kw.get("version")
-        metaStructure = self.structure.get(MetaTable, version=version)
+        metaStructure = self.structure.get(self.MetaTable, version=version)
         mapJoinFld = kw.get("mapJoinFld")
         fields = []
         for f in flds:
@@ -384,10 +384,7 @@ class Base:
                 if len(sortfld) > 0 and sortfld[0] == u"-":
                     aTable = u""
                     sortfld = sortfld[1:]
-                #elif sortfld in metaStructure[1]:
-                #    aTable = "version__."
                 elif sortfld in metaStructure or sortfld == u"pool_stag":
-                #elif sortfld in metaStructure[0] or sortfld == "pool_stag":
                     aTable = u"meta__."
                 elif dataTable != u"":
                     aTable = u"data__."
@@ -405,16 +402,8 @@ class Base:
         joindata = u""
         if not singleTable:
             # joins
-            if version:
-                BREAK("version")
-                join = u"INNER JOIN %s AS version__ ON (meta__.id = version__.id)" % (VersionTable)
-
             if dataTable != u"":
-                if version:
-                    BREAK("version")
-                    joindata = u"%s JOIN %s AS data__ ON (version__.pool_dataref = data__.id) " % (jointype, dataTable)
-                else:
-                    joindata = u"%s JOIN %s AS data__ ON (meta__.pool_dataref = data__.id) " % (jointype, dataTable)
+                joindata = u"%s JOIN %s AS data__ ON (meta__.pool_dataref = data__.id) " % (jointype, dataTable)
 
         limit = ""
         if max:
@@ -424,7 +413,7 @@ class Base:
         if kw.get("groupby"):
             groupby = u"GROUP BY %s" % kw.get("groupby")
 
-        table = MetaTable + u" AS meta__"
+        table = self.MetaTable + u" AS meta__"
         if singleTable:
             table = dataTable
 
@@ -464,9 +453,9 @@ class Base:
         searchPhrase = connection.FmtParam(self.DecodeText(searchPhrase))
 
         if kw.get("useMatch"):
-            aM = u"""MATCH (pool_fulltext.text) AGAINST (%s)""" % (searchPhrase)
+            aM = u"""MATCH (%s.text) AGAINST (%s)""" % (self.FulltextTable, searchPhrase)
         else:
-            aM = u"""pool_fulltext.text LIKE %s""" % (searchPhrase)
+            aM = u"""%s.text LIKE %s""" % (self.FulltextTable, searchPhrase)
 
         if not kw.get("skipRang"):
             aSql = aSql.replace(u"SELECT ", "SELECT %s AS rang__, " % (aM))
@@ -476,11 +465,7 @@ class Base:
                 aSql = aSql.replace(u"ORDER BY ", "WHERE %s \r\nORDER BY " % (aM))
             else:
                 aSql = aSql.replace(u"WHERE ", "WHERE %s AND " % (aM))
-        if kw.get("version"):
-            BREAK("version")
-            aSql = aSql.replace(u"INNER JOIN ", "LEFT JOIN pool_fulltext ON (meta__.id = pool_fulltext.id) \r\nINNER JOIN ")
-        else:
-            aSql = aSql.replace(u"FROM pool_meta AS meta__", "FROM pool_meta AS meta__\r\n\t\tLEFT JOIN pool_fulltext ON (meta__.id = pool_fulltext.id)")
+        aSql = aSql.replace(u"FROM %s AS meta__"%(self.MetaTable), "FROM %s AS meta__\r\n\t\tLEFT JOIN %s ON (meta__.id = %s.id)"%(self.MetaTable, self.FulltextTable, self.FulltextTable))
         #aSql = aSql.replace("ORDER BY ", "ORDER BY rang__, ")
         return aSql
 
@@ -714,7 +699,7 @@ class Base:
         if id:
             id, dataref = self._CreateFixID(id, dataTbl=pool_datatbl)
         else:
-            id, dataref = self._CreateNewID(table=MetaTable, dataTbl=pool_datatbl)
+            id, dataref = self._CreateNewID(table=self.MetaTable, dataTbl=pool_datatbl)
         if not id:
             #self._Error(-100)
             return None
@@ -742,8 +727,8 @@ class Base:
         ph = self.GetPlaceholder()
         # base record
         if self._debug:
-            STACKF(0,u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(MetaTable, ph)+"\r\n",self._debug, self._log,name=self.name)
-        aC.execute(u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(MetaTable, ph), (id,))
+            STACKF(0,u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph)+"\r\n",self._debug, self._log,name=self.name)
+        aC.execute(u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
         r = aC.fetchone()
         if not r:
             return 0
@@ -753,17 +738,13 @@ class Base:
         # data table
         if self._debug:
             STACKF(0,u"DELETE FROM %s WHERE id = %s"%(datatbl, ph),0, self._log,name=self.name)
-            STACKF(0,u"DELETE FROM %s WHERE id = %s"%(MetaTable, ph),0, self._log,name=self.name)
-            STACKF(0,u"DELETE FROM pool_fulltext WHERE id = %s",0, self._log,name=self.name)
-            #STACKF(0,u"DELETE FROM pool_lroles WHERE id = %s",0, self._log,name=self.name)
-            #STACKF(0,u"DELETE FROM pool_security WHERE id = %s",0, self._log,name=self.name)
+            STACKF(0,u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph),0, self._log,name=self.name)
+            STACKF(0,u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph),0, self._log,name=self.name)
 
         aC.execute(u"DELETE FROM %s WHERE id = %s"%(datatbl, ph), (dataref,))
-        # meta table
-        aC.execute(u"DELETE FROM %s WHERE id = %s"%(MetaTable, ph), (id,))
-        # fulltext
+        aC.execute(u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
         try:
-            aC.execute(u"DELETE FROM pool_fulltext WHERE id = %s"%(ph), (id,))
+            aC.execute(u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph), (id,))
         except:
             pass
 
@@ -778,14 +759,14 @@ class Base:
         """
         Query database if id exists
         """
-        aC = self.GetCursor()
-        ph = self.GetPlaceholder()
+        sql = self.GetSQLSelect(["id"], parameter={"id":id}, dataTable = self.MetaTable, singleTable=1)
         if self._debug:
-            STACKF(0,u"SELECT id FROM %s WHERE id = %d" % (MetaTable, id)+"\r\n",self._debug, self._log,name=self.name)
-        aC.execute(u"SELECT id FROM %s WHERE id = %s"%(MetaTable, ph), (id,))
-        aN = aC.fetchall()
-        aC.close()
-        return len(aN) == 1
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
+        c = self.GetCursor()
+        c.execute(sql)
+        n = c.fetchone()
+        c.close()
+        return n!=None
 
 
     def GetBatch(self, ids, **kw):
@@ -810,12 +791,12 @@ class Base:
             return entries
 
         if preload == u"meta":
-            flds = self.structure.get(u"pool_meta", version=version)
+            flds = self.structure.get(self.MetaTable, version=version)
             if not flds:
                 raise ConfigurationError, "Meta layer is empty."
             parameter = {"id": ids}
             operators = {"id": u"IN"}
-            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=MetaTable, max=len(ids), sort=sort, operators=operators, singleTable=1)
+            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, max=len(ids), sort=sort, operators=operators, singleTable=1)
             recs = self.Query(sql)
             for r in recs:
                 meta = self.ConvertRecToDict(r, flds)
@@ -836,13 +817,13 @@ class Base:
             parameter = {"id": ids}
             operators = {"id": u"IN"}
             # select list of datatbls
-            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=MetaTable, sort=sort, groupby=u"pool_datatbl", operators=operators, singleTable=1)
+            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, sort=sort, groupby=u"pool_datatbl", operators=operators, singleTable=1)
             tables = []
             for r in self.Query(sql):
                 if not r["pool_datatbl"] in tables:
                     tables.append(r[0])
         t = u""
-        fldsm = self.structure.get(u"pool_meta", version=version)
+        fldsm = self.structure.get(self.MetaTable, version=version)
         if not fldsm:
             raise ConfigurationError, "Meta layer is empty."
         unsorted = []
@@ -898,24 +879,24 @@ class Base:
         """
         refs = u"""
         pool_unitref as ref1,
-        (select pool_unitref from pool_meta where id = ref1) as ref2,
-        (select pool_unitref from pool_meta where id = ref2) as ref3,
-        (select pool_unitref from pool_meta where id = ref3) as ref4,
-        (select pool_unitref from pool_meta where id = ref4) as ref5,
-        (select pool_unitref from pool_meta where id = ref5) as ref6,
-        (select pool_unitref from pool_meta where id = ref6) as ref7,
-        (select pool_unitref from pool_meta where id = ref7) as ref8,
-        (select pool_unitref from pool_meta where id = ref8) as ref9,
-        (select pool_unitref from pool_meta where id = ref9) as ref10,
-        """
+        (select pool_unitref from %(meta)s where id = ref1) as ref2,
+        (select pool_unitref from %(meta)s where id = ref2) as ref3,
+        (select pool_unitref from %(meta)s where id = ref3) as ref4,
+        (select pool_unitref from %(meta)s where id = ref4) as ref5,
+        (select pool_unitref from %(meta)s where id = ref5) as ref6,
+        (select pool_unitref from %(meta)s where id = ref6) as ref7,
+        (select pool_unitref from %(meta)s where id = ref7) as ref8,
+        (select pool_unitref from %(meta)s where id = ref8) as ref9,
+        (select pool_unitref from %(meta)s where id = ref9) as ref10,
+        """ % {"meta": self.MetaTable}
 
         if parameter:
             parameter = u"where " + parameter
         sql = u"""
         select %s id
-        from pool_meta %s
+        from %s %s
         order by pool_unitref, %s
-        """ % (refs, parameter, sort)
+        """ % (refs, self.MetaTable, parameter, sort)
         aC = self.GetCursor()
         aC.execute(sql)
         l = aC.fetchall()
@@ -944,16 +925,16 @@ class Base:
         """
         refs = u"""
         pool_unitref as ref1,
-        (select pool_unitref from pool_meta where id = ref1) as ref2,
-        (select pool_unitref from pool_meta where id = ref2) as ref3,
-        (select pool_unitref from pool_meta where id = ref3) as ref4,
-        (select pool_unitref from pool_meta where id = ref4) as ref5,
-        (select pool_unitref from pool_meta where id = ref5) as ref6,
-        (select pool_unitref from pool_meta where id = ref6) as ref7,
-        (select pool_unitref from pool_meta where id = ref7) as ref8,
-        (select pool_unitref from pool_meta where id = ref8) as ref9,
-        (select pool_unitref from pool_meta where id = ref9) as ref10,
-        """
+        (select pool_unitref from %(meta)s where id = ref1) as ref2,
+        (select pool_unitref from %(meta)s where id = ref2) as ref3,
+        (select pool_unitref from %(meta)s where id = ref3) as ref4,
+        (select pool_unitref from %(meta)s where id = ref4) as ref5,
+        (select pool_unitref from %(meta)s where id = ref5) as ref6,
+        (select pool_unitref from %(meta)s where id = ref6) as ref7,
+        (select pool_unitref from %(meta)s where id = ref7) as ref8,
+        (select pool_unitref from %(meta)s where id = ref8) as ref9,
+        (select pool_unitref from %(meta)s where id = ref9) as ref10,
+        """ % {"meta":self.MetaTable}
 
         if parameter:
             parameter = u"where " + parameter
@@ -961,9 +942,9 @@ class Base:
         select 
         %s 
         %s
-        from pool_meta %s
+        from %s %s
         order by pool_unitref, %s
-        """ % (refs, ConvertListToStr(flds), parameter, sort)
+        """ % (refs, ConvertListToStr(flds), self.MetaTable, parameter, sort)
         aC = self.GetCursor()
         aC.execute(sql)
         l = aC.fetchall()
@@ -1024,18 +1005,6 @@ class Base:
         """
         if id == 0:
             return []
-        #select pool_unitref as ref1,
-        #(select pool_unitref from pool_meta where id = ref1) as ref2,
-        #(select pool_unitref from pool_meta where id = ref2) as ref3,
-        #(select pool_unitref from pool_meta where id = ref3) as ref4,
-        #(select pool_unitref from pool_meta where id = ref4) as ref5,
-        #(select pool_unitref from pool_meta where id = ref5) as ref6,
-        #(select pool_unitref from pool_meta where id = ref6) as ref7,
-        #(select pool_unitref from pool_meta where id = ref7) as ref8,
-        #(select pool_unitref from pool_meta where id = ref8) as ref9,
-        #(select pool_unitref from pool_meta where id = ref9) as ref10
-        #from pool_meta where id = %d
-
         sql = u"""
         SELECT t1.pool_unitref AS ref1, 
          t2.pool_unitref as ref2, 
@@ -1047,17 +1016,17 @@ class Base:
          t8.pool_unitref as ref8,
          t9.pool_unitref as ref9,
          t10.pool_unitref as ref10
-        FROM pool_meta AS t1
-        LEFT JOIN pool_meta AS t2 ON t2.id = t1.pool_unitref
-        LEFT JOIN pool_meta AS t3 ON t3.id = t2.pool_unitref
-        LEFT JOIN pool_meta AS t4 ON t4.id = t3.pool_unitref
-        LEFT JOIN pool_meta AS t5 ON t5.id = t4.pool_unitref
-        LEFT JOIN pool_meta AS t6 ON t6.id = t5.pool_unitref
-        LEFT JOIN pool_meta AS t7 ON t7.id = t6.pool_unitref
-        LEFT JOIN pool_meta AS t8 ON t8.id = t7.pool_unitref
-        LEFT JOIN pool_meta AS t9 ON t9.id = t8.pool_unitref
-        LEFT JOIN pool_meta AS t10 ON t10.id = t9.pool_unitref
-        WHERE t1.id = %d;""" % (id)
+        FROM %(meta)s AS t1
+        LEFT JOIN %(meta)s AS t2 ON t2.id = t1.pool_unitref
+        LEFT JOIN %(meta)s AS t3 ON t3.id = t2.pool_unitref
+        LEFT JOIN %(meta)s AS t4 ON t4.id = t3.pool_unitref
+        LEFT JOIN %(meta)s AS t5 ON t5.id = t4.pool_unitref
+        LEFT JOIN %(meta)s AS t6 ON t6.id = t5.pool_unitref
+        LEFT JOIN %(meta)s AS t7 ON t7.id = t6.pool_unitref
+        LEFT JOIN %(meta)s AS t8 ON t8.id = t7.pool_unitref
+        LEFT JOIN %(meta)s AS t9 ON t9.id = t8.pool_unitref
+        LEFT JOIN %(meta)s AS t10 ON t10.id = t9.pool_unitref
+        WHERE t1.id = %(id)d;""" % {"id":id, "meta": self.MetaTable}
         
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
@@ -1087,18 +1056,6 @@ class Base:
         if id == 0:
             return []
         aC = self.GetCursor()
-        #select pool_unitref as ref1, title as title1,
-        #(select pool_unitref from pool_meta where id = ref1) as ref2, (select title from pool_meta where id = ref1) as title2,
-        #(select pool_unitref from pool_meta where id = ref2) as ref3, (select title from pool_meta where id = ref2) as title3,
-        #(select pool_unitref from pool_meta where id = ref3) as ref4, (select title from pool_meta where id = ref3) as title4,
-        #(select pool_unitref from pool_meta where id = ref4) as ref5, (select title from pool_meta where id = ref4) as title5,
-        #(select pool_unitref from pool_meta where id = ref5) as ref6, (select title from pool_meta where id = ref5) as title6,
-        #(select pool_unitref from pool_meta where id = ref6) as ref7, (select title from pool_meta where id = ref6) as title7,
-        #(select pool_unitref from pool_meta where id = ref7) as ref8, (select title from pool_meta where id = ref7) as title8,
-        #(select pool_unitref from pool_meta where id = ref8) as ref9, (select title from pool_meta where id = ref8) as title9,
-        #(select pool_unitref from pool_meta where id = ref9) as ref10, (select title from pool_meta where id = ref9) as title10
-        #from pool_meta where id = %d
-
         sql = u"""
         SELECT t1.pool_unitref AS ref1, t1.title AS title1, 
          t2.pool_unitref as ref2, t2.title AS title2,
@@ -1110,17 +1067,17 @@ class Base:
          t8.pool_unitref as ref8, t8.title AS title8,
          t9.pool_unitref as ref9, t9.title AS title9,
          t10.pool_unitref as ref10, t10.title AS title10 
-        FROM pool_meta AS t1
-        LEFT JOIN pool_meta AS t2 ON t2.id = t1.pool_unitref
-        LEFT JOIN pool_meta AS t3 ON t3.id = t2.pool_unitref
-        LEFT JOIN pool_meta AS t4 ON t4.id = t3.pool_unitref
-        LEFT JOIN pool_meta AS t5 ON t5.id = t4.pool_unitref
-        LEFT JOIN pool_meta AS t6 ON t6.id = t5.pool_unitref
-        LEFT JOIN pool_meta AS t7 ON t7.id = t6.pool_unitref
-        LEFT JOIN pool_meta AS t8 ON t8.id = t7.pool_unitref
-        LEFT JOIN pool_meta AS t9 ON t9.id = t8.pool_unitref
-        LEFT JOIN pool_meta AS t10 ON t10.id = t9.pool_unitref
-        WHERE t1.id = %d;""" % (id)        
+        FROM %(meta)s AS t1
+        LEFT JOIN %(meta)s AS t2 ON t2.id = t1.pool_unitref
+        LEFT JOIN %(meta)s AS t3 ON t3.id = t2.pool_unitref
+        LEFT JOIN %(meta)s AS t4 ON t4.id = t3.pool_unitref
+        LEFT JOIN %(meta)s AS t5 ON t5.id = t4.pool_unitref
+        LEFT JOIN %(meta)s AS t6 ON t6.id = t5.pool_unitref
+        LEFT JOIN %(meta)s AS t7 ON t7.id = t6.pool_unitref
+        LEFT JOIN %(meta)s AS t8 ON t8.id = t7.pool_unitref
+        LEFT JOIN %(meta)s AS t9 ON t9.id = t8.pool_unitref
+        LEFT JOIN %(meta)s AS t10 ON t10.id = t9.pool_unitref
+        WHERE t1.id = %(id)d;""" % {"id": id, "meta": self.MetaTable}        
         
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
@@ -1155,10 +1112,12 @@ class Base:
 
     # Pool status ---------------------------------------------------------------------
 
-    def GetCountEntries(self, table = MetaTable):
+    def GetCountEntries(self, table = None):
         """
         Returns the total number of entries in the pool
         """
+        if not table:
+            table = self.MetaTable
         aC = self.GetCursor()
         aC.execute(u"SELECT COUNT(*) FROM %s" % (table))
         aN = aC.fetchone()[0]
@@ -1293,21 +1252,7 @@ class Entry:
         if not self.IsValid():
             #print "not valid"
             return False
-
-        # sql select id
-        ph = self.pool.GetPlaceholder()
-        if self.version:
-            BREAK("version")
-            aSql = u"SELECT id FROM %s WHERE id = %s" % (MetaTable, ph)
-        else:
-            aSql = u"SELECT id FROM %s WHERE id = %s" % (MetaTable, ph)
-        aC = self.pool.GetCursor()
-        if self.pool._debug:
-            STACKF(0,aSql+"\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
-        aC.execute(aSql, (self.id,))
-        r = aC.fetchone() != None
-        aC.close()
-        return r
+        return self.pool.IsIDUsed(self.id)
 
 
     def IsValid(self):
@@ -1327,7 +1272,7 @@ class Entry:
             cursor = self.pool.GetCursor()
             # meta
             if self.meta.HasTemp():
-                self.pool.UpdateFields(MetaTable, self.id, self.meta.GetTemp(), cursor)
+                self.pool.UpdateFields(self.pool.MetaTable, self.id, self.meta.GetTemp(), cursor)
             # data
             if self.data.HasTemp():
                 self.pool.UpdateFields(self.GetDataTbl(), self.GetDataRef(), self.data.GetTemp(), cursor)
@@ -1381,9 +1326,9 @@ class Entry:
         if not fromDB and self.cacheRec and self.meta.has_key(fld):
             return self.meta[fld]
 
-        sql =u"SELECT %s FROM %s WHERE id = %s" % (fld, MetaTable, self.id)
+        sql = self.pool.GetSQLSelect([fld], parameter={"id":self.id}, dataTable=self.pool.MetaTable, singleTable=1)
         data = self._GetFld(sql)
-        data = self.pool.structure.deserialize(MetaTable, fld, data)
+        data = self.pool.structure.deserialize(self.pool.MetaTable, fld, data)
         self._UpdateCache({fld: data})
         return data
 
@@ -1397,7 +1342,7 @@ class Entry:
             return self.data[fld]
 
         tbl = self.GetDataTbl()
-        sql = u"SELECT %s FROM %s WHERE id = %s" % (fld, tbl, self.GetDataRef())
+        sql = self.pool.GetSQLSelect([fld], parameter={"id":self.GetDataRef()}, dataTable=tbl, singleTable=1)
         data = self._GetFld(sql)
         data = self.pool.structure.deserialize(tbl, fld, data)
         self._UpdateCache(None, {fld: data})
@@ -1411,8 +1356,8 @@ class Entry:
         if self.cacheRec and not self.meta.IsEmpty():
             return self.meta.copy()
 
-        data =  self._SQLSelect(self.pool.structure.get(MetaTable, version=self.version))
-        data = self.pool.structure.deserialize(MetaTable, None, data)
+        data =  self._SQLSelect(self.pool.structure.get(self.pool.MetaTable, version=self.version))
+        data = self.pool.structure.deserialize(self.pool.MetaTable, None, data)
         self._UpdateCache(data)
         data[u"id"] = self.id
         return data
@@ -1445,7 +1390,7 @@ class Entry:
         Update single field to meta layer.
         Commits changes immediately to database without calling touch.
         """
-        temp = self.pool.UpdateFields(MetaTable, self.id, {fld:data})
+        temp = self.pool.UpdateFields(self.pool.MetaTable, self.id, {fld:data})
         self.pool.Commit()
         self._UpdateCache(temp)
         return True
@@ -1621,50 +1566,34 @@ class Entry:
         """
         if text==None:
             text=""
-        ph = self.pool.GetPlaceholder()
-        if self.version:
-            BREAK("version")
-            aLang = self.GetLanguage()
-            aSql = u"SELECT id FROM pool_fulltext WHERE id = %s AND pool_versions = '%s'" % (self.id, aLang)
-        else:
-            aSql = u"SELECT id FROM pool_fulltext WHERE id = %s"%(ph)
-        aCursor = self.pool.GetCursor()
+        sql = self.pool.GetSQLSelect(["id"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
+        cursor = self.pool.GetCursor()
         if self.pool._debug:
-            STACKF(0,aSql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
-        aCursor.execute(aSql, (self.id,))
-        r = aCursor.fetchone()
-        if not r:
-            aSql = u"INSERT INTO pool_fulltext (text, id) VALUES (%s, %s)" %(ph, ph)
-        else:
-            aSql = u"UPDATE pool_fulltext SET text = %s WHERE id = %s" %(ph, ph)
+            STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
+        cursor.execute(sql)
+        r = cursor.fetchone()
         text = self.pool.DecodeText(text)
-        if self.pool._debug:
-            STACKF(0,aSql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
-        aCursor.execute(aSql, (text, self.id))
-        aCursor.close()
+        if not r:
+            self.pool.InsertFields(self.pool.FulltextTable, {"text": text, "id": self.id}, cursor = cursor)
+        else:
+            self.pool.UpdateFields(self.pool.FulltextTable, self.id, {"text": text}, cursor = cursor)
+        cursor.close()
 
 
     def GetFulltext(self):
         """
         read fulltext from entry
         """
-        ph = self.pool.GetPlaceholder()
-        if self.version:
-            BREAK("version")
-            aLang = self.GetLanguage()
-            aSql = u"SELECT id,text FROM pool_fulltext WHERE id = %s AND pool_versions = '%s'" % (self.id, aLang)
-        else:
-            aSql = u"SELECT id,text FROM pool_fulltext WHERE id = %s"%(ph)
-        aCursor = self.pool.GetCursor()
+        sql = self.pool.GetSQLSelect(["text"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
+        cursor = self.pool.GetCursor()
         if self.pool._debug:
-            STACKF(0,aSql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
-        aCursor.execute(aSql, (self.id,))
-        r = aCursor.fetchone()
-        aCursor.close()
+            STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
+        cursor.execute(sql)
+        r = cursor.fetchone()
+        cursor.close()
         if not r:
-            return ""
-        text = self.pool.DecodeText(r[1])
-        return text
+            return u""
+        return self.pool.DecodeText(r[0])
 
 
     def DeleteFulltext(self):
@@ -1672,12 +1601,7 @@ class Entry:
         Delete fulltext for entry
         """
         ph = self.pool.GetPlaceholder()
-        if self.version:
-            BREAK("version")
-            aLang = self.GetLanguage()
-            aSql = u"DELETE FROM pool_fulltext WHERE id = %s AND pool_versions = '%s'" % (self.id, aLang)
-        else:
-            aSql = u"DELETE FROM pool_fulltext WHERE id = %s"%(ph)
+        aSql = u"DELETE FROM %s WHERE id = %s"%(self.pool.FulltextTable, ph)
         if self.pool._debug:
             STACKF(0,aSql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
         aCursor = self.pool.GetCursor()
@@ -1728,7 +1652,7 @@ class Entry:
         select one entry and convert to dictionary
         """
         if not table:
-            table = MetaTable
+            table = self.pool.MetaTable
             param = {u"id": self.id}
         else:
             param = {u"id": self.GetDataRef()}
@@ -1786,12 +1710,12 @@ class Entry:
             return True
         dataTbl = self.GetDataTbl()
         c = self.pool.GetCursor()
-        meta, data = self._SQLSelectAll(self.pool.structure.get(MetaTable, version=self.version),
+        meta, data = self._SQLSelectAll(self.pool.structure.get(self.pool.MetaTable, version=self.version),
                                         self.pool.structure.get(dataTbl, version=self.version), c)
         c.close()
         if not meta:
             return False
-        meta = self.pool.structure.deserialize(MetaTable, None, meta)
+        meta = self.pool.structure.deserialize(self.pool.MetaTable, None, meta)
         data = self.pool.structure.deserialize(dataTbl, None, data)
         self._UpdateCache(meta, data)
         return True
@@ -1801,11 +1725,11 @@ class Entry:
         if self.virtual:
             return True
         c = self.pool.GetCursor()
-        meta = self._SQLSelect(self.pool.structure.get(MetaTable, self.version), c)
+        meta = self._SQLSelect(self.pool.structure.get(self.pool.MetaTable, self.version), c)
         c.close()
         if not meta:
             return False
-        meta = self.pool.structure.deserialize(MetaTable, None, meta)
+        meta = self.pool.structure.deserialize(self.pool.MetaTable, None, meta)
         self._UpdateCache(meta)
         return True
 
@@ -1833,7 +1757,7 @@ class Entry:
         c.close()
         if not meta:
             return False
-        meta = self.pool.structure.deserialize(MetaTable, None, meta)
+        meta = self.pool.structure.deserialize(self.pool.MetaTable, None, meta)
         self._UpdateCache(meta)
         return True
 
@@ -1847,7 +1771,7 @@ class Entry:
         c.close()
         if not meta:
             return False
-        meta = self.pool.structure.deserialize(MetaTable, None, meta)
+        meta = self.pool.structure.deserialize(self.pool.MetaTable, None, meta)
         data = self.pool.structure.deserialize(dataTbl, None, data)
         self._UpdateCache(meta, data)
         return True
@@ -2254,14 +2178,14 @@ class PoolStructure:
     
         structure =
             {
-             pool_meta:   (field1, field2, ...),
+             meta:   (field1, field2, ...),
              type1_table: (field5, field6, ...),
              type2_table: (field8, field9, ...),
             }
 
         fieldtypes = 
             {
-             pool_meta: {field1: string, field2: number},
+             meta: {field1: string, field2: number},
              type1_table: {field5: DateTime, field6: text},
              type2_table: {field8: DateTime, field9: text},
             }
@@ -2269,7 +2193,8 @@ class PoolStructure:
         stdMeta = (field1, field2)
 
     """
-
+    MetaTable = u"pool_meta"
+    
     def __init__(self, structure=None, fieldtypes=None, stdMeta=None, **kw):
         #
         self.stdMeta = ()
@@ -2281,13 +2206,13 @@ class PoolStructure:
 
     def Init(self, structure, fieldtypes=None, stdMeta=None, **kw):
         s = structure.copy()
-        meta = list(s[u"pool_meta"])
+        meta = list(s[self.MetaTable])
         # add default fields
-        if not u"pool_dataref" in s[u"pool_meta"]:
+        if not u"pool_dataref" in s[self.MetaTable]:
             meta.append(u"pool_dataref")
-        if not u"pool_datatbl" in s[u"pool_meta"]:
+        if not u"pool_datatbl" in s[self.MetaTable]:
             meta.append(u"pool_datatbl")
-        s[u"pool_meta"] = tuple(meta)
+        s[self.MetaTable] = tuple(meta)
         for k in s:
             s[k] = tuple(s[k])
         self.structure = s
