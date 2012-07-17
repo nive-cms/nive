@@ -328,7 +328,7 @@ class ObjectEdit:
             self.WfAction("edit", user=user)
         except Exception, e:
             self.Undo()
-            raise Exception, e
+            raise 
         return True
 
 
@@ -370,7 +370,7 @@ class ObjectEdit:
             self.WfAction("edit", user=user)
         except Exception, e:
             self.Undo()
-            raise Exception, e
+            raise 
 
         if app.configuration.autocommit:
             self.CommitInternal(user=user)
@@ -404,7 +404,7 @@ class ObjectEdit:
             self.WfAction("edit", user=user)
         except Exception, e:
             self.Undo()
-            raise Exception, e
+            raise 
 
         if app.configuration.autocommit:
             self.CommitInternal(user=user)
@@ -439,7 +439,7 @@ class ObjectEdit:
             self.WfAction("edit", user=user)
         except Exception, e:
             self.Undo()
-            raise Exception, e
+            raise 
 
         if app.configuration.autocommit:
             self.CommitInternal(user=user)
@@ -502,7 +502,7 @@ class ObjectEdit:
             self.WfAction("create", user=user)
         except Exception, e:
             self.Undo()
-            raise Exception, e
+            raise 
 
         return
 

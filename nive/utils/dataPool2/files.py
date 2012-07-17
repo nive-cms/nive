@@ -29,7 +29,7 @@ from nive.utils.utils import GetMimeTypeExtension, GetExtensionMimeType, Convert
 
 
 
-#[s] FileManager Constants ---------------------------------------------------------------------------
+# FileManager Constants ---------------------------------------------------------------------------
 
 #[<]
 DirectoryCnt = -4                 # directory id range limit
@@ -47,7 +47,7 @@ class File(object):
     Simple file maping object. file can be stored as data or stream object
     """
 
-    def __init__(self, tag="", filename="", file=None, size=0, path="", extension="", fileid=0, uid="", tempfile=False, mime="", filedict=None):
+    def __init__(self, tag="", filename="", file=None, size=0, path="", extension="", fileid=0, uid="", tempfile=False, mime="", filedict=None, fileentry=None):
         self.tag = tag
         self.filename = filename
         self.file = file
@@ -58,6 +58,7 @@ class File(object):
         self.mime = ""
         self.extension = extension
         self.tempfile = tempfile
+        self.fileentry = fileentry
         if filedict:
             self.update(filedict)
 
@@ -84,7 +85,7 @@ class File(object):
         self.path = path
 
 
-    def read(self, size=0):
+    def read(self, size=-1):
         if not self.file and not size:
             file = open(self.path)
             data = file.read()
@@ -179,7 +180,7 @@ class FileManager:
         self.root.CreateDirectoriesExcp()
 
 
-    #[s] Searching --------------------------------------------------------------
+    # Searching --------------------------------------------------------------
 
     def SearchFilename(self, filename):
         """
@@ -202,7 +203,7 @@ class FileManager:
         return f2
 
 
-    #[s] Filename conversion -------------------------------------------------------------
+    # Filename conversion -------------------------------------------------------------
 
     def ConvertFilenameToProp(self, key):
         aProp = {}
@@ -235,7 +236,7 @@ class FileManager:
         return u"_"
 
 
-    #[i] Internal --------------------------------------------------------------
+    # Internal --------------------------------------------------------------
 
     def GetSystemPath(self, file, path="", absolute = True, includeTemp = True):
         """
@@ -279,7 +280,7 @@ class FileManager:
 
 
     def _GetDirectory(self, id):
-        """[i]
+        """
         construct directory path without root
         """
         return (u"%06d" % (id))[DirectoryCnt:-2] + u"00/" + (u"%06d" % (id))[DirectoryCnt+2:]
@@ -326,7 +327,7 @@ class FileEntry:
     File container class
     """
 
-    #[s] Searching and file meta-------------------------------------------------------------------------
+    # Searching and file meta-------------------------------------------------------------------------
 
     def Files(self, param={}):
         """
@@ -345,7 +346,7 @@ class FileEntry:
         files = []
         for f in recs:
             d = self.pool.ConvertRecToDict(f, FileTableFields)
-            file = File(d["tag"], filedict=d)
+            file = File(d["tag"], filedict=d, fileentry=self)
             file.path = self.pool.GetSystemPath(file, True)
             files.append(file)
         return files
@@ -379,7 +380,7 @@ class FileEntry:
         return f[0]["fileid"]
          
          
-    #[s] Read File --------------------------------------------------------------------
+    # Read File --------------------------------------------------------------------
 
     def GetFile(self, tag):
         """
@@ -396,7 +397,7 @@ class FileEntry:
         return file
 
 
-    def GetFileData(self, tag):
+    def GetFileData(self, tag=None, fileid=None):
         """
         Get the file matching the prop description
         """
@@ -408,7 +409,7 @@ class FileEntry:
         return data
 
 
-    #[s] Store File --------------------------------------------------------------------
+    # Store File --------------------------------------------------------------------
 
     def SetFile(self, tag, file):
         """
@@ -421,10 +422,10 @@ class FileEntry:
 
         # convert to File object
         if type(file) == DictType:
-            file = File(tag, filedict=file)
+            file = File(tag, filedict=file, fileentry=self)
         elif isinstance(file, basestring):
             # load from temp path
-            f = File(tag)
+            f = File(tag, fileentry=self)
             f.SetFromPath(file)
             file = f
         else:
@@ -490,7 +491,7 @@ class FileEntry:
         return True
 
 
-    #[s] Options --------------------------------------------------------------------
+    # Options --------------------------------------------------------------------
 
     def FileExists(self, file):
         """
@@ -581,7 +582,7 @@ class FileEntry:
         return True
 
 
-    #[s] Path handling --------------------------------------------------------------------
+    # Path handling --------------------------------------------------------------------
 
     def GetPath(self, file, absolute = True):
         """
@@ -594,7 +595,7 @@ class FileEntry:
         return self.pool.GetSystemPath(file, absolute)
 
 
-    #[s] Backups -------------------------------------------------------------------------
+    # Backups -------------------------------------------------------------------------
 
     def GetRecentBackup(self, tag):
         """
@@ -634,7 +635,7 @@ class FileEntry:
         return aFiles
 
 
-    #[i] internal --------------------------------------------------------------------
+    # internal --------------------------------------------------------------------
 
     def _SetStream(self, file):
         """
@@ -701,7 +702,7 @@ class FileEntry:
 
 
     def _GetKey(self, tag, backup = None):
-        """[i]
+        """
         Constructs the key for the file. Used as filename.
         """
         aID = u"%06d" % (self.id)
@@ -716,7 +717,7 @@ class FileEntry:
 
 
     def _CreatePath(self, tag, filename, backup = None):
-        """[i]
+        """
         Create the physical path of the file
         """
         aExtension = DvPath(filename).GetExtension()

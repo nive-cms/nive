@@ -1297,7 +1297,7 @@ class Entry:
                 self.Undo()
             except:
                 pass
-            raise Exception, e
+            raise 
         return True
 
 
@@ -2137,11 +2137,11 @@ class FileWrapper(Wrapper):
                 del self._content_[key]
             return
         if type(filedata) == DictType:
-            file = File(key, filedict=filedata)
+            file = File(key, filedict=filedata, fileentry=self._entry_)
             filedata = file
         elif type(filedata) == StringType:
             # load from temp path
-            file = File(key)
+            file = File(key, fileentry=self._entry_)
             file.SetFromPath(filedata)
             filedata = file
         filedata.tempfile = True

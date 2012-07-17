@@ -381,7 +381,7 @@ class ContainerEdit:
                 newobj.CommitInternal(user=user)
         except Exception, e:
              self._DeleteObj(newobj)
-             raise Exception, e
+             raise 
          
         return newobj
     
