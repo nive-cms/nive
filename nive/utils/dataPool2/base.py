@@ -104,6 +104,8 @@ class Base(object):
     _ProgrammingError=ProgrammingError
     _Warning=Warning
     
+    EmptyValues = None
+
     MetaTable = u"pool_meta"
     FulltextTable = u"pool_fulltext"
 
@@ -470,15 +472,21 @@ class Base(object):
         return aSql
 
 
-    def Query(self, sql, values = None):
+    def Query(self, sql, values = None, cursor=None, getResult=True):
         """
         execute a query on the database. non unicode texts are converted according to codepage settings.
         """
-        c = self.GetCursor()
+        cc=True
+        if cursor:
+            c = cursor
+            cc=False
+        else:
+            c = self.GetCursor()
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         sql = self.DecodeText(sql)
         if values:
+            #opt
             v1 = []
             for v in values:
                 if type(v) == StringType:
@@ -486,17 +494,26 @@ class Base(object):
                 else:
                     v1.append(v)
             values = v1
+        # adjust different accepted empty values sets
+        if not values:
+            values = self.EmptyValues
         try:
             c.execute(sql, values)
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
-        try:
-            r = c.fetchall()
+            self.Undo()
         except self._ProgrammingError, e:
-            r = ()
-            pass
-        c.close()
+            # map to nive.utils.dataPool2.base.OperationalError
+            self.Undo()
+            raise ProgrammingError, e
+        if not getResult:
+            if cc:
+                c.close()
+            return
+        r = c.fetchall()
+        if cc:
+            c.close()
 
         set2 = []
         for rec in r:
@@ -510,20 +527,37 @@ class Base(object):
         return set2
 
 
-    def QueryRaw(self, sql, values = None):
+    def QueryRaw(self, sql, values = None, cursor=None, getResult=True):
         """
         execute a query on the database.
         """
-        c = self.GetCursor()
+        cc=True
+        if cursor:
+            c = cursor
+            cc=False
+        else:
+            c = self.GetCursor()
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
+        # adjust different accepted empty values sets
+        if not values:
+            values = self.EmptyValues
         try:
             c.execute(sql, values)
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
+        except self._ProgrammingError, e:
+            # map to nive.utils.dataPool2.base.OperationalError
+            self.Undo()
+            raise ProgrammingError, e
+        if not getResult:
+            if cc:
+                c.close()
+            return
         l = c.fetchall()
-        c.close()
+        if cc:
+            c.close()
         return l
 
 
@@ -723,13 +757,13 @@ class Base(object):
         """
         if version:
             BREAK("version")
-        aC = self.GetCursor()
+        cursor = self.GetCursor()
         ph = self.GetPlaceholder()
         # base record
         if self._debug:
             STACKF(0,u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph)+"\r\n",self._debug, self._log,name=self.name)
-        aC.execute(u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
-        r = aC.fetchone()
+        cursor.execute(u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
+        r = cursor.fetchone()
         if not r:
             return 0
         dataref = r[0]
@@ -741,17 +775,14 @@ class Base(object):
             STACKF(0,u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph),0, self._log,name=self.name)
             STACKF(0,u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph),0, self._log,name=self.name)
 
-        aC.execute(u"DELETE FROM %s WHERE id = %s"%(datatbl, ph), (dataref,))
-        aC.execute(u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
-        try:
-            aC.execute(u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph), (id,))
-        except:
-            pass
+        cursor.execute(u"DELETE FROM %s WHERE id = %s"%(datatbl, ph), (dataref,))
+        cursor.execute(u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
+        cursor.execute(u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph), (id,))
 
         # delete files
-        aResultFile = self._DeleteFiles(id, version)
+        self._DeleteFiles(id, cursor, version)
 
-        aC.close()
+        cursor.close()
         return 1
 
 
@@ -1168,7 +1199,7 @@ class Base(object):
         """
         return str(err)
 
-    def _DeleteFiles(self, id, version):
+    def _DeleteFiles(self, id, cursor, version):
         pass
 
     def _GetDefaultDBEncoding(self):
@@ -1282,11 +1313,11 @@ class Entry:
                 if temp:
                     for tag in temp.keys():
                         file = temp[tag]
-                        result = self.SetFile(tag, file)
+                        result = self.SetFile(tag, file, cursor=cursor)
                         if not result:
                             raise TypeError, "File save error (%s)." #%(self.GetError())
-            cursor.close()
             self.pool.Commit()
+            cursor.close()
             self.data.SetContent(self.data.GetTemp())
             self.data.clear()
             self.meta.SetContent(self.meta.GetTemp())
@@ -2068,7 +2099,10 @@ class Wrapper(object):
     def keys(self):
         if not self._content_:
             self._Load()
-        return self._content_.keys()
+        t = self._content_.keys()
+        t += self._temp_.keys()
+        return t
+
 
 
     def IsEmpty(self):                return self._content_ == None
@@ -2291,6 +2325,18 @@ class PoolStructure:
             if type(value) in (ListType, TupleType):
                 value = ConvertListToStr(value)
 
+        elif fieldtype in ("bool"):
+            if isinstance(value, basestring):
+                if value.lower()=="true":
+                    value = 1
+                elif value.lower()=="false":
+                    value = 0
+            else:
+                try:
+                    value = int(value)
+                except:
+                    value = 0
+
         return value
 
     def _de(self, value, fieldtype):
@@ -2305,7 +2351,6 @@ class PoolStructure:
                     d = DvDateTime(value)
                     value = datetime.fromtimestamp(d.GetFloat())
                     
-        
         elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
             if not type(value) in (ListType, TupleType):
                 value = ConvertToList(value)

@@ -142,25 +142,17 @@ By default this tool will only create new tables and columns and never delete an
             if(fmt == []):
                 continue
 
-            try:
-                m = None
-                if modify:
-                    m = request.get(aT["dbparam"])
-                    if type(m) == type(""):
-                        m = [m]
-                if not db.UpdateStructure(aT["dbparam"], fmt, m):
-                    self.stream.write(u"")
-                    self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name})</div>", mapping=aT)))
-                    result = 0
-                    continue
-                db.dbConn.commit()
-            except Exception, e:
+            m = None
+            if modify:
+                m = request.get(aT["dbparam"])
+                if type(m) == type(""):
+                    m = [m]
+            if not db.UpdateStructure(aT["dbparam"], fmt, m):
                 self.stream.write(u"")
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name})</div>", mapping=aT)))
-                self.stream.write(u"")
-                self.stream.write(u"<b>"+str(e)+u"</b>")
                 result = 0
                 continue
+            db.dbConn.commit()
                 
             self.printStructure(db.GetColumns(aT["dbparam"], fmt), aT["dbparam"], fmt, db, localizer)
 
@@ -254,13 +246,16 @@ By default this tool will only create new tables and columns and never delete an
 
         self.stream.write(header)
         for col in structure:
+            id = col
             col = structure[col].get("db")
+            if not col:
+                col = {"id":id, "type": u"", "default": u"", "null": u"", "identity": u""}
             conf = u""
             for d in fmt:
-                if d["id"].upper() == col["id"].upper():
+                if col and d["id"].upper() == col["id"].upper():
                     conf = db.ConvertConfToColumnOptions(d)
                     break
-            col["Modify"] = cb % (table, col["id"])
+            col["Modify"] = cb % (table, id)
             col["Conf"] = conf
             self.stream.write(row % col)
 

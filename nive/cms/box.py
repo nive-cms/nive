@@ -34,6 +34,9 @@ class box(PageElementContainerBase):
         return True
 
     
+    def IsPage(self):
+        return False
+        
     def GetPage(self):
         # return the current element container
         return self.GetParent()
@@ -84,7 +87,7 @@ off =[  {'id': u'', 'name': _(u'none')},
 configuration.data = [
     FieldConf(id="span", datatype="list", size=20, default=u"", listItems=css, 
               name=_(u"Block size"), description=u""),
-    FieldConf(id="offset", datatype="list", size=20, default=u"", listItems=off, 
+    FieldConf(id="spanoffset", datatype="list", size=20, default=u"", listItems=off, 
               name=_(u"Block empty offset left"), description=_(u"Please note: The blocksize and offset values added together can not be larger than 1. Adjust both fields accordingly.")),
     FieldConf(id="highlight", datatype="bool", size=2, default=False,  
               name=_(u"Highlight box contents"), description=_(u"This option will add a colored background to highlight the box and its contents.")),
@@ -93,7 +96,7 @@ configuration.data = [
 ]    
 
 
-fields = ["title", "span", "offset", "highlight", "gallery", "pool_groups"]
+fields = ["title", "span", "spanoffset", "highlight", "gallery", "pool_groups"]
 configuration.forms = {"create": {"fields":fields}, "edit": {"fields":fields}}
 
 configuration.views = []

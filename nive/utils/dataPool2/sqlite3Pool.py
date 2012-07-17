@@ -46,6 +46,7 @@ class Sqlite3(FileManager, Base):
     Data Pool Sqlite3 implementation
     """
     _OperationalError = sqlite3.OperationalError
+    EmptyValues = []
 
 
     def GetContainedIDs(self, base=0, sort=u"title", parameter=u""):
@@ -93,60 +94,7 @@ class Sqlite3(FileManager, Base):
         cursor.close()
         return tree
     
-        
-    def Query(self, sql, values = []):
-        """
-        execute a query on the database. texts are converted according to codepage settings.
-        """
-        c = self.GetCursor()
-        if self._debug:
-            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        sql = self.DecodeText(sql)
-        if values:
-            v1 = []
-            for v in values:
-                if type(v) == StringType:
-                    v1.append(self.DecodeText(v))
-                else:
-                    v1.append(v)
-            values = v1
-        try:
-            c.execute(sql, values)
-        except self._OperationalError, e:
-            # map to nive.utils.dataPool2.base.OperationalError
-            raise OperationalError, e
-        r = c.fetchall()
-        c.close()
-
-        set2 = []
-        for rec in r:
-            rec2 = []
-            for d in rec:
-                if type(d) == StringType:
-                    rec2.append(self.EncodeText(d))
-                else:
-                    rec2.append(d)
-            set2.append(rec2)
-        return set2
-    
-
-    def QueryRaw(self, sql, values = []):
-        """
-        execute a query on the database.
-        """
-        c = self.GetCursor()
-        if self._debug:
-            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        try:
-            c.execute(sql, values)
-        except self._OperationalError, e:
-            # map to nive.utils.dataPool2.base.OperationalError
-            raise OperationalError, e
-        l = c.fetchall()
-        c.close()
-        return l
-
-        
+               
     def _CreateNewID(self, table = u"", dataTbl = None):
         #[i]
         aC = self.GetCursor()

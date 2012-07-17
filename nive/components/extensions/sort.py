@@ -79,7 +79,7 @@ class Sort:
         fields=[u"-max(pool_sort)"]
         root = self.root()
         parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
-        r = root.Select(parameter=parameter, fields=fields, operators=operators, sort=u"id", max=1)
+        r = root.Select(parameter=parameter, fields=fields, operators=operators, sort=u"", max=1)
         if len(r):
             s = r[0][0]
             if s==None:

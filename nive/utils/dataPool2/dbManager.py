@@ -217,7 +217,7 @@ class MySQLManager(object):
                 aN = int(aN)
             aStr = u"TINYINT(4) NOT NULL DEFAULT %d" % (aN)
 
-        elif datatype in ("text", "htext", "url", "urllist", "json"):
+        elif datatype in ("text", "htext", "url", "urllist", "json", "code"):
             aStr = u"TEXT NOT NULL" # DEFAULT '%s'" % (conf["default"])
 
         elif datatype == "unit":
@@ -397,7 +397,8 @@ class MySQLManager(object):
 
     def IsColumn(self, tableName, columnName):
         columns = self.GetColumns(tableName)
-        if columnName in columns and columns[columnName].get("db"):
+        cn = columnName
+        if cn in columns and columns[cn].get("db"):
             return True
         return False
 
@@ -572,7 +573,7 @@ class Sqlite3Manager(MySQLManager):
                 aN = int(aN)
             aStr = u"TINYINT NOT NULL DEFAULT %d" % (aN)
 
-        elif datatype in ("text", "htext", "url", "urllist"):
+        elif datatype in ("text", "htext", "url", "urllist", "json", "code"):
             aStr = u"TEXT NOT NULL DEFAULT '%s'" % (conf["default"])
 
         elif datatype == "unit":

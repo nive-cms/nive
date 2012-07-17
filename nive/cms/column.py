@@ -76,7 +76,7 @@ class column(PageElementContainerBase):
 configuration =  ObjectConf(
     id = "column",
     name = _(u"Column"),
-    dbparam = "column",
+    dbparam = "columnbox",
     context = "nive.cms.column.column",
     template = "column.pt",
     hidden = True,

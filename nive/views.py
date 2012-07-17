@@ -346,12 +346,17 @@ class BaseView(object):
         """
         Creates the response and sends the file back. Uses the FileIterator.
         """
+        if not file:
+            return HTTPNotFound()
         try:
             last_mod = os.path.getmtime(file.path)
         except:
-            return HTTPNotFound()
+            last_mod = self.context.meta.pool_change
         r = Response(content_type=str(GetMimeTypeExtension(file.extension)), conditional_response=True)
-        r.app_iter = FileIterable(file.path)
+        if file.path:
+            r.app_iter = FileIterable(file.path)
+        else:
+            r.body = file.read()
         r.content_length = file.size
         r.last_modified = last_mod
         r.etag = '%s-%s-%s' % (last_mod, file.size, hash(file.path))

@@ -262,7 +262,7 @@ class FileManager:
             return path
 
 
-    def _DeleteFiles(self, id, version=None):
+    def _DeleteFiles(self, id, cursor=None, version=None):
         """
         Delete the file with the prop description
         """
@@ -275,7 +275,7 @@ class FileManager:
                 pass
         if len(files):
             aSql = u"delete from %s where id = %d" % (FileTable, id)
-            self.Query(aSql)
+            self.Query(aSql, cursor=cursor)
         return True
 
 
@@ -411,7 +411,7 @@ class FileEntry:
 
     # Store File --------------------------------------------------------------------
 
-    def SetFile(self, tag, file):
+    def SetFile(self, tag, file, cursor=None):
         """
         Store the file under tag. File can either be a path, dictionary with file informations 
         or a File object.
@@ -637,7 +637,7 @@ class FileEntry:
 
     # internal --------------------------------------------------------------------
 
-    def _SetStream(self, file):
+    def _SetStream(self, file, cursor=None):
         """
         Save the stream. the prop description is extracted from stream meta settings
         Mime type is used if the filename has no extension. basically

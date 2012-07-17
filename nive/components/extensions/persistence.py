@@ -29,7 +29,7 @@ import pickle
 import time
 
 from nive.definitions import implements, IPersistent, ModuleConf, Conf, IModuleConf
-from nive import OperationalError
+from nive import OperationalError, ProgrammingError
 
 
 
@@ -98,6 +98,10 @@ class DbPersistence(PersistentConf):
             data = db.Query(sql, (self._GetUid(),))
         except OperationalError: #? different database types exceptions
             data = None
+            db.Undo()
+        except ProgrammingError: #? different database types exceptions
+            data = None
+            db.Undo()
         if data:
             values = pickle.loads(data[0][0])
             lock = 0
@@ -131,6 +135,10 @@ class DbPersistence(PersistentConf):
             db.Commit()
         except OperationalError: #? different database types exceptions
             data = None
+            db.Undo()
+        except ProgrammingError: #? different database types exceptions
+            data = None
+            db.Undo()
         lock = 0
         if self.conf.locked:
             lock = 1

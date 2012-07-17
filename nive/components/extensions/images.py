@@ -179,13 +179,17 @@ class ImageProcessor(object):
         
 
     def Init(self):
-        self.RegisterEvent("commit", self.OnCommit)
+        if PILloaded:
+            self.RegisterEvent("commit", self.OnCommit)
 
 
     def OnCommit(self):
         images = []
+        keys = self.files.keys()
         for p in self.configuration.imageProfiles:
             if p.source in images:
+                continue
+            if not p.source in keys:
                 continue
             f = self.files.get(p.source)
             if not f or not f.tempfile:
