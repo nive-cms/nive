@@ -34,11 +34,11 @@ Allows by default all permissions for admins ::
 
 Also redirects for login, forbidden, logout and default url are configured here ::
 
-    loginUrl = "/website/root/login.html"
-    forbiddenUrl = "/website/root/login.html"
-    portalDefaultUrl = "/website/"
-    logoutUrl = "/userdb/udb/logout"
-    robots = ""
+        portalDefaultUrl = "/website/"
+        loginUrl = "/userdb/udb/login"
+        forbiddenUrl = "/userdb/udb/login"
+        logoutUrl = "/userdb/udb/logout"
+        accountUrl = "/userdb/udb/update"
 
 Interface: IPortal
 """

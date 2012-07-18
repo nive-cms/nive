@@ -67,12 +67,12 @@ from nive.security import *
 from nive.components.objects.base import ApplicationBase
 
 #@nive_module
-configuration = AppConf()
-configuration.id = "website"
-configuration.title = u"nive CMS"
-configuration.context = "nive.cms.app.WebsitePublisher"
-configuration.workflowEnabled = True
-
+configuration = AppConf(
+    id = "website",
+    title = u"nive CMS",
+    context = "nive.cms.app.WebsitePublisher",
+    workflowEnabled = True
+)
 configuration.modules = [
     # objects
     "nive.cms.box", "nive.cms.column", "nive.cms.menublock", "nive.cms.file", 

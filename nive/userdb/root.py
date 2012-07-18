@@ -145,7 +145,7 @@ class root(UserCache, RootBase):
     
     # User account handling ------------------------------------------------------------------------------------------------------
 
-    def AddUser(self, data, activate=1, generatePW=0, mail=None, notify=False, notifyMail=None, groups="", currentUser=None):
+    def AddUser(self, data, activate=1, generatePW=0, mail=None, notify=False, notifyMail=None, groups="", currentUser=None, **kw):
         """
         Create a new user with groups for login with name/password ::
 
@@ -192,7 +192,7 @@ class root(UserCache, RootBase):
         app = self.app
         if mail:
             title = mail.title
-            body = mail(user=obj)
+            body = mail(user=obj, **kw)
             tool = app.GetTool("sendMail")
             try:
                 result, value = tool(body=body, title=title, recvids=[name], force=1)
