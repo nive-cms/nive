@@ -36,7 +36,7 @@ class user(ObjectBase):
         return self.data.get("name",str(self.id))
 
     def Init(self):
-        self.groups = tuple(self.data["groups"])
+        self.groups = tuple(self.data.get("groups",()))
         self.RegisterEvent("commit", self.OnCommit)
 
 

@@ -176,9 +176,11 @@ class root(UserCache, RootBase):
             pw = self.GeneratePassword()
             data["password"] = pw
 
+        if groups:
+            data["groups"] = groups
+
         data["pool_type"] = u"user"
-        data["groups"] = groups
-        data["pool_state"] = activate
+        data["pool_state"] = int(activate)
         data["pool_stag"] = StagUser
 
         if not currentUser:
@@ -386,8 +388,10 @@ class root(UserCache, RootBase):
     def GetUserByMail(self, email, activeOnly=1):
         """
         """
-        user = self.Select(pool_type=u"user", parameter={u"email":email}, fields=[u"id",u"name"], max=2, operators={u"email":u"="})
-        if len(user) == 0:
+        user = self.Select(pool_type=u"user", parameter={u"email":email}, fields=[u"id",u"name",u"email"], max=2, operators={u"email":u"="})
+        if len(user) != 1:
+            return None
+        if user[0][2] != email:
             return None
         return self.LookupUser(name=user[0][1], activeOnly=activeOnly)
 

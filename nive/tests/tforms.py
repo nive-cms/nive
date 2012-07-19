@@ -66,6 +66,9 @@ class FormTest(unittest.TestCase):
         form.GetActions(False)
         form.GetFormValue("test", request=request, method=None)
         form.GetFormValues(request)
+        #form.StartForm()
+        #form.StartRequestGET()
+        #form.Cancel()
 
 
     def test_empty(self, **kw):

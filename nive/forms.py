@@ -534,7 +534,7 @@ class Form(Events,ReForm):
         return value
 
 
-    def GetFormValues(self, request):
+    def GetFormValues(self, request, method=None):
         """
         Extract all values from request
         
@@ -542,7 +542,8 @@ class Form(Events,ReForm):
         """
         if not request:
             request = self.request
-        method = self.method
+        if not method:
+            method = self.method
         try:
             if method == "POST":
                 values = request.POST.mixed()
@@ -654,6 +655,17 @@ class HTMLForm(Form):
         return True, self.Render(data)
 
 
+    def StartRequestGET(self, action, redirect_success, **kw):
+        """
+        Default action. Initially loads data from request GET values.
+        Loads default data for initial from display on object creation.
+        
+        returns bool, html
+        """
+        data = self.GetFormValues(self.request, method="GET")
+        return True, self.Render(data)
+
+
     def Cancel(self, action, redirect_success, **kw):
         """
         Cancel form action
@@ -699,13 +711,19 @@ class HTMLForm(Form):
 
     # Form view functions --------------------------------------------------------------------------------------------
 
-    def Render(self, data, msgs=None, errors=None, renderInline=False):
+    def Render(self, data, msgs=None, errors=None, renderInline=False, messagesOnly=False):
         """
         renders the form with data, messages
+        
+        messagesOnly=True will skip form and error rendering on just render the messages as 
+        html block.
         """
         if renderInline:
             self.widget.template = "form_simple"
             self.widget.item_template = "field_onecolumn"
+            
+        if messagesOnly:
+            return self._Msgs(msgs=msgs)
 
         self._SetUpSchema()
         if errors:
@@ -776,7 +794,7 @@ class ObjectForm(HTMLForm):
         Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
         Conf(id=u"defaultEdit",method="StartObject",name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
         Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
-        Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, cssClass=u"buttonCancel",html=u"", tag=u"")
+        #Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, cssClass=u"buttonCancel",html=u"", tag=u"")
     ]
     subsets = {
         "create": {"actions": [u"default",u"create"]},
