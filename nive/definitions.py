@@ -1277,17 +1277,6 @@ class ContainmentError(Exception):
 
 
 
-# select tags (pool_stag) ----------------------------------------------------------------------------
-
-StagContainer = 0        # 0-9
-StagPage = 10            # 10-19
-StagPageElement = 20     # 20-29
-StagRessource = 50       # 50-59
-StagUser = 100           # 100-109
-
-AllTypes = 1
-
-
 # field type definitions ---------------------------------------------------------------
 
 DataTypes = (
@@ -1344,7 +1333,7 @@ MetaTbl = "pool_meta"
 FileTbl = "pool_files"
 FulltextTbl = "pool_fulltext"
 SystemTbl = "pool_sys"
-
+LocalGroupsTbl = "pool_groups"
 """
 ``Structure`` defines the additional tables with settings for identity column and table fields. 
 """
@@ -1362,16 +1351,33 @@ FileTbl: {"identity": "fileid",
 )},
 FulltextTbl: {"identity": None,
               "fields": (
-    FieldConf(id="id",     datatype="number",    size=8,     default=0,    required=1,   readonly=1, name=_(u"ID")),
+    FieldConf(id="id",     datatype="number",    size=8,     default=0,    required=1,   readonly=1, name=_(u"Object ID")),
     FieldConf(id="text",   datatype="text",      size=0,     default="",   required=0,   readonly=0, name=_(u"Text")),
     FieldConf(id="files",  datatype="text",      size=0,     default="",   required=0,   readonly=0, name=_(u"Files")),
 )},
 SystemTbl: {"identity": None,
             "fields": (
-    FieldConf(id="id",     datatype="number",    size=8,     default=0,    required=1,   readonly=1, name=_(u"ID")),
-    FieldConf(id="uid",    datatype="string",    size=100,   default='',   required=0,   readonly=0, name=_(u"Unique identifier")),
+    FieldConf(id="uid",    datatype="string",    size=50,    default='',   required=0,   readonly=0, name=_(u"Unique identifier")),
     FieldConf(id="value",  datatype="text",      size=0,     default="",   required=0,   readonly=0, name=_(u"Value")),
     FieldConf(id="ts",     datatype="timestamp", size=0,     default="",   required=0,   readonly=0, name=_(u"Timestamp")),
+)},
+LocalGroupsTbl: {"identity": None,
+                "fields": (
+    FieldConf(id="id",     datatype="number",    size=8,     default=0,    required=0,   readonly=1, name=_(u"Object ID")),
+    FieldConf(id="ref",    datatype="string",    size=8,     default="",   required=0,   readonly=1, name=_(u"Object Reference (used for non database objects)")),
+    FieldConf(id="userid", datatype="number",    size=8,     default="",   required=1,   readonly=1, name=_(u"Hashed user ID")),
+    FieldConf(id="groupid",datatype="string",    size=20,    default="",   required=1,   readonly=1, name=_(u"Group assignment")),
 )}
 }
+
+# select tags (pool_stag) ----------------------------------------------------------------------------
+
+StagContainer = 0        # 0-9
+StagPage = 10            # 10-19
+StagPageElement = 20     # 20-29
+StagRessource = 50       # 50-59
+StagUser = 100           # 100-109
+
+AllTypes = 1
+
 

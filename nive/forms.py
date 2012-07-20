@@ -794,7 +794,7 @@ class ObjectForm(HTMLForm):
         Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
         Conf(id=u"defaultEdit",method="StartObject",name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
         Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
-        #Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, cssClass=u"buttonCancel",html=u"", tag=u"")
+        Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, cssClass=u"buttonCancel",html=u"", tag=u"")
     ]
     subsets = {
         "create": {"actions": [u"default",u"create"]},

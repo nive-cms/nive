@@ -276,7 +276,6 @@ class Object(object):
 
 
 
-
 class ObjectEdit:
     """
     Provides *edit* functionality for objects.

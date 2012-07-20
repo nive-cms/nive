@@ -740,7 +740,7 @@ class Root(object):
     def __init__(self, path, app, rootDef):
         self.__name__ = str(path)
         self.__parent__ = app
-        self.id = 0
+        self.id = abs(hash(self.__name__))*-1
         self.path = path
         self.app_ = app
         self.configuration = rootDef
@@ -749,6 +749,7 @@ class Root(object):
         self.meta = {"pool_type": rootDef["id"], "title": rootDef["name"], "pool_state": 1, "pool_filename": path, "pool_wfa": u""}
         self.data = {}
         self.Signal("init")
+
 
     # Properties -----------------------------------------------------------
 
@@ -787,7 +788,7 @@ class Root(object):
             id = long(id)
         except:
             return None
-        if id == 0:
+        if id <= 0:
             return self
         if not id:
             return None
@@ -1062,3 +1063,4 @@ class RootWorkflow:
         self.meta["pool_wfa"] = stateID
 
     
+

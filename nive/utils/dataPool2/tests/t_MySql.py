@@ -43,15 +43,8 @@ class MySqlTest(dbTest, uTestCase):
 
     def setUp(self):
         self.pool = getPool()
-        dbfile = DvPath(conn["dbName"])
-        if not dbfile.IsFile():
-            dbfile.CreateDirectories()
-            #self.checkdb()
-        try:
-            self.connect()
-            self.pool.Query("select id from pool_meta where id=1")
-        except (MySQLdb.OperationalError, MySQLdb.ProgrammingError):
-            self.checkdb()
+        self.checkdb()
+        self.connect()
 
     def connect(self):
         #print "Connect DB on", conn["host"],

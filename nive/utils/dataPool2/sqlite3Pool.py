@@ -139,8 +139,7 @@ class Sqlite3(FileManager, Base):
 
     def _CreateFixID(self, id, dataTbl):
         if self.IsIDUsed(id):
-            self._Error(-100)
-            return None
+            raise TypeError, "ID already in use"
         aC = self.GetCursor()
         ph = self.GetPlaceholder()
         if not dataTbl:

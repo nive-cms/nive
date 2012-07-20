@@ -65,7 +65,7 @@ class containerTest_db:
         r=root(a)
         user = User(u"test")
         #rootValues()
-        self.assert_(r.GetID()==0)
+        self.assert_(r.GetID()<=0)
         self.assert_(r.GetTypeID())
         self.assert_(r.GetTitle())
         self.assert_(r.GetPath())
@@ -139,6 +139,28 @@ class containerTest_db:
         r.Delete(newO.GetID(), user=user)
         self.assertEqual(ccc, a.db.GetCountEntries())
         a.Close()
+
+    def test_rootsGroups(self):
+        a=self.app
+        r=root(a)
+
+        userid = u"test"
+        r.RemoveLocalGroups(None, None)
+        self.assertFalse(r.GetLocalGroups(userid))
+        r.AddLocalGroup(userid, u"group:local")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(u"nouser", u"nogroup")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(userid, u"nogroup")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(u"nouser", u"group:local")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(userid, u"group:local")
+        self.assertFalse(r.GetLocalGroups(userid))
+        r.AddLocalGroup(userid, u"group:local")
+        r.RemoveLocalGroups(userid, None)
+        self.assertFalse(r.GetLocalGroups(userid))
+
 
     def test_lists(self):
         #print "Testing objects and subobjects"

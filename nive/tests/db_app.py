@@ -138,6 +138,9 @@ def app_db(modules=None):
     dbfile = DvPath(a.dbConfiguration.dbName)
     if not dbfile.IsFile():
         dbfile.CreateDirectories()
+    root = DvPath(a.dbConfiguration.fileRoot)
+    if not root.IsDirectory():
+        root.CreateDirectories()
     try:
         a.Query("select id from pool_meta where id=1")
         a.Query("select id from data1 where id=1")
@@ -145,6 +148,7 @@ def app_db(modules=None):
         a.Query("select id from data3 where id=1")
         a.Query("select id from pool_files where id=1")
         a.Query("select id from pool_sys where id=1")
+        a.Query("select id from pool_groups where id=1")
     except:
         a.GetTool("nive.components.tools.dbStructureUpdater")()
     a.Startup(None)

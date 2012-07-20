@@ -270,8 +270,7 @@ class FileManager:
         for f in files:
             aOriginalPath = DvPath(self.GetSystemPath(None, path=f["path"]))
             if aOriginalPath.Exists() and not self._MoveToTrashcan(aOriginalPath, id):
-                #self.pool._Error(-305)
-                #self.err = u"Delete failed!"
+                #"Delete failed!"
                 pass
         if len(files):
             aSql = u"delete from %s where id = %d" % (FileTable, id)
@@ -526,8 +525,6 @@ class FileEntry:
         try:
             return path.Copy(newPath)
         except Exception, e:
-            #self.err = str(e)
-            #self.pool._Error(-306)
             pass
         return False
 
@@ -541,21 +538,18 @@ class FileEntry:
         result = True
         for f in aFiles:
             if not self.FileExists(f):
-                #self.pool._Error(-304)
-                #self.err = u"File not found!"
                 result = False
                 continue
 
             #p = self.pool.GetPropertiesFromMeta(f)
             if newEntry.FileExists(f[u"tag"]):
                 if not replaceExisting:
-                    #self.pool._Error(-307)
-                    #self.err = u"File exists!"
+                    #u"File exists!"
                     result = False
                     continue
 
             if not newEntry.SetFile(f[u"tag"], self.pool.GetSystemPath(f)):
-                #self.err = u"File copy error!"
+                #u"File copy error!"
                 result = False
         return result
 
@@ -675,7 +669,6 @@ class FileEntry:
             except: pass
             try:    out.close()
             except: pass
-            #self.pool._Error(-503)
             # reset old file
             tempPath.Delete()
             return False
@@ -683,7 +676,7 @@ class FileEntry:
         # delete existing file
         originalPath = DvPath(finalPath)
         if originalPath.Exists() and not self._MakeBackup(file.tag, originalPath):
-            #self.err = u"Delete failed!"
+            #u"Delete failed!"
             return False
         # rename temp path
         if not size:
@@ -691,7 +684,7 @@ class FileEntry:
         result = tempPath.Rename(finalPath)
         if not result:
             tempPath.Delete()
-            #self.err = u"Rename failed!"
+            #u"Rename failed!"
             return False
         # update meta properties
         file.path = str(finalPath)

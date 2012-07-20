@@ -39,24 +39,30 @@ else:
     uTestCase = unittest.TestCase
     
     
-def myapp():
+def myapp(modules=None):
     a = ApplicationBase()
     a.Register(appconf)
     a.Register(dbconfMySql)
+    if modules:
+        for m in modules:
+            a.Register(m)
     p = Portal()
     p.Register(a, "nive")
-    a.Startup(None)
-    dbfile = DvPath(a.dbConfiguration.fileRoot)
-    if not dbfile.IsDirectory():
-        dbfile.CreateDirectories()
+    a.LoadConfiguration()
+    root = DvPath(a.dbConfiguration.fileRoot)
+    if not root.IsDirectory():
+        root.CreateDirectories()
     try:
         a.Query("select id from pool_meta where id=1")
         a.Query("select id from data1 where id=1")
         a.Query("select id from data2 where id=1")
         a.Query("select id from data3 where id=1")
         a.Query("select id from pool_files where id=1")
+        a.Query("select id from pool_sys where id=1")
+        a.Query("select id from pool_groups where id=1")
     except:
         a.GetTool("nive.components.tools.dbStructureUpdater")()
+    a.Startup(None)
     return a
 
 

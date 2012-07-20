@@ -29,6 +29,7 @@ from nive.components.extensions.fulltext import ObjectFulltext
 from nive.objects import Object, ObjectEdit, ObjectWorkflow
 from nive.events import Events
 from nive.search import Search
+from nive.security import LocalGroups
 from nive.definitions import *
 
 
@@ -43,7 +44,7 @@ class ApplicationBase(Application, AppFactory, Configuration, Registration, Even
     implements(IApplication)
 
 
-class RootBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events, ContainerFactory, RootWorkflow):
+class RootBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events, ContainerFactory, RootWorkflow, LocalGroups):
     """
     *Root Edit*
     
@@ -51,7 +52,7 @@ class RootBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events
     """
     implements(IContainer, IRoot)
     
-class RootCacheBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events, ContainerFactory, ContainerCache, RootWorkflow):
+class RootCacheBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events, ContainerFactory, ContainerCache, RootWorkflow, LocalGroups):
     """
     *Root Edit with cache*
     
@@ -59,7 +60,7 @@ class RootCacheBase(Root, Container, Search, ContainerEdit, ContainerSecurity, E
     """
     implements(IRoot, IContainer)
     
-class RootReadOnlyBase(Root, Container, Search, Events, ContainerFactory, ContainerCache, RootWorkflow):
+class RootReadOnlyBase(Root, Container, Search, Events, ContainerFactory, ContainerCache, RootWorkflow, LocalGroups):
     """
     *Root with readonly access and cache*
     
@@ -69,7 +70,7 @@ class RootReadOnlyBase(Root, Container, Search, Events, ContainerFactory, Contai
 
     
     
-class ObjectBase(Object, ObjectEdit, Events, ObjectWorkflow, ObjectFulltext):
+class ObjectBase(Object, ObjectEdit, Events, ObjectWorkflow, ObjectFulltext, LocalGroups):
     """
     *Default non-container object with write access*
     
@@ -77,7 +78,7 @@ class ObjectBase(Object, ObjectEdit, Events, ObjectWorkflow, ObjectFulltext):
     """
     implements(INonContainer, IObject)
     
-class ObjectReadOnlyBase(Object, Events, ObjectWorkflow):
+class ObjectReadOnlyBase(Object, Events, ObjectWorkflow, LocalGroups):
     """
     *Non-container object with read only access*
     
@@ -85,7 +86,7 @@ class ObjectReadOnlyBase(Object, Events, ObjectWorkflow):
     """
     implements(IObject, INonContainer, IReadonly)
 
-class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit,ContainerSecurity,  Events, ContainerFactory, ObjectFulltext):
+class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit,ContainerSecurity,  Events, ContainerFactory, ObjectFulltext, LocalGroups):
     """
     *Default container object with write access*
     
@@ -93,7 +94,7 @@ class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, Contain
     """
     implements(IContainer, IObject)
     
-class ObjectContainerCacheBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit, ContainerSecurity, Events, ContainerFactory, ContainerCache, ObjectFulltext):
+class ObjectContainerCacheBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit, ContainerSecurity, Events, ContainerFactory, ContainerCache, ObjectFulltext, LocalGroups):
     """
     *Container object with write access and cache*
     
@@ -101,7 +102,7 @@ class ObjectContainerCacheBase(Object, ObjectEdit, ObjectWorkflow, Container, Co
     """
     implements(IObject, IContainer)
     
-class ObjectContainerReadOnlyBase(Object, ObjectWorkflow, Container, Events, ContainerFactory, ContainerCache):
+class ObjectContainerReadOnlyBase(Object, ObjectWorkflow, Container, Events, ContainerFactory, ContainerCache, LocalGroups):
     """
     *Container object with read only access and cache*
     

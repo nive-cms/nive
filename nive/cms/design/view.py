@@ -202,12 +202,12 @@ class Design(BaseView):
         if not page:
             page = self.context.GetPage()
         base = page.GetParent()
-        if page.GetID()==0:
+        if page.GetID()<=0:
             return u""
-        elif base.GetID()==0:
+        elif base.GetID()<=0:
             base = page
         else:
-            while base.GetParent().GetID() != 0:
+            while base.GetParent().GetID() > 0:
                 base = base.GetParent()
         
         root = base

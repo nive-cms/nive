@@ -99,7 +99,13 @@ class UserDB(ApplicationBase):
         """
         returns the list of groups assigned to the user 
         """
-        return self.GetRoot().GetUserGroups(userid)
+        groups = self.GetRoot().GetUserGroups(userid)
+        try:
+            ctx = request.context
+            local = ctx.GetLocalGroups(userid)
+            return tuple(groups+local)
+        except:
+            return groups
 
 
     def RememberLogin(self, request, user):

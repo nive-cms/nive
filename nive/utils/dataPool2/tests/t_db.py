@@ -275,10 +275,6 @@ class dbTest:
         self.assert_(c==c3)
 
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
-
 
 
     def test_create_base(self):
@@ -319,10 +315,6 @@ class dbTest:
         self.assert_(c==c3)
 
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
-
 
     def test_files_base(self):
 
@@ -349,11 +341,6 @@ class dbTest:
         self.delete(id1)
         c3 = self.statdb()
         self.assert_(c==c3)
-
-
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
 
 
     def test_preload(self):
@@ -403,11 +390,6 @@ class dbTest:
         self.assert_(self.pool.IsIDUsed(id) == False)
 
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
-
-
     def test_duplicate_base(self):
 
         t = time.time()
@@ -455,10 +437,6 @@ class dbTest:
         c3 = self.statdb()
         self.assert_(c==c3)
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
-
 
     def test_sql(self):
 
@@ -501,10 +479,6 @@ class dbTest:
         self.pool.QueryRaw(sql)
         #print "OK"
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
-
 
     def test_sql2(self):
 
@@ -537,9 +511,54 @@ class dbTest:
         c.execute(sql2)
         c.execute(sql3)
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
+
+    def test_insertdelete(self):
+        self.pool.DeleteRecords("pool_meta", {"pool_type": "notype", "title": "test entry"}, cursor=None)
+
+        self.pool.InsertFields("pool_meta", {"pool_type": "notype", "title": "test entry"}, cursor = None)
+        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql)
+        self.assert_(id)
+        
+        self.pool.UpdateFields("pool_meta", id[0][0], {"pool_type": "notype 123", "title": "test entry 123"}, cursor = None)
+        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql)
+        self.assertFalse(id)
+        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql)
+        self.assert_(id)
+        
+        self.pool.DeleteRecords("pool_meta", {"id":id[0][0]}, cursor=None)
+        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql)
+        self.assertFalse(id)
+
+
+    def test_groups(self):
+        userid = 123
+        group = u"group:test"
+        id = 1
+        ref = u"o"
+        self.pool.RemoveGroups(id=id)
+        self.pool.RemoveGroups(ref=ref)
+        self.assertFalse(self.pool.GetGroups(userid, group, id=id))
+        self.assertFalse(self.pool.GetGroups(userid, group, ref=ref))
+        self.pool.AddGroup(userid, group, id=id)
+        self.assert_(self.pool.GetGroups(userid, group, id=id))
+        self.assertFalse(self.pool.GetGroups(userid, group, ref=ref))
+        self.pool.AddGroup(userid, group, ref=ref)
+        self.assert_(self.pool.GetGroups(userid, group, id=id))
+        self.assert_(self.pool.GetGroups(userid, group, ref=ref))
+        
+        self.pool.RemoveGroups(userid=userid, group=group, id=id)
+        self.assertFalse(self.pool.GetGroups(userid, group, id=id))
+        self.assert_(self.pool.GetGroups(userid, group, ref=ref))
+
+        self.pool.RemoveGroups(userid=userid, group=group, ref=ref)
+        self.assertFalse(self.pool.GetGroups(userid, group, id=id))
+        self.assertFalse(self.pool.GetGroups(userid, group, ref=ref))
+
+
 
 
     def test_search_files(self):
@@ -604,10 +623,6 @@ class dbTest:
         c3 = self.statdb()
         self.assert_(c==c3)
 
-        #print "OK!",
-        #print time.time()-t
-        #print "--------------------------------------------------------------------"
-
 
     def test_tree(self):
         base = self.pool
@@ -628,12 +643,8 @@ class Sqlite3Test(dbTest, unittest.TestCase):
         dbfile = DvPath(conn["dbName"])
         if not dbfile.IsFile():
             dbfile.CreateDirectories()
-            self.checkdb()
+        self.checkdb()
         self.connect()
-        try:
-            self.pool.Query("select id from pool_meta where id=1")
-        except OperationalError:
-            self.checkdb()
 
     def tearDown(self):
         self.pool.Close()

@@ -108,6 +108,7 @@ class Base(object):
 
     MetaTable = u"pool_meta"
     FulltextTable = u"pool_fulltext"
+    GroupsTable = u"pool_groups"
 
 
     def __init__(self, connParam = None, structure = None, root = "",
@@ -195,18 +196,22 @@ class Base(object):
 
     # SQL queries ---------------------------------------------------------------------
 
-    def GetSQLSelect(self, flds, parameter={}, dataTable = "", start = 0, max = 0, **kw):
+    def GetSQLSelect(self, flds, parameter={}, dataTable = u"", start = 0, max = 0, **kw):
         """
-        create select statement based on pool_structure and parameter.
-        aggregate functions can be included in flds but must be marked with
-        prefix - e.g. "-count(*)"
-        Tables in statement get alias
-        meta__ for pool_meta
+        Create a select statement based on pool_structure and given parameters.
+        
+        Aggregate functions can be included in flds but must be marked with
+        the prefix '-' e.g. '-count(*)'
+        
+        Tables in the generated statement get an alias prefix:
+        meta__ for meta table
         data__ for data table
         
         flds: select fields
         parameter: where clause parameter
         dataTable: add join statement for the table
+        start: start number of record to be returned
+        max: maximum nubers of records in result
 
         **kw:
         singleTable: 1/0 skip join. only use datatable for select
@@ -218,8 +223,6 @@ class Base(object):
         join = custom join statement. default = empty
         groupby: add GROUP BY statement
         sort: result sort order
-        start: start number of record to be returned
-        max: maximum nubers of records in result
         ascending: result sort order ascending or descending
         """
         operators = kw.get("operators",{})
@@ -362,10 +365,7 @@ class Base(object):
                 where.append(u" %s %s" %(aCombi, condition))
             else:
                 where = [condition]
-        if len(where):
-            where = u"WHERE %s" % u"".join(where)
-        else:
-            where = u""
+        where = self._FmtWhereClause(where, singleTable)
 
         order = u"ASC"
         if kw.get("ascending", 1) == 0:
@@ -409,7 +409,7 @@ class Base(object):
 
         limit = ""
         if max:
-            limit = self.FmtLimit(start, max)
+            limit = self._FmtLimit(start, max)
 
         groupby = u""
         if kw.get("groupby"):
@@ -432,7 +432,15 @@ class Base(object):
         return aSql
 
 
-    def FmtLimit(self, start, max):
+    def _FmtWhereClause(self, where, singleTable):
+        if len(where):
+            where = u"WHERE %s" % u"".join(where)
+        else:
+            where = u""
+        return where
+
+
+    def _FmtLimit(self, start, max):
         if start != None:
             return u"LIMIT %s, %s" % (unicode(start), unicode(max))
         return u"LIMIT %s" % (unicode(max))
@@ -561,6 +569,49 @@ class Base(object):
         return l
 
 
+    def InsertFields(self, table, data, cursor = None):
+        """
+        insert row with multiple fields in the table.
+        codepage and dates are converted automatically
+        returns the converted data 
+        """
+        dataList = []
+        flds = []
+        phdata = []
+        ph = self.GetPlaceholder()
+        for aK in data.keys():
+            if len(flds):
+                flds.append(u",")
+                phdata.append(u",")
+            flds.append(aK)
+            phdata.append(ph)
+
+            if type(data[aK]) == StringType:
+                data[aK] = self.DecodeText(data[aK])
+            dataList.append(self.structure.serialize(table, aK, data[aK]))
+            data[aK] = dataList[-1]
+
+        sql = u"INSERT INTO %s (%s) VALUES (%s)" % (table, u"".join(flds), u"".join(phdata))
+
+        if self._debug:
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
+
+        cc = 0
+        if not cursor:
+            cc = 1
+            cursor = self.GetCursor()
+        try:
+            cursor.execute(sql, dataList)
+        except self._Warning:
+            pass
+        except self._OperationalError, e:
+            # map to nive.utils.dataPool2.base.OperationalError
+            raise OperationalError, e
+        if cc:
+            cursor.close()
+        return data
+
+
     def UpdateFields(self, table, id, data, cursor = None):
         """
         updates multiple fields in the table.
@@ -602,47 +653,28 @@ class Base(object):
         return data
 
 
-    def InsertFields(self, table, data, cursor = None):
+    def DeleteRecords(self, table, parameter, cursor=None):
         """
-        insert row with multiple fields in the table.
-        codepage and dates are converted automatically
-        returns the converted data 
+        Delete records referenced by parameters
         """
-        dataList = []
-        flds = []
-        phdata = []
+        if not parameter:
+            return False
+        p = []
+        v = []
         ph = self.GetPlaceholder()
-        for aK in data.keys():
-            if len(flds):
-                flds.append(u",")
-                phdata.append(u",")
-            flds.append(aK)
-            phdata.append(ph)
-
-            if type(data[aK]) == StringType:
-                data[aK] = self.DecodeText(data[aK])
-            dataList.append(self.structure.serialize(table, aK, data[aK]))
-            data[aK] = dataList[-1]
-
-        sql = u"INSERT INTO %s (%s) VALUES (%s)" % (table, u"".join(flds), u"".join(phdata))
-
+        for field, value in parameter.items():
+            p.append(u"%s=%s"%(field, ph))
+            v.append(value)
+        sql = u"DELETE FROM %s WHERE %s" % (table, u" AND ".join(p))
         if self._debug:
-            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-
-        aClose = 0
+            STACKF(0,aSql+"\r\n\r\n",self._debug, self._log,name=self.name)
+        cc=False
         if not cursor:
-            aClose = 1
+            cc=True
             cursor = self.GetCursor()
-        try:
-            cursor.execute(sql, dataList)
-        except self._Warning:
-            pass
-        except self._OperationalError, e:
-            # map to nive.utils.dataPool2.base.OperationalError
-            raise OperationalError, e
-        if aClose:
+        cursor.execute(sql, v)
+        if cc:
             cursor.close()
-        return data
 
 
     def Begin(self):
@@ -664,37 +696,6 @@ class Base(object):
         Rollback the changes made to the database, if supported
         """
         self.GetConnection().Undo()
-
-
-    def DeleteIDFromTable(self, table, id):
-        """
-        Delete record referenced by id
-        """
-        aSql = u"DELETE FROM %s WHERE id = %s" % (table, self.GetPlaceholder())
-        if self._debug:
-            STACKF(0,aSql+"\r\n\r\n",self._debug, self.pool._log,name=self.pool.name)
-        aCursor = self.GetCursor()
-        aCursor.execute(aSql, (id,))
-        aCursor.close()
-
-
-    def ConvertRecToDict(self, rec, flds):
-        """
-        Convert a database record tuple to dictionary based on flds list
-        """
-        aD = {}
-        if not rec:
-            return aD
-
-        #opt
-        for aI in range(len(flds)):
-            aStr = flds[aI]
-            # data unicode and codepage conversion
-            if type(rec[aI]) == StringType:
-                aD[aStr] = self.EncodeText(rec[aI])
-            else:
-                aD[aStr] = rec[aI]
-        return aD
 
 
     # Text conversion -----------------------------------------------------------------------
@@ -723,6 +724,88 @@ class Base(object):
         return text
 
 
+    def ConvertRecToDict(self, rec, flds):
+        """
+        Convert a database record tuple to dictionary based on flds list
+        """
+        aD = {}
+        if not rec:
+            return aD
+
+        #opt
+        for aI in range(len(flds)):
+            aStr = flds[aI]
+            # data unicode and codepage conversion
+            if type(rec[aI]) == StringType:
+                aD[aStr] = self.EncodeText(rec[aI])
+            else:
+                aD[aStr] = rec[aI]
+        return aD
+
+
+    # groups - userid assignment storage ------------------------------------------------------------------------------------
+
+    def GetGroups(self, userid=None, group=None, id=None, ref=None):
+        """
+        Add a local group assignment for userid.
+        Either id or ref must not be none.
+        
+        returns a group assignment list [["userid", "groupid", "id", "ref"], ...]
+        """
+        # check if exists
+        p = {}
+        
+        if id:
+            p["id"] = id
+        elif ref:
+            p["ref"] = ref
+        else:
+            raise TypeError, "Either id or ref must not be none"
+        if userid:
+            p["userid"] = userid
+        if group:
+            p["groupid"] = group
+        sql = self.GetSQLSelect(["userid", "groupid", "id", "ref"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
+        r = self.Query(sql)
+        return r
+
+
+    def AddGroup(self, userid, group, id=None, ref=None):
+        """
+        Add a local group assignment for userid.
+        Either id or ref must not be none.
+        """
+        data = {"userid": userid, "groupid": group}
+        if id:
+            data["id"] = id
+        elif ref:
+            data["ref"] = ref
+        else:
+            raise TypeError, "Either id or ref must not be none"
+        self.InsertFields(self.GroupsTable, data)
+        self.Commit()
+
+
+    def RemoveGroups(self, userid=None, group=None, id=None, ref=None):
+        """
+        Remove a local group assignment for userid or all for the id/ref.
+        Either id or ref must not be none.
+        """
+        p = {}
+        if id:
+            p["id"] = id
+        elif ref:
+            p["ref"] = ref
+        else:
+            raise TypeError, "Either id or ref must not be none"
+        if userid:
+            p["userid"] = userid
+        if group:
+            p["groupid"] = group
+        self.DeleteRecords(self.GroupsTable, p)
+        self.Commit()
+
+
     # Entries -------------------------------------------------------------------------------------------
 
     def CreateEntry(self, pool_datatbl, id = 0, user = "", **kw):
@@ -735,7 +818,6 @@ class Base(object):
         else:
             id, dataref = self._CreateNewID(table=self.MetaTable, dataTbl=pool_datatbl)
         if not id:
-            #self._Error(-100)
             return None
         kw["preload"] = u"skip"
         kw["pool_dataref"] = dataref
@@ -758,26 +840,23 @@ class Base(object):
         if version:
             BREAK("version")
         cursor = self.GetCursor()
-        ph = self.GetPlaceholder()
+
         # base record
+        sql = self.GetSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
         if self._debug:
-            STACKF(0,u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph)+"\r\n",self._debug, self._log,name=self.name)
-        cursor.execute(u"SELECT pool_dataref, pool_datatbl FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
+        cursor.execute(sql)
         r = cursor.fetchone()
         if not r:
             return 0
         dataref = r[0]
         datatbl = r[1]
 
-        # data table
-        if self._debug:
-            STACKF(0,u"DELETE FROM %s WHERE id = %s"%(datatbl, ph),0, self._log,name=self.name)
-            STACKF(0,u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph),0, self._log,name=self.name)
-            STACKF(0,u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph),0, self._log,name=self.name)
+        tables = (self.MetaTable, self.FulltextTable, self.GroupsTable)
+        for table in tables:
+            self.DeleteRecords(table, parameter={"id":id})
 
-        cursor.execute(u"DELETE FROM %s WHERE id = %s"%(datatbl, ph), (dataref,))
-        cursor.execute(u"DELETE FROM %s WHERE id = %s"%(self.MetaTable, ph), (id,))
-        cursor.execute(u"DELETE FROM %s WHERE id = %s"%(self.FulltextTable, ph), (id,))
+        self.DeleteRecords(datatbl, parameter={"id":dataref})
 
         # delete files
         self._DeleteFiles(id, cursor, version)
@@ -1034,7 +1113,7 @@ class Base(object):
         Returns id references of parents for the given id.
         Maximum 10 parents
         """
-        if id == 0:
+        if id <= 0:
             return []
         sql = u"""
         SELECT t1.pool_unitref AS ref1, 
@@ -1072,7 +1151,7 @@ class Base(object):
             id = aL[0][i]
             if id == None:
                 continue
-            if id == 0:
+            if id <= 0:
                 break
             parents.insert(0, id)
         aC.close()
@@ -1084,7 +1163,7 @@ class Base(object):
         Returns titles of parents for the given id.
         maximum 10 parents
         """
-        if id == 0:
+        if id <= 0:
             return []
         aC = self.GetCursor()
         sql = u"""
@@ -1158,46 +1237,6 @@ class Base(object):
     def Log(self, s):
         DUMP(s, self._log,name=self.name)
 
-
-    def _Error(self, err):
-        """
-        Lookup error message
-    
-        Erors
-        -----
-        0 = no error
-    
-        -100 = entry already exists
-        -101 = entry not found
-        -102 = entry invalid
-        -200 = key Wildcard
-        -201 = key invalid
-        -202 = prop invalid
-        -300 = error save file
-        -301 = error open dest data file for writing
-        -302 = error write data to dest file
-        -303 = error read data from file
-        -304 = file not found
-        -305 = error delete file
-        -306 = error copy file
-        -307 = file exists
-        -308 = error save meta
-        -309 = error save data
-        -400 = no connection
-        -401 = connect failed
-        -402 = unknown user
-        -403 = unknown pass
-
-        -500 = error open meta
-        -501 = error create meta
-        -502 = error dump meta
-        -503 = error write stream data
-        -504 = error create data
-        -505 = error read meta
-        -506 = error read data
-        -507 = error lookup data structure
-        """
-        return str(err)
 
     def _DeleteFiles(self, id, cursor, version):
         pass
@@ -1405,7 +1444,6 @@ class Entry:
         try:
             flds = self.pool.structure.get(tbl, version=self.version)
         except:
-            #self._Error(-507)
             return None
 
         data = self._SQLSelect(flds, table=tbl)
@@ -1682,43 +1720,44 @@ class Entry:
         """
         select one entry and convert to dictionary
         """
+        pool = self.pool
         if not table:
-            table = self.pool.MetaTable
+            table = pool.MetaTable
             param = {u"id": self.id}
         else:
             param = {u"id": self.GetDataRef()}
-        sql = self.pool.GetSQLSelect(flds, param, dataTable = table, version=self.version, singleTable=1)
+        sql = pool.GetSQLSelect(flds, param, dataTable = table, version=self.version, singleTable=1)
 
         c = 0
         if not cursor:
             c = 1
-            cursor = self.pool.GetCursor()
-        if self.pool._debug:
-            STACKF(0,sql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
+            cursor = pool.GetCursor()
+        if pool._debug:
+            STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
         cursor.execute(sql)
         r = cursor.fetchone()
         if c:
             cursor.close()
         if not r:
             return None
-        return self.pool.ConvertRecToDict(r, flds)
+        return pool.ConvertRecToDict(r, flds)
 
 
     def _SQLSelectAll(self, metaFlds, dataFlds, cursor = None):
         """
         select meta and data of one entry and convert to dictionary
         """
+        pool = self.pool
         flds2 = list(metaFlds) + list(dataFlds)
-
         param = {u"id": self.id}
-        sql = self.pool.GetSQLSelect(flds2, param, dataTable = self.GetDataTbl(), version=self.version)
+        sql = pool.GetSQLSelect(flds2, param, dataTable = self.GetDataTbl(), version=self.version)
 
         c = 0
         if not cursor:
             c = 1
-            cursor = self.pool.GetCursor()
+            cursor = pool.GetCursor()
         if self.pool._debug:
-            STACKF(0,sql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
+            STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
         cursor.execute(sql)
         r = cursor.fetchone()
         if c:
@@ -1726,8 +1765,8 @@ class Entry:
         if not r:
             raise TypeError, sql
         # split data and meta
-        meta = self.pool.ConvertRecToDict(r[:len(metaFlds)], metaFlds)
-        data = self.pool.ConvertRecToDict(r[len(metaFlds):], dataFlds)
+        meta = pool.ConvertRecToDict(r[:len(metaFlds)], metaFlds)
+        data = pool.ConvertRecToDict(r[len(metaFlds):], dataFlds)
         return meta, data
 
 

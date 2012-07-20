@@ -125,7 +125,7 @@ class DbPersistence(PersistentConf):
         ts = time.time()
         try:
             db = self.app.db
-            sql = """select id,ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
+            sql = """select ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
             r = db.Query(sql, (self._GetUid(),))
             data = pickle.dumps(values)
             if len(r):
