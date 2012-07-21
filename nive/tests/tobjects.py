@@ -99,35 +99,6 @@ class objTest_db:
         a.Close()
 
 
-    def test_objectgroups(self):
-        a=self.app
-        r=root(a)
-        # create
-        user = User(u"test")
-        o = createObj1(r)
-        id = o.id
-        
-        userid = u"test"
-        r.RemoveLocalGroups(None, None)
-        o.RemoveLocalGroups(None, None)
-        self.assertFalse(o.GetLocalGroups(userid))
-        o.AddLocalGroup(userid, u"group:local")
-        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
-        o.RemoveLocalGroups(u"nouser", u"nogroup")
-        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
-        o.RemoveLocalGroups(userid, u"nogroup")
-        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
-        o.RemoveLocalGroups(u"nouser", u"group:local")
-        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
-        o.RemoveLocalGroups(userid, u"group:local")
-        self.assertFalse(o.GetLocalGroups(userid))
-        o.AddLocalGroup(userid, u"group:local")
-        o.RemoveLocalGroups(userid, None)
-        self.assertFalse(o.GetLocalGroups(userid))
-
-        r.Delete(id, user=user)
-
-        
     def test_objectfiles(self):
         #print "Testing object files update and commit"
         a=self.app
@@ -296,9 +267,60 @@ class objTest_db_(objTest_db, unittest.TestCase):
     """
     """
     
-    
-    
 
+
+class groupsTest_db:
+    
+    def setUp(self):
+        self.app = app_db(["nive.components.extensions.localgroups"])
+        #emptypool(self.app)
+        self.remove=[]
+
+    def tearDown(self):
+        u = User(u"test")
+        root = self.app.root()
+        for r in self.remove:
+            root.Delete(r, u)
+        pass
+
+    def test_objectgroups(self):
+        a=self.app
+        r=root(a)
+        # create
+        user = User(u"test")
+        o = createObj1(r)
+        id = o.id
+        
+        userid = u"test"
+        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:owner"])
+        r.RemoveLocalGroups(userid, None)
+        o.RemoveLocalGroups(userid, None)
+        self.assertFalse(o.GetLocalGroups(userid))
+        o.AddLocalGroup(userid, u"group:local")
+        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
+        o.RemoveLocalGroups(u"nouser", u"nogroup")
+        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
+        o.RemoveLocalGroups(userid, u"nogroup")
+        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
+        o.RemoveLocalGroups(u"nouser", u"group:local")
+        self.assertItemsEqual(o.GetLocalGroups(userid), [u"group:local"])
+        o.RemoveLocalGroups(userid, u"group:local")
+        self.assertFalse(o.GetLocalGroups(userid))
+        o.AddLocalGroup(userid, u"group:local")
+        o.RemoveLocalGroups(userid, None)
+        self.assertFalse(o.GetLocalGroups(userid))
+
+        r.Delete(id, user=user)
+
+        
+
+class groupsTest_db_(groupsTest_db, unittest.TestCase):
+    """
+    """
+
+ 
+    
+#tests!
 
 class objToolTest_db:
     """

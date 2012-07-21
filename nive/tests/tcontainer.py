@@ -140,28 +140,6 @@ class containerTest_db:
         self.assertEqual(ccc, a.db.GetCountEntries())
         a.Close()
 
-    def test_rootsGroups(self):
-        a=self.app
-        r=root(a)
-
-        userid = u"test"
-        r.RemoveLocalGroups(None, None)
-        self.assertFalse(r.GetLocalGroups(userid))
-        r.AddLocalGroup(userid, u"group:local")
-        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
-        r.RemoveLocalGroups(u"nouser", u"nogroup")
-        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
-        r.RemoveLocalGroups(userid, u"nogroup")
-        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
-        r.RemoveLocalGroups(u"nouser", u"group:local")
-        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
-        r.RemoveLocalGroups(userid, u"group:local")
-        self.assertFalse(r.GetLocalGroups(userid))
-        r.AddLocalGroup(userid, u"group:local")
-        r.RemoveLocalGroups(userid, None)
-        self.assertFalse(r.GetLocalGroups(userid))
-
-
     def test_lists(self):
         #print "Testing objects and subobjects"
         a=self.app
@@ -430,9 +408,52 @@ class containerTest_db:
         self.assertEqual(ccc+1, a.db.GetCountEntries())
         r.Delete(o1.id, user)
 
-
-
 class containerTest_db_(containerTest_db, unittest.TestCase):
+    """
+    """
+
+
+
+class groupsrootTest_db:
+    
+    def setUp(self):
+        self.app = app_db(["nive.components.extensions.localgroups"])
+        #emptypool(self.app)
+        self.remove=[]
+
+    def tearDown(self):
+        u = User(u"test")
+        root = self.app.root()
+        for r in self.remove:
+            root.Delete(r, u)
+        pass
+
+    def test_rootsGroups(self):
+        a=self.app
+        r=root(a)
+
+        userid = u"test"
+        r.RemoveLocalGroups(None, None)
+        self.assertFalse(r.GetLocalGroups(userid))
+        r.AddLocalGroup(userid, u"group:local")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(u"nouser", u"nogroup")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(userid, u"nogroup")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(u"nouser", u"group:local")
+        self.assertItemsEqual(r.GetLocalGroups(userid), [u"group:local"])
+        r.RemoveLocalGroups(userid, u"group:local")
+        self.assertFalse(r.GetLocalGroups(userid))
+        r.AddLocalGroup(userid, u"group:local")
+        r.RemoveLocalGroups(userid, None)
+        self.assertFalse(r.GetLocalGroups(userid))
+
+
+
+
+
+class groupsrootTest_db_(groupsrootTest_db, unittest.TestCase):
     """
     """
 

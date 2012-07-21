@@ -278,7 +278,7 @@ class ContainerEdit:
         Events
         
         - beforeCreate(data=data, type=type, kw) called for the container
-        - create(kw) called for the new object
+        - create(user=user, kw) called for the new object
         
         Workflow actions
         
@@ -305,7 +305,7 @@ class ContainerEdit:
             obj = self._GetObj(dbEntry.GetID(), dbEntry = dbEntry, parentObj = self, configuration = typedef, **kw)
             obj.CreateSelf(data, user=user, **kw)
             self.WfAction("add", user=user)
-            obj.Signal("create", **kw)
+            obj.Signal("create", user=user, **kw)
             if app.configuration.autocommit:
                 obj.CommitInternal(user=user)
         except Exception, e:

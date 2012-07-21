@@ -142,7 +142,7 @@ class sendMail(Tool):
             mailer.starttls()
             mailer.ehlo()
         if user != u"" and pass_ != u"":
-            mailer.Login(user, pass_)
+            mailer.Login(user, str(pass_))
         contentType = u"text/plain"
         if html:
             contentType = u"text/html"
