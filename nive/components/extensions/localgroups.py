@@ -37,7 +37,6 @@ class LocalGroups:
         self.RegisterEvent("create", self.AddOwner)
         self._secid = self.id or self.idhash
         
-
     
     def GetLocalGroups(self, userid):
         """
