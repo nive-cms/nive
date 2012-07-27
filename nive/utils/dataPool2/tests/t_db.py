@@ -540,23 +540,14 @@ class dbTest:
         id = 1
         ref = u"o"
         self.pool.RemoveGroups(id=id)
-        self.pool.RemoveGroups(ref=ref)
-        self.assertFalse(self.pool.GetGroups(userid, group, id=id))
-        self.assertFalse(self.pool.GetGroups(userid, group, ref=ref))
-        self.pool.AddGroup(userid, group, id=id)
-        self.assert_(self.pool.GetGroups(userid, group, id=id))
-        self.assertFalse(self.pool.GetGroups(userid, group, ref=ref))
-        self.pool.AddGroup(userid, group, ref=ref)
-        self.assert_(self.pool.GetGroups(userid, group, id=id))
-        self.assert_(self.pool.GetGroups(userid, group, ref=ref))
+        self.assertFalse(self.pool.GetGroups(id, userid, group))
+        self.assertFalse(self.pool.GetGroups(id))
+        self.pool.AddGroup(id, userid, group)
+        self.assert_(self.pool.GetGroups(id, userid, group))
+        self.assert_(self.pool.GetGroups(id))
         
         self.pool.RemoveGroups(userid=userid, group=group, id=id)
-        self.assertFalse(self.pool.GetGroups(userid, group, id=id))
-        self.assert_(self.pool.GetGroups(userid, group, ref=ref))
-
-        self.pool.RemoveGroups(userid=userid, group=group, ref=ref)
-        self.assertFalse(self.pool.GetGroups(userid, group, id=id))
-        self.assertFalse(self.pool.GetGroups(userid, group, ref=ref))
+        self.assertFalse(self.pool.GetGroups(id, userid, group))
 
 
 

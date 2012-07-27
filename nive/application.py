@@ -409,11 +409,12 @@ class Registration(object):
         
         # test conf
         log = logging.getLogger(self.id)
-        r=conf.test()
-        if r:
-            v = FormatConfTestFailure(r)
-            log.warn('Configuration test failed:\r\n%s', v)
-            #return False
+        if self.debug:
+            r=conf.test()
+            if r:
+                v = FormatConfTestFailure(r)
+                log.warn('Configuration test failed:\r\n%s', v)
+                #return False
         
         log.debug('Register module: %s %s', str(conf), str(iface))
         # register module views
@@ -421,6 +422,7 @@ class Registration(object):
             self.RegisterConfViews(conf)
             
         # register module itself
+        conf.unlock()
         if iface == IRootConf:
             self.registry.registerUtility(conf, provided=IRootConf, name=conf.id)
             if conf.default or not self._defaultRoot:

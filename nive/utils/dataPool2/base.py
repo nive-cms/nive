@@ -745,59 +745,50 @@ class Base(object):
 
     # groups - userid assignment storage ------------------------------------------------------------------------------------
 
-    def GetGroups(self, userid=None, group=None, id=None, ref=None):
+    def GetGroups(self, id, userid=None, group=None):
         """
         Add a local group assignment for userid.
-        Either id or ref must not be none.
         
-        returns a group assignment list [["userid", "groupid", "id", "ref"], ...]
+        returns a group assignment list [["userid", "groupid", "id"], ...]
         """
         # check if exists
         p = {}
         
-        if id:
+        if id!=None:
             p["id"] = id
-        elif ref:
-            p["ref"] = ref
         else:
-            raise TypeError, "Either id or ref must not be none"
+            raise TypeError, "id must not be none"
         if userid:
             p["userid"] = userid
         if group:
             p["groupid"] = group
-        sql = self.GetSQLSelect(["userid", "groupid", "id", "ref"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
+        sql = self.GetSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
         r = self.Query(sql)
         return r
 
 
-    def AddGroup(self, userid, group, id=None, ref=None):
+    def AddGroup(self, id, userid, group):
         """
         Add a local group assignment for userid.
-        Either id or ref must not be none.
         """
         data = {"userid": userid, "groupid": group}
-        if id:
+        if id!=None:
             data["id"] = id
-        elif ref:
-            data["ref"] = ref
         else:
-            raise TypeError, "Either id or ref must not be none"
+            raise TypeError, "id must not be none"
         self.InsertFields(self.GroupsTable, data)
         self.Commit()
 
 
-    def RemoveGroups(self, userid=None, group=None, id=None, ref=None):
+    def RemoveGroups(self, id, userid=None, group=None):
         """
         Remove a local group assignment for userid or all for the id/ref.
-        Either id or ref must not be none.
         """
         p = {}
-        if id:
+        if id!=None:
             p["id"] = id
-        elif ref:
-            p["ref"] = ref
         else:
-            raise TypeError, "Either id or ref must not be none"
+            raise TypeError, "id must not be none"
         if userid:
             p["userid"] = userid
         if group:

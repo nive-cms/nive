@@ -77,7 +77,7 @@ class dbSqldataDump(Tool):
         for t in Structure.items():
             export.append((t[0], mapfields(t[1]["fields"])))
 
-        for table in export:    
+        for table in export:
             #tablename
             tablename=table[0]
             if system and tablename in system:

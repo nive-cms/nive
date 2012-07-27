@@ -53,6 +53,7 @@ class Object(object):
         self.__parent__ = parent
 
         self.id = id
+        self.idhash = id
         self.path = str(id)
         self.dbEntry = dbEntry
         self.configuration = configuration

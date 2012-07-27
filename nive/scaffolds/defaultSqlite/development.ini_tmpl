@@ -41,7 +41,7 @@ level = INFO
 handlers = console
 
 [logger_{{package_logger}}]
-level = DEBUG
+level = INFO
 handlers =
 qualname = {{package}}
 

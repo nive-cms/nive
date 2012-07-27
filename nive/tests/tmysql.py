@@ -11,8 +11,8 @@ from nive.components.objects.base import ApplicationBase
 
 from db_app import *
 from tnive import appTest_db
-from tcontainer import containerTest_db
-from tobjects import objTest_db, objToolTest_db, objWfTest_db
+from tcontainer import containerTest_db, groupsrootTest_db
+from tobjects import objTest_db, objToolTest_db, objWfTest_db, groupsTest_db
 
 
 # real database test configuration
@@ -81,6 +81,13 @@ class mycontainerTest_db(containerTest_db, uTestCase):
         self.app = myapp()
         self.remove=[]
 
+class mygroupsTest_db(groupsTest_db, unittest.TestCase):
+
+    def setUp(self):
+        #emptypool()
+        self.app = myapp(["nive.components.extensions.localgroups"])
+        self.remove=[]
+
 class myobjTest_db(objTest_db, uTestCase):
 
     def setUp(self):
@@ -88,6 +95,17 @@ class myobjTest_db(objTest_db, uTestCase):
         self.app = myapp()
         self.remove=[]
 
+
+class mygroupsrootTest_db(groupsrootTest_db, unittest.TestCase):
+
+    def setUp(self):
+        #emptypool()
+        self.app = myapp(["nive.components.extensions.localgroups"])
+        self.remove=[]
+
+
+
+#tests!
 #class myobjToolTest_db(objToolTest_db, uTestCase):
 #
 #    def setUp(self):
