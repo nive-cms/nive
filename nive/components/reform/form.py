@@ -161,9 +161,12 @@ class Button(object):
 
     action
         The action this button represents.
+        
+    cls
+        The css class used for this button as string.
     """
     def __init__(self, name='submit', title=None, type='submit', value=None,
-                 disabled=False, action=None):
+                 disabled=False, action=None, cls=None):
         if title is None:
             title = name.capitalize()
         name = re.sub(r'\s', '_', name)
@@ -175,6 +178,7 @@ class Button(object):
         self.value = value
         self.disabled = disabled
         self.action = action
+        self.cls = cls
 
 
 class MemoryTmpStore(dict):

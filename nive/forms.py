@@ -368,7 +368,7 @@ class Form(Events,ReForm):
         return result, data, errors
 
         
-    def Extract(self, data, removeNull=True):
+    def Extract(self, data, removeNull=True, removeEmpty=False):
         """
         Extract fields from request or source data dictionary and convert
         data types without validation. 
@@ -387,11 +387,13 @@ class Form(Events,ReForm):
 
         if removeNull:
             data = dict(filter(lambda d: d[1] != null, data.items()))
+        if removeEmpty:
+            data = dict(filter(lambda d: d[1] not in (u"",[],()), data.items()))
         
         return result, data
     
         
-    def ExtractSchema(self, data, removeNull=False):
+    def ExtractSchema(self, data, removeNull=False, removeEmpty=False):
         """
         Extract fields from request or source data dictionary and convert
         data types without validation. 
@@ -408,6 +410,8 @@ class Form(Events,ReForm):
 
         if removeNull:
             data = dict(filter(lambda d: d[1] != null, data.items()))
+        if removeEmpty:
+            data = dict(filter(lambda d: d[1] not in (u"",[],()), data.items()))
 
         return result, data
 
@@ -695,7 +699,7 @@ class HTMLForm(Form):
         return result,data,errors
 
     
-    def Extract(self, data, removeNull=False):
+    def Extract(self, data, removeNull=False, removeEmpty=False):
         """
         Extracts fields from request or source data dictionary and converts
         data types without validation and error checking. 
@@ -705,7 +709,7 @@ class HTMLForm(Form):
         if not isinstance(data, dict):
             data = self.GetFormValues(data)
         self._SetUpSchema()
-        result, data = Form.Extract(self, data, removeNull)
+        result, data = Form.Extract(self, data, removeNull, removeEmpty)
         return result, data
 
 

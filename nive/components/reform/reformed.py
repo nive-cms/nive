@@ -302,6 +302,8 @@ def SchemaFactory(self, form, fields, actions, force=False):
         elif ftype == "list":
             if not "widget" in kw:
                 v = form.app.root().LoadListItems(field, context)
+                if field.settings and field.settings.get("addempty"):
+                    v.insert(0,{"id":u"","name":u""})
                 values=ConvertDictListToTuple(v)
                 kw["widget"] = SelectWidget(values=values, **kwWidget)
             n = SchemaNode(String(), **kw)
@@ -383,7 +385,7 @@ def SchemaFactory(self, form, fields, actions, force=False):
     for action in actions:
         if action.get("hidden"):
             continue
-        buttons.append(Button(name=u"%s$"%(action.get("id")), title=action.get("name"), action=action))
+        buttons.append(Button(name=u"%s$"%(action.get("id")), title=action.get("name"), action=action, cls=action.get("cls", "btn submit")))
     form.buttons = buttons
 
     return form
