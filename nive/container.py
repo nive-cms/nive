@@ -630,6 +630,7 @@ class ContainerFactory:
                 root = self.root()
                 p,o = root.ObjQueryRestraints(self)
                 p["id"] = id
+                p["pool_unitref"] = self.id
                 e = root.Select(parameter=p, operators=o)
                 if len(e)==0:
                     return None

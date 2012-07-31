@@ -399,6 +399,7 @@ class Registration(object):
         
         raises TypeError, ConfigurationError, ImportError
         """
+        log = logging.getLogger(self.id)
         iface, conf = ResolveConfiguration(module)
         if not conf:
             try:
@@ -408,7 +409,6 @@ class Registration(object):
                 raise ConfigurationError, str(module)
         
         # test conf
-        log = logging.getLogger(self.id)
         if self.debug:
             r=conf.test()
             if r:
