@@ -15,7 +15,8 @@ except:
 
 requires = ['pyramid', 
             'iso8601', 
-            'translationstring'
+            'translationstring',
+            'mako'
            ]
 
 setupkw = dict(

@@ -50,6 +50,13 @@ Inventing custom events is quite easy: ::
 
         def SomeEvent(self):
             self.Signal("some_event")
+            
+            
+For non Object or Root derived classes initialize the event system by adding a signal
+to the __init__ function: ::
+
+    def __init__(self):
+        self.Signal("init")
     
 """
 

@@ -463,7 +463,7 @@ class BaseView(object):
                 return u"""<img src="%s" />""" % (url)
             return u"""<a href="%s">download</a>""" % (url)
         listItems = self.context.root().LoadListItems(fld, obj=self.context, pool_type=self.context.GetTypeID())
-        return FieldRenderer().Render(fld, data, listItems = listItems)
+        return FieldRenderer(self.context).Render(fld, data, listItems = listItems)
     
     def HtmlTitle(self):
         t = self.request.environ.get(u"htmltitle")
@@ -668,6 +668,9 @@ class BaseView(object):
 
 class FieldRenderer(object):
     
+    def __init__(self, context):
+        self.context = context
+        
     def Render(self, fieldConf, value, useDefault = False, listItems = {}, render = True):
         """
         fieldConf = FieldConf of field to be rendered
@@ -729,108 +732,38 @@ class FieldRenderer(object):
             return str(data)
 
         elif fType == "list" or fType == "radio":
-            aOpt = listItems
-            if not aOpt or aOpt == []:
-                aOpt = fieldConf.get("listItems", [])
-                if aOpt == None:
-                    aOpt = []
+            options = listItems
+            if not options:
+                options = fieldConf.get("listItems")
+                if hasattr(options, "__call__"):
+                    options = self.context.root().LoadListItems(fieldConf, obj=None)
+                elif options == None:
+                    options = []
 
-            if type(aOpt) == DictType:
-                for aItem in aOpt.keys():
-                    if aItem == data:
-                        data = aOpt[aItem]
-                        break
-            else:
-                for aItem in aOpt:
-                    if type(aItem) == StringType:
-                        if aItem == data:
-                            data = aItem
-                            break
-                    else:
-                        if aItem["id"] == data:
-                            data = aItem["name"]
-                            break
-
+            for item in options:
+                if item["id"] == data:
+                    data = item["name"]
+                    break
+                
         elif fType == "mselection" or fType == "mcheckboxes":
-            if(type(data) == ListType):
-                aL = data    # value
-            else:
-                aL = DvString(str(data)).ConvertToList()
-            aStr = []
-            aOpt = listItems
-            if not aOpt or aOpt == []:
-                aOpt = fieldConf.get("listItems", [])
-            for aRef in aL:
-                if aOpt:
-                    for aItem in aOpt:
-                        if type(aItem) == StringType:
-                            if aItem == aRef:
-                                if len(aStr) > 0:
-                                     aStr.append(u"<br />")
-                                aStr += aItem
-                        else:
-                            if aItem["id"] == aRef:
-                                if len(aStr) > 0:
-                                     aStr.append(u"<br />")
-                                aStr += aItem["name"]
-                    if aOpt == [] or aOpt == {}:
-                        if len(aStr) > 0:
-                             aStr.append(u"<br />")
-                        aStr += aRef
+            values = []
+            options = listItems
+            if not options:
+                options = fieldConf.get("listItems")
+                if hasattr(options, "__call__"):
+                    options = self.context.root().LoadListItems(fieldConf, obj=None)
+                elif options == None:
+                    options = []
 
-            data = u"".join(aStr)
-
-        elif fType == "codelist":
-            if type(data) == ListType or type(data) == TupleType:
-                data = ConvertListToStr(data)
-            if type(data) == StringType:
-                data = ConvertToLong(data)
-            aOpt = listItems
-            if aOpt == [] or aOpt == {}:
-                aOpt = fieldConf.get("listItems", [])
-            if type(aOpt) == DictType:
-                for aItem in aOpt.keys():
-                    if aItem == data:
-                        data = aOpt[aItem]
-                        break
-            else:
-                for aItem in aOpt:
-                    if type(aItem) == DictType:
-                        if aItem["id"] == data:
-                            data = aItem["name"]
-                            break
-                    else:
-                        if aItem == data:
-                            data = aItem
-                            break
-
-        elif fType == "mcodelist":
-            if(type(data) == ListType):
-                #aL = value
-                for i in value:
-                    if type(i) == StringType:
-                        aL.append(int(i))
-                    else:
-                        aL.append(i)
-            else:
-                aL = DvString(str(data)).ConvertToNumberList()
-            aStr = []
-            aOpt = listItems
-            if aOpt == [] or aOpt == {}:
-                aOpt = fieldConf.get("listItems", [])
-            for aRef in aL:
-                for aItem in aOpt:
-                    if type(aItem) == DictType:
-                        if aItem["id"] == aRef:
-                            if len(aStr) > 0:
-                                 aStr.append(u"<br />")
-                            aStr += aItem["name"]
-                    else:
-                        if aItem == aRef:
-                            if len(aStr) > 0:
-                                 aStr.append(u"<br />")
-                            aStr += str(aItem)
-            data = u"".join(aStr)
+            for ref in data:
+                if options:
+                    for item in options:
+                        if item["id"] == ref:
+                            values.append(item["name"])
+                else:
+                    values.append(ref)
+                
+            data = u"<br />".join(values)
 
         elif fType == "text":
             data = data.replace(u"\r\n", u"\r\n<br />")

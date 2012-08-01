@@ -213,18 +213,20 @@ class FormTest(unittest.TestCase):
 
     def test_json(self, **kw):
         form = JsonMappingForm(request=Request(),app=self.app, view=self.view)
-        form.jsonKeys = ["parameter1", "parameter2"]
         form.fields = (
-            FieldConf(id="data", datatype="text", size=1000),
+            FieldConf(id="parameter1", datatype="text", size=1000),
+            FieldConf(id="parameter2", datatype="string", size=100),
         )
         form.Setup()
 
-        data = {"parameter1": "True", "parameter2": "test", "jmap": ["parameter1", "parameter2"]}
+        data = {"parameter1": "True", "parameter2": "test"}
         r,v,e = form.Validate(data)
         self.assert_(r, e)
-        data = {"parameter1": "True", "parameter2": "test", "jmap": ["parameter1", "parameter2"]}
+        self.assert_(isinstance(v, basestring))
+        data = {"parameter1": "True", "parameter2": "test"}
         r,v = form.Extract(data)
         self.assert_(r, v)
+        self.assert_(isinstance(v, basestring))
         
 
     def test_actions(self, **kw):
@@ -438,6 +440,37 @@ class FormTest_db(unittest.TestCase):
         except ConfigurationError:
             pass
         self.assertEqual(count, self.app.db.GetCountEntries())
+
+
+    def test_json(self, **kw):
+        user = UserO(u"test")
+        root = self.app.GetRoot()
+        obj = root.Create("type1", data1_2, user)
+        obj.data["ftext"] = ""
+        obj.Commit(user=user)
+        self.remove.append(obj.id)
+        v = Viewy()
+
+        form = JsonMappingForm(request=Request(),app=self.app,context=obj, view=v)
+        form.fields = (
+            FieldConf(id="parameter1", datatype="text", size=1000),
+            FieldConf(id="parameter2", datatype="string", size=100),
+        )
+        form.jsonDataField = "ftext"
+        form.Setup()
+
+        data = {"parameter1": "True", "parameter2": "test"}
+        form.request = data
+        form.Process()
+        
+        data["edit$"] = 1
+        form.request = data
+        form.Process()
+
+        self.assert_(obj.data.get("ftext"))
+        
+
+
         
 
 if __name__ == '__main__':

@@ -1,0 +1,5 @@
+- queryRestraint tests
+- FieldConf.listItems callback tests
+- json mapping form tests
+- fieldconf lisitem handling
+- field renderer tests

@@ -683,7 +683,7 @@ class HTMLForm(Form):
 
     # Data extraction and validation --------------------------------------------------------------------------------------------
 
-    def Validate(self, data):
+    def Validate(self, data, removeNull=True):
         """
         Extracts fields from request or source data dictionary, converts and
         validates. 
@@ -695,7 +695,7 @@ class HTMLForm(Form):
         """
         if not isinstance(data, dict):
             data = self.GetFormValues(data)
-        result,data,errors = Form.Validate(self, data)
+        result,data,errors = Form.Validate(self, data, removeNull)
         return result,data,errors
 
     
@@ -1086,101 +1086,116 @@ class WorkflowForm(HTMLForm):
         
 
 
-def JsonExtractor(jsonKeys, sourceData):
-    """
-    Collects listed fields from sourceData and returns them as dictionary.
-        
-    returns dict
-    """
-    if not jsonKeys:
-        return {}
-    #opt
-    map = {} 
-    for k in jsonKeys:
-        v = sourceData.get(k)
-        if v != None:
-            map[k] = sourceData.get(k)
-    return map
-
-
-class JsonMappingForm(Form):
+class JsonMappingForm(HTMLForm):
     """
     Maps form fields to a single dumped json text field
     json data is always stored as dictionary. ::
     
-        jsonKeys = comma seperated list of form keys 
         jsonDataField = the field to merge data to
+        mergeContext = if true the database values will be updated
+                       by form values
     
     """
     jsonDataField = "data"
     mergeContext = True
 
-    def __init__(self, view=None, loadFromType=None, context=None, request=None, app=None, **kw):
-        Form.__init__(self, view=view, loadFromType=loadFromType, context=context, request=request, app=app, **kw)
-        self._JsonParser = JsonExtractor
-        self.jsonKeys = []
+    actions = [
+        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
+    ]
 
-
-    def Validate(self, data):
+    def Validate(self, data, removeNull=True):
         """
-        Extracts fields from request or source data dictionary validates and converts
-        data types.
+        Extracts fields from request or source data dictionary, converts and
+        validates. 
         
         Event
-        - extract(data) before extract is called
+        - validate(data) before validate is called
         
         returns bool, dict, list (result,data,errors)
         """
         if not isinstance(data, dict):
             data = self.GetFormValues(data)
-        self._SetUpSchema()
-        if not data.get(self.jsonDataField):
-            temp = self._JsonParser(self.jsonKeys, data)
-            if temp:
-                if self.mergeContext and self.context:
-                    jdata = self.context.data["data"]
-                    if jdata:
-                        jdata = json.loads(jdata)
-                    if not isinstance(jdata, dict):
-                        jdata = {}
-                    jdata.update(temp)
-                else:
-                    jdata = temp
-                data["data"] = json.dumps(jdata)
-        result,data,errors = self.ValidateSchema(data)
+        result,data,errors = Form.Validate(self, data, removeNull)
+        if not result:
+            return result,data,errors
+        # merge existing data
+        if self.mergeContext and self.context:
+            jdata = self.context.data[self.jsonDataField]
+            if jdata:
+                jdata = json.loads(jdata)
+            if not isinstance(jdata, dict):
+                jdata = {}
+            jdata.update(data)
+            data = jdata
+        # convert to json string 
+        data = json.dumps(data)
         return result,data,errors
 
     
-    def Extract(self, data):
+    def Extract(self, data, removeNull=False, removeEmpty=False):
         """
         Extracts fields from request or source data dictionary and converts
-        data types.
-        
-        Event
-        - extract(data) before extract is called
+        data types without validation and error checking. 
         
         returns bool, dict (result, data)
         """
         if not isinstance(data, dict):
             data = self.GetFormValues(data)
         self._SetUpSchema()
-        self.Signal("extract", data=data)
-        result, data = self.ExtractSchema(data)
-        # map fields to json data
-        if not data.get(self.jsonDataField):
-            temp = self._JsonParser(self.jsonKeys, data)
-            if temp:
-                if self.mergeContext and self.context:
-                    jdata = self.context.data["data"]
-                    if jdata:
-                        jdata = json.loads(jdata)
-                    if not isinstance(jdata, dict):
-                        jdata = {}
-                    jdata.update(temp)
-                else:
-                    jdata = temp
-                data["data"] = json.dumps(jdata)
-        return result, data
+        result, data = Form.Extract(self, data, removeNull, removeEmpty)
+        # merge existing data
+        if self.mergeContext and self.context:
+            jdata = self.context.data[self.jsonDataField]
+            if jdata:
+                jdata = json.loads(jdata)
+            if not isinstance(jdata, dict):
+                jdata = {}
+            jdata.update(data)
+            data = jdata
+        # convert to json string 
+        data = json.dumps(data)
+        return result,data
 
 
+    def StartObject(self, action, redirect_success, **kw):
+        """
+        Initially load data from configured object json data field. 
+        context = obj
+        
+        returns bool, html
+        """
+        data = self.context.data.get(self.jsonDataField)
+        if data:
+            data = json.loads(data)
+        else:
+            data = self.LoadDefaultData()
+        return data!=None, self.Render(data)
+
+
+    def UpdateObj(self, action, redirect_success, **kw):
+        """
+        Process request data and update object.
+        
+        returns bool, html
+        """
+        msgs = []
+        obj=self.context
+        result,data,errors = self.Validate(self.request)
+        if result:
+            user = self.view.User()
+            data = {self.jsonDataField: data}
+            result = obj.Update(data, user)
+            if result:
+                #obj.Commit(user)
+                msgs.append(_(u"OK. Data saved."))
+                errors=None
+                if self.view and redirect_success:
+                    redirect_success = self.view.ResolveUrl(redirect_success, obj)
+                    if self.use_ajax:
+                        self.view.AjaxRelocate(redirect_success, messages=msgs)
+                    else:
+                        self.view.Redirect(redirect_success, messages=msgs)
+                result = obj
+        return result, self.Render(data, msgs=msgs, errors=errors)
         

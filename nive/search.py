@@ -255,7 +255,7 @@ class Search:
             #BREAK(aL)
 
             # render flds
-            converter = FieldRenderer()
+            converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
             if skipRender == True:
                 skipRender = fldList
@@ -425,7 +425,7 @@ class Search:
             #BREAK(aL)
 
             # render
-            converter = FieldRenderer()
+            converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
             if skipRender == True:
                 skipRender = fldList
@@ -581,7 +581,7 @@ class Search:
             #BREAK(aL)
 
             # render
-            converter = FieldRenderer()
+            converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
             if skipRender == True:
                 skipRender = fldList
@@ -731,7 +731,7 @@ class Search:
             #BREAK(aL)
 
             # render
-            converter = FieldRenderer()
+            converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
             if skipRender == True:
                 skipRender = fldList
@@ -896,7 +896,7 @@ class Search:
             #BREAK(aL)
 
             # render
-            converter = FieldRenderer()
+            converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
             if skipRender == True:
                 skipRender = fldList
@@ -1261,8 +1261,11 @@ class Search:
         values = []
         if not fieldconf:
             return values
+
         if fieldconf.listItems and not force:
             # skip loading if list filled
+            if hasattr(fieldconf.listItems, '__call__'):
+                return fieldconf.listItems(fieldconf, obj or self)
             return fieldconf.listItems
 
         fld = fieldconf.id
@@ -1271,7 +1274,9 @@ class Search:
         if fieldconf.settings:
             # settings dyn list
             dyn = fieldconf.settings.get("codelist")
-            if dyn == "users":
+            if not dyn:
+                pass
+            elif dyn == "users":
                 values = GetUsers(self.app)
             elif dyn == "groups":
                 portal = self.app.GetPortal()

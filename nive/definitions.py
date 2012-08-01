@@ -343,6 +343,8 @@ class FieldConf(baseConf):
         default :   Default value.
         listItems : Used for list and checkbox types. Contains items with id and name 
                     definitions [{"id": "id1", "name": "name1"},...].
+                    If listItems is a callable the callback must take two arguments:
+                    callback(fieldconf, object) and return a list with id and name items.
         settings :  Extended settings for fields. Possible values depend on datatype.
         fulltext :  Use this field in fulltext index.
         
