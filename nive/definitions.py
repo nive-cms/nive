@@ -1365,8 +1365,8 @@ SystemTbl: {"identity": None,
 )},
 LocalGroupsTbl: {"identity": None,
                 "fields": (
-    FieldConf(id="id",     datatype="number",    size=8,     default=0,    required=0,   readonly=1, name=_(u"Object ID")),
-    FieldConf(id="userid", datatype="number",    size=8,     default="",   required=1,   readonly=1, name=_(u"Hashed user ID")),
+    FieldConf(id="id",     datatype="number",    size=8,     default=0,    required=1,   readonly=1, name=_(u"Object ID")),
+    FieldConf(id="userid", datatype="string",    size=35,    default="",   required=1,   readonly=1, name=_(u"User name")),
     FieldConf(id="groupid",datatype="string",    size=20,    default="",   required=1,   readonly=1, name=_(u"Group assignment")),
 )}
 }

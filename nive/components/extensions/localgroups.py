@@ -38,19 +38,28 @@ class LocalGroups:
         self._secid = self.id or self.idhash
         
     
-    def GetLocalGroups(self, userid):
+    def GetLocalGroups(self, username):
         """
-        Group assignments use the unique user id (a number), not the user name.
+        Group assignments use the user name.
         returns a list of all local user groups, including parent settings
         """
         if self.id <= 0:
-            return self._LocalGroups(userid)
+            return self._LocalGroups(username)
         g = []
         o = self
         while o:
-            g += o._LocalGroups(userid)
+            g += o._LocalGroups(username)
             o = o.GetParent()
         return g 
+
+
+    def AllLocalGroups(self):
+        """
+        returns a list of all local user group settings as list including 
+        [username, group, id]. This function does not include parent level
+        settings.
+        """
+        return self.db.GetGroups(self._secid)
 
 
     def AddOwner(self, user, **kw):
@@ -62,62 +71,56 @@ class LocalGroups:
         self.AddLocalGroup(str(user), self._owner)
     
         
-    def AddLocalGroup(self, userid, group):
+    def AddLocalGroup(self, username, group):
         """
-        Add a local group assignment for userid.
+        Add a local group assignment for username.
         """
-        groups = self._LocalGroups(userid)
+        groups = self._LocalGroups(username)
         if group in groups:
             return 
-        if userid==None:
+        if username==None:
             return
-        self._AddLocalGroupsCache(userid, group)
-        userid=hash(userid)
-        self.db.AddGroup(self._secid, userid=userid, group=group)
+        self._AddLocalGroupsCache(username, group)
+        self.db.AddGroup(self._secid, userid=username, group=group)
 
         
-    def RemoveLocalGroups(self, userid, group=None):
+    def RemoveLocalGroups(self, username, group=None):
         """
         Remove a local group assignment. If group is None all local groups
         will be removed.
         """
-        self._DelLocalGroupsCache(userid, group)
-        if userid!=None:
-            userid=hash(userid)
-        self.db.RemoveGroups(self._secid, userid=userid, group=group)
+        self._DelLocalGroupsCache(username, group)
+        self.db.RemoveGroups(self._secid, userid=username, group=group)
 
 
-    def _LocalGroups(self, userid):
-        uhash = hash(userid)
-        if str(uhash) in self._localRoles:
-            return list(self._localRoles[str(uhash)])
-        g = [r[1] for r in self.db.GetGroups(self._secid, userid=uhash)]
-        self._localRoles[str(uhash)] = tuple(g)
+    def _LocalGroups(self, username):
+        if username in self._localRoles:
+            return list(self._localRoles[username])
+        g = [r[1] for r in self.db.GetGroups(self._secid, userid=username)]
+        self._localRoles[username] = tuple(g)
         return g
     
-    def _AddLocalGroupsCache(self, userid, group):
-        uhash = str(hash(userid))
-        if uhash in self._localRoles:
-            if group in self._localRoles[uhash]:
+    def _AddLocalGroupsCache(self, username, group):
+        if username in self._localRoles:
+            if group in self._localRoles[username]:
                 return
-            l = list(self._localRoles[uhash])
+            l = list(self._localRoles[username])
             l.append(group)
-            self._localRoles[uhash] = tuple(l)
+            self._localRoles[username] = tuple(l)
             return 
-        self._localRoles[uhash] = (group,)
+        self._localRoles[username] = (group,)
     
-    def _DelLocalGroupsCache(self, userid, group=None):
-        uhash = str(hash(userid))
-        if not uhash in self._localRoles:
+    def _DelLocalGroupsCache(self, username, group=None):
+        if not username in self._localRoles:
             return
-        if uhash in self._localRoles and not group:
-            del self._localRoles[uhash]
+        if username in self._localRoles and not group:
+            del self._localRoles[username]
             return
-        if not group in self._localRoles[uhash]:
+        if not group in self._localRoles[username]:
             return
-        l = list(self._localRoles[uhash])
+        l = list(self._localRoles[username])
         l.remove(group)
-        self._localRoles[uhash] = tuple(l)
+        self._localRoles[username] = tuple(l)
 
 
 
