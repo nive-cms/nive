@@ -70,6 +70,8 @@ configuration.groups = [
 class IUserDatabase(Interface):
     """ """
     
+class ILocalGroups(Interface):
+    """ """
 
 
 class UserDB(ApplicationBase):
@@ -100,12 +102,12 @@ class UserDB(ApplicationBase):
         returns the list of groups assigned to the user 
         """
         groups = self.GetRoot().GetUserGroups(userid)
-        try:
+        if hasattr(request, "context"):
             ctx = request.context
-            local = ctx.GetLocalGroups(userid)
-            return tuple(groups+local)
-        except:
-            return groups
+            if ctx and ILocalGroups.providedBy(ctx):
+                local = ctx.GetLocalGroups(userid)
+                return tuple(list(groups)+list(local))
+        return groups
 
 
     def RememberLogin(self, request, user):

@@ -747,7 +747,7 @@ class Base(object):
 
     def GetGroups(self, id, userid=None, group=None):
         """
-        Add a local group assignment for userid.
+        Get local group assignment for userid.
         
         returns a group assignment list [["userid", "groupid", "id"], ...]
         """

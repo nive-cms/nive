@@ -434,6 +434,8 @@ class Form(Events,ReForm):
             # data
             if f.datatype == "file":
                 data[f.id] = obj.files[f.id]
+            if f.datatype == "password":
+                data[f.id] = u""
             else:
                 if obj.data.has_key(f.id):
                     data[f.id] = obj.data[f.id]

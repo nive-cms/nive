@@ -49,80 +49,80 @@ class IEditorWidgetConf(Interface):
 
 # view module definition ------------------------------------------------------------------
 
-views = []
 #@nive_module
-configuration = ViewModuleConf()
-configuration.id = "cmsview"
-configuration.name = u"CMS Editor"
-configuration.static = "nive.cms.cmsview:static"
-configuration.templates = "nive.cms.cmsview:"
-configuration.permission = "read"
-configuration.context = IObject
-configuration.containment = "nive.cms.cmsview.cmsroot.cmsroot"
-configuration.view = "nive.cms.cmsview.view.Editor"
-
+configuration = ViewModuleConf(
+    id = "cmsview",
+    name = u"CMS Editor",
+    static = "nive.cms.cmsview:static",
+    templates = "nive.cms.cmsview:",
+    permission = "read",
+    context = IObject,
+    containment = "nive.cms.cmsview.cmsroot.cmsroot",
+    view = "nive.cms.cmsview.view.Editor"
+)
 # views -----------------------------------------------------------------------------
 # shortcuts
 t = configuration.templates 
 
-views.append(ViewConf(name = "editor", attr = "editor", context=IContainer, permission="view", containment=IApplication))
-views.append(ViewConf(name = "exiteditor", attr = "exit", context=IContainer, permission="view", containment=IApplication))
-views.append(ViewConf(name = "exiteditor", attr = "exitapp", context=IApplication, permission="view", containment=IPortal))
+configuration.views = [
+    ViewConf(name = "editor", attr = "editor", context=IContainer, permission="view", containment=IApplication),
+    ViewConf(name = "exiteditor", attr = "exit", context=IContainer, permission="view", containment=IApplication),
+    ViewConf(name = "exiteditor", attr = "exitapp", context=IApplication, permission="view", containment=IPortal),
+    
+    ViewConf(id="rootview", name = "",     attr = "view", context = "nive.cms.cmsview.cmsroot.cmsroot", containment=IApplication),
+    ViewConf(id="objview",  name = "",     attr = "view", context = IPage),
+    
+    # object
+    ViewConf(name = "edit", attr = "edit", renderer = t+"edit.pt", permission="edit"),
+    ViewConf(name = "meta", attr = "meta", renderer = t+"meta.pt"),
+    ViewConf(name ="delfile",attr= "delfile", permission="delete"),
+                
+    # cut, copy
+    ViewConf(name = "cut",  attr = "cut",  context = IContainer, permission="edit"),
+    ViewConf(name = "copy", attr = "copy", context = IContainer, permission="edit"),
+    
+    # widgets
+    ViewConf(name = "elementListWidget", attr = "elementListWidget", context = IContainer, permission="edit"),
+    ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IObject, permission = "add"),
+    ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IRoot, permission = "add"),
+    
+    # container
+    ViewConf(name = "add",       attr = "add",    context = IContainer, renderer = t+"add.pt", permission="add"),
+    ViewConf(name = "delete",    attr = "delete", context = IContainer, renderer = t+"delete.pt", permission = "delete"),
+    
+    # sort
+    ViewConf(name = "sortpages", attr = "sortpages", context = IPage, renderer = t+"sort.pt", permission="edit"),
+    ViewConf(name = "sortpages", attr = "sortpages", context = IRoot, renderer = t+"sort.pt", permission="edit"),
+    ViewConf(name="sortelements",attr="sortelements",context = IContainer, renderer = t+"sort.pt", permission="edit"),
+    ViewConf(name = "moveup",    attr = "moveup",    context = IContainer, permission="edit"),
+    ViewConf(name = "movedown",  attr = "movedown",  context = IContainer, permission="edit"),
+    ViewConf(name = "movetop",   attr = "movetop",   context = IContainer, permission="edit"),
+    ViewConf(name = "movebottom",attr = "movebottom",context = IContainer, permission="edit"),
+    
+    # paste
+    ViewConf(name = "paste", attr = "paste", context = IContainer, permission = "add"),
+    
+    # widgets
+    ViewConf(name = "addpageWidget",  attr = "tmpl", renderer = t+"widgets/widget_addpage.pt",    context = IContainer, permission="add"),
+    ViewConf(name = "editpageWidget", attr = "tmpl", renderer = t+"widgets/widget_editpage.pt",   context = IContainer, permission="edit"),
+    ViewConf(name = "subpagesWidget", attr = "tmpl", renderer = t+"widgets/widget_subpages.pt",   context = IContainer),
+    ViewConf(name = "settingsWidget", attr = "tmpl", renderer = t+"widgets/widget_settings.pt",   context = IContainer)
+]
 
-views.append(ViewConf(id="rootview", name = "",     attr = "view", context = "nive.cms.cmsview.cmsroot.cmsroot", containment=IApplication))
-views.append(ViewConf(id="objview",  name = "",     attr = "view", context = IPage))
-
-# object
-views.append(ViewConf(name = "edit", attr = "edit", renderer = t+"edit.pt", permission="edit"))
-views.append(ViewConf(name = "meta", attr = "meta", renderer = t+"meta.pt"))
-views.append(ViewConf(name ="delfile",attr= "delfile", permission="delete"))
-            
-# cut, copy
-views.append(ViewConf(name = "cut",  attr = "cut",  context = IContainer, permission="edit"))
-views.append(ViewConf(name = "copy", attr = "copy", context = IContainer, permission="edit"))
-
-# widgets
-views.append(ViewConf(name = "elementListWidget", attr = "elementListWidget", context = IContainer, permission="edit"))
-views.append(ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IObject, permission = "add"))
-views.append(ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IRoot, permission = "add"))
-
-# container
-views.append(ViewConf(name = "add",       attr = "add",    context = IContainer, renderer = t+"add.pt", permission="add"))
-views.append(ViewConf(name = "delete",    attr = "delete", context = IContainer, renderer = t+"delete.pt", permission = "delete"))
-
-# sort
-views.append(ViewConf(name = "sortpages", attr = "sortpages", context = IPage, renderer = t+"sort.pt", permission="edit"))
-views.append(ViewConf(name = "sortpages", attr = "sortpages", context = IRoot, renderer = t+"sort.pt", permission="edit"))
-views.append(ViewConf(name="sortelements",attr="sortelements",context = IContainer, renderer = t+"sort.pt", permission="edit"))
-views.append(ViewConf(name = "moveup",    attr = "moveup",    context = IContainer, permission="edit"))
-views.append(ViewConf(name = "movedown",  attr = "movedown",  context = IContainer, permission="edit"))
-views.append(ViewConf(name = "movetop",   attr = "movetop",   context = IContainer, permission="edit"))
-views.append(ViewConf(name = "movebottom",attr = "movebottom",context = IContainer, permission="edit"))
-
-# paste
-views.append(ViewConf(name = "paste", attr = "paste", context = IContainer, permission = "add"))
-
-# widgets
-views.append(ViewConf(name = "addpageWidget",  attr = "tmpl", renderer = t+"widgets/widget_addpage.pt",    context = IContainer, permission="add"))
-views.append(ViewConf(name = "editpageWidget", attr = "tmpl", renderer = t+"widgets/widget_editpage.pt",   context = IContainer, permission="edit"))
-views.append(ViewConf(name = "subpagesWidget", attr = "tmpl", renderer = t+"widgets/widget_subpages.pt",   context = IContainer))
-views.append(ViewConf(name = "settingsWidget", attr = "tmpl", renderer = t+"widgets/widget_settings.pt",   context = IContainer))
-
-configuration.views = views
 
 # toolbox and editor widgets ----------------------------------------------------------------------------------
-widgets = []
-widgets.append(WidgetConf(name=_(u"Add new page"),         widgetType=IToolboxWidgetConf, apply=(IContainer,), viewmapper="addpageWidget", id="cms.addpage", sort=100))
-widgets.append(WidgetConf(name=_(u"Edit page"),            widgetType=IToolboxWidgetConf, apply=(IContainer,), viewmapper="editpageWidget", id="cms.editpage", sort=200))
-widgets.append(WidgetConf(name=_(u"Sub pages and parent"), widgetType=IToolboxWidgetConf, apply=(IContainer,), viewmapper="subpagesWidget", id="cms.subpages", sort=300))
-widgets.append(WidgetConf(name=_(u"Settings"),             widgetType=IToolboxWidgetConf, apply=(IApplication,IContainer), viewmapper="settingsWidget", id="cms.settings", sort=400))
+configuration.widgets = [
+    WidgetConf(name=_(u"Add new page"),         widgetType=IToolboxWidgetConf, apply=(IContainer,), viewmapper="addpageWidget", id="cms.addpage", sort=100),
+    WidgetConf(name=_(u"Edit page"),            widgetType=IToolboxWidgetConf, apply=(IContainer,), viewmapper="editpageWidget", id="cms.editpage", sort=200),
+    WidgetConf(name=_(u"Sub pages and parent"), widgetType=IToolboxWidgetConf, apply=(IContainer,), viewmapper="subpagesWidget", id="cms.subpages", sort=300),
+    WidgetConf(name=_(u"Settings"),             widgetType=IToolboxWidgetConf, apply=(IApplication,IContainer), viewmapper="settingsWidget", id="cms.settings", sort=400),
+    
+    WidgetConf(name=_(u"Edit"),          widgetType=IEditorWidgetConf, apply=(IObject,),    viewmapper="edit",   id="editor.edit", sort=100),
+    WidgetConf(name=_(u"Add"),           widgetType=IEditorWidgetConf, apply=(IContainer,), viewmapper="add",    id="editor.add",  sort=200),
+    WidgetConf(name=_(u"Sort sub pages"),widgetType=IEditorWidgetConf, apply=(IPage,),      viewmapper="sortpages", id="editor.sortpages", sort=300),
+    WidgetConf(name=_(u"Meta"),          widgetType=IEditorWidgetConf, apply=(IObject,),    viewmapper="meta",   id="editor.meta", sort=400)
+]
 
-widgets.append(WidgetConf(name=_(u"Edit"),          widgetType=IEditorWidgetConf, apply=(IObject,),    viewmapper="edit",   id="editor.edit", sort=100))
-widgets.append(WidgetConf(name=_(u"Add"),           widgetType=IEditorWidgetConf, apply=(IContainer,), viewmapper="add",    id="editor.add",  sort=200))
-widgets.append(WidgetConf(name=_(u"Sort sub pages"),widgetType=IEditorWidgetConf, apply=(IPage,),      viewmapper="sortpages", id="editor.sortpages", sort=300))
-widgets.append(WidgetConf(name=_(u"Meta"),          widgetType=IEditorWidgetConf, apply=(IObject,),    viewmapper="meta",   id="editor.meta", sort=400))
-
-configuration.widgets = widgets
 
         
         
