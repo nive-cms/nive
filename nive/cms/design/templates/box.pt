@@ -1,4 +1,5 @@
-<div tal:attributes="class string:pageelement peBox ${context.data.span} ${context.data.spanoffset}; id string:pe${context.GetID()}"
+<div tal:attributes="class string:pageelement peBox ${context.data.span} ${context.data.spanoffset} ${context.GetResponsiveClass(view.IsEditmode())}; 
+                     id string:pe${context.GetID()}"
      tal:define="elements context.GetPageElements()" i18n:domain="nive">
   <span tal:condition="context.data.highlight" tal:replace="structure string:<div class='well'>"/>
   <h1 tal:condition="context.meta.title"

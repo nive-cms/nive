@@ -3,3 +3,4 @@
 - json mapping form tests
 - fieldconf lisitem handling
 - field renderer tests
+- mselection, mcheckboxes, urllist, unitlist store and load as list
