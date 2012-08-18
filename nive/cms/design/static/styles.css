@@ -9,7 +9,7 @@ body { font-family: Verdana, Arial, sans-serif; }
 .footer p { margin-bottom: 0; color: #555; }
 .row .hero-unit { margin-left:30px; }
 
-img.logo { padding-top: 4px;}
+.navbar img.logo { padding-top: 4px; padding-left:20px; }
 
 /*elements--------------------------------------------------*/
 .pageelement { margin-top:6px; }
@@ -25,13 +25,13 @@ img.logo { padding-top: 4px;}
 	background-repeat: no-repeat;
 	background-position: left top;
 }
-.peImage { }
 .peImage div.title { color: #666666; font-size: 90%; }
 .peImage div.left { margin-right: 20px; margin-bottom: 10px; float:left; }
 .peImage p { padding-bottom: 0px; margin-bottom: 0px; }
-.peImage .teaser { width: 260px; height: 180px; margin-bottom: 20px; overflow:hidden;}
-.peImage .teaserl { width: 360px; height: 268px; margin-bottom: 20px; overflow:hidden;}
-.peImage .teasers { width: 160px; height: 120px; margin-bottom: 20px; overflow:hidden;}
+.peImage .teaser { margin-bottom: 20px; }
+.peImage .teaserl { margin-bottom: 20px; }
+.peImage .teasers { margin-bottom: 20px; }
+
 .peNews { clear:both; }
 .peNews p { padding-bottom: 0px; margin-bottom: 0px; }
 .peNews .header img { display: block; margin-right: 10px; float: left; margin-bottom: 10px; }

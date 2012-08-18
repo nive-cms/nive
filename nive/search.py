@@ -654,14 +654,14 @@ class Search:
         return result
 
 
-    def SearchFulltext(self, parameter, fields = ["id","title","pool_type"], sort = u"", ascending = 1, start = 0, max = 300, **kw):
+    def SearchFulltext(self, phrase, parameter=None, fields = ["id","title","pool_type"], sort = u"", ascending = 1, start = 0, max = 300, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
         
         Example ::
         
-            root.()SearchFulltext(parameter={"searchPhrase": "new"}, 
+            root().SearchFulltext("new", parameter={}, 
                               fields=["id", "title"], 
                               start=0, max=50, 
                               operators={"text":"LIKE"})
@@ -671,6 +671,10 @@ class Search:
         t = time.time()
 
         # check parameter
+        if not parameter:
+            parameter = {}
+        if phrase==None:
+            phrase = u""
         try:    ascending = int(ascending)
         except:    ascending = 1
         try:    start = int(start)
@@ -681,9 +685,6 @@ class Search:
         fields = self._GetFieldDefinitions(fields)
 
         fldList = []
-
-        phrase = parameter["searchPhrase"]
-        del parameter["searchPhrase"]
 
         if kw.get("showAll",True) == False and parameter == {} and phrase == "":
             parameter["id"] = 0
@@ -725,7 +726,7 @@ class Search:
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
-            sql = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, operators=kw.get("operators",{}), useMatch=useMatch, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+            sql = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, operators=kw.get("operators",{}), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
             #BREAK(sql)
             aL = db.Query(sql)
             #BREAK(aL)
@@ -758,7 +759,7 @@ class Search:
                     break
 
             # total records
-            sql2 = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, operators=kw.get("operators",{}), skipRang=1, useMatch=useMatch, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+            sql2 = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, operators=kw.get("operators",{}), skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
             #BREAK(sql)
             total = db.Query(sql2)[0][0]
             #BREAK(total)
@@ -796,7 +797,7 @@ class Search:
         return result
 
 
-    def SearchFulltextType(self, pool_type, parameter, fields = [], sort = None, ascending = 1, start = 0, max = 300, **kw):
+    def SearchFulltextType(self, pool_type, parameter=None, fields = [], sort = None, ascending = 1, start = 0, max = 300, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search of the given type. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -860,7 +861,6 @@ class Search:
             operators["jointype"] = kw.get("jointype")
 
         # fulltext wildcard
-        useMatch = kw.get("useMatch", False)
         if phrase.find(u"*") == -1:
             phrase = u"%%%s%%" % phrase
         else:
@@ -941,7 +941,7 @@ class Search:
 
         #BREAK(aItems)
         result = {}
-        parameter["searchPhrase"] = phrase
+        result["phrase"] = phrase
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
