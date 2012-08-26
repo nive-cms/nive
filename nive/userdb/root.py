@@ -203,6 +203,7 @@ class root(UserCache, RootBase):
                     return None, report
             except Exception, e:
                 report.append(_(u"The email could not be sent."))
+                report.append(str(e))
                 #report.append(_("Send Mail Error: ")+str(e))
                 return None, report
 

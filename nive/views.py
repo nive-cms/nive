@@ -265,7 +265,7 @@ class BaseView(object):
         return u""
     
 
-    def ResetFlashMessages(self, slot=None):
+    def ResetFlashMessages(self, slot=""):
         """
         Removes all messages stored in session.
         """
