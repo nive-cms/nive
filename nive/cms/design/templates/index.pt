@@ -36,7 +36,7 @@
           </ul>
         </div><!--/.nav-collapse -->
         <div class="pull-right visible-desktop"><img src="${view.StaticUrl('imgs/logo.png')}" class="logo" title="nive open source cms" /></div>
-        <form class="navbar-search pull-right" action="${view.FolderUrl(context.root())}search"><input type="text" class="search-query" placeholder="Search"></form>
+        <form class="navbar-search pull-right visible-desktop" action="${view.FolderUrl(context.root())}search"><input type="text" class="search-query" placeholder="Search"></form>
       </div>
     </div>
   </div>

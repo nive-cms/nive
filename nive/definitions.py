@@ -604,6 +604,8 @@ class ObjectConf(baseConf):
 
     Call ``ObjectConf().test()`` to verify configuration values.
     
+    Object instances provide the configuration as `configuration` attribute.
+    
     Interface: IObjectConf
     """
     implements(IObjectConf)
