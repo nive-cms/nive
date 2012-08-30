@@ -240,7 +240,7 @@ class UserView(BaseView):
             redirect = self.GetFormValue(u"redirect")
             if not redirect:
                 try:
-                    redirect = self.request.loginurl
+                    redirect = self.context.app.portal.configuration.loginSuccessUrl
                 except:
                     redirect = self.request.url
             result, data, action = self.form.Process(redirect_success=redirect)
@@ -257,20 +257,24 @@ class UserView(BaseView):
         app.ForgetLogin(self.request)
         redirect = self.GetFormValue(u"redirect")
         if not redirect:
-            redirect = self.request.url
+            try:
+                redirect = self.context.app.portal.configuration.logoutSuccessUrl
+            except:
+                redirect = self.context.app.portal.configuration.portalDefaultUrl
         if redirect:
-            if redirect.find(u"?")==-1:
-                redirect+=u"?lo=1"
-            else:
-                redirect+=u"&lo=1"
+            if redirect.find(u"lo=1")==-1:
+                if redirect.find(u"?")==-1:
+                    redirect+=u"?lo=1"
+                else:
+                    redirect+=u"&lo=1"
             self.Redirect(redirect)
         return {}
     
     def logouturl(self):
         try:
-            return self.request.logouturl + u"?lo=1"
+            return self.context.app.portal.configuration.logoutUrl
         except:
-            return self.request.url + u"?lo=1"
+            return self.request.url
     
     def _render(self):
         result, data, action = self.form.Process()

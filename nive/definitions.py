@@ -956,8 +956,10 @@ class PortalConf(baseConf):
 
         portalDefaultUrl : redirect for portal root (/) requests
         loginUrl         : login form url 
+        loginSuccessUrl  : redirect after succesfull login url 
         forbiddenUrl     : redirect for unauthorized requests
-        logoutUrl        : redirect on logout
+        logoutUrl        : logout function
+        logoutSuccessUrl : redirect on succesfull logout
         accountUrl       : user account page
         favicon          : favicon asset path
         robots           : robots.txt contents
@@ -971,8 +973,10 @@ class PortalConf(baseConf):
     def __init__(self, copyFrom=None, **values):
         self.portalDefaultUrl = "/website/"
         self.loginUrl = "/userdb/udb/login"
+        self.loginSuccessUrl = "/website/editor/"
         self.forbiddenUrl = "/userdb/udb/login"
         self.logoutUrl = "/userdb/udb/logout"
+        self.logoutSuccessUrl = "/userdb/udb/login"
         self.accountUrl = "/userdb/udb/update"
         self.favicon = ""
         self.robots = u"""

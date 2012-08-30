@@ -36,8 +36,10 @@ Also redirects for login, forbidden, logout and default url are configured here 
 
         portalDefaultUrl = "/website/"
         loginUrl = "/userdb/udb/login"
+        loginSuccessUrl = "/website/"
         forbiddenUrl = "/userdb/udb/login"
         logoutUrl = "/userdb/udb/logout"
+        logoutSuccessUrl = "/website/"
         accountUrl = "/userdb/udb/update"
 
 Interface: IPortal
@@ -266,7 +268,7 @@ def login_view(context, request):
 def logout_view(context, request):
     # logout to login form
     portal = context
-    return Redirect(portal.configuration.logoutUrl+"?redirect="+portal.configuration.loginUrl, request, messages=[u"You have been logged out"])
+    return Redirect(portal.configuration.logoutUrl+"?redirect="+request.GET.get("redirect",""), request)
     
 def portal_view(context, request):
     # website root / domain root redirect

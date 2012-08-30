@@ -6,3 +6,4 @@
 - mselection, mcheckboxes, urllist, unitlist store and load as list
 - default installation design bootstrap
 - fulltext search
+- form action map to view permission
