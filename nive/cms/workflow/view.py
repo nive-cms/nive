@@ -38,7 +38,8 @@ configuration = ViewModuleConf(
 configuration.views = [
     ViewConf(name = "wfWidget", attr = "widget",   renderer = "nive.cms.workflow:templates/widget.pt"),
     ViewConf(name = "workflow", attr = "workflow", renderer = "nive.cms.workflow:templates/editorpage.pt"),
-    ViewConf(name = "action",   attr = "action")
+    ViewConf(name = "action",   attr = "action"),
+    ViewConf(name = "pubr",     attr = "publishRecursive", permission = "edit")
 ]
 
 configuration.widgets = [
@@ -69,6 +70,30 @@ class WorkflowEdit(Editor):
         msg = _(u"OK")
         self.Redirect(url, messages=[msg])
         
+    def publishRecursive(self):
+        msgs = []
+        ok = 0
+        user = self.User()
         
-     
+        def recursive(self, page, ok):
+            for p in page.GetPages(includeMenu=1):
+                if not p.meta.pool_state:
+                    try:
+                        p.WfAction("publish", user)
+                        p.CommitInternal(user)
+                        msgs.append("Published: " + p.meta.title)
+                        ok += 1
+                    except Exception, e:
+                        msgs.append(u"Failure: "+str(e))
+                        pass
+                ok = recursive(self, p, ok)
+            return ok
+        
+        ok = recursive(self, self.context, ok)
+             
+        url = self.GetFormValue("redirect_url")
+        if not url:
+            url = self.PageUrl()
+        msgs.insert(0, "%d pages published!"%ok)
+        self.Redirect(url, messages=msgs)
         

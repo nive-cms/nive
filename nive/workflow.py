@@ -50,6 +50,8 @@ Default actions used in the cms are: add, remove, create, duplicate, edit, delet
 
 """
 
+import weakref
+
 from nive.definitions import baseConf, ConfigurationError
 from nive.definitions import IWfProcessConf, IWfStateConf, IWfTransitionConf, IProcess
 from nive.helper import ResolveName, ResolveConfiguration, TryResolveName, GetClassRef
@@ -439,7 +441,7 @@ class Process(object):
                 "state": state,
                 "transitions": transitions,
                 "process": self,
-                "context": context,
+                "context": weakref.ref(context)(),
                 "user": user}
 
 

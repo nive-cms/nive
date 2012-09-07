@@ -38,7 +38,7 @@ class text(PageElementBase):
     titleLen = 20
 
     def Init(self):
-        self.RegisterEvent("commit", self.OnCommit)
+        self.RegisterEvent("commit", "OnCommit")
 
 
     def OnCommit(self):

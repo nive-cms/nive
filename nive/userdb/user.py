@@ -37,7 +37,7 @@ class user(ObjectBase):
 
     def Init(self):
         self.groups = tuple(self.data.get("groups",()))
-        self.RegisterEvent("commit", self.OnCommit)
+        self.RegisterEvent("commit", "OnCommit")
 
 
     def Authenticate(self, password):

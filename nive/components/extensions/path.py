@@ -34,7 +34,7 @@ class AlternatePath:
     def Init(self):
         if self.id == 0:
             return
-        self.RegisterEvent("commit", self.TitleToFilename)
+        self.RegisterEvent("commit", "TitleToFilename")
         self._SetName()
 
     

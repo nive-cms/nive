@@ -67,7 +67,7 @@ class objTest_db:
         self.assert_(o1.GetFld(u"ftext")==data1_2[u"ftext"])
         self.assert_(o1.GetFld(u"title")==data1_2[u"title"])
         del o1
-        o1 = r.obj(id)
+        o1 = oo.obj(id)
         self.assert_(o1.GetFld(u"ftext")==data1_2[u"ftext"])
         self.assert_(o1.GetFld(u"title")==data1_2[u"title"])
         oo.Delete(id, user=user)
@@ -84,7 +84,7 @@ class objTest_db:
         self.assert_(o1.GetFld(u"ftext")==data1_2[u"ftext"])
         self.assert_(o1.GetFld(u"title")==data1_2[u"title"])
         del o1
-        o1 = r.obj(id)
+        o1 = oo.obj(id)
         self.assertFalse(o1.GetFld(u"ftext")==data1_1[u"ftext"])
         self.assertFalse(o1.GetFld(u"title")==data1_1[u"title"])
         

@@ -22,7 +22,8 @@ class containerTest_db:
         root = self.app.root()
         for r in self.remove:
             root.Delete(r, u)
-        pass
+        self.app.Close()
+
 
     def test_basics(self):
         #print "Testing shortcuts"
@@ -56,7 +57,7 @@ class containerTest_db:
         self.assert_(o1.GetAllowedTypes(user=user))
         r.Delete(id1, user=user)
         self.assertEqual(ccc, a.db.GetCountEntries())
-        a.Close()
+        
 
     def test_createroots(self):
         #print "Testing root basics"
@@ -77,7 +78,7 @@ class containerTest_db:
         self.assert_(len(r.GetParentTitles())==0)
         self.assert_(len(r.GetParentPaths())==0)
         self.assertEqual(ccc, a.db.GetCountEntries())
-        a.Close()
+        
 
     def test_createobjs(self):
         #print "Testing new object creation, values and delete"
@@ -138,7 +139,7 @@ class containerTest_db:
         self.assertEqual(ccc+5, a.db.GetCountEntries())
         r.Delete(newO.GetID(), user=user)
         self.assertEqual(ccc, a.db.GetCountEntries())
-        a.Close()
+        
 
     def test_lists(self):
         #print "Testing objects and subobjects"
@@ -220,7 +221,7 @@ class containerTest_db:
         r.DeleteInternal(o1.GetID(), user=user)
         r.DeleteInternal(o2.GetID(), user=user, obj=o2)
         self.assertEqual(ccc, a.db.GetCountEntries())
-        a.Close()
+        
 
 
     def test_restraintsConf(self):
@@ -343,7 +344,7 @@ class containerTest_db:
         r.DeleteInternal(o1.GetID(), user=user)
         r.DeleteInternal(o2.GetID(), user=user, obj=o2)
         self.assertEqual(ccc, a.db.GetCountEntries())
-        a.Close()
+        
 
 
     def test_shortcuts(self):

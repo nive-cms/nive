@@ -18,9 +18,7 @@
 
 __doc__ = ""
 
-
-import re, os, sys
-from types import *
+import weakref
 from StringIO import StringIO
 
 from nive.utils.utils import BREAK, STACKF
@@ -31,7 +29,6 @@ from nive.utils.utils import GetMimeTypeExtension, GetExtensionMimeType, Convert
 
 # FileManager Constants ---------------------------------------------------------------------------
 
-#[<]
 DirectoryCnt = -4                 # directory id range limit
 FileTable = u"pool_files"    # file table name
 FileTableFields = (u"id", u"fileid", u"tag", u"path", u"filename", u"size", u"extension", u"version")
@@ -39,7 +36,6 @@ PoolKeyPos = 2
 Trashcan = u"_trashcan"
 BackupVersion = u"_versions"
 CntVersions = 10
-#[>]
 
 
 class File(object):
@@ -58,7 +54,10 @@ class File(object):
         self.mime = ""
         self.extension = extension
         self.tempfile = tempfile
-        self.fileentry = fileentry
+        if fileentry:
+            self.fileentry = weakref.ref(fileentry)
+        else:
+            self.fileentry = None
         if filedict:
             self.update(filedict)
 
@@ -420,7 +419,7 @@ class FileEntry:
             return False
 
         # convert to File object
-        if type(file) == DictType:
+        if isinstance(file, dict):
             file = File(tag, filedict=file, fileentry=self)
         elif isinstance(file, basestring):
             # load from temp path
@@ -496,7 +495,7 @@ class FileEntry:
         """
         check if the file physically exists
         """
-        if type(file) in (StringType, UnicodeType):
+        if isinstance(file, basestring):
             path = DvPath(self.GetPath(file))
             return path.Exists()
         aP = DvPath(self.pool.GetSystemPath(file))
@@ -518,7 +517,7 @@ class FileEntry:
         """
         if not newPath:
             return False
-        if type(file) in (StringType, UnicodeType):
+        if isinstance(file, basestring):
             path = DvPath(self.GetPath(file))
         else:
             path = DvPath(self.pool.GetSystemPath(file))
@@ -582,7 +581,7 @@ class FileEntry:
         """
         Get the physical path of the file. Checks the database.
         """
-        if type(file) in (StringType, UnicodeType):
+        if isinstance(file, basestring):
             file = self.GetFile(file)
         if not file:
             return u""

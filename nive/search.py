@@ -126,7 +126,7 @@ class Search:
                 parameter["pool_type"] = pool_type
             if not operators.has_key("pool_type"):
                 operators["pool_type"] = u"="
-            typeInf = self.app_.GetObjectConf(pool_type)
+            typeInf = self.app.GetObjectConf(pool_type)
             if not typeInf:
                 raise ConfigurationError, pool_type + " type not found"
             sql = db.GetSQLSelect(fields, parameter, dataTable=typeInf["dbparam"], operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
@@ -225,7 +225,7 @@ class Search:
         removeID = False
         if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
             fldList.append("id")
-            fields.append(self.app_.GetFld("id"))
+            fields.append(self.app.GetFld("id"))
             removeID = True
 
         cacheID = kw.get("cacheID")
@@ -384,7 +384,7 @@ class Search:
         #if not "id" in fldList and kw.get("groupby") == None:
         if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
             fldList.append("id")
-            fields.append(self.app_.GetFld("id"))
+            fields.append(self.app.GetFld("id"))
             removeID = True
 
         #operators
@@ -401,7 +401,7 @@ class Search:
         total = 0
         sql = ""
 
-        typeInf = self.app_.GetObjectConf(pool_type)
+        typeInf = self.app.GetObjectConf(pool_type)
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
@@ -548,7 +548,7 @@ class Search:
         #if not "id" in fldList and kw.get("groupby") == None:
         if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
             fldList.append("id")
-            fields.append(self.app_.GetFld("id", pool_type))
+            fields.append(self.app.GetFld("id", pool_type))
             removeID = True
 
         #operators
@@ -561,7 +561,7 @@ class Search:
         total = 0
         sql = ""
 
-        typeInf = self.app_.GetObjectConf(pool_type)
+        typeInf = self.app.GetObjectConf(pool_type)
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
@@ -699,7 +699,7 @@ class Search:
         removeID = False
         if not "id" in fldList and groupcol == 0:
             fldList.append("id")
-            fields.append(self.app_.GetFld("id"))
+            fields.append(self.app.GetFld("id"))
             removeID = True
 
         useMatch = kw.get("useMatch", False)
@@ -848,7 +848,7 @@ class Search:
         removeID = False
         if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
             fldList.append(u"id")
-            fields.append(self.app_.GetFld("id", pool_type))
+            fields.append(self.app.GetFld("id", pool_type))
             removeID = True
 
         #operators
@@ -866,7 +866,7 @@ class Search:
         else:
             phrase = phrase.replace(u"*", u"%")
 
-        typeInf = self.app_.GetObjectConf(pool_type)
+        typeInf = self.app.GetObjectConf(pool_type)
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
@@ -890,6 +890,7 @@ class Search:
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
+            useMatch = False
             sql = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), useMatch=useMatch, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
             #BREAK(sql)
             aL = db.Query(sql)
@@ -1361,7 +1362,7 @@ class Search:
                 f.append({"id": fld, "name": fld, "datatype": "string"})
                 continue
 
-            fl = self.app_.GetFld(fld, pool_type)
+            fl = self.app.GetFld(fld, pool_type)
             if fl:
                 f.append(fl)
         return f

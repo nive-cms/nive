@@ -353,6 +353,7 @@ class ContainerEdit:
         try:
             newDataEntry = obj.dbEntry.Duplicate()
             updateValues["pool_unitref"] = self.GetID()
+            updateValues["pool_wfa"] = ""
             data, meta, files = obj.SplitData(updateValues)
             newDataEntry.meta.update(meta)
             newDataEntry.data.update(data)
@@ -396,6 +397,7 @@ class ContainerEdit:
         self.Signal("beforeCreate", data=updateValues, type=type, **kw)
         newDataEntry = obj.dbEntry.Duplicate()
         updateValues["pool_unitref"] = self.GetID()
+        updateValues["pool_wfa"] = ""
         data, meta, files = obj.SplitData(updateValues)
         newDataEntry.meta.update(meta)
         newDataEntry.data.update(data)
@@ -745,7 +747,6 @@ class Root(object):
         # unique root id generated from name . negative integer.
         self.idhash = abs(hash(self.__name__))*-1
         self.path = path
-        self.app_ = app
         self.configuration = rootDef
         self.queryRestraints = {}, {}
 
@@ -753,6 +754,8 @@ class Root(object):
         self.data = {}
         self.Signal("init")
 
+    #def __del__(self):
+    #    print "del root", self.id
 
     # Properties -----------------------------------------------------------
 
@@ -763,12 +766,12 @@ class Root(object):
     @property
     def app(self):
         """ returns the cms application the root is used for """
-        return self.app_
+        return self.__parent__
 
     @property
     def db(self):
         """ returns the datapool object """
-        return self.app_.db
+        return self.app.db
 
     @property
     def parent(self):
@@ -805,7 +808,7 @@ class Root(object):
             return obj
 
         # load tree structure
-        path = self.app_.db.GetParentPath(id)
+        path = self.app.db.GetParentPath(id)
         if path == None:
             return None
             #raise Exception, "NotFound"
@@ -814,9 +817,9 @@ class Root(object):
         if hasattr(self, "rootID"):
             if self.rootID in path:
                 path = path[path.index(self.rootID)+1:]
-        if hasattr(self.app_, "rootID"):
-            if self.app_.rootID in path:
-                path = path[path.index(self.app_.rootID)+1:]
+        if hasattr(self.app, "rootID"):
+            if self.app.rootID in path:
+                path = path[path.index(self.app.rootID)+1:]
 
         # reverse lookup of object tree. loads all parent objs.
         path.append(id)
@@ -912,7 +915,7 @@ class Root(object):
 
     def GetApp(self):
         """ returns the cms application. """
-        return self.app_
+        return self.app
 
     def GetParent(self):
         """ returns None. """

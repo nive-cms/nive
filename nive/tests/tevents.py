@@ -11,10 +11,14 @@ from nive.events import *
 
 class testobj(object, Events):
     def __init__(self):
+        self.called = 0
         self.InitEvents()
     
     def callme(self):
         self.Signal("callme", data=1)
+
+    def event_testLocal(self, **kw):
+        self.called = kw.get("data")
         
 
 class EventTest(unittest.TestCase):
@@ -27,13 +31,12 @@ class EventTest(unittest.TestCase):
         self.called = kw.get("data")
 
     def test_events1(self):
-        self.called = 0
-        self.obj.RegisterEvent("test", self.event_test)
+        self.obj.RegisterEvent("test", "event_testLocal")
         self.obj.Signal("test", data=12345)
-        self.assert_(self.called==12345)
-        self.obj.RemoveEvent("test", self.event_test)
+        self.assert_(self.obj.called==12345)
+        self.obj.RemoveEvent("test", "event_testLocal")
         self.obj.Signal("test", data=67890)
-        self.assert_(self.called==12345)
+        self.assert_(self.obj.called==12345)
 
     def test_eventobj(self):
         self.called = 0

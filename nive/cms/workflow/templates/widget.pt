@@ -11,5 +11,8 @@
       href="${pageUrl}action?t=${transition.id}&redirect_url=${request.url}"><img 
             src="${view.StaticUrl('nive.cms.workflow:static/'+transition.id+'.png')}" 
             title="${transition.name}" align="top" i18n:attributes="title"/> <span i18n:translate="">${transition.name}</span></a>
- </div>
+
+   <a href="${pageUrl}workflow" class="nivecms" rel="niveOverlay" 
+   	      ><img title="Open workflow page" align="top" i18n:attributes="title" /> 
+   	            <span i18n:translate="">Open workflow page</span></a> </div>
 </div>

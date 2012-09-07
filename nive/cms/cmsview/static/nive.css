@@ -162,7 +162,8 @@ a.button {
   text-decoration:none;
 }
 
-/*table--------------------------------------------------*/
+/*table--------------------------------------------------
 table {border:none;width:100%;}
 table th {float:left;text-align:left;margin-right:12px;}
 table th, table td {border-top:1px solid #dddddd;}
+*/

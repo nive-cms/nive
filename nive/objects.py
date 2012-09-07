@@ -36,6 +36,7 @@ object.files values ::
 See :py:mod:`nive.components.objects.base` for subclassing base classes
 """
 
+import weakref
 from utils.utils import ConvertToType
 
 from nive.definitions import StagContainer, ReadonlySystemFlds, ICache, IContainer
@@ -51,7 +52,6 @@ class Object(object):
     def __init__(self, id, dbEntry, parent, configuration, **kw):
         self.__name__ = str(id)
         self.__parent__ = parent
-
         self.id = id
         self.idhash = id
         self.path = str(id)
@@ -59,18 +59,32 @@ class Object(object):
         self.configuration = configuration
         self.selectTag = configuration.get("selectTag", StagContainer) 
 
-        self.meta = self.dbEntry.meta
-        self.data = self.dbEntry.data
-        self.files = self.dbEntry.files
-        #self._InitEvents()
         self.Signal("init")
+        #print "init obj", self.id
 
+    #def __del__(self):
+    #    print "del obj", self.id
 
     # Shortcuts -----------------------------------------------------------
 
+    @property
+    def meta(self):
+        """ meta values """
+        return weakref.ref(self.dbEntry.meta)()
+
+    @property
+    def data(self):
+        """ data values """
+        return weakref.ref(self.dbEntry.data)()
+
+    @property
+    def files(self):
+        """ files """
+        return weakref.ref(self.dbEntry.files)()
+
     def root(self):
         """ returns the current root object in parent chain """
-        return self.__parent__.root()
+        return self.parent.root()
 
     @property
     def app(self):
@@ -200,7 +214,7 @@ class Object(object):
         p = []
         o = self
         while o:
-            o = o.GetParent()
+            o = o.parent
             if o:
                 p.append(o)
         return p
@@ -210,7 +224,7 @@ class Object(object):
         p = []
         o = self
         while o:
-            o = o.GetParent()
+            o = o.parent
             if o:
                 p.append(o.GetID())
         return p
@@ -220,7 +234,7 @@ class Object(object):
         p = []
         o = self
         while o:
-            o = o.GetParent()
+            o = o.parent
             if o:
                 p.append(o.GetTitle())
         return p
@@ -230,7 +244,7 @@ class Object(object):
         p = []
         o = self
         while o:
-            o = o.GetParent()
+            o = o.parent
             if o:
                 p.append(o.GetPath())
         return p
@@ -270,7 +284,7 @@ class Object(object):
             #opt
             for o in self.GetAllFromCache():
                 o.Close()
-            p = self.GetParent()
+            p = self.parent
             if ICache.providedBy(p):
                 p.RemoveCache(self.id)
         self.dbEntry.Close()
@@ -494,7 +508,7 @@ class ObjectEdit:
         # split data for pool
         self.UpdateInternal(data)
         self.meta["pool_type"] = self.configuration.id
-        self.meta["pool_unitref"] = self.__parent__.id
+        self.meta["pool_unitref"] = self.parent.id
         self.meta["pool_stag"] = self.selectTag
 
         # call wf
@@ -625,7 +639,7 @@ class ObjectWorkflow:
     def GetWfState(self):
         """
         """
-        return self.meta["pool_wfa"]
+        return self.meta.pool_wfa
 
 
     # Manual Workflow changes ---------------------------------------------------------------
@@ -635,7 +649,7 @@ class ObjectWorkflow:
         Sets the workflow state for the object. The new is state is set
         regardless of transitions or calling any workflow actions.
         """
-        self.meta["pool_wfa"] = stateID
+        self.meta.pool_wfa = stateID
 
     
     def SetWfProcess(self, processID, user, force=False):
@@ -649,7 +663,7 @@ class ObjectWorkflow:
         Workflow action: change_wfprocess
         """
         app = self.app
-        wf = self.meta["pool_wfp"]
+        wf = self.meta.pool_wfp
         if not wf or force:
             self.meta["pool_wfp"] = processID
             if app.configuration.autocommit:

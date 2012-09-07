@@ -35,7 +35,7 @@ class Sort:
     """
 
     def Init(self):
-        self.RegisterEvent("beforeCreate", self.NewSort)
+        self.RegisterEvent("beforeCreate", "NewSort")
 
 
     def NewSort(self, data, type, **kw):

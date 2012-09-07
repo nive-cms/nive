@@ -18,7 +18,11 @@
 
 __doc__ = "Data Pool 2 SQL Base Module"
 
-import string, time, re, os
+import string
+import time
+import re
+import os
+import weakref
 import iso8601
 from datetime import datetime
 from types import *
@@ -1270,9 +1274,10 @@ class Entry:
 
         # basic properties
         self.pool = dataPool
-        self.meta = dataPool._GetMetaWrapper()(self)
-        self.data = dataPool._GetDataWrapper()(self)
-        self.files = dataPool._GetFileWrapper()(self)
+        selfref = weakref.ref(self)
+        self.meta = dataPool._GetMetaWrapper()(selfref)
+        self.data = dataPool._GetDataWrapper()(selfref)
+        self.files = dataPool._GetFileWrapper()(selfref)
         self.cacheRec = True
         self._localRoles = None
         self._permissions = None
@@ -1294,13 +1299,15 @@ class Entry:
 
 
     def __del__(self):
-         self.Close()
+        #print "del entry", self.id
+        self.Close()
 
 
     def Close(self):
-        self.meta.Close()
-        self.data.Close()
-        self.files.Close()
+        #print "close entry", self.id
+        self.meta.close()
+        self.data.close()
+        self.files.close()
         self.pool = None
 
 
@@ -2033,12 +2040,11 @@ class Wrapper(object):
 
     __wrapper__ = 1
 
-    def __init__(self, inEntry, content=None):
-        #[a]
-        self._entry_ = inEntry
+    def __init__(self, entry, content=None):
+        self._entry_ = entry
         self._temp_ = {}
         self._content_ = None
-
+        #print "init wrapper", self._entry_().id
 
     def __repr__(self):
         return str(type(self)) 
@@ -2050,7 +2056,7 @@ class Wrapper(object):
         if key in (u"id",u"pool_datatbl", u"pool_dataref"):
             return
         if type(value) == StringType:
-            value = self._entry_.pool.DecodeText(value)
+            value = self._entry_().pool.DecodeText(value)
         self._temp_[key] = value
 
 
@@ -2072,12 +2078,16 @@ class Wrapper(object):
         return self._content_.get(key)
 
 
+    def close(self):
+        self._entry_ = None
+        self._temp_.clear()
+        self._content_ = None
+
+
     def clear(self):
         """
         Reset contents, temp data and entry obj
         """
-        #self._entry_ = None
-        #self._content_ = None
         self._temp_.clear()
 
 
@@ -2110,7 +2120,7 @@ class Wrapper(object):
 
     def set(self, key, data):
         if type(data) == StringType:
-            data = self._entry_.pool.DecodeText(data)
+            data = self._entry_().pool.DecodeText(data)
         self[key] = data
 
 
@@ -2119,7 +2129,7 @@ class Wrapper(object):
             for k in dict.keys():
                 data = dict[k]
                 if type(data) == StringType:
-                    dict[k] = self._entry_.pool.DecodeText(data)
+                    dict[k] = self._entry_().pool.DecodeText(data)
             self._temp_.update(dict)
             return
         for k in dict.keys():
@@ -2141,7 +2151,7 @@ class Wrapper(object):
     def GetTempKey(self, key):        return self._temp_.get(key)
     def HasTempKey(self, key):        return self._temp_.has_key(key)
 
-    def GetEntry(self):                return self._entry_
+    def GetEntry(self):                return self._entry_()
 
     def SetContent(self, content):
         if not self._content_:
@@ -2151,11 +2161,6 @@ class Wrapper(object):
 
     def EmptyTemp(self):
         self._temp_.clear()
-
-    def Close(self):
-        self._entry_ = None
-        self._temp_.clear()
-        self._content_ = None
 
     def _Load(self):
         self._content_ = {}
@@ -2169,7 +2174,7 @@ class MetaWrapper(Wrapper):
 
     def _Load(self):
         self._content_ = {}
-        self._entry_._PreloadMeta()
+        self._entry_()._PreloadMeta()
 
 
 
@@ -2180,7 +2185,7 @@ class DataWrapper(Wrapper):
 
     def _Load(self):
         self._content_ = {}
-        self._entry_._PreloadData()
+        self._entry_()._PreloadData()
 
 
 class FileWrapper(Wrapper):
@@ -2201,11 +2206,11 @@ class FileWrapper(Wrapper):
                 del self._content_[key]
             return
         if type(filedata) == DictType:
-            file = File(key, filedict=filedata, fileentry=self._entry_)
+            file = File(key, filedict=filedata, fileentry=self._entry_())
             filedata = file
         elif type(filedata) == StringType:
             # load from temp path
-            file = File(key, fileentry=self._entry_)
+            file = File(key, fileentry=self._entry_())
             file.SetFromPath(filedata)
             filedata = file
         filedata.tempfile = True
@@ -2223,7 +2228,7 @@ class FileWrapper(Wrapper):
 
 
     def _Load(self):
-        files = self._entry_.Files()
+        files = self._entry_().Files()
         self._content_ = {}
         for f in files:
             self._content_[f["tag"]] = f

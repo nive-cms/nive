@@ -256,4 +256,12 @@ class Event(object):
 
 class FakeLocalizer(object):
     def translate(self, text):
+        try:
+            if text.mapping:
+                v = unicode(text)
+                for k in text.mapping:
+                    v = v.replace(u"${%s}"%k, unicode(text.mapping[k]))
+                return v
+        except:
+            pass
         return text

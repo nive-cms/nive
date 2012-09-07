@@ -131,7 +131,10 @@ class Application(object):
         if configuration:
             self.Register(configuration)
         
-
+    def __del__(self):
+        self.Close()
+        #print "del app", self.id
+        
 
     def Startup(self, pyramidConfig, debug=False):
         """
@@ -233,8 +236,6 @@ class Application(object):
         name = name.split(".")[0]
         o = self.root(name)
         if o:
-            #db = self.db
-            #db.GetConnection().VerifyConnection()
             return o
         raise KeyError, name
 
@@ -1048,8 +1049,8 @@ class AppFactory:
         """
         useCache = self.configuration.useCache
         if useCache and hasattr(self, "_c_db") and self._c_db:
-            #if not self._c_db.GetConnection().IsConnected():
-            #    self._c_db.GetConnection().Connect()
+            if self.dbConfiguration.verifyConnection and not self._c_db.GetConnection().IsConnected():
+                self._c_db.GetConnection().Connect()
             dbObj = self._c_db
         else:
             poolTag = self.dbConfiguration.context

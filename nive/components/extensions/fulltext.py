@@ -17,9 +17,8 @@
 #----------------------------------------------------------------------
 
 import string
-from types import StringType, UnicodeType, IntType, LongType
-from nive.utils.utils import ConvertToNumberList
 
+from nive.utils.utils import ConvertToNumberList
 from nive.definitions import *
 from nive.security import *
 
@@ -28,8 +27,8 @@ class ObjectFulltext:
     """    Fulltext support for objects. Automatically updates fulltext on commit. """
     
     def Init(self):
-        self.RegisterEvent("commit", self.UpdateFulltext)
-    
+        self.RegisterEvent("commit", "UpdateFulltext")
+        
 
     # Fulltext ------------------------------------------
 

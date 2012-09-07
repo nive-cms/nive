@@ -39,7 +39,7 @@ updated, add this function to your objects class: ::
     class myObject:
     
         def Init(self):
-            self.RegisterEvent("update", self.Edit)
+            self.RegisterEvent("update", "Edit")
         
     
         def Edit(self, data):
@@ -59,6 +59,8 @@ to the __init__ function: ::
         self.Signal("init")
     
 """
+
+import weakref
 
 class Events:
     

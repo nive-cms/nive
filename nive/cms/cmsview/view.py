@@ -370,17 +370,24 @@ class Editor(BaseView, CopyView, SortView):
         html = u"""<div class="subpages"> %(blocks)s </div>"""
         
         pHtml = u"""<div class="element">
-  <div class="el_title"><a href="%(url)s">%(title)s</a></div>
+  <div class="el_title"><a href="%(url)s">%(title)s %(workflow)s</a></div>
   <div class="el_options">%(options)s</div>
   <br style="clear:both"/>
 </div>"""
         
+        useworkflow = 1
+        localizer = get_localizer(self.request)
+        static = self.StaticUrl("nive.cms.workflow:static/exclamation.png")
+
         if not pages:
             pages = page.GetPages(includeMenu=1)
         localizer = get_localizer(self.request) 
         blocks = StringIO()
         for p in pages:
-            blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": p.meta.get(u"title"), u"options": self.editBlockList(obj=p, page=page)})
+            wf = u""
+            if useworkflow and not p.meta.pool_state:
+                wf = u"""<img src="%(static)s" title="%(name)s"/>""" % {"static": static, "name": localizer.translate(_(u"This page is not public."))}
+            blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": p.meta.get(u"title"), u"options": self.editBlockList(obj=p, page=page), u"workflow": wf})
         if not len(pages):
             blocks.write(localizer.translate(_(u"<p><i>no sub pages</i></p>")))
         return html % {u"blocks": blocks.getvalue()}

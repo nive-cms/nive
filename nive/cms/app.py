@@ -87,7 +87,8 @@ configuration.modules = [
     # workflow
     "nive.cms.workflow.wf.wfProcess", "nive.cms.workflow.view",
     # tools
-    "nive.components.tools.dbStructureUpdater", "nive.components.tools.dbSqldataDump",
+    "nive.components.tools.dbStructureUpdater", "nive.components.tools.dbSqldataDump", "nive.components.tools.cmsstatistics",
+    "nive.components.tools.gcdump",
     # administration and persistence
     "nive.adminview.view","nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]

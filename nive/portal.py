@@ -48,6 +48,7 @@ Interface: IPortal
 import copy
 import time
 import logging
+import gc
 
 from utils.utils import SortDictList
 
@@ -89,14 +90,16 @@ class Portal(Events, object):
 
         self.Signal("init", configuration=self.configuration)
 
-
+    def __del__(self):
+        self.Close()
+        #print "del portal"
+        
     def __getitem__(self, name):
         try:
             return getattr(self, name)
         except:
             raise KeyError, name
         
-
     def Register(self, comp, name=None):
         """
         Register an application or component. This is usually done in the pyramid
@@ -240,6 +243,14 @@ class Portal(Events, object):
         except:
             pass
                 
+
+    def Close(self):
+        for name in self.components:
+            a = getattr(self, name)
+            a.Close()
+            setattr(self, name, None)
+            
+
     # bw 0.9.4
     def GetComponents(self):
         return self.GetApps()

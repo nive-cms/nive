@@ -180,7 +180,7 @@ class ImageProcessor(object):
 
     def Init(self):
         if PILloaded:
-            self.RegisterEvent("commit", self.OnCommit)
+            self.RegisterEvent("commit", "OnCommit")
 
 
     def OnCommit(self):

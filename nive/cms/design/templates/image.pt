@@ -21,9 +21,14 @@
 
 <tal:block tal:condition="css in (u'teaser','teaserl',u'teasers')">
 <span tal:condition="context.parent.data.gallery" tal:replace="structure string:<li class='${context.Span()}'>" />
-<div class="thumbnail ${css}">
-<img tal:condition="context.files.get('image')"
-     tal:attributes="src view.FileUrl('image', context); title context.GetTitle()" />
+<div class="thumbnail ${css} thumb">
+  <a tal:condition="context.files.get('imagefull') and context.files.get('image')" 
+     tal:attributes="href view.FileUrl('imagefull', context);"
+     rel="thumbnail">
+    <img tal:attributes="src view.FileUrl('image', context); title context.GetTitle()" />
+  </a>
+  <img tal:condition="context.files.get('image') and not context.files.get('imagefull')"
+       tal:attributes="src view.FileUrl('image', context); title context.GetTitle()" />
 <h5 tal:content="structure context.GetTitle()"/>
 <p tal:condition="context.data.textblock" tal:replace="structure context.data.textblock"></p>
 <a tal:condition="context.data.link" 
