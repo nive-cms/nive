@@ -1,10 +1,17 @@
 <tal:block metal:use-macro="view.index_tmpl().macros['main']">
   <tal:block metal:fill-slot="content">
-    <div class="row">
+    <div tal:define="result context.root().SearchFulltext(view.GetFormValue('phrase'),parameter={'pool_stag':10});
+                     rooturl view.FolderUrl()" 
+         class="row">
     <div class="span12">
-    
-    <table tal:define="result context.root().SearchFulltext(view.GetFormValue('text'))" class="table table-striped">
-    <tr tal:repeat="rec result['items']"><td>${rec['id']}</td><td>${rec['pool_type']}</td><td>${rec['title']}</td></tr>
+    <form class="well">
+    <input type="text" name="phrase" value="${result['phrase']}" />
+    <input type="submit" class="btn btn-info" value="Find text" />
+    </form>
+    <p tal:condition="result['count']==0"> <em>Nothing found!</em></p>
+    <p tal:condition="result['count']!=0"> <em>${result['count']} pages found!</em></p>
+    <table class="table table-striped">
+    <tr tal:repeat="rec result['items']"><td><a href="${rooturl}su?r=${rec['id']}">${rec['title']}</a></td><td>${rec['fulltext'][:120]} <span tal:condition="len(rec['fulltext'])>120">...</span><br/><a href="${rooturl}su?r=${rec['id']}">&gt; more</a></td></tr>
     </table>
       
     </div>

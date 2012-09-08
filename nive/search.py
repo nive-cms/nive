@@ -654,7 +654,7 @@ class Search:
         return result
 
 
-    def SearchFulltext(self, phrase, parameter=None, fields = ["id","title","pool_type"], sort = u"", ascending = 1, start = 0, max = 300, **kw):
+    def SearchFulltext(self, phrase, parameter=None, fields = ("id","title","pool_type","-pool_fulltext.text as fulltext"), sort = u"", ascending = 1, start = 0, max = 300, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -675,6 +675,7 @@ class Search:
             parameter = {}
         if phrase==None:
             phrase = u""
+        searchFor = phrase
         try:    ascending = int(ascending)
         except:    ascending = 1
         try:    start = int(start)
@@ -702,7 +703,6 @@ class Search:
             fields.append(self.app.GetFld("id"))
             removeID = True
 
-        useMatch = kw.get("useMatch", False)
         if phrase.find(u"*") == -1:
             phrase = u"%%%s%%" % phrase
         else:
@@ -747,8 +747,6 @@ class Search:
                     fldList[p] = a
                 p += 1
             # convert records
-            fields.insert(0, {"id": u"rang__", "name": u"Rang", "datatype": u"float"})
-            fldList.insert(0, u"rang__")
             for aI in aL:
                 cnt+=1
                 aI2 = []
@@ -766,7 +764,7 @@ class Search:
 
         #BREAK(aItems)
         result = {}
-        parameter["searchPhrase"] = phrase
+        result["phrase"] = searchFor
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
@@ -797,7 +795,7 @@ class Search:
         return result
 
 
-    def SearchFulltextType(self, pool_type, parameter=None, fields = [], sort = None, ascending = 1, start = 0, max = 300, **kw):
+    def SearchFulltextType(self, pool_type, phrase, parameter=None, fields = ["id","title"], sort = None, ascending = 1, start = 0, max = 300, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search of the given type. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -815,16 +813,17 @@ class Search:
         t = time.time()
 
         # check parameter
+        if not parameter:
+            parameter = {}
+        if phrase==None:
+            phrase = u""
+        searchFor = phrase
         try:    ascending = int(ascending)
         except:    ascending = 1
         try:    start = int(start)
         except:    start = 0
         try:    max = int(max)
         except:    max = 100
-
-        # extract searchPhrase
-        phrase = parameter["searchPhrase"]
-        del parameter["searchPhrase"]
 
         # set join type
         default_join = 0
@@ -890,8 +889,7 @@ class Search:
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
-            useMatch = False
-            sql = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), useMatch=useMatch, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
+            sql = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
             #BREAK(sql)
             aL = db.Query(sql)
             #BREAK(aL)
@@ -915,8 +913,6 @@ class Search:
                     a = a.replace(u")", u"")
                     fldList[p] = a
                 p += 1
-            fields.insert(0, {"id": u"rang__", "name": u"Rang", "datatype": u"float"})
-            fldList.insert(0, u"rang__")
             for aI in aL:
                 cnt+=1
                 aI2 = []
@@ -929,11 +925,11 @@ class Search:
             # total records
             if len(aItems) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2 = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, useMatch=useMatch, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2 = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
                     total = db.Query(sql2)[0][0]
                 else:
-                    sql2 = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, useMatch=useMatch, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2 = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
                     total = db.Query(sql2)[0][0]
             else:
@@ -942,7 +938,7 @@ class Search:
 
         #BREAK(aItems)
         result = {}
-        result["phrase"] = phrase
+        result["phrase"] = searchFor
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total

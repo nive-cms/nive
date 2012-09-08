@@ -86,6 +86,8 @@ configuration.modules = [
     #"nive.cms.design.view"
     # workflow
     "nive.cms.workflow.wf.wfProcess", "nive.cms.workflow.view",
+    #extensions
+    "nive.components.extensions.fulltextpage", 
     # tools
     "nive.components.tools.dbStructureUpdater", "nive.components.tools.dbSqldataDump", "nive.components.tools.cmsstatistics",
     "nive.components.tools.gcdump",

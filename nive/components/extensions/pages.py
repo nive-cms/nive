@@ -141,7 +141,7 @@ class PageElementContainer:
             t = e.GetTypeID()
             if t == "box":
                 elements2 += e.GetPageElements(addBoxContents)
-        return elements2
+        return elements + elements2
 
 
     def AllowedPageElements(self, user, group=None):

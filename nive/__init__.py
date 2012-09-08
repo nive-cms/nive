@@ -34,3 +34,5 @@ from nive.adminview.view import IAdminWidgetConf
 
 # exceptions
 from nive.utils.dataPool2.base import OperationalError, ProgrammingError, Warning
+
+from nive.i18n import _

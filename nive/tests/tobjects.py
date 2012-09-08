@@ -248,20 +248,6 @@ class objTest_db:
         a.Close()
 
     
-    def test_fulltext(self):
-        #print "Testing object commit and undo for data and files"
-        a=self.app
-        r=root(a)
-        # create
-        user = User(u"test")
-        o1 = createObj1(r)
-
-        o1.UpdateFulltext()
-        self.assert_(o1.GetFulltext().find("text!")!=-1)
-        o1.DeleteFulltext()
-        self.assert_(o1.GetFulltext()=="")
-        r.Delete(o1.GetID(), user=user)
-
 
 class objTest_db_(objTest_db, unittest.TestCase):    
     """

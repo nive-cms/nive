@@ -426,14 +426,18 @@ class Base(object):
         if sort != u"":
             sort = u"ORDER BY %s %s" % (sort, order)
 
-        aSql = u"""
+        sql = u"""
         SELECT %s
         FROM %s
-        %s %s %s
         %s
-        %s %s %s
+        %s
+        %s
+        %s
+        %s
+        %s
+        %s
         """ % (fields, table, join, joindata, customJoin, where, groupby, sort, limit)
-        return aSql
+        return sql
 
 
     def _FmtWhereClause(self, where, singleTable):
@@ -456,32 +460,26 @@ class Base(object):
 
         searchPhrase: text to be searched
 
-        **kw:
-        skipRang
-        useMatch
-
         For further options see -> GetSQLSelect
         """
-        aSql = self.GetSQLSelect(flds, parameter, dataTable=dataTable, **kw)
+        sql = self.GetSQLSelect(flds, parameter, dataTable=dataTable, **kw)
         connection = self.GetConnection()
         searchPhrase = connection.FmtParam(self.DecodeText(searchPhrase))
 
-        if kw.get("useMatch"):
-            aM = u"""MATCH (%s.text) AGAINST (%s)""" % (self.FulltextTable, searchPhrase)
-        else:
-            aM = u"""%s.text LIKE %s""" % (self.FulltextTable, searchPhrase)
-
-        if not kw.get("skipRang"):
-            aSql = aSql.replace(u"SELECT ", "SELECT %s AS rang__, " % (aM))
+        phrase = u"""%s.text LIKE %s""" % (self.FulltextTable, searchPhrase)
 
         if not searchPhrase in (u"", u"'%%'", None):
-            if aSql.find(u"WHERE ") == -1:
-                aSql = aSql.replace(u"ORDER BY ", "WHERE %s \r\nORDER BY " % (aM))
+            if sql.find(u"WHERE ") == -1:
+                if sql.find(u"ORDER BY ") != -1:
+                    sql = sql.replace(u"ORDER BY ", "WHERE %s \r\n        ORDER BY " % (phrase))
+                elif sql.find(u"LIMIT ") != -1:
+                    sql = sql.replace(u"LIMIT ", "WHERE %s \r\n        LIMIT " % (phrase))
+                else:
+                    sql += u"WHERE %s " % (phrase)
             else:
-                aSql = aSql.replace(u"WHERE ", "WHERE %s AND " % (aM))
-        aSql = aSql.replace(u"FROM %s AS meta__"%(self.MetaTable), "FROM %s AS meta__\r\n\t\tLEFT JOIN %s ON (meta__.id = %s.id)"%(self.MetaTable, self.FulltextTable, self.FulltextTable))
-        #aSql = aSql.replace("ORDER BY ", "ORDER BY rang__, ")
-        return aSql
+                sql = sql.replace(u"WHERE ", "WHERE %s AND " % (phrase))
+        sql = sql.replace(u"FROM %s AS meta__"%(self.MetaTable), "FROM %s AS meta__\r\n        LEFT JOIN %s ON (meta__.id = %s.id)"%(self.MetaTable, self.FulltextTable, self.FulltextTable))
+        return sql
 
 
     def Query(self, sql, values = None, cursor=None, getResult=True):
@@ -671,7 +669,7 @@ class Base(object):
             v.append(value)
         sql = u"DELETE FROM %s WHERE %s" % (table, u" AND ".join(p))
         if self._debug:
-            STACKF(0,aSql+"\r\n\r\n",self._debug, self._log,name=self.name)
+            STACKF(0,sql+"\r\n\r\n",self._debug, self._log,name=self.name)
         cc=False
         if not cursor:
             cc=True
@@ -1668,11 +1666,11 @@ class Entry:
         Delete fulltext for entry
         """
         ph = self.pool.GetPlaceholder()
-        aSql = u"DELETE FROM %s WHERE id = %s"%(self.pool.FulltextTable, ph)
+        sql = u"DELETE FROM %s WHERE id = %s"%(self.pool.FulltextTable, ph)
         if self.pool._debug:
-            STACKF(0,aSql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
+            STACKF(0,sql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
         aCursor = self.pool.GetCursor()
-        aCursor.execute(aSql, (self.id,))
+        aCursor.execute(sql, (self.id,))
         aCursor.close()
 
 

@@ -467,10 +467,14 @@ class Registration(object):
         
         elif iface == IModuleConf:
             # events
-            if hasattr(conf, "events") and conf.events:
+            if conf.events:
                 for e in conf.events:
                     log.debug('Register Event: %s for %s', str(e.event), str(e.callback))
                     self.RegisterEvent(e.event, e.callback)
+            # modules
+            if conf.modules:
+                for m in conf.modules:
+                    self.Register(m, **kw)
             self.registry.registerUtility(conf, provided=IModuleConf, name=conf.id)
             return True
 

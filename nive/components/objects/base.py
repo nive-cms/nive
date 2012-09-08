@@ -24,8 +24,6 @@ are already included as parent classes.
 
 from nive.application import Application, AppFactory, Configuration, Registration
 from nive.container import Root, Container, ContainerEdit, ContainerSecurity, ContainerFactory, RootWorkflow
-from nive.components.extensions.cache import ContainerCache
-from nive.components.extensions.fulltext import ObjectFulltext
 from nive.objects import Object, ObjectEdit, ObjectWorkflow
 from nive.events import Events
 from nive.search import Search
@@ -51,15 +49,7 @@ class RootBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events
     """
     implements(IContainer, IRoot)
     
-class RootCacheBase(Root, Container, Search, ContainerEdit, ContainerSecurity, Events, ContainerFactory, ContainerCache, RootWorkflow):
-    """
-    *Root Edit with cache*
-    
-    Root class with add and delete support for subobjects. Objects are cached in memory.
-    """
-    implements(IRoot, IContainer)
-    
-class RootReadOnlyBase(Root, Container, Search, Events, ContainerFactory, ContainerCache, RootWorkflow):
+class RootReadOnlyBase(Root, Container, Search, Events, ContainerFactory, RootWorkflow):
     """
     *Root with readonly access and cache*
     
@@ -69,7 +59,7 @@ class RootReadOnlyBase(Root, Container, Search, Events, ContainerFactory, Contai
 
     
     
-class ObjectBase(Object, ObjectEdit, Events, ObjectWorkflow, ObjectFulltext):
+class ObjectBase(Object, ObjectEdit, Events, ObjectWorkflow):
     """
     *Default non-container object with write access*
     
@@ -85,7 +75,7 @@ class ObjectReadOnlyBase(Object, Events, ObjectWorkflow):
     """
     implements(IObject, INonContainer, IReadonly)
 
-class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit,ContainerSecurity,  Events, ContainerFactory, ObjectFulltext):
+class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit,ContainerSecurity,  Events, ContainerFactory):
     """
     *Default container object with write access*
     
@@ -93,15 +83,7 @@ class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, Contain
     """
     implements(IContainer, IObject)
     
-class ObjectContainerCacheBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit, ContainerSecurity, Events, ContainerFactory, ContainerCache, ObjectFulltext):
-    """
-    *Container object with write access and cache*
-    
-    This one supports subobjects and caches them in memory. 
-    """
-    implements(IObject, IContainer)
-    
-class ObjectContainerReadOnlyBase(Object, ObjectWorkflow, Container, Events, ContainerFactory, ContainerCache):
+class ObjectContainerReadOnlyBase(Object, ObjectWorkflow, Container, Events, ContainerFactory):
     """
     *Container object with read only access and cache*
     

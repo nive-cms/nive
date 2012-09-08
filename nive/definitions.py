@@ -1086,6 +1086,7 @@ class ModuleConf(baseConf):
         views   : List containing ViewConf or ViewModuleConf definitions. 
         events  : Register for one or multiple Application events. 
                   Register each event as e.g. Conf(event="run", callback=function).
+        modules : Additional module configuration to be included.
         description : Description.
 
     Call ``ModuleConf().test()`` to verify configuration values.
@@ -1100,6 +1101,7 @@ class ModuleConf(baseConf):
         self.context = ""
         self.views = []
         self.events = None
+        self.modules = []
         self.description = u""
         baseConf.__init__(self, copyFrom, **values)
 
@@ -1127,6 +1129,14 @@ class ModuleConf(baseConf):
             for m in self.views:
                 if hasattr(m, "test"):
                     report += m.test()
+        # check modules
+        for m in self.modules:
+            if isinstance(m, basestring):
+                o = TryResolveName(m)
+                if not o:
+                    report.append((ImportError, " AppConf.modules error: "+m, self, m))
+            if hasattr(m, "test"):
+                report += m.test()
         return report                
         
 

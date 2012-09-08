@@ -55,6 +55,7 @@ configuration.views = [
     ViewConf(id="objview",  name = "",     attr = "view", context = IPageElement, containment=IWebsiteRoot),
     ViewConf(id="objfile",  name = "file", attr = "file", context = IObject),
     ViewConf(id="search",   name ="search",attr="search", context = IWebsiteRoot),
+    ViewConf(id="su",       name ="su",    attr="open",   context = IWebsiteRoot),
 ]
 
 
@@ -122,6 +123,15 @@ class Design(BaseView):
         self.CacheHeader(self.request.response, user=self.User())
         return render_to_response(tmpl, vars, request=self.request)
         
+    def open(self):
+        ref = self.GetFormValue(u"r")
+        page = self.context.LookupObj(ref)
+        if not page:
+            raise HTTPNotFound, unicode(ref)
+        page = page.GetPage()
+        url = self.PageUrl(page)
+        self.Redirect(url)
+    
         
     
     # interface elements ----------------------------------------------------

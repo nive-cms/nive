@@ -24,7 +24,9 @@ from nive.security import *
 
 
 class ObjectFulltext:
-    """    Fulltext support for objects. Automatically updates fulltext on commit. """
+    """
+    Fulltext support for objects. Automatically updates fulltext on commit. 
+    """
     
     def Init(self):
         self.RegisterEvent("commit", "UpdateFulltext")
@@ -36,11 +38,11 @@ class ObjectFulltext:
         """
         Update fulltext for entry. Text is generated automatically.
         """
-        root = self.GetRoot()
-        if not root.app.configuration.fulltextIndex:
+        root = self.root()
+        if not self.app.configuration.fulltextIndex:
             return
         # loop all fulltext fields and make one string
-        text = ""
+        text = []
         for f in self.app.GetAllMetaFlds(ignoreSystem=False):
             if f.get("fulltext") != True:
                 continue
@@ -48,14 +50,14 @@ class ObjectFulltext:
             if f["datatype"]=="unit":
                 id = self.meta.get(f["id"])
                 t = root.LookupObjTitle(id)
-                text += u" %s\r\n\r\n" % (t)
+                text.append(t)
             elif f["datatype"]=="unitlist":
                 ids = ConvertToNumberList(self.meta.get(f["id"]))
                 for id in ids:
                     t = root.LookupObjTitle(id)
-                    text += u" %s\r\n\r\n" % (t)
+                    text.append(t)
             else:
-                text += u" %s\r\n\r\n" % (self.meta.get(f["id"],u""))
+                text.append(self.meta.get(f["id"],u""))
 
         # data
         for f in self.configuration.data:
@@ -64,16 +66,16 @@ class ObjectFulltext:
             if f["datatype"]=="unit":
                 id = self.data.get(f["id"])
                 t = root.LookupObjTitle(id)
-                text += u" %s\r\n\r\n" % (t)
+                text.append(t)
             elif f["datatype"]=="unitlist":
                 ids = ConvertToNumberList(self.data.get(f["id"]))
                 for id in ids:
                     t = root.LookupObjTitle(id)
-                    text += u" %s\r\n\r\n" % (t)
+                    text.append(t)
             else:
-                text += u" %s\r\n\r\n" % (self.data.get(f["id"]))
+                text.append(self.data.get(f["id"]))
         # update text in fulltext table
-        self.dbEntry.WriteFulltext(text)
+        self.dbEntry.WriteFulltext(u"\n\n".join(text))
 
 
     def GetFulltext(self):
