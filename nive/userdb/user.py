@@ -18,12 +18,21 @@
 __doc__ = """
 """
 
+import hashlib
+
 from nive.utils.dateTime import DvDateTime
 from nive.utils.utils import ConvertListToStr, ConvertToList
 from nive.i18n import _
 from nive.definitions import implements, IUser
 
 from nive.components.objects.base import ObjectBase
+
+
+
+
+
+def Sha(password):
+    return hashlib.sha224(password).hexdigest()
 
 
 class user(ObjectBase):
@@ -37,11 +46,19 @@ class user(ObjectBase):
 
     def Init(self):
         self.groups = tuple(self.data.get("groups",()))
+        self.RegisterEvent("commit", "HashPassword")
         self.RegisterEvent("commit", "OnCommit")
 
 
+    def HashPassword(self):
+        if not self.data.HasTempKey("password"):
+            return
+        pw = Sha(self.data.password)
+        self.data["password"] = pw
+
+
     def Authenticate(self, password):
-        return password == self.data["password"]
+        return Sha(password) == self.data["password"]
 
     
     def Login(self):

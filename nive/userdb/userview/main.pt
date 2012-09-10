@@ -5,15 +5,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="description" content="" />
 <meta name="keywords" content="" />
-<meta name="generator" content="nive CMS" />
+<meta name="generator" content="NIVE cms" />
 <style>
 body {font-family: Verdana, Arial, sans-serif; font-size:80%;}
 #container {margin: auto; height:auto;width:380px;}
 #main {margin-top:40%; width:auto;padding:10px;}
 #header {padding-bottom:20px;font-family: Courier, monospace;text-align:left;color: #000000;font-size:20pt;border-bottom:1px dashed #aaaaaa;}
-form {margin-top:10px;}
+form {margin-top:10px; width:49%; float:left;}
 .fieldRow {color:#666666;float:left; margin-right:1%; margin-bottom:10px;}
-.widget .fieldRow {width:49%;}
+.widget .fieldRow {width:99%;}
 .mailpass .fieldRow {width:99%;}
 .formOptions {margin-top:10px;margin-right:1%;clear:both;}
 .clear {clear:both;}
@@ -21,8 +21,8 @@ input {width:95%;}
 .widget .req {display:none;}
 ul {list-style:none;padding:0px;margin-bottom:10px;}
 li {padding:0px;margin:0px;}
-.links {padding-top:20px;margin-top:10px;border-top:1px dashed #aaaaaa;}
-a {padding:2px 8px 2px 8px;background-color:gray;margin-right:1px;text-decoration:none;color:white;}
+.links {width:40%;float:right;margin-top:20px;}
+a {padding:2px 8px 2px 8px;margin-bottom:10px;display:block;background-color:gray;margin-right:1px;text-decoration:none;color:white;}
 /* error handling */
 h3 {font-size:100%;}
 .poolform .errorLi { text-align: left; }
@@ -35,14 +35,16 @@ h3 {font-size:100%;}
 <body i18n:domain="nive">
 <div id="container">
   <div id="main">
-  <div id="header">nive CMS</div>
+  <div id="header">
+  <img src="${view.StaticUrl('nive.cms.design:static/imgs/logocms2.png')}" class="logo" title="NIVE cms" />
+  </div>
 
   <tal:block metal:define-slot="tmpls"></tal:block>
   <div tal:define="user view.User()" class="links">
   <a tal:condition="not user and request.view_name!='login'"
      href="login" i18n:translate="">Login</a>
   <a tal:condition="not user and request.view_name!='mailpass'"
-     href="mailpass" i18n:translate="">Forgot password</a>
+     href="resetpass" i18n:translate="">Reset password</a>
   <a tal:condition="not user and view.Allowed('signup', context=None) and request.view_name!='signup'"
      href="signup" i18n:translate="">Signup</a>
   <a tal:condition="user and request.view_name!='update'"

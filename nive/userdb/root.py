@@ -25,6 +25,7 @@ mailing options.
 
 import types, base64, random, string
 from time import time
+import uuid
 
 from nive.definitions import *
 from nive.security import User
@@ -260,7 +261,7 @@ class root(UserCache, RootBase):
 
         if mailtmpl:
             title = mailtmpl.title
-            body = mailtmpl(user=obj)
+            body = mailtmpl(user=obj,password=obj.data.get("password"))
         else:
             title = _("Password")
             body = obj.data.get("password")
@@ -274,9 +275,62 @@ class root(UserCache, RootBase):
             report.append(_(u"The email could not be sent."))
             #report.append("Send Mail Error: "+str(e))
             return False, report
-        report.append(_(u"The password has been sent to your email address."))
+        report.append(_(u"The new password has been sent to your email address. Please sign in and change it."))
         return True, report
 
+
+    def MailResetPass(self, currentUser, email = None, mailtmpl = None):
+        """
+        returns status and report list
+        """
+        report=[]
+
+        if not email:
+            report.append(_(u"Please enter your email address or username."))
+            return False, report
+
+        obj = self.GetUserByMail(email)
+        if not obj:
+            obj = self.GetUserByName(email)
+            if not obj:
+                report.append(_(u"No account found with that email address. Please try again."))
+                return False, report
+
+        email = obj.data.get("email")
+        title = obj.meta.get("title")
+        name = obj.data.get("name")
+        if email == "":
+            report.append(_("No email address found."))
+            return False, report
+        recv = [(email, title)]
+
+        passwd = self.GenerateID(6)
+        obj.data["password"] = passwd
+        obj.Commit(user=currentUser)
+        if mailtmpl:
+            title = mailtmpl.title
+            body = mailtmpl(user=obj,password=passwd)
+        else:
+            title = _("Password")
+            body = passwd
+        tool = self.app.GetTool("sendMail")
+        try:
+            result, value = tool(body=body, title=title, recvmails=recv, force=1)
+            if not result:
+                report.append(_(u"The email could not be sent."))
+                return False, report
+        except Exception, e:
+            report.append(_(u"The email could not be sent."))
+            #report.append("Send Mail Error: "+str(e))
+            return False, report
+        report.append(_(u"The password has been sent to your email address."))
+        return True, report
+   
+
+    def GenerateID(self, length=20, repl="-"):
+        # generates a id
+        return str(uuid.uuid4()).replace(repl,"")[:length]
+        
 
     def DeleteUser(self, name):
         """

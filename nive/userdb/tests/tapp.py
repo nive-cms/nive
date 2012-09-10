@@ -97,7 +97,7 @@ class ObjectTest(unittest.TestCase):
         o,r = root.AddUser(data, activate=1, generatePW=1, mail=None, notify=False, groups="", currentUser=user)
         self.assert_(o,r)
         l,r = root.Login("user2", o.data.password, raiseUnauthorized = 0)
-        self.assert_(l,r)
+        self.assertFalse(l,r)
         self.assert_(root.Logout("user1"))
         l,r = root.Login("user2", "11111", raiseUnauthorized = 0)
         self.assertFalse(l,r)

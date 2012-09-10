@@ -8,8 +8,7 @@ body { font-family: Verdana, Arial, sans-serif; }
 }
 .footer p { margin-bottom: 0; color: #555; }
 .row .hero-unit { margin-left:30px; }
-
-.navbar img.logo { padding-top: 4px; padding-left:20px; }
+.navbar img.logo { padding-top: 8px; padding-left:20px; }
 
 /*elements--------------------------------------------------*/
 .pageelement { margin-top:6px; }

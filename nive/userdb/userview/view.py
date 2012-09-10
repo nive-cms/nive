@@ -40,7 +40,8 @@ configuration.views = [
     ViewConf(name="login",    attr="login",    renderer=t+"loginpage.pt"),
     ViewConf(name="signup",   attr="create",   renderer=t+"signup.pt", permission="signup"),
     ViewConf(name="update",   attr="update",   renderer=t+"update.pt", permission="updateuser"),
-    ViewConf(name="mailpass", attr="mailpass", renderer=t+"mailpass.pt"),
+    #ViewConf(name="mailpass", attr="mailpass", renderer=t+"mailpass.pt"),
+    ViewConf(name="resetpass",attr="resetpass",renderer=t+"mailpass.pt"),
     ViewConf(name="logout",   attr="logout"),
 ]
 
@@ -66,6 +67,7 @@ class UserForm(ObjectForm):
             Conf(id="create",     method="AddUser",   name=_(u"Signup"),        hidden=False),
             Conf(id="edit",       method="Update",    name=_(u"Confirm"),       hidden=False),
             Conf(id="mailpass",   method="MailPass",  name=_(u"Mail password"), hidden=False),
+            Conf(id="resetpass",  method="ResetPass", name=_(u"Reset password"), hidden=False),
             Conf(id="login",      method="Login",     name=_(u"Login"),         hidden=False),
         ]
     
@@ -82,6 +84,8 @@ class UserForm(ObjectForm):
                        "actions": ["login"]},
             "mailpass":{"fields": ["email"], 
                         "actions": ["mailpass"]},
+            "resetpass":{"fields": ["email"], 
+                        "actions": ["resetpass"]},
         }
 
         self.activate = 1
@@ -180,6 +184,21 @@ class UserForm(ObjectForm):
         return result, self.Render(data, msgs=msgs, errors=errors)
 
 
+    def ResetPass(self, action, redirect_success):
+        """
+        Form action: user login 
+        """
+        #result, data, e = self.Validate(self.request)
+        data = self.GetFormValues(self.request)
+        result, msgs = self.context.MailResetPass(currentUser=self.view.User(), email=data.get("email"), mailtmpl=self.mailpass)
+        if result:
+            if self.view and redirect_success:
+                self.view.Redirect(redirect_success, messages=msgs)
+                return
+            data = {}
+        errors=None
+        return result, self.Render(data, msgs=msgs, errors=errors)
+
 
 
 
@@ -225,6 +244,12 @@ class UserView(BaseView):
         self.form.startEmpty = True
         self.form.mail = Mail(_(u"Your password"), "nive.userdb:userview/mailpassmail.pt")
         self.form.Setup(subset="mailpass")
+        return self._render()
+
+    def resetpass(self):
+        self.form.startEmpty = True
+        self.form.mail = Mail(_(u"Your password"), "nive.userdb:userview/mailpassmail.pt")
+        self.form.Setup(subset="resetpass")
         return self._render()
 
     def login(self):
