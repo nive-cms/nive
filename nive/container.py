@@ -312,7 +312,7 @@ class ContainerEdit:
             if dbEntry:
                 id = dbEntry.GetID()
                 db.DeleteEntry(id)
-            db.Close()
+            db.Undo()
             raise 
         return obj
 
@@ -370,7 +370,7 @@ class ContainerEdit:
                 id = newDataEntry.GetID()
                 db = app.db
                 db.DeleteEntry(id)
-                db.Close()
+                db.Undo()
             raise 
 
         try:    
@@ -715,9 +715,6 @@ class ContainerFactory:
         return objs
 
 
-    def _CloseObj(self):
-        pass
-
     def _DeleteObj(self, obj, id=0):
         """
         Deletes the object and additional data from wfdata, wflog, fulltext,
@@ -754,8 +751,6 @@ class Root(object):
         self.data = {}
         self.Signal("init")
 
-    #def __del__(self):
-    #    print "del root", self.id
 
     # Properties -----------------------------------------------------------
 

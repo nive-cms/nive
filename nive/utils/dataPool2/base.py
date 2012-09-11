@@ -18,12 +18,10 @@
 
 __doc__ = "Data Pool 2 SQL Base Module"
 
-import string
-import time
-import re
-import os
 import weakref
 import iso8601
+from time import time
+from time import localtime
 from datetime import datetime
 from types import *
 try:
@@ -115,9 +113,10 @@ class Base(object):
     GroupsTable = u"pool_groups"
 
 
-    def __init__(self, connParam = None, structure = None, root = "",
+    def __init__(self, connection = None, structure = None, root = "",
                  useTrashcan = False, useBackups = False, 
                  codePage = StdEncoding, dbCodePage = None,
+                 connParam = None, 
                  debug = 0, log = "sql.log", **kw):
 
         self.codePage = codePage
@@ -128,7 +127,7 @@ class Base(object):
         self._debug = debug
         self._log = log
         
-        self.conn = None
+        self._conn = None
         self.name = u""        # used for logging
 
         self.SetRoot(root)
@@ -138,63 +137,44 @@ class Base(object):
             self.structure = self._GetDefaultPoolStructure()(pool=self)
         else:
             self.structure = structure
-        if connParam:
+        if connection:
+            self._conn = connection
+        elif connParam:
             self.CreateConnection(connParam)
+        
 
-
+    def Close(self):
+        if self._conn:
+            self._conn.close()
+        #self.structure = None
 
     def __del__(self):
          self.Close()
 
 
-    def Close(self):
-        if self.conn:
-            self.conn.Close()
-        #self.structure = None
+    # Database api ---------------------------------------------------------------------
 
+    @property
+    def connection(self):
+        self._conn.VerifyConnection()
+        return self._conn
 
-    # Database ---------------------------------------------------------------------
+    def dbapi(self):
+        if not self._conn:
+            raise ConnectionError, "No Connection"
+        return self._conn.dbapi()
+
 
     def GetConnection(self):
-        """
-        Returns the pool database connection
-        """
-        return self.conn
-
-
-    def DB(self):
-        """
-        Returns the basic database connection
-        """
-        if not self.conn:
-            raise ConnectionError, "No Connection"
-        return self.conn.DB()
-
-
-    def GetCursor(self):
-        """
-        Returns a cursor for database queries
-        """
-        return self.DB().cursor()
-
-
-    def CreateConnection(self, connParam):
-        self.conn = Connection(connParam)
-        if not self.name:
-            self.name = connParam.get("dbName",u"")
-
-
-    def SetConnection(self, conn):
-        self.conn = conn
-
+        self._conn.VerifyConnection()
+        return self._conn
 
     def GetPlaceholder(self):
         return u"%s"
-
     
     def GetDBDate(self, date=None):
         if not date:
-            return DvDateTime(time.localtime()).GetDBMySql()
+            return DvDateTime(localtime()).GetDBMySql()
         return DvDateTime(str(date)).GetDBMySql()
 
 
@@ -274,7 +254,7 @@ class Base(object):
             if not aCombi in (u"AND",u"OR",u"NOT"):
                 aCombi = u"AND"
         addCombi = False
-        connection = self.GetConnection()
+        connection = self.connection
 
         where = []
         for aK in parameter.keys():
@@ -463,7 +443,7 @@ class Base(object):
         For further options see -> GetSQLSelect
         """
         sql = self.GetSQLSelect(flds, parameter, dataTable=dataTable, **kw)
-        connection = self.GetConnection()
+        connection = self.connection
         searchPhrase = connection.FmtParam(self.DecodeText(searchPhrase))
 
         phrase = u"""%s.text LIKE %s""" % (self.FulltextTable, searchPhrase)
@@ -491,7 +471,7 @@ class Base(object):
             c = cursor
             cc=False
         else:
-            c = self.GetCursor()
+            c = self.connection.cursor()
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         sql = self.DecodeText(sql)
@@ -546,7 +526,7 @@ class Base(object):
             c = cursor
             cc=False
         else:
-            c = self.GetCursor()
+            c = self.connection.cursor()
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         # adjust different accepted empty values sets
@@ -601,7 +581,7 @@ class Base(object):
         cc = 0
         if not cursor:
             cc = 1
-            cursor = self.GetCursor()
+            cursor = self.connection.cursor()
         try:
             cursor.execute(sql, dataList)
         except self._Warning:
@@ -642,7 +622,7 @@ class Base(object):
         aClose = 0
         if not cursor:
             aClose = 1
-            cursor = self.GetCursor()
+            cursor = self.connection.cursor()
         try:
             cursor.execute(sql, dataList)
         except self._Warning:
@@ -673,7 +653,7 @@ class Base(object):
         cc=False
         if not cursor:
             cc=True
-            cursor = self.GetCursor()
+            cursor = self.connection.cursor()
         cursor.execute(sql, v)
         if cc:
             cursor.close()
@@ -683,21 +663,21 @@ class Base(object):
         """
         Start a database transaction, if supported
         """
-        self.GetConnection().Begin()
+        self.connection.Begin()
 
 
     def Commit(self, user=""):
         """
         Commit the changes made to the database, if supported
         """
-        self.GetConnection().Commit()
+        self.connection.commit()
 
 
     def Undo(self):
         """
         Rollback the changes made to the database, if supported
         """
-        self.GetConnection().Undo()
+        self.connection.rollback()
 
 
     # Text conversion -----------------------------------------------------------------------
@@ -832,7 +812,7 @@ class Base(object):
         """
         if version:
             BREAK("version")
-        cursor = self.GetCursor()
+        cursor = self.connection.cursor()
 
         # base record
         sql = self.GetSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
@@ -865,7 +845,7 @@ class Base(object):
         sql = self.GetSQLSelect(["id"], parameter={"id":id}, dataTable = self.MetaTable, singleTable=1)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        c = self.GetCursor()
+        c = self.connection.cursor()
         c.execute(sql)
         n = c.fetchone()
         c.close()
@@ -1000,7 +980,7 @@ class Base(object):
         from %s %s
         order by pool_unitref, %s
         """ % (refs, self.MetaTable, parameter, sort)
-        aC = self.GetCursor()
+        aC = self.connection.cursor()
         aC.execute(sql)
         l = aC.fetchall()
         aC.close()
@@ -1048,7 +1028,7 @@ class Base(object):
         from %s %s
         order by pool_unitref, %s
         """ % (refs, ConvertListToStr(flds), self.MetaTable, parameter, sort)
-        aC = self.GetCursor()
+        aC = self.connection.cursor()
         aC.execute(sql)
         l = aC.fetchall()
         tree = {"items":[]}
@@ -1133,7 +1113,7 @@ class Base(object):
         
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        aC = self.GetCursor()
+        aC = self.connection.cursor()
         aC.execute(sql)
         aL = aC.fetchall()
         parents = []
@@ -1158,7 +1138,7 @@ class Base(object):
         """
         if id <= 0:
             return []
-        aC = self.GetCursor()
+        aC = self.connection.cursor()
         sql = u"""
         SELECT t1.pool_unitref AS ref1, t1.title AS title1, 
          t2.pool_unitref as ref2, t2.title AS title2,
@@ -1221,7 +1201,7 @@ class Base(object):
         """
         if not table:
             table = self.MetaTable
-        aC = self.GetCursor()
+        aC = self.connection.cursor()
         aC.execute(u"SELECT COUNT(*) FROM %s" % (table))
         aN = aC.fetchone()[0]
         aC.close()
@@ -1231,6 +1211,17 @@ class Base(object):
         DUMP(s, self._log,name=self.name)
 
 
+    def SetConnection(self, conn):
+        self._conn = conn
+
+    def CreateConnection(self, connParam):
+        self._conn = self._GetConnection()(connParam)
+        if not self.name:
+            self.name = connParam.get("dbName",u"")
+
+    
+    # internal subclassing
+    
     def _DeleteFiles(self, id, cursor, version):
         pass
 
@@ -1248,6 +1239,9 @@ class Base(object):
 
     def _GetFileWrapper(self):
         return FileWrapper
+    
+    def _GetConnection(self):
+        return Connection
 
 
 
@@ -1297,12 +1291,10 @@ class Entry:
 
 
     def __del__(self):
-        #print "del entry", self.id
         self.Close()
 
 
     def Close(self):
-        #print "close entry", self.id
         self.meta.close()
         self.data.close()
         self.files.close()
@@ -1316,7 +1308,6 @@ class Entry:
         if self.virtual:
             return True
         if not self.IsValid():
-            #print "not valid"
             return False
         return self.pool.IsIDUsed(self.id)
 
@@ -1335,7 +1326,7 @@ class Entry:
         """
         self.Touch(user)
         try:
-            cursor = self.pool.GetCursor()
+            cursor = self.pool.connection.cursor()
             # meta
             if self.meta.HasTemp():
                 self.pool.UpdateFields(self.pool.MetaTable, self.id, self.meta.GetTemp(), cursor)
@@ -1350,7 +1341,7 @@ class Entry:
                         file = temp[tag]
                         result = self.SetFile(tag, file, cursor=cursor)
                         if not result:
-                            raise TypeError, "File save error (%s)." #%(self.GetError())
+                            raise TypeError, "File save error."
             self.pool.Commit()
             cursor.close()
             self.data.SetContent(self.data.GetTemp())
@@ -1469,7 +1460,7 @@ class Entry:
         if fld == u"id":
             return False
 
-        cursor = self.pool.GetCursor()
+        cursor = self.pool.connection.cursor()
         # check if data record already exists
         id = self.GetDataRef(cursor)
         if id <= 0:
@@ -1632,7 +1623,7 @@ class Entry:
         if text==None:
             text=""
         sql = self.pool.GetSQLSelect(["id"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
-        cursor = self.pool.GetCursor()
+        cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
         cursor.execute(sql)
@@ -1650,7 +1641,7 @@ class Entry:
         read fulltext from entry
         """
         sql = self.pool.GetSQLSelect(["text"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
-        cursor = self.pool.GetCursor()
+        cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
         cursor.execute(sql)
@@ -1669,7 +1660,7 @@ class Entry:
         sql = u"DELETE FROM %s WHERE id = %s"%(self.pool.FulltextTable, ph)
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
-        aCursor = self.pool.GetCursor()
+        aCursor = self.pool.connection.cursor()
         aCursor.execute(sql, (self.id,))
         aCursor.close()
 
@@ -1693,7 +1684,7 @@ class Entry:
         select single field from sql
         """
         try:
-            cursor = self.pool.GetCursor()
+            cursor = self.pool.connection.cursor()
             if self.pool._debug:
                 STACKF(0,sql+"\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
             cursor.execute(sql)
@@ -1775,7 +1766,7 @@ class Entry:
             self._PreloadData()
             return True
         dataTbl = self.GetDataTbl()
-        c = self.pool.GetCursor()
+        c = self.pool.connection.cursor()
         meta, data = self._SQLSelectAll(self.pool.structure.get(self.pool.MetaTable, version=self.version),
                                         self.pool.structure.get(dataTbl, version=self.version), c)
         c.close()
@@ -1790,7 +1781,7 @@ class Entry:
     def _PreloadMeta(self):
         if self.virtual:
             return True
-        c = self.pool.GetCursor()
+        c = self.pool.connection.cursor()
         meta = self._SQLSelect(self.pool.structure.get(self.pool.MetaTable, self.version), c)
         c.close()
         if not meta:
@@ -1803,7 +1794,7 @@ class Entry:
     def _PreloadData(self):
         if self.virtual:
             return True
-        c = self.pool.GetCursor()
+        c = self.pool.connection.cursor()
         dataTbl = self.GetDataTbl()
         data = self._SQLSelect(self.pool.structure.get(dataTbl, version=self.version), c, dataTbl)
         # load local roles, security
@@ -1818,7 +1809,7 @@ class Entry:
     def _PreloadStdMeta(self):
         if self.virtual:
             return True
-        c = self.pool.GetCursor()
+        c = self.pool.connection.cursor()
         meta = self._SQLSelect(self.pool.structure.stdMeta, c)
         c.close()
         if not meta:
@@ -1832,7 +1823,7 @@ class Entry:
         if self.virtual:
             return True
         dataTbl = self.GetDataTbl()
-        c = self.pool.GetCursor()
+        c = self.pool.connection.cursor()
         meta, data = self._SQLSelectAll(self.pool.structure.stdMeta, self.pool.structure.get(dataTbl, version=self.version), c)
         c.close()
         if not meta:
@@ -1849,7 +1840,7 @@ class Entry:
         """
         sets create date and created by to now
         """
-        aC = self.pool.GetCursor()
+        aC = self.pool.connection.cursor()
         self.dataTbl = dataTable
         aMeta = {}
         date = self.pool.GetDBDate()
@@ -1876,7 +1867,7 @@ class Entry:
 
 
 
-class Connection:
+class Connection(object):
     """
     Base database connection class. Parameter depend on database version.
 
@@ -1897,24 +1888,47 @@ class Connection:
         self.dbName = u""
         self.unicode = True
         self.timeout = 3
-
+        self.revalidate = 100
+        self.verifyConnection = False
+        self._vtime = time()
         if(config):
             self.SetConfig(config)
         if(connectNow):
-            self.Connect()
-
+            self.connect()
+       
 
     def __del__(self):
-         self.Close()
+        self.close()
 
 
-    def Connect(self):
+    def cursor(self):
+        db = self._get()
+        if not db:
+            raise OperationalError, "Database is closed"
+        return db.cursor()
+        
+    
+    def rollback(self):
+        """ Calls rollback on the current transaction, if supported """
+        db = self._get()
+        db.rollback()
+        return
+
+
+    def commit(self):
+        """ Calls commit on the current transaction, if supported """
+        db = self._get()
+        db.commit()
+        return
+
+
+    def connect(self):
         """ Close and connect to server """
-        self.Close()
-        # "please use a subclassed connection"
+        self.close()
+        # "use a subclassed connection"
 
 
-    def Close(self):
+    def close(self):
         """ Close database connection """
         db = self._get()
         if db:
@@ -1922,10 +1936,28 @@ class Connection:
             self._set(None)
 
     
+    def ping(self):
+        """ ping database server """
+        db = self._get()
+        return db.ping()
+
+
+    def dbapi(self):
+        """ returns the database connection class """
+        self.VerifyConnection()
+        db = self._get()
+        if not db:
+            self.connect()
+        return self._get()
+
+
+    def Connect(self):
+        """ Close and connect to server """
+        self.connect()
+
     def IsConnected(self):
         """ Check if database is connected """
         try:
-            self.Ping()
             db = self._get()
             return db.cursor()!=None
         except:
@@ -1933,46 +1965,29 @@ class Connection:
     
 
     def VerifyConnection(self):
-        """ reconnects if not connected """
+        """ 
+        reconnects if not connected. If revalidate is larger than 0 IsConnected() will only be called 
+        after `revalidate` time
+        """
+        db = self._get()
+        if not db:
+            return self.connect()
+        if not self.verifyConnection:
+            return True
+        if self.revalidate > 0:
+            if self._getvtime()+self.revalidate > time():
+                return True
         if not self.IsConnected():
-            return self.Connect()
+            return self.connect()
+        self._setvtime()
         return True
     
     
-    def Ping(self):
-        """ ping database server """
-        db = self._get()
-        return db.ping()
+    def RawConnection(self):
+        """ """
+        return None
 
-
-    def DB(self):
-        """ returns the database connection class """
-        db = self._get()
-        if db:
-            return db
-        self.Connect()
-        return self._get()
-
-
-    def GetDBManager(self):
-        """ returns the database manager obj """
-        raise TypeError, "please use a subclassed connection"
-
-
-    def Undo(self):
-        """ Calls rollback on the current transaction, if supported """
-        db = self._get()
-        db.rollback()
-        return
-
-
-    def Commit(self):
-        """ Calls commit on the current transaction, if supported """
-        db = self._get()
-        db.commit()
-        return
-
-
+    
     def Begin(self):
         """ Calls commit on the current transaction, if supported """
         return
@@ -2001,7 +2016,7 @@ class Connection:
 
 
     def SetConfig(self, config):
-        if type(config)==DictType:
+        if isinstance(config, dict):
             for k in config.keys():
                 setattr(self, k, config[k])
         else:
@@ -2011,10 +2026,22 @@ class Connection:
             self.port = config.port
             self.dbName = config.dbName
             self.unicode = config.unicode
+            self.verifyConnection = config.verifyConnection
+            self.unicode = config.unicode
             try:
                 self.timeout = config.timeout
             except:
                 pass
+            try:
+                self.revalidate = config.revalidate
+            except:
+                pass
+            
+
+    def GetDBManager(self):
+        """ returns the database manager obj """
+        raise TypeError, "please use a subclassed connection"
+
 
     def _get(self):
         # get stored database connection
@@ -2023,6 +2050,40 @@ class Connection:
     def _set(self, dbconn):
         # locally store database connection
         self.db = dbconn
+
+    def _getvtime(self):
+        # get stored database connection
+        return self._vtime
+        
+    def _setvtime(self):
+        # locally store database connection
+        self._vtime = time()
+
+
+class ConnectionThreadLocal(Connection):
+    """
+    Caches database connections as thread local values.
+    """
+
+    def _get(self):
+        # get stored database connection
+        if not hasattr(self.local, "db"):
+            return None
+        return self.local.db
+        
+    def _set(self, dbconn):
+        # locally store database connection
+        self.local.db = dbconn
+        
+    def _getvtime(self):
+        # get stored database connection
+        if not hasattr(self.local, "_vtime"):
+            self._setvtime()
+        return self.local._vtime
+        
+    def _setvtime(self):
+        # locally store database connection
+        self.local._vtime = time()
 
 
 
@@ -2042,8 +2103,7 @@ class Wrapper(object):
         self._entry_ = entry
         self._temp_ = {}
         self._content_ = None
-        #print "init wrapper", self._entry_().id
-
+        
     def __repr__(self):
         return str(type(self)) 
     
@@ -2203,7 +2263,7 @@ class FileWrapper(Wrapper):
             elif self._content_ and key in self._content_:
                 del self._content_[key]
             return
-        if type(filedata) == DictType:
+        if isinstance(filedata, dict):
             file = File(key, filedict=filedata, fileentry=self._entry_())
             filedata = file
         elif type(filedata) == StringType:
@@ -2269,7 +2329,7 @@ class PoolStructure:
         self.fieldtypes = {}
         if structure:
             self.Init(structure, fieldtypes, stdMeta, **kw)
-
+        
 
     def Init(self, structure, fieldtypes=None, stdMeta=None, **kw):
         s = structure.copy()

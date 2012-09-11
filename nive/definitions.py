@@ -521,6 +521,7 @@ class DatabaseConf(baseConf):
         useTrashcan : Move files to fileRoot.__traschcan directory on delete.
         unicode  : Database is using unicode mode.
         dbCodePage : If not in unicode mode, the database codepage used (default "utf-8").
+        connection : Specifies the database connection management class. Default None.
         verifyConnection : Verify connection is still alive each time a connection is requested.
                            Automatically reconnects if the connection is closed.
         timeout  : Timeout in seconds for database requests, if supported.
@@ -546,6 +547,7 @@ class DatabaseConf(baseConf):
         self.unicode = True
         self.timeout = 3
         self.verifyConnection = False
+        self.connection = False
         self.dbCodePage = "utf-8"
         self.querylog=(0,None)
         baseConf.__init__(self, copyFrom, **values)

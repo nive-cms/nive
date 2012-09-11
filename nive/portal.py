@@ -194,14 +194,14 @@ class Portal(Events, object):
         #event.request.add_finished_callback(self.FinishConnection)
 
 
-    def FinishConnection(self, event):
+    def FinishConnection(self, request):
         """
-        Called by pyramid on termination for each connection with event as parameter.
+        Called by pyramid on termination for each connection with request as parameter.
 
         Event:
-        - finish(event)
+        - finish(request)
         """
-        self.Signal("finish", event)
+        self.Signal("finish", request)
 
 
     def GetGroups(self, sort=u"id", visibleOnly=False):
@@ -301,6 +301,7 @@ def robots_view(context, request):
 def error_view(context, request):
     #context.body = str(context)
     return context
+
 
 
 def SetupPortalViews(config):

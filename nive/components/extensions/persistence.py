@@ -93,15 +93,19 @@ class DbPersistence(PersistentConf):
         Load configuration values from backend and map to configuration.
         """
         try:
-            db = self.app.db
+            db = self.app.NewDBConnection()
             sql = """select value,ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
-            data = db.Query(sql, (self._GetUid(),))
-        except OperationalError: #? different database types exceptions
+            c=db.cursor()
+            c.execute(sql, (self._GetUid(),))
+            data = c.fetchall()
+            c.close()
+        except OperationalError:
             data = None
-            db.Undo()
-        except ProgrammingError: #? different database types exceptions
+            db.rollback()
+        except ProgrammingError: 
             data = None
-            db.Undo()
+            db.rollback()
+        db.close()
         if data:
             values = pickle.loads(data[0][0])
             lock = 0
@@ -124,21 +128,25 @@ class DbPersistence(PersistentConf):
         """
         ts = time.time()
         try:
-            db = self.app.db
+            db = self.app.NewDBConnection()
             sql = """select ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
-            r = db.Query(sql, (self._GetUid(),))
+            c=db.cursor()
+            c.execute(sql, (self._GetUid(),))
+            r = c.fetchall()
+            c.close()
             data = pickle.dumps(values)
             if len(r):
                 db.UpdateFields("pool_sys", r[0][0], {"value":data,"ts":ts})
             else:
                 db.InsertFields("pool_sys", {"value":data,"ts":ts, "uid":self._GetUid()})
-            db.Commit()
-        except OperationalError: #? different database types exceptions
+            db.commit()
+        except OperationalError: 
             data = None
-            db.Undo()
-        except ProgrammingError: #? different database types exceptions
+            db.rollback()
+        except ProgrammingError: 
             data = None
-            db.Undo()
+            db.rollback()
+        db.close()
         lock = 0
         if self.conf.locked:
             lock = 1

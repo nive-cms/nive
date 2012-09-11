@@ -102,9 +102,8 @@ By default this tool will only create new tables and columns and never delete an
                      <input type="hidden" name="modify" value="1">""")
         app = self.app
         try:
-            datapool = app.db
             conf = app.dbConfiguration
-            connection = datapool.GetConnection()
+            connection = app.NewDBConnection()
             if not connection:
                 self.stream.write(localizer.translate(_(u"""<div class="alert alert-error">No database connection configured</div>""")))
                 return 0
@@ -119,7 +118,7 @@ By default this tool will only create new tables and columns and never delete an
             return 0
         
         if not connection.IsConnected():
-            connection.Connect()
+            connection.connect()
             if not connection.IsConnected():
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.dbConfiguration.context})))
                 return 0

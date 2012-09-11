@@ -1,6 +1,7 @@
 # -*- coding: latin-1 -*-
 
-import copy, time
+import copy
+from time import time
 import unittest
 from types import *
 
@@ -251,7 +252,7 @@ class dbTest:
 
     def test_create_empty(self):
 
-        t = time.time()
+        t = time()
         c = self.statdb()
         # creating
         id1=self.create1()
@@ -279,7 +280,7 @@ class dbTest:
 
     def test_create_base(self):
 
-        t = time.time()
+        t = time()
         c = self.statdb()
         # creating
         id1=self.create1()
@@ -318,7 +319,7 @@ class dbTest:
 
     def test_files_base(self):
 
-        t = time.time()
+        t = time()
         c = self.statdb()
 
         # creating
@@ -345,7 +346,7 @@ class dbTest:
 
     def test_preload(self):
 
-        t = time.time()
+        t = time()
         self.statdb()
 
         id=self.create1()
@@ -392,7 +393,7 @@ class dbTest:
 
     def test_duplicate_base(self):
 
-        t = time.time()
+        t = time()
         c=self.statdb()
 
         # creating
@@ -440,7 +441,7 @@ class dbTest:
 
     def test_sql(self):
 
-        t = time.time()
+        t = time()
         #print "GetSQLSelect",
         sql=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
                         {u"pool_type": "data1", u"ftext": "123", u"fnumber": 300000},
@@ -482,7 +483,7 @@ class dbTest:
 
     def test_sql2(self):
 
-        t = time.time()
+        t = time()
         sql1=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
                         {u"pool_type": "data1", u"ftext": "", u"fnumber": 3},
                         sort = u"title, id, fnumber",
@@ -506,7 +507,7 @@ class dbTest:
                             sort = u"title",
                             ascending = 1,
                             dataTable = u"data1")
-        c=self.pool.GetCursor()
+        c=self.pool.connection.cursor()
         c.execute(sql1)
         c.execute(sql2)
         c.execute(sql3)
@@ -554,7 +555,7 @@ class dbTest:
 
     def test_search_files(self):
 
-        t = time.time()
+        t = time()
         c = self.statdb()
 
         # creating
@@ -643,7 +644,7 @@ class Sqlite3Test(dbTest, unittest.TestCase):
     def connect(self):
         #print "Connect DB on", conn["host"],
         self.pool.CreateConnection(conn)
-        self.assert_(self.pool.GetConnection().IsConnected())
+        self.assert_(self.pool.connection.IsConnected())
         #print "OK"
 
     

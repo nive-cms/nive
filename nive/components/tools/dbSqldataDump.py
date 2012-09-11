@@ -51,13 +51,11 @@ class dbSqldataDump(Tool):
         app = self.app
         datapool = app.db
         conf = app.dbConfiguration
-        conn = datapool.GetConnection()
-        conn.Connect()
-        db = conn.DB()
+        conn = datapool.connection
         system = values.get("excludeSystem")
         self.filename = app.configuration.id + ".sql"
 
-        if not db:
+        if not conn:
             self.stream.write(_(u"Database connection error (${name})\n", mapping={u"name": app.poolTag}))
             return 0
         
@@ -86,7 +84,7 @@ class dbSqldataDump(Tool):
             fields=table[1]
             columns = (",").join(fields)
             sql="select %s from %s" % (columns, tablename)
-            c = db.cursor()
+            c = conn.cursor()
             c.execute(sql)
             for rec in c.fetchall():
                 data = []

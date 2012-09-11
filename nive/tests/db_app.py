@@ -3,6 +3,7 @@
 import time
 import unittest
 
+from nive import OperationalError
 from nive.utils.path import *
 
 from nive.application import *
@@ -161,7 +162,10 @@ def app_nodb():
     p = Portal()
     p.Register(a, "nive")
     a.LoadConfiguration()
-    a.Startup(None)
+    try:
+        a.Startup(None)
+    except OperationalError:
+        pass
     return a
 
 def emptypool(app):

@@ -124,6 +124,7 @@ class Application(object):
         self._views = []
         # cache database structure 
         self._structure = PoolStructure()
+        self._dbpool = None
         log = logging.getLogger(self.id)
         log.debug("Initialize %s", repr(configuration))
         self.Signal("init", configuration=configuration)
@@ -133,7 +134,6 @@ class Application(object):
         
     def __del__(self):
         self.Close()
-        #print "del app", self.id
         
 
     def Startup(self, pyramidConfig, debug=False):
@@ -174,6 +174,7 @@ class Application(object):
         
         # reload database structure
         self.LoadStructure(forceReload = True)
+        self._dbpool = self._GetDataPoolObj()
         
         # test database
         if debug:
@@ -201,14 +202,16 @@ class Application(object):
         Close database and roots.
         """
         self._CloseRootObj()
-        self._CloseDBObj()
+        if self._dbpool:
+            self._dbpool.Close()
+
 
 
     # Properties -----------------------------------------------------------
 
     def root(self, name=""):
         """ returns root object     """
-        return self.GetRoot(name)
+        return self._GetRootObj(name)
 
     def obj(self, id, rootname = "", **kw):
         """ returns object    """
@@ -217,13 +220,12 @@ class Application(object):
     @property
     def db(self):
         """ returns datapool object    """
-        db = self._GetDBObj()
-        return db
+        return self._dbpool
 
     @property
     def portal(self):
         """ returns the portal    """
-        return self.GetPortal()
+        return self.__parent__
 
     @property
     def app(self):
@@ -286,6 +288,13 @@ class Application(object):
         return self._GetWfObj(wfProcID, contextObject or _GlobalObject())
 
 
+    def NewDBConnection(self):
+        """
+        Creates a new database connection. This one is independent from caching and 
+        connections used internally.  
+        """
+        return self._GetConnectionObj()
+        
     # Data Pool ------------------------------------------------------------------------------
 
     def GetDB(self):
@@ -294,14 +303,7 @@ class Application(object):
         
         returns the datapool object
         """
-        return self._GetDBObj()
-
-
-    def CloseDB(self):
-        """
-        Close cached DB connection.
-        """
-        self._CloseDBObj()
+        return self._dbpool
 
 
     def LookupObj(self, id, rootname = "", **kw):
@@ -345,9 +347,7 @@ class Application(object):
         try:
             e = []
             db = self.db
-            if not db.GetConnection().IsConnected():
-                e.append(db.GetConnection().GetError())
-                #e.append(db.GetError())
+            if not db.connection.IsConnected():
                 return False, e
             return True, e
 
@@ -519,9 +519,6 @@ class Registration(object):
         """
         Loads self.configuration, includes modules and updates meta fields.
         """
-        self._CloseRootObj()
-        self._CloseDBObj()
-        
         c = self.registry.queryUtility(IAppConf, name="IApp")
         if c:
             self.configuration = c
@@ -1047,47 +1044,47 @@ class AppFactory:
     - Workflow.Workflow
     """
 
-    def _GetDBObj(self):
+    def _GetDataPoolObj(self):
         """
         creates the database object
         """
-        useCache = self.configuration.useCache
-        if useCache and hasattr(self, "_c_db") and self._c_db:
-            if self.dbConfiguration.verifyConnection and not self._c_db.GetConnection().IsConnected():
-                self._c_db.GetConnection().Connect()
-            dbObj = self._c_db
-        else:
-            poolTag = self.dbConfiguration.context
-            if not poolTag:
-                raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
-            elif poolTag.lower() in ("sqlite","sqlite3"):
-                poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
-            elif poolTag.lower() == "mysql":
-                poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
+        poolTag = self.dbConfiguration.context
+        if not poolTag:
+            raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
+        elif poolTag.lower() in ("sqlite","sqlite3"):
+            poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
+        elif poolTag.lower() == "mysql":
+            poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
 
-            dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
-            c = self.dbConfiguration
-            dbObj = dbObj(connParam=c, 
-                          structure=self._structure, 
-                          root=c.fileRoot, 
-                          useTrashcan=c.useTrashcan, 
-                          dbCodePage=c.dbCodePage,
-                          debug=c.querylog[0],
-                          log=c.querylog[1])
-            if dbObj and useCache:
-                self._c_db = dbObj
-
+        dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
+        c = self.dbConfiguration
+        dbObj = dbObj(connection=self._GetConnectionObj(), 
+                      structure=self._structure, 
+                      root=c.fileRoot, 
+                      useTrashcan=c.useTrashcan, 
+                      dbCodePage=c.dbCodePage,
+                      debug=c.querylog[0],
+                      log=c.querylog[1])
         return dbObj
 
+    
+    def _GetConnectionObj(self):
+        """
+        creates a new database connection object
+        """
+        cTag = self.dbConfiguration.connection
+        poolTag = self.dbConfiguration.context
+        if not cTag and not poolTag:
+            raise TypeError, "Database connection type not set. application.dbConfiguration.connection and application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
+        if not cTag:
+            if poolTag.lower() in ("sqlite","sqlite3"):
+                cTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3ConnThreadLocal"
+            if poolTag.lower() == "mysql":
+                cTag = "nive.utils.dataPool2.mySqlPool.MySqlConnThreadLocal"
 
-    def _CloseDBObj(self):
-        """
-        """
-        try:
-            self._c_db.Close()
-            self._c_db = None
-        except:
-            pass
+        connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
+        connObj = connObj(config=self.dbConfiguration)
+        return connObj
 
 
     def _GetRootObj(self, rootConf):

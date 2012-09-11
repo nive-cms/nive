@@ -70,17 +70,17 @@ class Object(object):
     @property
     def meta(self):
         """ meta values """
-        return weakref.ref(self.dbEntry.meta)()
+        return self.dbEntry.meta
 
     @property
     def data(self):
         """ data values """
-        return weakref.ref(self.dbEntry.data)()
+        return self.dbEntry.data
 
     @property
     def files(self):
         """ files """
-        return weakref.ref(self.dbEntry.files)()
+        return self.dbEntry.files
 
     def root(self):
         """ returns the current root object in parent chain """

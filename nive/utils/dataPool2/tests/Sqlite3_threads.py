@@ -32,7 +32,7 @@ class Sqlite3ConnMultithreading(dbTest):
     def connect(self):
         #print "Connect DB on", conn["host"],
         self.pool.CreateConnection(conn)
-        self.pool.GetConnection().IsConnected()
+        self.pool.connection.IsConnected()
         try:
             self.pool.Query("select id from pool_meta where id=1")
         except OperationalError:

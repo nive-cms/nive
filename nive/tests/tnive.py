@@ -80,8 +80,7 @@ class modTest(unittest.TestCase):
     def test_includefailure(self):
         self.app.Register(mApp2)
         #no database: self.app.Register(dbConfiguration2)
-        self.app.Startup(None)
-        #self.assertRaises(OperationalError, self.app.db)
+        self.assertRaises(OperationalError, self.app.Startup, None)
 
 
 class appTest(unittest.TestCase):
@@ -178,9 +177,7 @@ class appTest(unittest.TestCase):
         self.assert_(self.app._structure)
 
     def test_flds4(self):    
-        self.assert_(self.app._GetDBObj())
-        self.app._CloseDBObj()
-        self.assert_(self.app._GetDBObj())
+        self.assert_(self.app._GetDataPoolObj())
         self.assert_(self.app._GetRootObj("root"))
         self.app._CloseRootObj(name="root")
         self.assert_(self.app._GetRootObj("root"))
@@ -207,9 +204,7 @@ class appTest_db:
         self.assert_(self.app.obj(id, rootname = "root"))
         self.assert_(self.app.db)
         self.assert_(self.app.GetDB())
-        self.app.CloseDB()
-        self.assert_(self.app.GetDB())
-        self.assert_(self.app.LookupObj(id))
+        self.assert_(self.app.db.connection.VerifyConnection())
         self.assert_(len(self.app.Query("select id from pool_meta", values = [])))
         ph = self.app.db.GetPlaceholder()
         self.assert_(len(self.app.Query("select id from pool_meta where pool_type="+ph, values = ["type1"])))
@@ -220,6 +215,8 @@ class appTest_db:
         self.assert_(self.app.GetTool("exampletool"))
         user = User(u"test")
         self.app.root().Delete(id, user=user)
+        self.app.Close()
+        self.assertRaises(OperationalError, self.app.LookupObj, id)
 
 
 class appTest_db_(appTest_db, unittest.TestCase):

@@ -85,6 +85,12 @@ class gcdump(Tool):
         for o in olist:#[100000:100200]:
             t = type(o)
             ref = str(t)
+            if ref.find("weakref")!=-1:
+                try:
+                    t2 = type(o())
+                    ref = "%s &gt; %s" %(ref, str(t2))
+                except:
+                    pass
             if not ref in trefs:
                 trefs[ref]=1
             else:

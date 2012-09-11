@@ -31,10 +31,10 @@ class tDesign(unittest.TestCase):
 
     def tearDown(self):
         user = User(u"test")
-        self.app.Close()
         testing.tearDown()
         root = self.app.root()
         self.root.Delete(self.page.id, user=user)
+        self.app.Close()
 
     def test_views1(self):
         view = Design(self.root, self.request)

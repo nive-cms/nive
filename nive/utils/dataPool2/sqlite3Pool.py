@@ -22,7 +22,8 @@ Data Pool Sqlite Module
 *Requires python-sqlite*
 """
 
-import string, time, re, os
+import string, re, os
+from time import localtime
 from types import *
 
 import sqlite3
@@ -63,7 +64,7 @@ class Sqlite3(FileManager, Base):
             return ids
         parameter = u"where pool_unitref=%d " + parameter
         sql = u"""select id from %s %s order by %s""" % (self.MetaTable, parameter, sort)
-        cursor = self.GetCursor()
+        cursor = self.connection.cursor()
         ids = _SelectIDs(base, [], sql, cursor)
         cursor.close()
         return ids
@@ -88,7 +89,7 @@ class Sqlite3(FileManager, Base):
             parameter = u"and " + parameter
         parameter = u"where pool_unitref=%d " + parameter
         sql = u"""select %s from %s %s order by %s""" % (ConvertListToStr(flds), self.MetaTable, parameter, sort)
-        cursor = self.GetCursor()
+        cursor = self.connection.cursor()
         tree = {"id":base, "items":[]}
         tree = _Select(base, tree, flds, sql, cursor)
         cursor.close()
@@ -96,8 +97,8 @@ class Sqlite3(FileManager, Base):
     
                
     def _CreateNewID(self, table = u"", dataTbl = None):
-        #[i]
-        aC = self.GetCursor()
+        #
+        aC = self.connection.cursor()
         if table == "":
             table = self.MetaTable
         if table == self.MetaTable:
@@ -140,7 +141,7 @@ class Sqlite3(FileManager, Base):
     def _CreateFixID(self, id, dataTbl):
         if self.IsIDUsed(id):
             raise TypeError, "ID already in use"
-        aC = self.GetCursor()
+        aC = self.connection.cursor()
         ph = self.GetPlaceholder()
         if not dataTbl:
             raise TypeError, "Missing data table."
@@ -165,19 +166,19 @@ class Sqlite3(FileManager, Base):
         aC.close()
         return id, dataref
 
-    #[i] types/classes -------------------------------------------------------------------
+    # types/classes -------------------------------------------------------------------
 
     def CreateConnection(self, connParam):
-        #[i]
-        self.conn = Sqlite3Conn(connParam)
+        #
+        self._conn = Sqlite3ConnThreadLocal(connParam)
         if not self.name:
             self.name = connParam.get("dbName",u"")
 
 
     def GetDBDate(self, date=None):
-        #[i]
+        #
         if not date:
-            return DvDateTime(time.localtime()).GetDBMySql()
+            return DvDateTime(localtime()).GetDBMySql()
         return DvDateTime(str(date)).GetDBMySql()
 
 
@@ -200,6 +201,8 @@ class Sqlite3(FileManager, Base):
         return Sqlite3Entry
 
 
+    def _GetConnection(self):
+        return Sqlite3ConnSingle
 
 
 
@@ -211,9 +214,7 @@ class Sqlite3Entry(FileEntry, Entry):
 
 
 
-
-
-class Sqlite3ConnBase(Connection):
+class Sqlite3ConnSingle(Connection):
     """
     Sqlite connection handling class
 
@@ -238,17 +239,24 @@ class Sqlite3ConnBase(Connection):
         self.port = u""
         self.unicode = True
         self.timeout = 3
+        self.revalidate = 0
+        self.verifyConnection = False
         
         self.check_same_thread = False
         if(config):
             self.SetConfig(config)
         if(connectNow):
-            self.Connect()
+            self.connect()
+        
+
+    def ping(self):
+        """ ping database server """
+        return True
 
 
-    def Connect(self):
-        """[i] Close and connect to server """
-        self.Close()
+    def connect(self):
+        """ Close and connect to server """
+        self.close()
         if not self.dbName:
             raise OperationalError, "Connection failed. Database name is empty." 
         db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
@@ -263,19 +271,22 @@ class Sqlite3ConnBase(Connection):
         self._set(db)
 
 
+    def RawConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        if not self.dbName:
+            raise OperationalError, "Connection failed. Database name is empty." 
+        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
+        return db
+
+
     def IsConnected(self):
-        """[i] Check if database is connected """
+        """ Check if database is connected """
         try:
             db = self._get()
             return db.cursor()!=None
         except:
             return False
     
-
-    def Ping(self):
-        """[i] ping database server """
-        return True
-
 
     def GetDBManager(self):
         """ returns the database manager obj """
@@ -284,6 +295,10 @@ class Sqlite3ConnBase(Connection):
         return aDB
 
 
+    def GetPlaceholder(self):
+        return u"?"
+
+    
     def FmtParam(self, param):
         """??? format a parameter for sql queries like literal for  db"""
         #return self.db.literal(param)
@@ -296,21 +311,21 @@ class Sqlite3ConnBase(Connection):
 
 
     def Duplicate(self):
-        """[i] Duplicates the current connection and returns a new unconnected connection """
+        """ Duplicates the current connection and returns a new unconnected connection """
         new = Sqlite3Conn(None, False)
         new.dbName = self.dbName
         return new
 
 
     def SetConfig(self, config):
-        """[i] """
+        """ """
         self.dbName = config.get("dbName")
 
 
 
 import threading
 
-class Sqlite3Conn(Sqlite3ConnBase):
+class Sqlite3ConnThreadLocal(Sqlite3ConnSingle, ConnectionThreadLocal):
     """
     Stores database connections as thread locals.
     Usage is the same as Sqlite3 connection.
@@ -318,19 +333,10 @@ class Sqlite3Conn(Sqlite3ConnBase):
 
     def __init__(self, config = None, connectNow = True):
         self.local = threading.local()
-        Sqlite3ConnBase.__init__(self, config, False)
+        Sqlite3ConnSingle.__init__(self, config, False)
         self.check_same_thread = True
         if(connectNow):
-            self.Connect()
+            self.connect()
 
-    def _get(self):
-        # get stored database connection
-        if not hasattr(self.local, "db"):
-            return None
-        return self.local.db
-        
-    def _set(self, dbconn):
-        # store database connection
-        self.local.db = dbconn
         
     

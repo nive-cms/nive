@@ -5,7 +5,7 @@ import unittest
 from nive.portal import Portal
 from nive.definitions import ConfigurationError
 from nive.helper import Event
-
+from nive import OperationalError
 from tnive import testapp, mApp2, mApp
 
     
@@ -34,7 +34,10 @@ class portalTest(unittest.TestCase):
         self.portal.RegisterGroups(self.app)
         self.assert_(self.portal.__getitem__("app2"))
         self.assert_(self.portal.__getitem__("nive"))
-        self.portal.Startup(None)
+        try:
+            self.portal.Startup(None)
+        except OperationalError:
+            pass
         self.assert_(len(self.portal.GetApps())==2)
         self.assert_(self.portal.GetGroups(sort=u"id", visibleOnly=False))
         self.assert_(self.portal.GetGroups(sort=u"name", visibleOnly=True))

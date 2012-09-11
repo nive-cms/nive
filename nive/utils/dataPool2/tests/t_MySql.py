@@ -49,7 +49,7 @@ class MySqlTest(dbTest, uTestCase):
     def connect(self):
         #print "Connect DB on", conn["host"],
         self.pool.CreateConnection(myconn)
-        self.assert_(self.pool.GetConnection().IsConnected())
+        self.assert_(self.pool.connection.IsConnected())
         #print "OK"
 
     def checkdb(self):

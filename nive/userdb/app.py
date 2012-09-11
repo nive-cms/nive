@@ -51,7 +51,8 @@ configuration.modules = [
     # tools
     "nive.components.tools.dbStructureUpdater", 
     # administration and persistence
-    "nive.adminview.view","nive.components.extensions.persistence.dbPersistenceConfiguration"
+    "nive.adminview.view",
+    #"nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
 
 configuration.acl= [

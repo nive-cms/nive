@@ -81,7 +81,7 @@ def connects(n):
     print_( "Connection: ")
     t = time.time()
     for i in range(0,n):
-        c.Connect()
+        c.connect()
         c.Close()
     t2 = time.time()
     print_( n, " connects in ", t2-t, "secs. ", (t2-t)/n, " per connect")
@@ -92,13 +92,12 @@ def connects(n):
 
 def cursors(n):
     c = getConnection()
-    c.Connect()
-    db = c.DB()
+    c.connect()
 
     print_( "Cursor: ")
     t = time.time()
     for i in range(0,n):
-        cu = db.cursor()
+        cu = c.cursor()
         cu.close()
     t2 = time.time()
 

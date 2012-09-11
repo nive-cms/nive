@@ -27,9 +27,9 @@ data rendering, url generation, http headers and user lookup.
 import os
 from time import time
 from datetime import datetime
-from nive.utils.utils import *
 from nive.utils.dateTime import DvDateTime, FmtSeconds
 
+from nive.utils.utils import *
 from nive.definitions import *
 
 from pyramid.response import Response

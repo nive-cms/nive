@@ -23,7 +23,8 @@ Data Pool MySql Module
 """
 
 
-import string, time, re, os
+import string, re, os
+from time import time, localtime
 from types import *
 
 import MySQLdb
@@ -45,12 +46,13 @@ class MySql(FileManager, Base):
     Data Pool MySql 5 implementation
     """
     _OperationalError = MySQLdb.OperationalError
+    _ProgrammingError = MySQLdb.ProgrammingError
     _Warning = MySQLdb.Warning
 
 
     def _CreateNewID(self, table = u"", dataTbl = None):
-        #[i]
-        aC = self.GetCursor()
+        #
+        aC = self.connection.cursor()
         if table == u"":
             table = self.MetaTable
         if table == self.MetaTable:
@@ -93,19 +95,19 @@ class MySql(FileManager, Base):
         return aID, 0
 
 
-    #[i] types/classes -------------------------------------------------------------------
+    # types/classes -------------------------------------------------------------------
 
     def CreateConnection(self, connParam):
-        #[i]
-        self.conn = MySqlConn(connParam)
+        #
+        self._conn = MySqlConnThreadLocal(connParam)
         if not self.name:
             self.name = connParam.get("dbName",u"")
 
 
     def GetDBDate(self, date=None):
-        #[i]
+        #
         if not date:
-            return DvDateTime(time.localtime()).GetDBMySql()
+            return DvDateTime(localtime()).GetDBMySql()
         return DvDateTime(str(date)).GetDBMySql()
 
 
@@ -127,8 +129,11 @@ class MySql(FileManager, Base):
     def _GetEntryClassType(self):
         return MySqlEntry
 
+    def _GetConnection(self):
+        return MySqlConnSingle
 
-    #[i] MySql 4 tree structure --------------------------------------------------------------
+
+    # MySql 4 tree structure --------------------------------------------------------------
 
     def GetParentPath4(self, id):
         """
@@ -152,7 +157,7 @@ class MySql(FileManager, Base):
             return parents
         cnt = 7
         for i in range(0, cnt-1):
-            id = t[0][i]
+            id = t[0]
             if id == 0:
                 break
             parents.insert(0, id)
@@ -198,7 +203,7 @@ class MySqlEntry(FileEntry, Entry):
 
 
 
-class MySqlConnBase(Connection):
+class MySqlConnSingle(Connection):
     """
     MySql connection handling class
 
@@ -212,9 +217,9 @@ class MySqlConnBase(Connection):
     timeout is set to 3.
     """
 
-    def Connect(self):
-        """[i] Close and connect to server """
-        self.Close()
+    def connect(self):
+        """ Close and connect to server """
+        self.close()
         use_unicode = self.unicode
         charset = None
         if use_unicode:
@@ -225,41 +230,49 @@ class MySqlConnBase(Connection):
         self._set(db)
         
 
+    def RawConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        use_unicode = self.unicode
+        charset = None
+        if use_unicode:
+            charset = u"utf8"
+        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        return db
+
+
     def IsConnected(self):
-        """[i] Check if database is connected """
+        """ Check if database is connected """
         try:
-            self.Ping()
             db = self._get()
+            db.ping()
             return db.cursor()!=None
         except:
             return False
 
 
-    def Ping(self):
-        """[i] ping database server """
-        db = self._get()
-        return db.ping()
-
-
     def GetDBManager(self):
-        """[i] returns the database manager obj """
+        """ returns the database manager obj """
         self.VerifyConnection()
         aDB = MySQLManager()
         aDB.SetDB(self._get())
         return aDB
 
 
+    def GetPlaceholder(self):
+        return u"%s"
+
+    
     def FmtParam(self, param):
         """format a parameter for sql queries like literal for mysql db"""
         db = self._get()
         if not db:
-            self.Connect()
+            self.connect()
             db = self._get()
         return db.literal(param)
 
 
     def Duplicate(self):
-        """[i] Duplicates the current connection and returns a new unconnected connection """
+        """ Duplicates the current connection and returns a new unconnected connection """
         new = MySqlConn(None, False)
         new.user = self.user
         new.host = self.host
@@ -271,7 +284,7 @@ class MySqlConnBase(Connection):
 
 import threading
 
-class MySqlConn(MySqlConnBase):
+class MySqlConnThreadLocal(MySqlConnSingle, ConnectionThreadLocal):
     """
     Stores database connections as thread locals.
     Usage is the same as MySqlConn connection.
@@ -279,18 +292,7 @@ class MySqlConn(MySqlConnBase):
 
     def __init__(self, config = None, connectNow = True):
         self.local = threading.local()
-        MySqlConnBase.__init__(self, config, connectNow)
-
-    def _get(self):
-        # get stored database connection
-        if not hasattr(self.local, "db"):
-            return None
-        return self.local.db
-        
-    def _set(self, dbconn):
-        # locally store database connection
-        self.local.db = dbconn
-        
+        MySqlConnSingle.__init__(self, config, connectNow)
 
 
 
@@ -310,9 +312,9 @@ class PoolBakup:
 
     def SQLDump(self):
         path = self._GetPath(u"sql")
-        user = self.pool.GetConnection().user
-        password = self.pool.GetConnection().password
-        database = self.pool.GetConnection().dbName
+        user = self.pool.connection.user
+        password = self.pool.connection.password
+        database = self.pool.connection.dbName
 
         scrp = DvPath(u"mysqldump")
         cmd = u"""--user=%(user)s --password=%(password)s --database %(database)s --opt --allow-keywords --complete-insert -c > %(path)s""" % {"path": path, "user": user, "password": password, "database": database}
@@ -350,7 +352,7 @@ class PoolBakup:
         else:
             base = DvPath(self.dump)
         if tag == u"sql":
-            base.SetName(self.pool.GetConnection().dbName)
+            base.SetName(self.pool.connection.dbName)
             base.SetExtension(u"sql")
             return str(base)
 

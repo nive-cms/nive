@@ -137,16 +137,14 @@ class RewriteFulltext(Tool):
         app = self.app
         root = app.root()
         datapool = app.db
-        conn = datapool.GetConnection()
-        conn.Connect()
-        db = conn.DB()
-        c = db.cursor()
+        conn = datapool.connection
+        c = conn.cursor()
 
         # delete
         sql = u"delete from pool_fulltext"
         c.execute(sql)
         c.close()
-        db.commit()
+        conn.commit()
         self.stream.write(localizer.translate(_(u"Deleted previous fulltext.<br/>")))
         
         pages = root.Select(parameter={"pool_stag":10,"pool_state":1})
@@ -166,7 +164,7 @@ class RewriteFulltext(Tool):
                     self.stream.write(localizer.translate(_(u"Error: Unable to update page (${id}).<br/>", mapping={"id":page})))
                     self.stream.write(unicode(e))
                     self.stream.write(u"<br/><br/>")
-        db.commit()
+        conn.commit()
         self.stream.write(localizer.translate(_(u"Updated fulltext index. Finished.<br/>")))
         self.stream.write(localizer.translate(_(u"${cnt} pages ok. ${err} failed.<br/>", mapping={"cnt":cnt,"err":err})))
         return 1

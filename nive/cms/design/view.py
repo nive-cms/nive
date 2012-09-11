@@ -116,7 +116,7 @@ class Design(BaseView):
     def search(self, cmsview = None):
         mark = time()
         vars = {u"cmsview": cmsview, u"context": self.context, u"view": self}
-        name = "search.pt"
+        name = u"search.pt"
         tmpl = self._LookupTemplate(name)
         if not tmpl:
             raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}

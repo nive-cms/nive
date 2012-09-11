@@ -92,7 +92,8 @@ configuration.modules = [
     "nive.components.tools.dbStructureUpdater", "nive.components.tools.dbSqldataDump", "nive.components.tools.cmsstatistics",
     "nive.components.tools.gcdump",
     # administration and persistence
-    "nive.adminview.view","nive.components.extensions.persistence.dbPersistenceConfiguration"
+    "nive.adminview.view",
+    #"nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
 
 configuration.meta = [

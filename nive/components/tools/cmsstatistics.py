@@ -56,10 +56,8 @@ class cmsstatistics(Tool):
 
         app = self.app
         datapool = app.db
-        conn = datapool.GetConnection()
-        conn.Connect()
-        db = conn.DB()
-        c = db.cursor()
+        conn = datapool.connection
+        c = conn.cursor()
 
         self.stream.write(u"<table>\n")
 
