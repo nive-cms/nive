@@ -29,8 +29,9 @@ from time import time
 from datetime import datetime
 from nive.utils.dateTime import DvDateTime, FmtSeconds
 
-from nive.utils.utils import *
-from nive.definitions import *
+from nive.utils.utils import ConvertToStr, ConvertListToStr, FormatBytesForDisplay
+from nive.utils.utils import GetDL, FmtSeconds, GetMimeTypeExtension
+from nive.definitions import IPage
 
 from pyramid.response import Response
 from pyramid.renderers import render_to_response, get_renderer, render

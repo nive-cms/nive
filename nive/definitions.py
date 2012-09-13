@@ -135,6 +135,7 @@ from pyramid.renderers import render
 
 from nive.i18n import _
 
+
 # interfaces ----------------------------------------------------------------------
 # objects, root and application
 class IApplication(Interface):
@@ -153,6 +154,8 @@ class IPortal(Interface):
     pass
 
 # pages and elements
+class IWebsite(Interface):
+    pass
 class IPage(Interface):
     pass
 class IPageContainer(Interface):
@@ -170,6 +173,10 @@ class IFile(Interface):
 class ITool(Interface):
     pass
 class IIFaceRoot(Interface):
+    pass
+class ICMSRoot(Interface):
+    pass
+class IWebsiteRoot(Interface):
     pass
 class ICache(Interface):
     pass
@@ -225,6 +232,33 @@ class IWfTransitionConf(Interface):
     pass
 class IProcess(Interface):
     pass
+
+
+# userdb
+class IUserDatabase(Interface):
+    pass
+class ILocalGroups(Interface):
+    pass
+
+# interface extensions
+class IToolboxWidgetConf(Interface):
+    """
+    IToolboxWidgetConf refers to the nive.cmsview toolbox plugin point. Use IToolboxWidgetConf as widgetType
+    in your WidgetConf() to link a widget to the nive toolbox.
+    """
+
+class IEditorWidgetConf(Interface):
+    """
+    IEditorWidgetConf refers to the nive.cmsview editor tab plugin point. Use IEditorWidgetConf as widgetType
+    in your WidgetConf() to link a new tab to the nive editor header.
+    """
+
+class IAdminWidgetConf(Interface):
+    """
+    IAdminWidgetConf refers to the nive.adminview tab plugin point. Use IAdminWidgetConf as widgetType
+    in your WidgetConf() to link a new tab to the nive admin header.
+    """
+
 
 
 class baseConf(object):
@@ -547,7 +581,7 @@ class DatabaseConf(baseConf):
         self.unicode = True
         self.timeout = 3
         self.verifyConnection = False
-        self.connection = False
+        self.connection = None
         self.dbCodePage = "utf-8"
         self.querylog=(0,None)
         baseConf.__init__(self, copyFrom, **values)
@@ -1279,6 +1313,20 @@ class Conf(baseConf):
         
 
 
+class ConfigurationError(Exception):
+    pass
+class ContainmentError(Exception):
+    pass
+class OperationalError(Exception):
+    pass
+class ProgrammingError(Exception):
+    pass
+class Warning(Exception):
+    pass
+
+
+
+
 def TryResolveName(name, base=None):
     if not name:
         return None
@@ -1290,13 +1338,6 @@ def TryResolveName(name, base=None):
     except:
         return None
 
-
-class ConfigurationError(Exception):
-    pass
-
-
-class ContainmentError(Exception):
-    pass
 
 
 

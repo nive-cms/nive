@@ -2,7 +2,7 @@
 import time
 import unittest
 
-from nive import OperationalError
+from nive.definitions import OperationalError
 from nive.application import *
 from nive.definitions import *
 from nive.helper import *
@@ -214,9 +214,10 @@ class appTest_db:
         self.app.Register("nive.components.tools.example")
         self.assert_(self.app.GetTool("exampletool"))
         user = User(u"test")
-        self.app.root().Delete(id, user=user)
         self.app.Close()
-        self.assertRaises(OperationalError, self.app.LookupObj, id)
+        self.assertFalse(self.app.db.GetConnection().IsConnected())
+        self.assert_(self.app.LookupObj(id))
+        self.app.root().Delete(id, user=user)
 
 
 class appTest_db_(appTest_db, unittest.TestCase):

@@ -24,8 +24,8 @@ import string
 from types import StringType, UnicodeType, IntType, LongType
 from nive.utils.utils import ConvertToList
 
-from nive.definitions import *
-from nive.security import *
+from nive.definitions import StagPage, StagPageElement
+from nive.security import Allow, Deny, Authenticated, Everyone
 
 
 class PageContainer:

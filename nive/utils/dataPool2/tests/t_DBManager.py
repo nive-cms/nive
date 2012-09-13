@@ -4,7 +4,7 @@ import copy, time
 import unittest
 
 
-from nive import FieldConf
+from nive.definitions import FieldConf
 from nive.utils.dataPool2.dbManager import *
 from nive.utils.path import DvPath
 

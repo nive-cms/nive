@@ -22,21 +22,12 @@ from pyramid.renderers import get_renderer
 
 from nive.i18n import _
 from nive.definitions import ViewConf, ViewModuleConf, FieldConf, WidgetConf, Conf
-from nive import IApplication, IUser, Interface, IUserDatabase, ICMSRoot, IPersistent, IModuleConf
+from nive.definitions import IApplication, IUser, IAdminWidgetConf, IUserDatabase, ICMSRoot, IPersistent, IModuleConf
 
 from nive.views import BaseView
 from nive.forms import ValidationError, HTMLForm
 
 from nive.utils.utils import SortDictList, ConvertDictToStr
-
-
-
-class IAdminWidgetConf(Interface):
-    """
-    IAdminWidgetConf refers to the nive.adminview tab plugin point. Use IAdminWidgetConf as widgetType
-    in your WidgetConf() to link a new tab to the nive admin header.
-    """
-    pass
 
 
 # view module definition ------------------------------------------------------------------

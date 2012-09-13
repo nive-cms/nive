@@ -27,24 +27,12 @@ except:
 from operator import itemgetter, attrgetter
     
 from pyramid.i18n import get_localizer
+
 from nive.i18n import _
-from nive.definitions import *
+from nive.definitions import ViewModuleConf, ViewConf, WidgetConf
+from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot, IToolboxWidgetConf, IEditorWidgetConf
+from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf
 from nive.cms.design import view as design 
-
-
-class IToolboxWidgetConf(Interface):
-    """
-    IToolboxWidgetConf refers to the nive.cmsview toolbox plugin point. Use IToolboxWidgetConf as widgetType
-    in your WidgetConf() to link a widget to the nive toolbox.
-    """
-    pass
-
-class IEditorWidgetConf(Interface):
-    """
-    IEditorWidgetConf refers to the nive.cmsview editor tab plugin point. Use IEditorWidgetConf as widgetType
-    in your WidgetConf() to link a new tab to the nive editor header.
-    """
-    pass
 
 
 # view module definition ------------------------------------------------------------------

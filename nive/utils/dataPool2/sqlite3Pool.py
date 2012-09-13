@@ -24,22 +24,19 @@ Data Pool Sqlite Module
 
 import string, re, os
 from time import localtime
-from types import *
+from types import IntType, LongType, FloatType
 
 import sqlite3
 
 from nive.utils.utils import STACKF
 from nive.utils.dateTime import DvDateTime
 
-from nive.utils.dataPool2.dbManager import Sqlite3Manager
 from nive.utils.dataPool2.base import *
-
 from nive.utils.dataPool2.files import FileManager
 from nive.utils.dataPool2.files import FileEntry
+from nive.utils.dataPool2.dbManager import Sqlite3Manager
 
-from nive import OperationalError
-
-DBEncoding = u"utf-8"
+from nive.definitions import OperationalError
 
 
 class Sqlite3(FileManager, Base):
@@ -168,27 +165,8 @@ class Sqlite3(FileManager, Base):
 
     # types/classes -------------------------------------------------------------------
 
-    def CreateConnection(self, connParam):
-        #
-        self._conn = Sqlite3ConnThreadLocal(connParam)
-        if not self.name:
-            self.name = connParam.get("dbName",u"")
-
-
-    def GetDBDate(self, date=None):
-        #
-        if not date:
-            return DvDateTime(localtime()).GetDBMySql()
-        return DvDateTime(str(date)).GetDBMySql()
-
-
     def GetPlaceholder(self):
         return u"?"
-
-    
-    def _GetDefaultDBEncoding(self):
-        return DBEncoding
-
 
     def _GetPoolEntry(self, id, **kw):
         try:
@@ -196,13 +174,8 @@ class Sqlite3(FileManager, Base):
         except NotFound:
             return None
 
-
-    def _GetEntryClassType(self):
-        return Sqlite3Entry
-
-
     def _GetConnection(self):
-        return Sqlite3ConnSingle
+        return Sqlite3ConnThreadLocal
 
 
 

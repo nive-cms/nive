@@ -22,7 +22,7 @@ import types
 
 
 from nive.tools import Tool
-from nive.definitions import *
+from nive.definitions import ToolConf, FieldConf
 
 
 configuration = ToolConf()

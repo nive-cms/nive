@@ -25,7 +25,6 @@ Data Pool MySql Module
 
 import string, re, os
 from time import time, localtime
-from types import *
 
 import MySQLdb
 
@@ -33,12 +32,10 @@ import MySQLdb
 from nive.utils.utils import STACKF
 from nive.utils.dateTime import DvDateTime
 
-from dbManager import MySQLManager
-from base import *
-from files import *
+from nive.utils.dataPool2.base import *
+from nive.utils.dataPool2.dbManager import MySQLManager
+from nive.utils.dataPool2.files import FileManager, FileEntry
 
-
-DBEncoding = u"utf-8"
 
 
 class MySql(FileManager, Base):
@@ -97,40 +94,18 @@ class MySql(FileManager, Base):
 
     # types/classes -------------------------------------------------------------------
 
-    def CreateConnection(self, connParam):
-        #
-        self._conn = MySqlConnThreadLocal(connParam)
-        if not self.name:
-            self.name = connParam.get("dbName",u"")
-
-
-    def GetDBDate(self, date=None):
-        #
-        if not date:
-            return DvDateTime(localtime()).GetDBMySql()
-        return DvDateTime(str(date)).GetDBMySql()
-
-
     def GetPlaceholder(self):
         return u"%s"
 
     
-    def _GetDefaultDBEncoding(self):
-        return DBEncoding
-
-
     def _GetPoolEntry(self, id, **kw):
         try:
             return MySqlEntry(self, id, **kw)
         except NotFound:
             return None
 
-
-    def _GetEntryClassType(self):
-        return MySqlEntry
-
     def _GetConnection(self):
-        return MySqlConnSingle
+        return MySqlConnThreadLocal
 
 
     # MySql 4 tree structure --------------------------------------------------------------

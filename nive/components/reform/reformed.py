@@ -48,12 +48,11 @@ def translator(term):
 template_dir = resource_filename('nive.components.reform', 'templates/')
 zpt_renderer = ZPTRendererFactory([template_dir], translator=translator)
 
-
-from widget import Widget
+# change imports 
 from schema import *
+from widget import *
 from form import Button
 from field import Field
-from widget import *
 
 from nive.helper import File
 from nive.utils.utils import ConvertDictListToTuple

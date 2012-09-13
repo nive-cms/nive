@@ -24,9 +24,8 @@ in normal mode.
 """
 
 from nive.i18n import _
-from nive.definitions import *
+from nive.definitions import RootConf, implements, IWebsiteRoot, ICMSRoot
 from nive.components.objects.base import PageRootBase
-from nive import IWebsiteRoot, ICMSRoot
 
 
 class cmsroot(PageRootBase):

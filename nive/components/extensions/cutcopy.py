@@ -21,7 +21,6 @@ from types import StringType, UnicodeType, IntType, LongType
 from nive.utils.utils import ConvertListToStr, ConvertToNumberList
 
 from nive.definitions import StagPage, StagPageElement
-from nive.security import *
 from nive.i18n import _
 
 

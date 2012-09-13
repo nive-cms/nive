@@ -5,7 +5,7 @@ import unittest
 from nive.portal import Portal
 from nive.definitions import ConfigurationError
 from nive.helper import Event
-from nive import OperationalError
+from nive.definitions import OperationalError
 from tnive import testapp, mApp2, mApp
 
     

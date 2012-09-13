@@ -35,9 +35,8 @@ from nive.utils.path import DvPath
 from nive.utils.strings import DvString
 from nive.utils.dateTime import DvDateTime
 
-from nive import ConfigurationError
+from nive.definitions import ConfigurationError, OperationalError, ProgrammingError, Warning
 
-#from Helper import *
 from files import File
 
 
@@ -52,14 +51,6 @@ error handling and messages
 StdEncoding = u"utf-8"
 EncodeMapping = u"replace"
 StdMetaFlds = (u"id", u"pool_dataref", u"pool_datatbl")
-
-
-class OperationalError(Exception):
-    pass
-class ProgrammingError(Exception):
-    pass
-class Warning(Exception):
-    pass
 
 
 class Base(object):
@@ -115,7 +106,7 @@ class Base(object):
 
     def __init__(self, connection = None, structure = None, root = "",
                  useTrashcan = False, useBackups = False, 
-                 codePage = StdEncoding, dbCodePage = None,
+                 codePage = StdEncoding, dbCodePage = StdEncoding,
                  connParam = None, 
                  debug = 0, log = "sql.log", **kw):
 
@@ -131,8 +122,6 @@ class Base(object):
         self.name = u""        # used for logging
 
         self.SetRoot(root)
-        if not self.dbCodePage:
-            self.dbCodePage = self._GetDefaultDBEncoding()
         if not structure:
             self.structure = self._GetDefaultPoolStructure()(pool=self)
         else:
@@ -156,6 +145,10 @@ class Base(object):
 
     @property
     def connection(self):
+        """
+        Returns the database connection and attempts a reconnect or verifies the connection
+        depending on configuration settings.
+        """
         self._conn.VerifyConnection()
         return self._conn
 
@@ -166,13 +159,16 @@ class Base(object):
 
 
     def GetConnection(self):
-        self._conn.VerifyConnection()
+        """
+        Returns the database connection without verifying the connection.
+        """
         return self._conn
 
     def GetPlaceholder(self):
         return u"%s"
     
     def GetDBDate(self, date=None):
+        #
         if not date:
             return DvDateTime(localtime()).GetDBMySql()
         return DvDateTime(str(date)).GetDBMySql()
@@ -937,19 +933,15 @@ class Base(object):
 
 
     def _CreateNewID(self, table = ""):
-        BREAK("assert", "subclass")
+        #("assert", "subclass")
         return 0
 
     def _CreateFixID(self, id, dataTbl):
-        BREAK("assert", "subclass")
-        return 0
-
-    def _GetEntryClassType(self):
-        BREAK("assert", "subclass")
+        #("assert", "subclass")
         return 0
 
     def _GetPoolEntry(self, id, **kw):
-        BREAK("assert", "subclass")
+        #("assert", "subclass")
         return 0
 
 
@@ -1225,9 +1217,6 @@ class Base(object):
     def _DeleteFiles(self, id, cursor, version):
         pass
 
-    def _GetDefaultDBEncoding(self):
-        return u"utf-8"
-
     def _GetDefaultPoolStructure(self):
         return PoolStructure
 
@@ -1246,7 +1235,7 @@ class Base(object):
 
 
 
-class Entry:
+class Entry(object):
     """
     Entry object of data pool
     """
@@ -2296,7 +2285,7 @@ class FileWrapper(Wrapper):
 #  Pool Structure ---------------------------------------------------------------------------
 
 
-class PoolStructure:
+class PoolStructure(object):
     """
     Data Pool 2 Structure handling. Defines a table field mapping. If field types are available serializing 
     and deserializing is performed on database reads and writes.

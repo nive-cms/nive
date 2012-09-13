@@ -24,9 +24,8 @@ Can be used for Roots and Objects or any other python class supporting events
 and id attribute (number). Uses idhash for root objects.
 """
 
-from nive import ModuleConf, Conf
-from nive.definitions import implements
-from nive.userdb.app import ILocalGroups
+from nive.definitions import ModuleConf, Conf
+from nive.definitions import implements, ILocalGroups
 
 class LocalGroups(object):
     """

@@ -32,9 +32,10 @@ except:
     from StringIO import StringIO
 
 from nive.i18n import _
-from nive.definitions import *
+from nive.definitions import ViewModuleConf, ViewConf
+from nive.definitions import IApplication, IPortal, IWebsiteRoot, IPage, IPageElement, IObject, IViewModuleConf
 from pyramid.response import Response
-from nive import IWebsiteRoot
+from nive.definitions import IWebsiteRoot
 
     
 # view module definition ------------------------------------------------------------------

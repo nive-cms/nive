@@ -62,8 +62,9 @@ have to add the required css, images and javascript used by the templates to the
 """
 
 from nive.i18n import _
-from nive.definitions import implements, Interface, AppConf, FieldConf, GroupConf
-from nive.security import *
+from nive.definitions import implements, IWebsite
+from nive.definitions import AppConf, FieldConf, GroupConf
+from nive.security import ALL_PERMISSIONS, Allow, Everyone, Deny
 from nive.components.objects.base import ApplicationBase
 
 #@nive_module
@@ -88,12 +89,13 @@ configuration.modules = [
     "nive.cms.workflow.wf.wfProcess", "nive.cms.workflow.view",
     #extensions
     #"nive.components.extensions.fulltextpage", 
+    #"nive.components.extensions.localgroups",
     # tools
     "nive.components.tools.dbStructureUpdater", "nive.components.tools.dbSqldataDump", "nive.components.tools.cmsstatistics",
     "nive.components.tools.gcdump",
     # administration and persistence
     "nive.adminview.view",
-    #"nive.components.extensions.persistence.dbPersistenceConfiguration"
+    "nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
 
 configuration.meta = [
@@ -128,17 +130,6 @@ configuration.groups = [
     GroupConf(id="group:reader", name="group:reader"),
     GroupConf(id="group:admin",  name="group:admin"),
 ]
-
-
-class IWebsite(Interface):
-    """ """
-
-class ICMSRoot(Interface):
-    """ """
-
-class IWebsiteRoot(Interface):
-    """ """
-
 
 
 class WebsitePublisher(ApplicationBase):

@@ -27,7 +27,7 @@ import types, base64, random, string
 from time import time
 import uuid
 
-from nive.definitions import *
+from nive.definitions import RootConf, Conf, StagUser
 from nive.security import User
 from nive.components.objects.base import RootBase
 from nive.i18n import _
@@ -521,7 +521,7 @@ class root(UserCache, RootBase):
 
 
 # Root definition ------------------------------------------------------------------
-from nive.definitions import RootConf
+
 #@nive_module
 configuration = RootConf(
     id = "udb",

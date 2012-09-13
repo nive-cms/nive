@@ -27,6 +27,7 @@ See Application.Startup() for the main entry point and connected events.
 Not to be mixed up with pyramid applications or projects. It is possible to use multiple nive
 applications in a single pyramid app.
 """
+from nive import __version__
 
 import copy
 import logging
@@ -39,10 +40,12 @@ from zope.interface.registry import Components
 from zope.interface import providedBy
 
 from nive.utils.dataPool2.base import PoolStructure
-from nive import __version__
 from nive.i18n import _
 
-from nive.definitions import *
+from nive.definitions import AppConf, DatabaseConf, SystemFlds, MetaTbl, ReadonlySystemFlds
+from nive.definitions import IViewModuleConf, IViewConf, IRootConf, IObjectConf, IToolConf 
+from nive.definitions import IAppConf, IDatabaseConf, IModuleConf, IWidgetConf
+
 from nive.security import User, authenticated_userid
 from nive.helper import ResolveName, ResolveConfiguration, FormatConfTestFailure, GetClassRef, ClassFactory
 from nive.tools import _IGlobal, _GlobalObject
@@ -375,7 +378,6 @@ class Application(object):
     def CheckVersion(self):
         """ """
         return __version__ == __version__
-
 
 
 class Registration(object):
@@ -1058,7 +1060,8 @@ class AppFactory:
 
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
         c = self.dbConfiguration
-        dbObj = dbObj(connection=self._GetConnectionObj(), 
+        dbObj = dbObj(connection=self._GetConnectionObj(),
+                      connParam=self.dbConfiguration,      # use the default connection defined in db if connection is none
                       structure=self._structure, 
                       root=c.fileRoot, 
                       useTrashcan=c.useTrashcan, 
@@ -1081,7 +1084,8 @@ class AppFactory:
                 cTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3ConnThreadLocal"
             if poolTag.lower() == "mysql":
                 cTag = "nive.utils.dataPool2.mySqlPool.MySqlConnThreadLocal"
-
+        if not cTag:
+            return None
         connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
         connObj = connObj(config=self.dbConfiguration)
         return connObj

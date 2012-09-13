@@ -21,25 +21,19 @@ __doc__ = ""
 import types
 
 
-from pyramid.i18n import get_localizer
-from pyramid.threadlocal import get_current_request
-
 from nive.tools import Tool
-from nive.helper import FakeLocalizer
-from nive.definitions import *
+from nive.definitions import ToolConf, IApplication
 from nive.i18n import _
 
-from nive.utils.utils import FormatBytesForDisplay
-
-configuration = ToolConf()
-configuration.id = "gcdump"
-configuration.context = "nive.components.tools.gcdump.gcdump"
-configuration.name = _(u"Object dump")
-configuration.description = _("This function dumps a list of all objects found in memory.")
-configuration.apply = (IApplication,)
-configuration.data = [
-]
-configuration.mimetype = "text/html"
+configuration = ToolConf(
+    id = "gcdump",
+    context = "nive.components.tools.gcdump.gcdump",
+    name = _(u"Object dump"),
+    description = _("This function dumps a list of all objects found in memory."),
+    apply = (IApplication,),
+    data = [],
+    mimetype = "text/html"
+)
 
 
 import gc
@@ -81,7 +75,6 @@ class gcdump(Tool):
         self.stream.write(u"<br/>\n")
         #self.stream.write(olist[0].__dict__)
         trefs = {}
-        instances = {}
         for o in olist:#[100000:100200]:
             t = type(o)
             ref = str(t)
@@ -91,35 +84,22 @@ class gcdump(Tool):
                     ref = "%s &gt; %s" %(ref, str(t2))
                 except:
                     pass
+            elif t==InstanceType:
+                try:
+                    ref = "%s &gt; %s" %(ref, str(o.__class__))
+                except:
+                    pass
+
             if not ref in trefs:
                 trefs[ref]=1
             else:
                 trefs[ref]+=1
-
-            if t==InstanceType:
-                ref = str(t.__class__)
-                if not ref in instances:
-                    instances[ref]=1
-                else:
-                    instances[ref]+=1
-            
-            #self.stream.write(type(o))
-            #self.stream.write("<br/>\n")
+            del o
         del olist
+        del gcl
+        del seen
         
-        self.stream.write("<table class='table-bordered table table-condensed pull-right' style='width:45%'>\n")
-        sorted = []
-        for r,v in instances.items():
-            if v < limit:
-                continue
-            sorted.append((r,v))
-        sorted.sort(key=lambda tup: tup[1])
-        while sorted:
-            i = sorted.pop()
-            self.stream.write("<tr><td>%s</td><th>%d</th></tr>\n"%(i[0].replace("<","").replace(">",""),i[1]))
-        self.stream.write("</table>\n")
-
-        self.stream.write("<table class='table-bordered table table-condensed' style='width:50%'>\n")
+        self.stream.write("<table class='table-bordered table table-condensed' style='width:70%'>\n")
         sorted = []
         for r,v in trefs.items():
             if v < limit:

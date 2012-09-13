@@ -19,8 +19,6 @@
 import string
 
 from nive.utils.utils import ConvertToNumberList
-from nive.definitions import *
-from nive.security import *
 
 
 class ObjectFulltext:

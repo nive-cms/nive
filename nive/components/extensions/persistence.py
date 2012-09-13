@@ -29,7 +29,7 @@ import pickle
 import time
 
 from nive.definitions import implements, IPersistent, ModuleConf, Conf, IModuleConf
-from nive import OperationalError, ProgrammingError
+from nive.definitions import OperationalError, ProgrammingError
 
 
 

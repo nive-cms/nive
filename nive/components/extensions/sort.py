@@ -22,7 +22,6 @@ from nive.utils.utils import ConvertToNumberList
 
 from nive.i18n import _
 from nive.definitions import StagPage, StagPageElement
-from nive.security import *
 
 
 

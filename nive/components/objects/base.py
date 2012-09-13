@@ -27,8 +27,9 @@ from nive.container import Root, Container, ContainerEdit, ContainerSecurity, Co
 from nive.objects import Object, ObjectEdit, ObjectWorkflow
 from nive.events import Events
 from nive.search import Search
-from nive.definitions import *
-
+from nive.definitions import implements
+from nive.definitions import IApplication, IContainer, IRoot, IReadonly, INonContainer, IObject
+from nive.definitions import IPage, IPageContainer, IPageElement, IFile, IPageElementContainer, IFolder
 
 
 class ApplicationBase(Application, AppFactory, Configuration, Registration, Events):
@@ -73,7 +74,7 @@ class ObjectReadOnlyBase(Object, Events, ObjectWorkflow):
     
     This one does not support subobjects. 
     """
-    implements(IObject, INonContainer, IReadonly)
+    implements(INonContainer, IObject, IReadonly)
 
 class ObjectContainerBase(Object, ObjectEdit, ObjectWorkflow, Container, ContainerEdit,ContainerSecurity,  Events, ContainerFactory):
     """
@@ -97,7 +98,7 @@ class ObjectContainerReadOnlyBase(Object, ObjectWorkflow, Container, Events, Con
 from nive.components.extensions.cutcopy import ObjCopy, ContainerCopy
 from nive.components.extensions.sort import Sort
 from nive.components.extensions.path import AlternatePath
-from nive.components.extensions.pages import *
+from nive.components.extensions.pages import PageContainer, PageElementContainer, PageElement, PageColumns
 
 class PageBase(ContainerCopy, Sort, AlternatePath, PageColumns, PageContainer, PageElementContainer, ObjectContainerBase):
     """

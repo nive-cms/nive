@@ -31,8 +31,8 @@ The system admin for notification mails can be specified as `systemAdmin`.
 
 """
 
-from nive.definitions import implements, Interface, AppConf, FieldConf, GroupConf
-from nive.security import *
+from nive.definitions import implements, Interface, AppConf, FieldConf, GroupConf, IUserDatabase
+from nive.security import Allow, Deny, Everyone, ALL_PERMISSIONS, remember, forget
 from nive.components.objects.base import ApplicationBase
 from nive.i18n import _
 
@@ -66,13 +66,6 @@ configuration.acl= [
 configuration.groups = [ 
     GroupConf(id="group:useradmin", name="group:useradmin"),
 ]
-
-
-class IUserDatabase(Interface):
-    """ """
-    
-class ILocalGroups(Interface):
-    """ """
 
 
 class UserDB(ApplicationBase):

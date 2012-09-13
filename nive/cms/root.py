@@ -26,9 +26,9 @@ Also this object provides search functions and sql query wrappers.
 """
 
 from nive.i18n import _
-from nive.definitions import *
 from nive.components.objects.base import PageRootBase
-from nive import IWebsiteRoot
+from nive.definitions import IWebsiteRoot, implements
+from nive.definitions import RootConf
 
 
 class root(PageRootBase):

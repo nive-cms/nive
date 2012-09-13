@@ -27,7 +27,7 @@ from pyramid.security import ALL_PERMISSIONS
 from pyramid.security import Everyone, Authenticated
 from pyramid.security import remember, forget, authenticated_userid
 
-from nive import ModuleConf, Conf
+from nive.definitions import ModuleConf, Conf
 
 
 def GetUsers(app):

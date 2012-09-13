@@ -4,8 +4,7 @@ __doc__ = ""
 
 
 import types
-from time import *
-from string import *
+from time import localtime, mktime, strftime, time, struct_time
 import re, sys, os, math
 
 kMonth = [u"", u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
@@ -387,23 +386,6 @@ class DvDateTime:
         self._pTime = (year, month, day, hr, mn, sc, 0, 1, 1)
         return True
 
-
-def _calcDependentSecond(tz, t):
-    # Calculates the timezone-dependent second (integer part only)
-    # from the timezone-independent second.
-    fset = _tzoffset(tz, t)
-    return fset + long(math.floor(t)) + long(EPOCH) - 86400L
-
-def _calcYMDHMS(x, ms):
-    # x is a timezone-dependent integer of seconds.
-    # Produces yr,mo,dy,hr,mn,sc.
-    yr,mo,dy=_calendarday(x / 86400 + jd1901)
-    x = int(x - (x / 86400) * 86400)
-    hr = x / 3600
-    x = x - hr * 3600
-    mn = x / 60
-    sc = x - mn * 60 + ms
-    return yr,mo,dy,hr,mn,sc
 
 def _calcHMS(x, ms):
     # hours, minutes, seconds from integer and float.

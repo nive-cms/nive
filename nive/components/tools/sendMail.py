@@ -28,10 +28,9 @@ import time
 
 from nive.utils.utils import LOG
 from nive.utils.utils import ConvertToList
-from smtplib import *
 
 from nive.tools import Tool
-from nive.definitions import *
+from nive.definitions import ToolConf, FieldConf
 from nive.i18n import _
 
 configuration = ToolConf()
@@ -215,6 +214,8 @@ class sendMail(Tool):
         return recvList
 
 
+
+from smtplib import SMTP
 
 
 class DvSMTP(SMTP):

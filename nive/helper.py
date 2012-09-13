@@ -25,8 +25,12 @@ from pyramid.path import DottedNameResolver
 from pyramid.path import AssetResolver
 from pyramid.path import caller_package
 
-from nive import *
-from nive.definitions import implements, Interface
+
+from nive.definitions import IAppConf, IDatabaseConf, IFieldConf, IRootConf, IObjectConf, IViewModuleConf
+from nive.definitions import IViewConf, IToolConf, IPortalConf, IGroupConf, ICategoryConf, IModuleConf
+from nive.definitions import IWidgetConf, IWfProcessConf, IWfStateConf, IWfTransitionConf, IConf
+
+from nive.definitions import implements, ConfigurationError
 from nive.utils.dataPool2.files import File
 from nive.utils import strings
 
@@ -200,7 +204,9 @@ def ClassFactory(configuration, reloadClass=False, raiseError=True, base=None):
     if not c:
         return None
     if not bases:
+        #return type("_factory_"+c.__name__, (c,), {})
         return c
+    #raise ConfigurationError, "extensions currently not supported"
     # load extensions
     b = [c]
     #opt

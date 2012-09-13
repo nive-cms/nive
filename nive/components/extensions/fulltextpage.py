@@ -21,7 +21,7 @@ import string
 from pyramid.i18n import get_localizer
 from pyramid.threadlocal import get_current_request
 
-from nive import _
+from nive.definitions import _
 from nive.tools import Tool
 from nive.helper import FakeLocalizer
 
@@ -171,7 +171,6 @@ class RewriteFulltext(Tool):
 
 
 
-
 def SetupFulltext(app, pyramidConfig):
     # get all objects and add extension
     extension = "nive.components.extensions.fulltextpage.PageFulltext"
@@ -180,7 +179,7 @@ def SetupFulltext(app, pyramidConfig):
             e = c.extensions
             if e == None:
                 e = []
-            if extension in e:
+            elif extension in e:
                 continue
             if isinstance(e, tuple):
                 e = list(e)
@@ -200,6 +199,7 @@ toolconf = ToolConf(
     data = [],
     mimetype = "text/html"
 )
+
 configuration = ModuleConf(
     id = "pagefulltext",
     name = u"Web page fulltext extension",

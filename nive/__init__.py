@@ -20,19 +20,6 @@ __version__ = "0.9.5b"
 __doc__ = """nive"""
 
 
-# interfaces and configurations
-from nive.definitions import *
-
-# interface imports
-from nive.userdb.app import IUserDatabase
-from nive.cms.app import IWebsite
-from nive.cms.app import IWebsiteRoot
-from nive.cms.app import ICMSRoot
-
-from nive.cms.cmsview.view import IToolboxWidgetConf, IEditorWidgetConf
-from nive.adminview.view import IAdminWidgetConf
-
-# exceptions
-from nive.utils.dataPool2.base import OperationalError, ProgrammingError, Warning
-
-from nive.i18n import _
+"""
+Use `nive.definitions` to import Interfaces or Configuration classes
+"""

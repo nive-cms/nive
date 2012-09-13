@@ -52,9 +52,9 @@ Default actions used in the cms are: add, remove, create, duplicate, edit, delet
 
 import weakref
 
-from nive.definitions import baseConf, ConfigurationError
+from nive.definitions import baseConf, ConfigurationError, TryResolveName
 from nive.definitions import IWfProcessConf, IWfStateConf, IWfTransitionConf, IProcess
-from nive.helper import ResolveName, ResolveConfiguration, TryResolveName, GetClassRef
+from nive.helper import ResolveName, ResolveConfiguration, GetClassRef
 
 from zope.interface import implements
 

@@ -22,7 +22,7 @@ import types
 
 
 from nive.tools import Tool
-from nive.definitions import *
+from nive.definitions import ToolConf, FieldConf, IApplication, MetaTbl, Structure
 from nive.i18n import _
 
 configuration = ToolConf()

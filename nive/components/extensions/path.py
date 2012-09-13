@@ -20,7 +20,6 @@ import string
 from types import StringType, UnicodeType, IntType, LongType
 
 from nive.definitions import StagPage, StagPageElement
-from nive.security import *
 
         
 class AlternatePath:

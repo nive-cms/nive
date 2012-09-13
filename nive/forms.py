@@ -119,7 +119,7 @@ Requires: Events
 """
 
 import copy, json
-from types import *
+from types import StringType
 
 from nive.utils.utils import GetDLItem, ConvertToList
 from nive.definitions import Conf, FieldConf, ConfigurationError
@@ -627,7 +627,7 @@ class HTMLForm(Form):
 
         # call action
         if action:
-            if type(action["method"])==StringType:
+            if isinstance(action["method"], basestring):
                 method = getattr(self, action["method"])
             else:
                 method = action["method"]
@@ -776,7 +776,7 @@ class HTMLForm(Form):
         if not msgs:
             return u""
         h = []
-        if type(msgs) in (StringType, UnicodeType):
+        if isinstance(msgs, basestring):
             msgs = [msgs]
         for m in msgs:
             h+= u"""<li>%s</li>""" % (m)

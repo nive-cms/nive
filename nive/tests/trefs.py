@@ -3,7 +3,7 @@ import time
 import unittest
 import gc
 
-from nive import OperationalError
+from nive.definitions import OperationalError
 from nive.application import *
 from nive.definitions import *
 from nive.helper import *
