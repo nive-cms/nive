@@ -96,7 +96,7 @@ class Base(object):
     _OperationalError=OperationalError
     _ProgrammingError=ProgrammingError
     _Warning=Warning
-    
+    defaultConnection = None
     EmptyValues = None
 
     MetaTable = u"pool_meta"
@@ -129,7 +129,9 @@ class Base(object):
         if connection:
             self._conn = connection
         elif connParam:
-            self.CreateConnection(connParam)
+            self._conn = self.CreateConnection(connParam)
+            if not self.name:
+                self.name = connParam.get("dbName",u"")
         
 
     def Close(self):
@@ -1207,9 +1209,7 @@ class Base(object):
         self._conn = conn
 
     def CreateConnection(self, connParam):
-        self._conn = self._GetConnection()(connParam)
-        if not self.name:
-            self.name = connParam.get("dbName",u"")
+        return self.defaultConnection(connParam)
 
     
     # internal subclassing
@@ -1229,9 +1229,6 @@ class Base(object):
     def _GetFileWrapper(self):
         return FileWrapper
     
-    def _GetConnection(self):
-        return Connection
-
 
 
 
@@ -1987,6 +1984,10 @@ class Connection(object):
         return self.user
 
 
+    def GetPlaceholder(self):
+        return u"%s"
+
+    
     def FmtParam(self, param):
         """format a parameter for sql queries like literal for mysql db"""
         return str(param)

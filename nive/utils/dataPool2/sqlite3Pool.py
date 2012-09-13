@@ -39,11 +39,144 @@ from nive.utils.dataPool2.dbManager import Sqlite3Manager
 from nive.definitions import OperationalError
 
 
+
+
+
+class Sqlite3ConnSingle(Connection):
+    """
+    Sqlite connection handling class
+
+    config parameter in dictionary:
+    db = database path
+    
+    user = unused - database user
+    password = unused - password user
+    host = unused - host server
+    port = unused - port server
+
+    timeout is set to 3.
+    """
+
+    def __init__(self, config = None, connectNow = True):
+        self.db = None
+        self.dbName = u""
+        
+        self.user = u""
+        self.host = u""
+        self.password = u""
+        self.port = u""
+        self.unicode = True
+        self.timeout = 3
+        self.revalidate = 0
+        self.verifyConnection = False
+        
+        self.check_same_thread = False
+        if(config):
+            self.SetConfig(config)
+        if(connectNow):
+            self.connect()
+        
+
+    def ping(self):
+        """ ping database server """
+        return True
+
+
+    def connect(self):
+        """ Close and connect to server """
+        self.close()
+        if not self.dbName:
+            raise OperationalError, "Connection failed. Database name is empty." 
+        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
+        if not db:
+            raise OperationalError, "Cannot connect to database '%s'" % (self.dbName)
+        c = db.cursor()
+        c.execute("PRAGMA journal_mode = TRUNCATE")
+        #c.execute("PRAGMA secure_delete = 0")
+        #c.execute("PRAGMA temp_store = MEMORY")
+        c.execute("PRAGMA synchronous = OFF")
+        c.close()
+        self._set(db)
+
+
+    def RawConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        if not self.dbName:
+            raise OperationalError, "Connection failed. Database name is empty." 
+        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
+        return db
+
+
+    def IsConnected(self):
+        """ Check if database is connected """
+        try:
+            db = self._get()
+            return db.cursor()!=None
+        except:
+            return False
+    
+
+    def GetDBManager(self):
+        """ returns the database manager obj """
+        aDB = Sqlite3Manager()
+        aDB.SetDB(self._get())
+        return aDB
+
+
+    def GetPlaceholder(self):
+        return u"?"
+
+    
+    def FmtParam(self, param):
+        """??? format a parameter for sql queries like literal for  db"""
+        #return self.db.literal(param)
+        if type(param) in (IntType, LongType, FloatType):
+            return unicode(param)
+        d = unicode(param)
+        if d.find(u'"')!=-1:
+            d = d.replace(u'"',u'\\"')
+        return u'"'+d+u'"'
+
+
+    def Duplicate(self):
+        """ Duplicates the current connection and returns a new unconnected connection """
+        new = Sqlite3Conn(None, False)
+        new.dbName = self.dbName
+        return new
+
+
+    def SetConfig(self, config):
+        """ """
+        self.dbName = config.get("dbName")
+
+
+
+import threading
+
+class Sqlite3ConnThreadLocal(Sqlite3ConnSingle, ConnectionThreadLocal):
+    """
+    Stores database connections as thread locals.
+    Usage is the same as Sqlite3 connection.
+    """
+
+    def __init__(self, config = None, connectNow = True):
+        self.local = threading.local()
+        Sqlite3ConnSingle.__init__(self, config, False)
+        self.check_same_thread = True
+        if(connectNow):
+            self.connect()
+
+        
+    
+
+
+
 class Sqlite3(FileManager, Base):
     """
     Data Pool Sqlite3 implementation
     """
     _OperationalError = sqlite3.OperationalError
+    defaultConnection = Sqlite3ConnThreadLocal
     EmptyValues = []
 
 
@@ -174,9 +307,6 @@ class Sqlite3(FileManager, Base):
         except NotFound:
             return None
 
-    def _GetConnection(self):
-        return Sqlite3ConnThreadLocal
-
 
 
 class Sqlite3Entry(FileEntry, Entry):
@@ -185,131 +315,3 @@ class Sqlite3Entry(FileEntry, Entry):
     """
 
 
-
-
-class Sqlite3ConnSingle(Connection):
-    """
-    Sqlite connection handling class
-
-    config parameter in dictionary:
-    db = database path
-    
-    user = unused - database user
-    password = unused - password user
-    host = unused - host server
-    port = unused - port server
-
-    timeout is set to 3.
-    """
-
-    def __init__(self, config = None, connectNow = True):
-        self.db = None
-        self.dbName = u""
-        
-        self.user = u""
-        self.host = u""
-        self.password = u""
-        self.port = u""
-        self.unicode = True
-        self.timeout = 3
-        self.revalidate = 0
-        self.verifyConnection = False
-        
-        self.check_same_thread = False
-        if(config):
-            self.SetConfig(config)
-        if(connectNow):
-            self.connect()
-        
-
-    def ping(self):
-        """ ping database server """
-        return True
-
-
-    def connect(self):
-        """ Close and connect to server """
-        self.close()
-        if not self.dbName:
-            raise OperationalError, "Connection failed. Database name is empty." 
-        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
-        if not db:
-            raise OperationalError, "Cannot connect to database '%s'" % (self.dbName)
-        c = db.cursor()
-        c.execute("PRAGMA journal_mode = TRUNCATE")
-        #c.execute("PRAGMA secure_delete = 0")
-        #c.execute("PRAGMA temp_store = MEMORY")
-        c.execute("PRAGMA synchronous = OFF")
-        c.close()
-        self._set(db)
-
-
-    def RawConnection(self):
-        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        if not self.dbName:
-            raise OperationalError, "Connection failed. Database name is empty." 
-        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
-        return db
-
-
-    def IsConnected(self):
-        """ Check if database is connected """
-        try:
-            db = self._get()
-            return db.cursor()!=None
-        except:
-            return False
-    
-
-    def GetDBManager(self):
-        """ returns the database manager obj """
-        aDB = Sqlite3Manager()
-        aDB.SetDB(self._get())
-        return aDB
-
-
-    def GetPlaceholder(self):
-        return u"?"
-
-    
-    def FmtParam(self, param):
-        """??? format a parameter for sql queries like literal for  db"""
-        #return self.db.literal(param)
-        if type(param) in (IntType, LongType, FloatType):
-            return unicode(param)
-        d = unicode(param)
-        if d.find(u'"')!=-1:
-            d = d.replace(u'"',u'\\"')
-        return u'"'+d+u'"'
-
-
-    def Duplicate(self):
-        """ Duplicates the current connection and returns a new unconnected connection """
-        new = Sqlite3Conn(None, False)
-        new.dbName = self.dbName
-        return new
-
-
-    def SetConfig(self, config):
-        """ """
-        self.dbName = config.get("dbName")
-
-
-
-import threading
-
-class Sqlite3ConnThreadLocal(Sqlite3ConnSingle, ConnectionThreadLocal):
-    """
-    Stores database connections as thread locals.
-    Usage is the same as Sqlite3 connection.
-    """
-
-    def __init__(self, config = None, connectNow = True):
-        self.local = threading.local()
-        Sqlite3ConnSingle.__init__(self, config, False)
-        self.check_same_thread = True
-        if(connectNow):
-            self.connect()
-
-        
-    

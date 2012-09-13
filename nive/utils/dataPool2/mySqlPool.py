@@ -38,6 +38,97 @@ from nive.utils.dataPool2.files import FileManager, FileEntry
 
 
 
+class MySqlConnSingle(Connection):
+    """
+    MySql connection handling class
+
+    config parameter in dictionary:
+    user = database user
+    password = password user
+    host = host mysql server
+    port = port mysql server
+    db = initial database name
+
+    timeout is set to 3.
+    """
+
+    def connect(self):
+        """ Close and connect to server """
+        self.close()
+        use_unicode = self.unicode
+        charset = None
+        if use_unicode:
+            charset = u"utf8"
+        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        if not db:
+            raise OperationalError, "Cannot connect to database '%s.%s'" % (self.host, self.dbName)
+        self._set(db)
+        
+
+    def RawConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        use_unicode = self.unicode
+        charset = None
+        if use_unicode:
+            charset = u"utf8"
+        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        return db
+
+
+    def IsConnected(self):
+        """ Check if database is connected """
+        try:
+            db = self._get()
+            db.ping()
+            return db.cursor()!=None
+        except:
+            return False
+
+
+    def GetDBManager(self):
+        """ returns the database manager obj """
+        self.VerifyConnection()
+        aDB = MySQLManager()
+        aDB.SetDB(self._get())
+        return aDB
+
+
+    def FmtParam(self, param):
+        """format a parameter for sql queries like literal for mysql db"""
+        db = self._get()
+        if not db:
+            self.connect()
+            db = self._get()
+        return db.literal(param)
+
+
+    def Duplicate(self):
+        """ Duplicates the current connection and returns a new unconnected connection """
+        new = MySqlConn(None, False)
+        new.user = self.user
+        new.host = self.host
+        new.password = self.password
+        new.port = self.port
+        new.dbName = self.dbName
+        return new
+
+
+import threading
+
+class MySqlConnThreadLocal(MySqlConnSingle, ConnectionThreadLocal):
+    """
+    Stores database connections as thread locals.
+    Usage is the same as MySqlConn connection.
+    """
+
+    def __init__(self, config = None, connectNow = True):
+        self.local = threading.local()
+        MySqlConnSingle.__init__(self, config, connectNow)
+
+
+
+
+
 class MySql(FileManager, Base):
     """
     Data Pool MySql 5 implementation
@@ -45,6 +136,7 @@ class MySql(FileManager, Base):
     _OperationalError = MySQLdb.OperationalError
     _ProgrammingError = MySQLdb.ProgrammingError
     _Warning = MySQLdb.Warning
+    defaultConnection = MySqlConnThreadLocal
 
 
     def _CreateNewID(self, table = u"", dataTbl = None):
@@ -104,8 +196,6 @@ class MySql(FileManager, Base):
         except NotFound:
             return None
 
-    def _GetConnection(self):
-        return MySqlConnThreadLocal
 
 
     # MySql 4 tree structure --------------------------------------------------------------
@@ -175,99 +265,6 @@ class MySqlEntry(FileEntry, Entry):
     """
     Data Pool Entry MySql 5 implementation
     """
-
-
-
-class MySqlConnSingle(Connection):
-    """
-    MySql connection handling class
-
-    config parameter in dictionary:
-    user = database user
-    password = password user
-    host = host mysql server
-    port = port mysql server
-    db = initial database name
-
-    timeout is set to 3.
-    """
-
-    def connect(self):
-        """ Close and connect to server """
-        self.close()
-        use_unicode = self.unicode
-        charset = None
-        if use_unicode:
-            charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
-        if not db:
-            raise OperationalError, "Cannot connect to database '%s.%s'" % (self.host, self.dbName)
-        self._set(db)
-        
-
-    def RawConnection(self):
-        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        use_unicode = self.unicode
-        charset = None
-        if use_unicode:
-            charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
-        return db
-
-
-    def IsConnected(self):
-        """ Check if database is connected """
-        try:
-            db = self._get()
-            db.ping()
-            return db.cursor()!=None
-        except:
-            return False
-
-
-    def GetDBManager(self):
-        """ returns the database manager obj """
-        self.VerifyConnection()
-        aDB = MySQLManager()
-        aDB.SetDB(self._get())
-        return aDB
-
-
-    def GetPlaceholder(self):
-        return u"%s"
-
-    
-    def FmtParam(self, param):
-        """format a parameter for sql queries like literal for mysql db"""
-        db = self._get()
-        if not db:
-            self.connect()
-            db = self._get()
-        return db.literal(param)
-
-
-    def Duplicate(self):
-        """ Duplicates the current connection and returns a new unconnected connection """
-        new = MySqlConn(None, False)
-        new.user = self.user
-        new.host = self.host
-        new.password = self.password
-        new.port = self.port
-        new.dbName = self.dbName
-        return new
-
-
-import threading
-
-class MySqlConnThreadLocal(MySqlConnSingle, ConnectionThreadLocal):
-    """
-    Stores database connections as thread locals.
-    Usage is the same as MySqlConn connection.
-    """
-
-    def __init__(self, config = None, connectNow = True):
-        self.local = threading.local()
-        MySqlConnSingle.__init__(self, config, connectNow)
 
 
 
