@@ -238,9 +238,13 @@ class Application(object):
     # Content and root objects -----------------------------------------------------------
 
     def __getitem__(self, name):
+        """
+        This function is called by url traversal and looks up root objects for the corresponding
+        name. 
+        """
         name = name.split(".")[0]
         o = self.root(name)
-        if o:
+        if o and o.configuration.urlTraversal:
             return o
         raise KeyError, name
 
@@ -1077,18 +1081,16 @@ class AppFactory:
         """
         cTag = self.dbConfiguration.connection
         poolTag = self.dbConfiguration.context
+        if cTag:
+            connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
+            connObj = connObj(config=self.dbConfiguration)
+            return connObj
+        if self._dbpool:
+            return self._dbpool.CreateConnection(self.dbConfiguration)
         if not cTag and not poolTag:
             raise TypeError, "Database connection type not set. application.dbConfiguration.connection and application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
-        if not cTag:
-            if poolTag.lower() in ("sqlite","sqlite3"):
-                cTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3ConnThreadLocal"
-            if poolTag.lower() == "mysql":
-                cTag = "nive.utils.dataPool2.mySqlPool.MySqlConnThreadLocal"
-        if not cTag:
-            return None
-        connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
-        connObj = connObj(config=self.dbConfiguration)
-        return connObj
+        dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
+        return dbObj.defaultConnection(self.dbConfiguration)
 
 
     def _GetRootObj(self, rootConf):

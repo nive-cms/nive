@@ -746,6 +746,7 @@ class RootConf(baseConf):
         default  : Use this root as default root
         subtypes : Define possible subtypes. None=no objects allowed, *=all objects allowed, 
                    [IContainer,IPageElement]=list with interfaces of allowed objects.
+        urlTraversal : if True the root name is allowed to be used in url traversal.
         workflowDisabled : Enable or disable workflow for this type.
         workflowID       : Workflow process id.
         description : Description.
@@ -766,6 +767,7 @@ class RootConf(baseConf):
         self.views = []
         self.subtypes = "*"
         self.workflowDisabled = True
+        self.urlTraversal = True
         self.workflowID = ""
         self.description = u""
         baseConf.__init__(self, copyFrom, **values)
