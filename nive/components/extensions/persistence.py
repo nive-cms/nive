@@ -75,11 +75,17 @@ def LoadStoredConfValues(app, pyramidConfig):
     storage = app.Factory(IModuleConf, "persistence")
     if not storage:
         return
-        # adapters
+    try:
+        db = app.NewDBConnection()
+        if not db:
+            return
+    except:
+        return
+    # adapters
     for conf in app.registry.registeredAdapters():
-        storage(app=app, configuration=conf.factory).Load()
+        storage(app=app, configuration=conf.factory).Load(db=db)
     for conf in app.registry.registeredUtilities():
-        storage(app=app, configuration=conf.component).Load()
+        storage(app=app, configuration=conf.component).Load(db=db)
     
     
 
@@ -88,12 +94,15 @@ class DbPersistence(PersistentConf):
     Stores configuration values in the configured databases' pool_sys table.
     """
 
-    def Load(self):
+    def Load(self, db=None):
         """
         Load configuration values from backend and map to configuration.
         """
         try:
-            db = self.app.NewDBConnection()
+            close = 0
+            if not db:
+                close = 1
+                db = self.app.NewDBConnection()
             sql = """select value,ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
             c=db.cursor()
             c.execute(sql, (self._GetUid(),))
@@ -105,7 +114,8 @@ class DbPersistence(PersistentConf):
         except ProgrammingError: 
             data = None
             db.rollback()
-        db.close()
+        if close:
+            db.close()
         if data:
             values = pickle.loads(data[0][0])
             lock = 0
@@ -122,13 +132,16 @@ class DbPersistence(PersistentConf):
             return values
         return None
         
-    def Save(self, values):
+    def Save(self, values, db=None):
         """
         Store configuration values in backend.
         """
         ts = time.time()
         try:
-            db = self.app.NewDBConnection()
+            close = 0
+            if not db:
+                close = 1
+                db = self.app.NewDBConnection()
             sql = """select ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
             c=db.cursor()
             c.execute(sql, (self._GetUid(),))
@@ -146,7 +159,8 @@ class DbPersistence(PersistentConf):
         except ProgrammingError: 
             data = None
             db.rollback()
-        db.close()
+        if close:
+            db.close()
         lock = 0
         if self.conf.locked:
             lock = 1
