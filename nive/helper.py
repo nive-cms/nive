@@ -147,7 +147,7 @@ def ResolveConfiguration(conf, base=None):
     if IWfStateConf.providedBy(conf): return IWfStateConf, conf
     if IWfTransitionConf.providedBy(conf): return IWfTransitionConf, conf
     if IConf.providedBy(conf): return IConf, conf
-    return None, None
+    return None, conf
     #raise TypeError, "Unknown configuration object: %s" % (str(conf))
     
     
