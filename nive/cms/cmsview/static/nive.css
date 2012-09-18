@@ -10,7 +10,6 @@ h2 { font-size: 110%; }
 #header { 
   width: 100%; 
   height: 30px;   
-  background: url('images/logo20.png') no-repeat 12px;
   background-color:#aaaaaa; 
 }
 #header h1 {
@@ -83,7 +82,7 @@ nav .btn-group {margin-top:5px;}
 .poolform .formOptions { clear:both; margin-top: 10px; margin-bottom: 10px; padding-left: 190px; }
 .poolform .formOptionsleft { clear:both; margin-top: 10px; margin-bottom: 10px; }
 .poolform input, .poolform select { border: 1px solid #aaaaaa; margin: 0px; width: 500px; }
-.poolform textarea { border: 1px solid #aaaaaa; margin: 0px; width: 500px; height: 250px; }
+.poolform textarea { border: 1px solid #aaaaaa; margin: 0px; width: 500px; height: 100px; }
 .poolform input[type="radio"] { margin: 0px; width: auto; }
 .poolform input[type="checkbox"] { margin: 0px; width:auto; }
 .poolform .reformSet li {margin-top: 2px;margin-bottom: 2px; width: 49%; float:left;}
@@ -93,10 +92,8 @@ nav .btn-group {margin-top:5px;}
 .poolform button { 
     cursor: pointer;
 	font-weight: bold; 
-	background-color: #686868;
 	margin-top:10px;
 	padding: 0px 20px 0px 20px;
-	color: white;
 	width: auto; 
 }
 .poolform input:focus, .poolform textarea:focus { background-color: #e5ffe5; }
@@ -161,6 +158,13 @@ a.button {
   background-color: #eaeaff;
   text-decoration:none;
 }
+
+/*blocks--------------------------------------------------*/
+.block50 {
+  width:48%;
+  float:left;
+}
+
 
 /*table--------------------------------------------------
 table {border:none;width:100%;}

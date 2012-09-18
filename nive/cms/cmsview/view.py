@@ -31,7 +31,7 @@ from pyramid.i18n import get_localizer
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, WidgetConf
 from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot, IToolboxWidgetConf, IEditorWidgetConf
-from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf
+from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, ICMSRoot
 from nive.cms.design import view as design 
 
 
@@ -45,7 +45,7 @@ configuration = ViewModuleConf(
     templates = "nive.cms.cmsview:",
     permission = "read",
     context = IObject,
-    containment = "nive.cms.cmsview.cmsroot.cmsroot",
+    containment = ICMSRoot,  #"nive.cms.cmsview.cmsroot.cmsroot",
     view = "nive.cms.cmsview.view.Editor"
 )
 # views -----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ configuration.views = [
     ViewConf(name = "exiteditor", attr = "exit", context=IContainer, permission="view", containment=IApplication),
     ViewConf(name = "exiteditor", attr = "exitapp", context=IApplication, permission="view", containment=IPortal),
     
-    ViewConf(id="rootview", name = "",     attr = "view", context = "nive.cms.cmsview.cmsroot.cmsroot", containment=IApplication),
+    ViewConf(id="rootview", name = "",     attr = "view", context = ICMSRoot, containment=IApplication),
     ViewConf(id="objview",  name = "",     attr = "view", context = IPage),
     
     # object
@@ -358,7 +358,7 @@ class Editor(BaseView, CopyView, SortView):
         html = u"""<div class="subpages"> %(blocks)s </div>"""
         
         pHtml = u"""<div class="element">
-  <div class="el_title"><a href="%(url)s">%(title)s %(workflow)s</a></div>
+  <div class="el_title">%(workflow)s<a href="%(url)s">%(title)s </a> </div>
   <div class="el_options">%(options)s</div>
   <br style="clear:both"/>
 </div>"""
@@ -374,7 +374,7 @@ class Editor(BaseView, CopyView, SortView):
         for p in pages:
             wf = u""
             if useworkflow and not p.meta.pool_state:
-                wf = u"""<img src="%(static)s" title="%(name)s"/>""" % {"static": static, "name": localizer.translate(_(u"This page is not public."))}
+                wf = u"""<a href="%(url)sworkflow" class="right" rel="niveOverlay"><img src="%(static)s" title="%(name)s"/></a>""" % {u"static": static, u"url": self.FolderUrl(p), u"name": localizer.translate(_(u"This page is not public."))}
             blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": p.meta.get(u"title"), u"options": self.editBlockList(obj=p, page=page), u"workflow": wf})
         if not len(pages):
             blocks.write(localizer.translate(_(u"<p><i>no sub pages</i></p>")))

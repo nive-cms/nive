@@ -97,13 +97,15 @@ class DbPersistence(PersistentConf):
     def Load(self, db=None):
         """
         Load configuration values from backend and map to configuration.
+        Uses a raw database connection to access the database to allow being called 
+        before startup. 
         """
         try:
             close = 0
             if not db:
                 close = 1
                 db = self.app.NewDBConnection()
-            sql = """select value,ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
+            sql = """select value,ts from pool_sys where id=%s""" % (db.GetPlaceholder())
             c=db.cursor()
             c.execute(sql, (self._GetUid(),))
             data = c.fetchall()
@@ -135,32 +137,30 @@ class DbPersistence(PersistentConf):
     def Save(self, values, db=None):
         """
         Store configuration values in backend.
+        Uses the datapool class to access the database.
         """
         ts = time.time()
         try:
             close = 0
             if not db:
                 close = 1
-                db = self.app.NewDBConnection()
-            sql = """select ts from pool_sys where uid=%s""" % (db.GetPlaceholder())
-            c=db.cursor()
-            c.execute(sql, (self._GetUid(),))
-            r = c.fetchall()
-            c.close()
+                db = self.app.db
+            sql = """select ts from pool_sys where id=%s""" % (db.GetPlaceholder())
+            r = db.Query(sql, (self._GetUid(),))
             data = pickle.dumps(values)
             if len(r):
-                db.UpdateFields("pool_sys", r[0][0], {"value":data,"ts":ts})
+                db.UpdateFields("pool_sys", self._GetUid(), {"value":data,"ts":ts})
             else:
-                db.InsertFields("pool_sys", {"value":data,"ts":ts, "uid":self._GetUid()})
-            db.commit()
+                db.InsertFields("pool_sys", {"value":data,"ts":ts, "id":self._GetUid()})
+            db.Commit()
         except OperationalError: 
             data = None
-            db.rollback()
+            db.Undo()
         except ProgrammingError: 
             data = None
-            db.rollback()
+            db.Undo()
         if close:
-            db.close()
+            db.Close()
         lock = 0
         if self.conf.locked:
             lock = 1

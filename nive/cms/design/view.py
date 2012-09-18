@@ -33,7 +33,7 @@ except:
 
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, ConfigurationError
-from nive.definitions import IApplication, IPortal, IWebsiteRoot, IPage, IPageElement, IObject, IViewModuleConf
+from nive.definitions import IApplication, IPortal, IWebsiteRoot, IPage, IRoot, IPageElement, IObject, IViewModuleConf
 from pyramid.response import Response
 from nive.definitions import IWebsiteRoot
 
@@ -41,24 +41,24 @@ from nive.definitions import IWebsiteRoot
 # view module definition ------------------------------------------------------------------
 
 #@nive_module
-configuration = ViewModuleConf()
-configuration.id = "design"
-configuration.name = _(u"Website design and view")
-configuration.static = "nive.cms.design:static"
-configuration.templates = "nive.cms.design:templates"
-configuration.mainTemplate = "index.pt"
-configuration.permission = "view"
-configuration.view = "nive.cms.design.view.Design"
-configuration.views = [
-    ViewConf(id="appview",  name = "",     attr = "app",  context = IApplication, containment=IPortal),
-    ViewConf(id="rootview", name = "",     attr = "view", context = IWebsiteRoot),
-    ViewConf(id="objview",  name = "",     attr = "view", context = IPage,        containment=IWebsiteRoot),
-    ViewConf(id="objview",  name = "",     attr = "view", context = IPageElement, containment=IWebsiteRoot),
-    ViewConf(id="objfile",  name = "file", attr = "file", context = IObject),
-    ViewConf(id="search",   name ="search",attr="search", context = IWebsiteRoot),
-    ViewConf(id="su",       name ="su",    attr="open",   context = IWebsiteRoot),
-]
-
+configuration = ViewModuleConf(
+    id = "design",
+    name = _(u"Website design and view"),
+    static = "nive.cms.design:static",
+    templates = "nive.cms.design:templates",
+    mainTemplate = "index.pt",
+    permission = "view",
+    view = "nive.cms.design.view.Design",
+    views = [
+        ViewConf(id="appview",  name = "",     attr = "app",  context = IApplication),
+        ViewConf(id="search",   name ="search",attr="search", context = IRoot),
+        ViewConf(id="su",       name ="su",    attr = "open", context = IRoot),
+        ViewConf(id="rootview", name = "",     attr = "view", context = IWebsiteRoot),
+        ViewConf(id="objview",  name = "",     attr = "view", context = IPage,        containment = IWebsiteRoot),
+        ViewConf(id="objview",  name = "",     attr = "view", context = IPageElement),
+        ViewConf(id="objfile",  name = "file", attr = "file", context = IObject),
+    ]
+)
 
 # view implementation ------------------------------------------------------------------
         

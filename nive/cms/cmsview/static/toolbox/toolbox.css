@@ -25,7 +25,8 @@
   cursor:pointer;
   padding: 0px 10px 0px 0px;
   margin: 0px;
-  background: url('../images/logo20.png') no-repeat 6px;
+  height:24px;
+  background: url('../images/nive-cms-white-20.png') no-repeat 6px;
 }
 #nive_toolbox #toolbox_header .toggle {
   float:right;
@@ -69,6 +70,10 @@
   display: block;
   border-bottom: 1px solid #cdcdcd;
   padding: 4px 0px 3px 6px;
+}
+#nive_toolbox .toolbox_widget .widget_content a.right {
+  float:right;
+  display:inline;
 }
 #nive_toolbox .toolbox_widget p {
   font-size:8pt;

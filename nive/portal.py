@@ -77,6 +77,7 @@ class Portal(Events, object):
         self.components = []
         self.groups = []
         self.__acl__ = [(Allow, "group:admin", ALL_PERMISSIONS)]
+        self.portal = self
         
         self.configuration = configuration or PortalConf()
         
@@ -126,8 +127,11 @@ class Portal(Events, object):
         elif iface and iface.providedBy(comp):
             c = ResolveName(conf.context)
             comp = c(conf)
-        if not name:
-            name = conf.id
+        try:
+            if not name:
+                name = conf.id
+        except:
+            pass
         if not name:
             raise ConfigurationError, "Portal registration failure. No name given (%s)" % (str(comp))
 

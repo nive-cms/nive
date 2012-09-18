@@ -170,7 +170,7 @@ class Application(object):
 
         # register groups
         portal = self.portal
-        if portal:
+        if portal and hasattr(portal, "RegisterGroups"):
             portal.RegisterGroups(self)
         self.Signal("finishRegistration", app=self, pyramidConfig=pyramidConfig)
         log.debug('Finished registration.')
@@ -1089,6 +1089,13 @@ class AppFactory:
             return self._dbpool.CreateConnection(self.dbConfiguration)
         if not cTag and not poolTag:
             raise TypeError, "Database connection type not set. application.dbConfiguration.connection and application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
+        poolTag = self.dbConfiguration.context
+        if not poolTag:
+            raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
+        elif poolTag.lower() in ("sqlite","sqlite3"):
+            poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
+        elif poolTag.lower() == "mysql":
+            poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
         return dbObj.defaultConnection(self.dbConfiguration)
 

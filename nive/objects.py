@@ -568,11 +568,11 @@ class ObjectWorkflow:
         Called after object was created
         """
         # check for workflow process to use
-        wf = self.GetNewWf()
-        if wf:
-            self.meta["pool_wfp"] = wf.id
-            self.Signal("wfInit", processID=wf.id)
-            if not self.WfAllow("create", user=user):
+        wfProc = self.GetNewWf()
+        if wfProc:
+            self.meta["pool_wfp"] = wfProc.id
+            self.Signal("wfInit", processID=wfProc.id)
+            if not self.WfAllow("create", user, transition=None):
                 raise WorkflowNotAllowed, "Workflow: Not allowed (create)"
             
 
@@ -649,7 +649,7 @@ class ObjectWorkflow:
         Sets the workflow state for the object. The new is state is set
         regardless of transitions or calling any workflow actions.
         """
-        self.meta.pool_wfa = stateID
+        self.meta["pool_wfa"] = stateID
 
     
     def SetWfProcess(self, processID, user, force=False):

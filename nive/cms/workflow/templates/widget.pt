@@ -5,8 +5,8 @@
  <!-- page workflow state -->
  <div class="widget_head" i18n:translate="">Workflow</div>
  <div class="widget_content">
-   <div tal:condition="context.meta.pool_state==0"><img src="${view.StaticUrl('nive.cms.workflow:static/exclamation.png')}" 
-            title="transition.name"/> <span i18n:translate="">The page is in draft mode and not public.</span></div>
+   <p tal:condition="context.meta.pool_state==0"><img src="${view.StaticUrl('nive.cms.workflow:static/exclamation.png')}" 
+            title="transition.name"/> <span i18n:translate="">The page is in draft mode and not public.</span></p>
    <a tal:repeat="transition wf['transitions']" class="mainOption"
       href="${pageUrl}action?t=${transition.id}&redirect_url=${request.url}"><img 
             src="${view.StaticUrl('nive.cms.workflow:static/'+transition.id+'.png')}" 

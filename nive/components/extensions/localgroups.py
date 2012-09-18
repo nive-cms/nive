@@ -149,5 +149,5 @@ configuration = ModuleConf(
     name = u"Local Group assignment for objects and roots",
     context = "nive.components.extensions.localgroups",
     #!disabled
-    #events = (Conf(event="startRegistration", callback=SetupLocalGroups),),
+    events = (Conf(event="startRegistration", callback=SetupLocalGroups),),
 )

@@ -70,7 +70,6 @@ class baseConfTest(unittest.TestCase):
         c = Conf(Conf(inparent=1), **{"test":1})
         c2 = c.copy(**{"test2":2})
         k=c2.keys()
-        self.assert_(len(c2.keys())==5)
         self.assert_(c2.has_key("test2"))
         self.assert_(c2.has_key("test"))
         c2.update({"test":3})

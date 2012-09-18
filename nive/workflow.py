@@ -53,7 +53,7 @@ Default actions used in the cms are: add, remove, create, duplicate, edit, delet
 import weakref
 
 from nive.definitions import baseConf, ConfigurationError, TryResolveName
-from nive.definitions import IWfProcessConf, IWfStateConf, IWfTransitionConf, IProcess
+from nive.definitions import IWfProcessConf, IWfStateConf, IWfTransitionConf, IProcess, ILocalGroups
 from nive.helper import ResolveName, ResolveConfiguration, GetClassRef
 
 from zope.interface import implements
@@ -290,6 +290,7 @@ class Process(object):
         self.configuration = configuration
         self.app_ = app
         self.renderTools = True
+        self.adminGroups = (u"group:admin",)  # always allowed
         for k in configuration:
             if k in ("states", "transitions"):
                 continue
@@ -551,11 +552,14 @@ class Transition(object):
         if self.roles == WfAllRoles:
             return True
         if user:
-            roles = user.GetGroups(context)
+            groups = user.GetGroups(context)
+            if context and ILocalGroups.providedBy(context):
+                local = context.GetLocalGroups(unicode(user))
+                groups = list(groups)+list(local)
         else:
-            roles = (u"Anonymous",)
-        for r in roles:
-            if r == u"group:admin":
+            groups = (u"Anonymous",)
+        for r in groups:
+            if r in self.process.adminGroups:
                 return True
             if r in self.roles:
                 return True

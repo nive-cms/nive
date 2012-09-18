@@ -30,7 +30,8 @@ from nive.components.objects.base import PageRootBase
 
 class cmsroot(PageRootBase):
 
-    implements(IWebsiteRoot, ICMSRoot)
+    #implements(IWebsiteRoot, ICMSRoot)
+    implements(ICMSRoot)
     extension = u"html"
     
     

@@ -28,7 +28,7 @@ Also this will help you to easily lookup object ids and database fields for deve
      tal:replace="structure view.RenderConf(conf)"></div>
 
 <h2 i18n:translate="">Other modules</h2>
-<div tal:repeat="conf context.QueryConf('nive.IModuleConf')"
+<div tal:repeat="conf context.QueryConf('nive.definitions.IModuleConf')"
      tal:replace="structure view.RenderConf(conf)"></div>
 
 </tal:block>

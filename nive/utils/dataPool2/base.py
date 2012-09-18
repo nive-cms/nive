@@ -612,7 +612,8 @@ class Base(object):
             dataList.append(self.structure.serialize(table, aK, data[aK]))
             data[aK] = dataList[-1]
 
-        sql.append(u" WHERE id = %d" % (id))
+        sql.append(u" WHERE id=%s" % (ph))
+        dataList.append(id)
         sql = u"".join(sql)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
@@ -775,6 +776,20 @@ class Base(object):
             p["groupid"] = group
         self.DeleteRecords(self.GroupsTable, p)
         self.Commit()
+
+
+    def GetAllUserGroups(self, userid):
+        """
+        Get all local group assignment for userid.
+        
+        returns a group assignment list [["userid", "groupid", "id"], ...]
+        """
+        # check if exists
+        p = {u"userid": userid}
+        o = {u"userid": u"="}
+        sql = self.GetSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
+        r = self.Query(sql)
+        return r
 
 
     # Entries -------------------------------------------------------------------------------------------
