@@ -92,12 +92,12 @@ class viewTest(unittest.TestCase):
     def test_views2(self):
         view2 = BaseView(self.context, self.request)
         #render fields
-        self.assert_(view2.RenderFld("ftext"))
-        self.assert_(view2.RenderFld("fnumber"))
-        self.assert_(view2.RenderFld("fdate"))
-        self.assert_(view2.RenderFld("flist"))
-        self.assert_(view2.RenderFld("pool_type"))
-        self.assert_(view2.RenderFld("pool_category"))
+        self.assert_(view2.RenderField("ftext"))
+        self.assert_(view2.RenderField("fnumber"))
+        self.assert_(view2.RenderField("fdate"))
+        self.assert_(view2.RenderField("flist"))
+        self.assert_(view2.RenderField("pool_type"))
+        self.assert_(view2.RenderField("pool_category"))
         self.assert_(view2.HtmlTitle())
         self.assert_(view2.FmtTextAsHTML("text"))
         self.assert_(view2.FmtDateText("2008/06/23 16:55", language=None))

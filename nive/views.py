@@ -442,7 +442,21 @@ class BaseView(object):
 
     # render helper ---------------------------------------------------------
     
-    def RenderFld(self, fld, data=None):
+    def GetLocale(self):
+        if hasattr(self, "_c_locale"):
+            return self._c_locale
+        l = u"en"
+        self._c_locale = l
+        return l
+    
+    def GetTimezone(self):
+        if hasattr(self, "_c_tz"):
+            return self._c_tz
+        l = u"GMT"
+        self._c_tz = l
+        return l
+    
+    def RenderField(self, fld, data=None):
         """
         Render the data field for html display. Rendering depends on the datatype defined
         in the field configuration.
@@ -669,26 +683,42 @@ class BaseView(object):
 
 class FieldRenderer(object):
     
-    def __init__(self, context):
+    def __init__(self, context, skip=()):
         self.context = context
+        self.skipRender = skip
         
-    def Render(self, fieldConf, value, useDefault = False, listItems = {}, render = True):
+    def Render(self, fieldConf, value, useDefault = False, listItems = {}, **kw):
         """
         fieldConf = FieldConf of field to be rendered
         value = the value to be rendered
         useDefault = use default values from fieldConf if not found in value
+        
+        **kw:
+        static = static root path for images
         """
         data = ""
         if useDefault:
             data = fieldConf["default"]
         if value != None:
             data = value
-        if not render:
+        if fieldConf.id in self.skipRender:
             return data
 
         # format for output
         fType = fieldConf["datatype"]
 
+        # fomat settings
+        fmt = fieldConf.settings.get("format")
+        if fmt:
+            if fmt=="bytesize":
+                data = FormatBytesForDisplay(data)
+                return data
+            elif fmt=="image":
+                tmpl = fieldConf.settings.get("path", u"")
+                path = tmpl % {"data":data, "static": kw.get("static",u"")}
+                data = """<img src="%(path)s" title="%(name)s" />""" % {"path":path, "name": fieldConf.name}
+                return data
+        
         if fType == "bool":
             if data:
                 data = u"Yes"
@@ -697,9 +727,9 @@ class FieldRenderer(object):
 
         elif fType == "date":
             if isinstance(data, datetime):
-                return data.strftime(u"%d.%m.%Y %H:%M")
+                return data.strftime(u"%d.%m.%Y")
             aD = DvDateTime(str(data))
-            data = aD.GetDDMMYYYY()
+            data = aD.GetYYYYMMDD()
 
         elif fType in ("datetime", "timestamp"):
             fmt = GetDL(fieldConf.get("settings",[]), "format")
@@ -708,19 +738,16 @@ class FieldRenderer(object):
                 data = aD.GetFormat(fmt)
             else:
                 if isinstance(data, datetime):
-                    return data.strftime(u"%d.%m.%Y %H:%M")
+                    return data.strftime(u"%Y-%m-%d %H:%M")
                 elif isinstance(data, basestring):
                     aD = DvDateTime(str(data))
                     if aD.GetHour() == 0 and aD.GetMin() == 0 and aD.GetSec() == 0:
                         data = aD.GetDDMMYYYY()
                     else:
                         if GetDL(fieldConf.get("settings",[]), "seconds")=="1":
-                            data = aD.GetDDMMYYYYHHMMSS()
+                            data = aD.GetYYYYMMDDHHMMSS()
                         else:
-                            data = aD.GetDDMMYYYYHHMM()
-
-        elif fType == "bytesize":
-            data = FormatBytesForDisplay(data)
+                            data = aD.GetYYYYMMDDHHMM()
 
         elif fType == "unit":
             if data == 0 or data == "0":
@@ -806,15 +833,6 @@ class FieldRenderer(object):
 
         elif fType == "password":
             data = u"*****"
-
-        elif fType == "_separator":
-            data = u"<hr/>"
-
-        elif fType == "_captcha":
-            data = u""
-
-        elif fType == "_csrf":
-            data = u""
 
         return data
     

@@ -246,7 +246,7 @@ class Form(Events,ReForm):
         elif self.fields:
             temp = self.fields
         elif config and self.app:
-            temp = list(self.app.GetAllMetaFlds(ignoreSystem = True)) + config.data
+            temp = list(self.app.GetAllMetaFlds(ignoreSystem = True)) + list(config.data)
         if not temp:
             raise ConfigurationError, "No form fields defined."
         # lookup field configurations
@@ -328,6 +328,7 @@ class Form(Events,ReForm):
         
         Event
         - validate(data) before validate is called
+        - process(data)  after validate has succeeded, is not called if validate failed
         
         returns bool, dictionary, list (result,data,errors)
         """
@@ -340,6 +341,7 @@ class Form(Events,ReForm):
             return False, e.cstruct, e
         if removeNull:
             data = dict(filter(lambda d: d[1] != null, data.items()))
+        self.Signal("process", data=data)
         return True, data, None
 
 
@@ -578,22 +580,33 @@ class Form(Events,ReForm):
         return values
 
 
+    def ConvertFileUpload(self, key, method="post"):
+        """
+        Convert a file upload to the internal File object
+        """
+        value = self.GetFormValue(key, method=method)
+        # prepare file
+        file = self.app.db.GetFileClass()()
+        file.filename = value.get('filename','')
+        file.file = value.get('file')
+        file.tag = ticket.key
+        file.mime = value.get('mimetype')
+        file.size = value.get('size')
+        file.tempfile = True
+        return file
+
+
 
 class HTMLForm(Form):
     """
     Simple HTML form 
-
-    Inline Form: ::
-    
-        form.widget.template = "form_simple"
-        form.widget.item_template = "field_onecolumn"
 
     """
     # html styling
     formid = u"upload"
     css_class = u"poolform"
     use_ajax = False
-
+    
     # Form actions --------------------------------------------------------------------------------------------
 
     def Process(self, defaultAction="default", redirect_success=None, **kw):
@@ -692,6 +705,7 @@ class HTMLForm(Form):
         
         Event
         - validate(data) before validate is called
+        - process(data)  after validate has succeeded, is not called if validate failed
         
         returns bool, dict, list (result,data,errors)
         """
@@ -717,17 +731,13 @@ class HTMLForm(Form):
 
     # Form view functions --------------------------------------------------------------------------------------------
 
-    def Render(self, data, msgs=None, errors=None, renderInline=False, messagesOnly=False):
+    def Render(self, data, msgs=None, errors=None, messagesOnly=False):
         """
         renders the form with data, messages
         
         messagesOnly=True will skip form and error rendering on just render the messages as 
         html block.
         """
-        if renderInline:
-            self.widget.template = "form_simple"
-            self.widget.item_template = "field_onecolumn"
-            
         if messagesOnly:
             return self._Msgs(msgs=msgs)
 
@@ -1113,6 +1123,7 @@ class JsonMappingForm(HTMLForm):
         
         Event
         - validate(data) before validate is called
+        - process(data)  after validate has succeeded, is not called if validate failed
         
         returns bool, dict, list (result,data,errors)
         """

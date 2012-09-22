@@ -178,6 +178,8 @@ class FileManager:
         self.root.AppendSeperator()
         self.root.CreateDirectoriesExcp()
 
+    def GetFileClass(self):
+        return File
 
     # Searching --------------------------------------------------------------
 
@@ -200,39 +202,6 @@ class FileManager:
         for f in files:
             f2.append(self.ConvertRecToDict(f, flds))
         return f2
-
-
-    # Filename conversion -------------------------------------------------------------
-
-    def ConvertFilenameToProp(self, key):
-        aProp = {}
-        aL = key.split(self.GetKeySep())
-        self.FillPropWC(aProp)
-        aProp[u"id"] = ConvertToLong(aL[0])
-        if len(aL) > 1:        aProp[u"tag"] = aL[1]
-        if len(aL) > 2:        aProp[u"version"] = aL[2]
-        if len(aL) > 3:        aProp[u"backup"] = ConvertToLong(aL[3])
-        return aProp
-
-
-    def FillPropWC(self, prop = {}):
-        if not prop.has_key(u"id") or prop[u"id"] == u"" or prop[u"id"] == 0:
-            prop[u"id"] = self.GetWC()
-        if not prop.has_key(u"version") or prop[u"version"] == u"":
-            prop[u"version"] = self.GetWC()
-        if not prop.get(u"tag") or prop[u"tag"] == u"":
-            prop[u"tag"] = self.GetWC()
-        if not prop.get(u"backup") or prop[u"backup"] == u"":
-            prop[u"backup"] = self.GetWC()
-        return prop
-
-
-    def GetWC(self):
-        return u"*"
-
-
-    def GetKeySep(self):
-        return u"_"
 
 
     # Internal --------------------------------------------------------------

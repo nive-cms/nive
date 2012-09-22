@@ -489,8 +489,8 @@ class Base(object):
             c.execute(sql, values)
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
-            raise OperationalError, e
             self.Undo()
+            raise OperationalError, e
         except self._ProgrammingError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             self.Undo()
@@ -1442,18 +1442,19 @@ class Entry(object):
 
     # Writing Values ------------------------------------------------------------------------
 
-    def SetMetaField(self, fld, data):
+    def SetMetaField(self, fld, data, cache=True):
         """
         Update single field to meta layer.
         Commits changes immediately to database without calling touch.
         """
         temp = self.pool.UpdateFields(self.pool.MetaTable, self.id, {fld:data})
         self.pool.Commit()
-        self._UpdateCache(temp)
+        if cache:
+            self._UpdateCache(temp)
         return True
 
 
-    def SetDataField(self, fld, data):
+    def SetDataField(self, fld, data, cache=True):
         """
         Update single field to data layer
         Commits changes immediately to database without calling touch.
@@ -1463,7 +1464,7 @@ class Entry(object):
 
         cursor = self.pool.connection.cursor()
         # check if data record already exists
-        id = self.GetDataRef(cursor)
+        id = self.GetDataRef()
         if id <= 0:
             cursor.close()
             return False
@@ -1472,7 +1473,8 @@ class Entry(object):
         cursor.close()
         self.pool.Commit()
 
-        self._UpdateCache(None, temp)
+        if cache:
+            self._UpdateCache(None, temp)
         return True
 
 

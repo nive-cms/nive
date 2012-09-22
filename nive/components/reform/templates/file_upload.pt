@@ -1,4 +1,4 @@
-<div class="reformFileupload" i18n:domain="nive">
+<tal:block i18n:domain="nive">
 
   <p tal:condition="cstruct.get('filename') and not field.widget.form.context.IsRoot()"
        class="filepreview" id="filelink_${field.name}">
@@ -24,4 +24,4 @@
                          class field.widget.css_class"
          id="${field.oid}"/>
 
-</div>
+</tal:block>

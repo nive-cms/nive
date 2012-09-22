@@ -409,7 +409,7 @@ def FormatBytesForDisplay(size):
             size = size / k
             return u'%.1f MB' % size
         else:
-            return u'%.1f kB' % size
+            return u'%.1f kb' % size
     else:
         return u'%d bytes' % size
 

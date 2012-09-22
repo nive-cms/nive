@@ -116,6 +116,9 @@ class DbPersistence(PersistentConf):
         except ProgrammingError: 
             data = None
             db.rollback()
+        except Exception, e:
+            # !!! log error and continue
+            return None
         if close:
             db.close()
         if data:

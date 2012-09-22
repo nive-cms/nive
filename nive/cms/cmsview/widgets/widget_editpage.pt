@@ -45,7 +45,7 @@
 
     <p tal:condition="page.GetID()>0">
       <span i18n:translate="">Page ID</span> ${page.GetID()}<br/> 
-      <span i18n:translate="">Changed</span> ${view.RenderFld('pool_change')} 
+      <span i18n:translate="">Changed</span> ${view.RenderField('pool_change')} 
       <span i18n:translate="">by</span> ${page.meta.pool_changedby}
     </p>
  </div>

@@ -120,7 +120,8 @@ class Search:
             raise TypeError, "No fields specified"
         db = self.db
         if pool_type==None:
-            sql = db.GetSQLSelect(fields, parameter, dataTable=u"pool_meta", singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
+            dataTable=kw.get("dataTable") or u"pool_meta"
+            sql = db.GetSQLSelect(fields, parameter, dataTable=dataTable, singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
         else:
             if not parameter.has_key("pool_type") and not kw.get("dontAddType"):
                 parameter["pool_type"] = pool_type
@@ -182,7 +183,7 @@ class Search:
 
     # Extended search functions ----------------------------------------------------------------------------------------------
 
-    def Search(self, parameter, fields = [], sort = u"title", ascending = 1, start = 0, max = 100, **kw):
+    def Search(self, parameter, fields = [], operators = {}, sort = u"title", ascending = 1, start = 0, max = 100, **kw):
         """
         Extended meta layer search function. Supports all keyword options and search result. 
         
@@ -204,10 +205,13 @@ class Search:
         except:    start = 0
         try:    max = int(max)
         except:    max = 100
+        debug = kw.get("debug",False)
 
+        # return empty result set and not all reords
         if kw.get("showAll",True) == False and parameter == {}:
             parameter["id"] = 0
 
+        # lookup field definitions
         fields = self._GetFieldDefinitions(fields)
         fldList = []
         groupcol = 0
@@ -216,106 +220,100 @@ class Search:
                 groupcol += 1
             fldList.append(f["id"])
 
-        #operators
-        operators=kw.get("operators")
-        if not operators:
-            operators = {}
-
-        # add id
+        # add id. required for group by  queries
         removeID = False
         if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
             fldList.append("id")
             fields.append(self.app.GetFld("id"))
             removeID = True
 
-        cacheID = kw.get("cacheID")
-
-        aItems = []
-        cnt = 0
-        total = 0
-        sql = u""
-
         ct = time.time()
         db = self.db
         if not db:
-            ct = 0
-        else:
-            ct = time.time() - ct
+            raise ConnectionError, "No database connection"
 
-            # cache
-            if cacheID:
-                fldList.append(u"-(select data from cache_data where ckey = CONCAT('%s',meta__.id)) as cache" % (cacheID))
+        #BREAK(parameter)
+        #BREAK(fldList)
+        #BREAK(operators)
+        sql = db.GetSQLSelect(fldList, parameter=parameter, operators=operators, 
+                              sort=sort, ascending=ascending, start=start, max=max, 
+                              groupby=kw.get("groupby"), 
+                              logicalOperator=kw.get("logicalOperator"), 
+                              condition=kw.get("condition"), 
+                              join=kw.get("join"))
+        #BREAK(sql)
+        records = db.Query(sql)
+        #BREAK(records)
 
-            #BREAK(parameter)
-            #BREAK(fldList)
-            #BREAK(operators)
-            sql = db.GetSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-            #BREAK(sql)
-            aL = db.Query(sql)
-            #BREAK(aL)
+        # prepare field renderer
+        skipRender = kw.get("skipRender", False)
+        renderer = None
+        if not skipRender:
+            # default values
+            renderer = FieldRenderer(self, skip = ["pool_type", "pool_wfa", "pool_wfp"])
+        elif isinstance(skipRender, (list,tuple)):
+            renderer = FieldRenderer(self, skip = skipRender)
 
-            # render flds
-            converter = FieldRenderer(self)
-            skipRender = kw.get("skipRender", False)
-            if skipRender == True:
-                skipRender = fldList
-            elif not skipRender:
-                skipRender = ["pool_type", "pool_wfa", "pool_wfp"]
+        # parse alias field names used in sql query
+        p = 0
+        for f in fldList:
+            if f[0] == u"-" and f.find(u" as ") != -1:
+                a = f.split(u" as ")[-1]
+                a = a.replace(u" ", u"")
+                a = a.replace(u")", u"")
+                fldList[p] = a
+            p += 1
 
-            # convert flds
-            if cacheID:
-                fldList = fldList[:-1]
-            p = 0
-            for f in fldList:
-                if f[0] == u"-" and f.find(u" as ") != -1:
-                    a = f.split(u" as ")[-1]
-                    a = a.replace(u" ", u"")
-                    a = a.replace(u")", u"")
-                    fldList[p] = a
-                p += 1
-            for aI in aL:
-                cnt+=1
-                if cacheID:
-                    c = aI[-1]
-                    if c and c != "":
-                        # cache
-                        aItems.append({"cache":aI[-1]})
-                        continue
-                # convert
-                aI2 = []
+        # convert records
+        items = []
+        cnt = 0
+        total = 0
+        for rec in records:
+            cnt+=1
+            # render if activated
+            if renderer:
+                rec2 = []
                 for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender)))
-                p = 0
-                aItems.append(ConvertListToDict(aI2, fldList))
-                if max > 0 and cnt == max:
-                    break
+                    rec2.append(renderer.Render(fields[p], rec[p], False, **kw))
+                rec = rec2
+            items.append(ConvertListToDict(rec, fldList))
+            if max > 0 and cnt == max:
+                break
 
-            # total records
-            total = len(aItems)
-            if total == max and kw.get("skipCount") != 1:
-                if not kw.get("groupby"):
-                    sql2 =db.GetSQLSelect([u"-count(*)"], parameter=parameter, sort=sort, ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-                    #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
-                else:
-                    sql2 = db.GetSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, sort=sort, ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-                    #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+        # total records
+        total = len(items)
+        if total == max and kw.get("skipCount") != 1:
+            if not kw.get("groupby"):
+                sql2 =db.GetSQLSelect([u"-count(*)"], parameter=parameter, operators=operators, 
+                                      sort=sort, ascending=ascending, start=None, max=None, 
+                                      logicalOperator=kw.get("logicalOperator"), 
+                                      condition=kw.get("condition"), 
+                                      join=kw.get("join"))
+                #BREAK(sql)
+                total = db.Query(sql2)[0][0]
+            else:
+                sql2 = db.GetSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
+                                       sort=sort, ascending=ascending, start=None, max=None, 
+                                       logicalOperator=kw.get("logicalOperator"), 
+                                       condition=kw.get("condition"), 
+                                       join=kw.get("join"))
+                #BREAK(sql)
+                total = db.Query(sql2)[0][0]
 
-        #BREAK(aItems)
+        #BREAK(items)
+        # prepare result dictionary and paging information
         result = {}
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
-        result["items"] = aItems
+        result["items"] = items
         result["time"] = time.time() - t
         result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
-        result["sql"] = sql
-        if cacheID:
-            result["cacheID"] = cacheID
-
+        if debug:
+            result["sql"] = sql
+        
         next = start + max
         if next >= total:
             next = 0
@@ -396,7 +394,7 @@ class Search:
         if not default_join:
             operators["jointype"] = kw.get("jointype")
 
-        aItems = []
+        items = []
         cnt = 0
         total = 0
         sql = ""
@@ -405,17 +403,12 @@ class Search:
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
-        cacheID = kw.get("cacheID")
         ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
             ct = time.time() - ct
-
-            # cache
-            if cacheID:
-                fldList.append(u"-(select data from cache_data where ckey = CONCAT('%s',meta__.id)) as cache" % (cacheID))
 
             #BREAK(parameter)
             sql = db.GetSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
@@ -433,8 +426,6 @@ class Search:
                 skipRender = [u"pool_type", u"pool_wfa", u"pool_wfp"]
 
             # convert records
-            if cacheID:
-                fldList = fldList[:-1]
             p = 0
             for f in fldList:
                 if f[0] == u"-" and f.find(u" as ") != -1:
@@ -445,23 +436,17 @@ class Search:
                 p += 1
             for aI in aL:
                 cnt+=1
-                if cacheID:
-                    c = aI[-1]
-                    if c != None and c != u"":
-                        # cache
-                        aItems.append({"cache":c})
-                        continue
                 # convert
                 aI2 = []
                 for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender)))
-                aItems.append(ConvertListToDict(aI2, fldList))
+                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
+                items.append(ConvertListToDict(aI2, fldList))
 
                 if max > 0 and cnt == max:
                     break
 
             # total records
-            if len(aItems) == max and kw.get("skipCount") != 1:
+            if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
                     sql2 = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
@@ -471,21 +456,19 @@ class Search:
                     #BREAK(sql)
                     total = db.Query(sql2)[0][0]
             else:
-                total = len(aItems) + start
+                total = len(items) + start
 
         result = {}
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
-        result["items"] = aItems
+        result["items"] = items
         result["time"] = time.time() - t
         result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         result["sql"] = sql
-        if cacheID:
-            result["cacheID"] = cacheID
-
+        
         next = start + max
         if next >= total:
             next = 0
@@ -556,7 +539,7 @@ class Search:
         if not operators:
             operators = {}
 
-        aItems = []
+        items = []
         cnt = 0
         total = 0
         sql = ""
@@ -565,7 +548,6 @@ class Search:
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
-        cacheID = kw.get("cacheID")
         ct = time.time()
         db = self.db
         if not db:
@@ -589,8 +571,6 @@ class Search:
                 skipRender = []
 
             # convert records
-            if cacheID:
-                fldList = fldList[:-1]
             p = 0
             for f in fldList:
                 if f[0] == u"-" and f.find(u" as ") != -1:
@@ -604,14 +584,14 @@ class Search:
                 # convert
                 aI2 = []
                 for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender)))
-                aItems.append(ConvertListToDict(aI2, fldList))
+                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
+                items.append(ConvertListToDict(aI2, fldList))
 
                 if max > 0 and cnt == max:
                     break
 
             # total records
-            if len(aItems) == max and kw.get("skipCount") != 1:
+            if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
                     sql2 = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
                     #BREAK(sql)
@@ -621,13 +601,13 @@ class Search:
                     #BREAK(sql)
                     total = db.Query(sql2)[0][0]
             else:
-                total = len(aItems) + start
+                total = len(items) + start
 
         result = {}
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
-        result["items"] = aItems
+        result["items"] = items
         result["time"] = time.time() - t
         result["connecttime"] = ct
         result["start"] = start
@@ -708,20 +688,15 @@ class Search:
         else:
             phrase = phrase.replace(u"*", u"%")
 
-        aItems = []
+        items = []
         cnt = 0
         total = 0
-        cacheID = kw.get("cacheID")
         ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
             ct = time.time() - ct
-
-            # cache
-            if cacheID:
-                fldList.append(u"-(select data from cache_data where ckey = CONCAT('%s',meta__.id)) as cache" % (cacheID))
 
             #BREAK(parameter)
             #BREAK(fldList)
@@ -751,8 +726,8 @@ class Search:
                 cnt+=1
                 aI2 = []
                 for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender)))
-                aItems.append(ConvertListToDict(aI2, fldList))
+                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
+                items.append(ConvertListToDict(aI2, fldList))
                 if max > 0 and cnt == max:
                     break
 
@@ -762,13 +737,13 @@ class Search:
             total = db.Query(sql2)[0][0]
             #BREAK(total)
 
-        #BREAK(aItems)
+        #BREAK(items)
         result = {}
         result["phrase"] = searchFor
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
-        result["items"] = aItems
+        result["items"] = items
         result["time"] = time.time() - t
         result["connecttime"] = ct
         result["start"] = start
@@ -869,22 +844,17 @@ class Search:
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
-        aItems = []
+        items = []
         cnt = 0
         total = 0
         sql = ""
 
-        cacheID = kw.get("cacheID")
         ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
             ct = time.time() - ct
-
-            # cache
-            if cacheID:
-                fldList.append(u"-(select data from cache_data where ckey = CONCAT('%s',meta__.id)) as cache" % (cacheID))
 
             #BREAK(parameter)
             #BREAK(fldList)
@@ -903,8 +873,6 @@ class Search:
                 skipRender = ["pool_type", "pool_wfa", "pool_wfp"]
 
             # convert records
-            if cacheID:
-                fldList = fldList[:-1]
             p = 0
             for f in fldList:
                 if f[0] == u"-" and f.find(u" as ") != -1:
@@ -917,13 +885,13 @@ class Search:
                 cnt+=1
                 aI2 = []
                 for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender)))
-                aItems.append(ConvertListToDict(aI2, fldList))
+                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
+                items.append(ConvertListToDict(aI2, fldList))
                 if max > 0 and cnt == max:
                     break
 
             # total records
-            if len(aItems) == max and kw.get("skipCount") != 1:
+            if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
                     sql2 = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
@@ -933,24 +901,22 @@ class Search:
                     #BREAK(sql)
                     total = db.Query(sql2)[0][0]
             else:
-                total = len(aItems) + start
+                total = len(items) + start
             #BREAK(total)
 
-        #BREAK(aItems)
+        #BREAK(items)
         result = {}
         result["phrase"] = searchFor
         result["criteria"] = parameter
         result["count"] = cnt
         result["total"] = total
-        result["items"] = aItems
+        result["items"] = items
         result["time"] = time.time() - t
         result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         result["sql"] = sql
-        if cacheID:
-            result["cacheID"] = cacheID
-
+        
         next = start + max
         if next >= total:
             next = 0
@@ -1010,7 +976,7 @@ class Search:
             kw["operators"] = {}
         parameter["id"] = ids
         kw["operators"].update({"id":u"IN"})
-        result = self.Search(parameter, fields, sort, ascending, start, max, **kw)
+        result = self.Search(parameter=parameter, fields=fields, sort=sort, ascending=ascending, start=start, max=max, **kw)
 
         # merge result and files
         for rec in result["items"]:
