@@ -101,18 +101,18 @@ class dbTest:
         #print "Store file", id,
         e=self.pool.GetEntry(id)
         self.assert_(e)
-        self.assert_(e.SetFile(u"file1", {"file":file1_1, "filename":"file1.txt"}))
+        self.assert_(e.CommitFile(u"file1", {"file":file1_1, "filename":"file1.txt"}))
         e.Commit(user="unittest")
-        self.assert_(e.GetFileData(u"file1") == file1_1)
+        self.assert_(e.GetFile(u"file1").read() == file1_1)
         #print "OK"
 
     def setfile2(self, id):
         #print "Store file", id,
         e=self.pool.GetEntry(id)
         self.assert_(e)
-        self.assert_(e.SetFile(u"file2", {"file":file1_2, "filename":u"file2.txt"}))
+        self.assert_(e.CommitFile(u"file2", {"file":file1_2, "filename":u"file2.txt"}))
         e.Commit(user="unittest")
-        self.assert_(e.GetFileData(u"file2") == file1_2)
+        self.assert_(e.GetFile(u"file2").read() == file1_2)
         #print "OK"
 
 
@@ -143,19 +143,19 @@ class dbTest:
     def file1(self, id):
         #print "Load file", id,
         e=self.pool.GetEntry(id)
-        self.assert_(e.GetFileData(u"file1") == file1_1)
+        self.assert_(e.GetFile(u"file1").read() == file1_1)
         #print "OK"
 
     def file2(self, id):
         #print "Load file", id,
         e=self.pool.GetEntry(id)
-        self.assert_(e.GetFileData(u"file2") == file1_2)
+        self.assert_(e.GetFile(u"file2").read() == file1_2)
         #print "OK"
 
     def fileErr(self, id):
         #print "Load non existing file", id,
         e=self.pool.GetEntry(id)
-        self.assert_(e.GetFileData(u"file1") == None)
+        self.assert_(e.GetFile(u"file1") == None)
         #print "OK"
 
     # getstream --------------------------------------------------------------------------
@@ -206,7 +206,7 @@ class dbTest:
         e=self.pool.GetEntry(id)
         self.assert_(e)
 
-        self.assertItemsEqual(e.GetTags(), [u"file1",u"file2"])
+        self.assertItemsEqual(e.FileKeys(), [u"file1",u"file2"])
 
         self.assert_(e.FileExists(u"file1"))
         self.assert_(e.FileExists(u"file2"))
@@ -226,7 +226,7 @@ class dbTest:
         self.assert_(len(l)==2)
         l2=[]
         for f in l:
-            l2.append(f[u"tag"])
+            l2.append(f[u"filekey"])
         self.assert_(u"file1" in l2)
         self.assert_(u"file2" in l2)
         #print "OK"

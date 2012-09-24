@@ -28,8 +28,8 @@ class viewTest(unittest.TestCase):
         r = self.app.root()
         self.context = db_app.createObj1(r)
         self.context2 = db_app.createObj2(r)
-        self.context2.SetFile("file1", db_app.file2_1, user=user)
-        self.context2.SetFile("file2", db_app.file2_2, user=user)
+        self.context2.StoreFile("file1", db_app.file2_1, user=user)
+        self.context2.StoreFile("file2", db_app.file2_2, user=user)
 
     def tearDown(self):
         user = User(u"test")

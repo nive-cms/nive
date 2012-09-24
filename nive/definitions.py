@@ -1409,7 +1409,7 @@ FileTbl: {"identity": "fileid",
           "fields": (
     FieldConf(id="fileid",     datatype="number",    size=8,     default=0,    required=0,   readonly=1, name=_(u"Unique ID")),
     FieldConf(id="id",         datatype="number",    size=8,     default=0,    required=0,   readonly=1, name=_(u"Object ID")),
-    FieldConf(id="tag",        datatype="string",    size=35,    default='',   required=1,   readonly=0, name=_(u"File key")),
+    FieldConf(id="filekey",    datatype="string",    size=35,    default='',   required=1,   readonly=0, name=_(u"File key")),
     FieldConf(id="filename",   datatype="string",    size=255,   default='',   required=0,   readonly=0, name=_(u"Filename")),
     FieldConf(id="path",       datatype="string",    size=255,   default='',   required=0,   readonly=0, name=_(u"Internal file path")),
     FieldConf(id="size",       datatype="number",    size=8,     default=0,    required=0,   readonly=0, name=_(u"File size")),

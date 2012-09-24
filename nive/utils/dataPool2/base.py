@@ -59,7 +59,7 @@ class Base(object):
 
     Manage typed data units consisting of meta layer, data layer and files.
     Meta layer is the same for all units, data layer is based on types and files
-    are stored by tag.
+    are stored by key.
     Meta and data is mapped to database, files are stored in filesystem.
 
     Pool structure is required and must contain the used database fields as list
@@ -549,7 +549,7 @@ class Base(object):
         return l
 
 
-    def InsertFields(self, table, data, cursor = None):
+    def InsertFields(self, table, data, cursor = None, getInsertIDValue = False):
         """
         insert row with multiple fields in the table.
         codepage and dates are converted automatically
@@ -587,12 +587,15 @@ class Base(object):
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
+        id = 0
+        if getInsertIDValue:
+            id = self._GetInsertIDValue(cursor)
         if cc:
             cursor.close()
-        return data
+        return data, id
 
 
-    def UpdateFields(self, table, id, data, cursor = None):
+    def UpdateFields(self, table, id, data, cursor = None, idColumn = u"id"):
         """
         updates multiple fields in the table.
         codepage and dates are converted automatically
@@ -612,7 +615,7 @@ class Base(object):
             dataList.append(self.structure.serialize(table, aK, data[aK]))
             data[aK] = dataList[-1]
 
-        sql.append(u" WHERE id=%s" % (ph))
+        sql.append(u" WHERE %s=%s" % (idColumn, ph))
         dataList.append(id)
         sql = u"".join(sql)
         if self._debug:
@@ -948,6 +951,9 @@ class Base(object):
                     break
         return entries
 
+    def _GetInsertIDValue(self, cursor):
+        #("assert", "subclass")
+        return 0
 
     def _CreateNewID(self, table = ""):
         #("assert", "subclass")
@@ -1336,15 +1342,11 @@ class Entry(object):
                 self.pool.UpdateFields(self.GetDataTbl(), self.GetDataRef(), self.data.GetTemp(), cursor)
             # files
             if self.files.HasTemp():
-                temp = self.files.GetTemp()
-                if temp:
-                    for tag in temp.keys():
-                        file = temp[tag]
-                        result = self.SetFile(tag, file, cursor=cursor)
-                        if not result:
-                            raise TypeError, "File save error."
+                self.CommitFiles(self.files.GetTemp(), cursor=cursor)
             self.pool.Commit()
             cursor.close()
+            # remove previous files
+            self.Cleanup(self.files.GetTemp())
             self.data.SetContent(self.data.GetTemp())
             self.data.clear()
             self.meta.SetContent(self.meta.GetTemp())
@@ -1502,7 +1504,7 @@ class Entry(object):
         pass
 
 
-    def SetFile(self, tag, file):
+    def CommitFile(self, key, file, cursor=None):
         """
         """
         BREAK("subclass")
@@ -2276,7 +2278,7 @@ class FileWrapper(Wrapper):
         elif type(filedata) == StringType:
             # load from temp path
             file = File(key, fileentry=self._entry_())
-            file.SetFromPath(filedata)
+            file.fromPath(filedata)
             filedata = file
         filedata.tempfile = True
         self._temp_[key] = filedata
@@ -2289,14 +2291,14 @@ class FileWrapper(Wrapper):
     def SetContent(self, files):
         self._content_ = {}
         for f in files:
-            self._content_[f["tag"]] = f
+            self._content_[f["filekey"]] = f
 
 
     def _Load(self):
         files = self._entry_().Files()
         self._content_ = {}
         for f in files:
-            self._content_[f["tag"]] = f
+            self._content_[f["filekey"]] = f
         return self._content_.keys()
 
 

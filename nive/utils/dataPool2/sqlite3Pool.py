@@ -224,7 +224,12 @@ class Sqlite3(FileManager, Base):
         tree = _Select(base, tree, flds, sql, cursor)
         cursor.close()
         return tree
-    
+
+
+    def _GetInsertIDValue(self, cursor):
+        cursor.execute(u"SELECT last_insert_rowid()")
+        return cursor.fetchone()[0]
+
                
     def _CreateNewID(self, table = u"", dataTbl = None):
         #

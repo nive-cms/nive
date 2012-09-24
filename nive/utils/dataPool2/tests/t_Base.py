@@ -63,7 +63,7 @@ SystemFlds = (
 {"id": u"pool_dataref",    "datatype": "number",    "size": 8,  "default":  0,    "required": 1,     "readonly": 1, "settings": {}, "sort":  5200, "name": "Data Table Name",    "description": ""},
 )
 Fulltext = ("id","text","files")
-Files = ("id","filename","path","size","extension","tag","version")
+Files = ("id","filename","path","size","extension","filekey","version")
 
 # test data ----------------------------------------------------------------------
 data1_1 = {u"ftext": "this is text!",
@@ -205,14 +205,17 @@ class FileTest(unittest.TestCase):
         self.assert_(file.extension=="png")
 
     def test_file3(self):
-        file = File("aaa", path="import.zip")
+        file = File("aaa", filename="import.zip", tempfile=True)
         self.assert_(file.filename=="import.zip")
         self.assert_(file.extension=="zip")
+        self.assertRaises(IOError, file.read)
+
+        from pkg_resources import resource_filename
+        root = resource_filename('nive.utils.dataPool2', 'tests/')
         file = File("aaa")
-        file.SetFromPath("import.zip")
-        self.assert_(file.filename=="import.zip")
-        #self.assert_(file.size>12300)
-        self.assert_(file.extension=="zip")
+        file.fromPath(root+"t_db.py")
+        self.assert_(file.filename=="t_db.py")
+        self.assert_(file.extension=="py")
         
 
 

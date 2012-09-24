@@ -522,13 +522,10 @@ class DvPath:
 
     def Rename(self, inNewName):
         """return bool"""
-        if not (self.IsFile()):
+        if not self.IsFile():
             return False
-        try:
-            os.renames(self._pPath, inNewName)
-            return True
-        except:
-            return False
+        os.renames(self._pPath, inNewName)
+        return True
 
 
     def ReadData(self):

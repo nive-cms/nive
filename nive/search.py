@@ -989,7 +989,7 @@ class Search:
             rec["+extension"] = file["extension"]
             rec["+filename"] = file["filename"]
             rec["+fileid"] = file["fileid"]
-            rec["+tag"] = file["tag"]
+            rec["+key"] = file["filekey"]
 
         # update result
         del result["criteria"]["id"]

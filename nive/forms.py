@@ -589,7 +589,7 @@ class Form(Events,ReForm):
         file = self.app.db.GetFileClass()()
         file.filename = value.get('filename','')
         file.file = value.get('file')
-        file.tag = ticket.key
+        file.filekey = ticket.filekey
         file.mime = value.get('mimetype')
         file.size = value.get('size')
         file.tempfile = True

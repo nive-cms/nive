@@ -391,7 +391,7 @@ class ObjectEdit:
         return True
 
 
-    def SetFile(self, fldname, file, user):
+    def StoreFile(self, fldname, file, user):
         """
         Store a file under fldname. Existing files will be replaced. ::
         
@@ -402,8 +402,7 @@ class ObjectEdit:
         
         Events: 
         
-        - updateFile(filename, fldname)
-        - commit()
+        - storeFile(filename, fldname)
         
         Workflow action: edit
         """
@@ -411,8 +410,8 @@ class ObjectEdit:
         # check workflow
         if not self.WfAllow("edit", user=user):
             raise WorkflowNotAllowed, "Workflow: Not allowed (edit)"
-        self.Signal("update", file=file, fldname=fldname)
-        self.dbEntry.SetFile(fldname, file)
+        self.Signal("storeFile", file=file, fldname=fldname)
+        self.dbEntry.CommitFile(fldname, file)
         # call wf
         try:
             self.WfAction("edit", user=user)
@@ -421,7 +420,7 @@ class ObjectEdit:
             raise 
 
         if app.configuration.autocommit:
-            self.CommitInternal(user=user)
+            self.db.Commit()
         return True
 
 

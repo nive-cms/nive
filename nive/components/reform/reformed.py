@@ -138,7 +138,7 @@ class FileData2(object):
         if isinstance(value, basestring):
             # from path
             file = File()
-            file.SetFromPath(value)
+            file.fromPath(value)
             return file
 
         elif not isinstance(value, File):
@@ -146,7 +146,7 @@ class FileData2(object):
             file = File()
             file.filename = value.get('filename','')
             file.file = value.get('file')
-            file.tag = node.name
+            file.filekey = node.name
             file.uid = value.get('uid', node.name)
             file.mime = value.get('mimetype')
             file.size = value.get('size')
@@ -190,7 +190,7 @@ class FileUploadWidget2(Widget):
         file = File()
         file.filename = pstruct.filename
         file.file = pstruct.file
-        file.tag = field.name
+        file.filekey = field.name
         #file.uid = pstruct.uid
         file.mime = pstruct.type
         file.size = pstruct.length

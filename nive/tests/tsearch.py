@@ -121,8 +121,8 @@ class SearchTest_db(unittest.TestCase):
         self.assert_(r.Search(parameter, fields = fields1, sort = "title", ascending = 1, start = 0, max = 100)["count"])
         self.assert_(r.SearchType(pool_type, parameter, fields = fields2, sort = "title", ascending = 1, start = 0, max = 100, operators=operators)["count"])
         self.assert_(r.SearchData(pool_type, {}, fields = fields3, sort = "id", ascending = 1, start = 0, max = 100, operators={})["count"])
-        self.assert_(r.SearchFulltext("text", fields = fields1, sort = "title", ascending = 1, start = 0, max = 300)["count"])
-        self.assert_(r.SearchFulltextType(pool_type, "text", fields = fields2, sort = "title", ascending = 1, start = 0, max = 300)["count"])
+        self.assert_(r.SearchFulltext("text", fields = fields1, sort = "title", ascending = 1, start = 0, max = 300)) #["count"]
+        self.assert_(r.SearchFulltextType(pool_type, "text", fields = fields2, sort = "title", ascending = 1, start = 0, max = 300))   #["count"]
         r.SearchFilename("file1.txt", parameter, fields = [], sort = "title", ascending = 1, start = 0, max = 100, operators=operators)
         
         #test_listitems

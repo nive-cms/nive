@@ -25,7 +25,7 @@ def create_mysql(n):
         if i==0:  id = e.GetID()
         e.data.update(t_MySql.data1_1)
         e.meta.update(t_MySql.meta1)
-        e.SetFile(u"file1", {"file":t_db.file1_1, "filename":"file1.txt"})
+        e.CommitFile(u"file1", {"file":t_db.file1_1, "filename":"file1.txt"})
         #e.Commit()
     t2 = time.time()
 
@@ -48,7 +48,7 @@ def create_sqlite3(n):
         if i==0:  id = e.GetID()
         e.data.update(t_db.data1_1)
         e.meta.update(t_db.meta1)
-        e.SetFile(u"file1", {"file":t_db.file1_1, "filename":"file1.txt"})
+        e.CommitFile(u"file1", {"file":t_db.file1_1, "filename":"file1.txt"})
         e.Commit()
     t2 = time.time()
 

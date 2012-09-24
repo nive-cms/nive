@@ -16,9 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 
-__doc__ = ""
-
 import weakref
+import os
+import uuid
 from StringIO import StringIO
 
 from nive.utils.utils import BREAK, STACKF
@@ -29,29 +29,37 @@ from nive.utils.utils import GetMimeTypeExtension, GetExtensionMimeType, Convert
 
 # FileManager Constants ---------------------------------------------------------------------------
 
-DirectoryCnt = -4                 # directory id range limit
-FileTable = u"pool_files"    # file table name
-FileTableFields = (u"id", u"fileid", u"tag", u"path", u"filename", u"size", u"extension", u"version")
-PoolKeyPos = 2
-Trashcan = u"_trashcan"
-BackupVersion = u"_versions"
-CntVersions = 10
-
-
 class File(object):
     """
-    Simple file maping object. file can be stored as data or stream object
+    File mapping object. The file attribute can be stored as data or readable stream object.
+    This file class is used to map files stored and read from the storage system.
+    
+    Two modes are supported:
+    - BlobFile: Files stored as Blob files in filesystem
+    - TempFile: Temp files to be stored
+    
+    Pass a dictionry to set all attributes as filemeta
     """
 
-    def __init__(self, tag="", filename="", file=None, size=0, path="", extension="", fileid=0, uid="", tempfile=False, mime="", filedict=None, fileentry=None):
-        self.tag = tag
+    def __init__(self, 
+                 filekey="", 
+                 filename="", 
+                 file=None, 
+                 size=0, 
+                 path="", 
+                 extension="", 
+                 fileid=0, 
+                 uid="", 
+                 tempfile=False, 
+                 filedict=None, 
+                 fileentry=None):
+        self.filekey = filekey
         self.filename = filename
         self.file = file
         self.fileid = fileid
         self.uid = str(fileid)
         self.size = size
         self.path = path
-        self.mime = ""
         self.extension = extension
         self.tempfile = tempfile
         if fileentry:
@@ -59,74 +67,79 @@ class File(object):
         else:
             self.fileentry = None
         if filedict:
+            # update attributes from dictionary
             self.update(filedict)
 
+        # file data is set as string -> create string io and mark as tempfile
         if isinstance(self.file, basestring):
+            self.size = len(self.file)
             self.file = StringIO(self.file)
+            self.tempfile = True
 
-        if self.filename=="" and self.path!="":
-            p = DvPath(self.path)
-            self.filename = p.GetNameExtension()
-
+        # get extension and file name if not set
+        if self.filename == "" and self.path != "":
+            self.filename = os.path.basename(path)
         if self.filename != "" and self.extension == "":
-            p = DvPath(self.filename)
-            self.extension = p.GetExtension()
+            fileName, fileExtension = os.path.splitext(self.filename)
+            self.extension = fileExtension[1:6]
     
 
-    def SetFromPath(self, path):
-        p = DvPath(path)
+    def isTempFile(self):
+        return self.tempfile
+    
+    def abspath(self):
+        return self.fileentry()._Path(self)
+
+    def fromPath(self, path):
+        """
+        Set temp file and load file values from file path
+        """
         if self.filename == "":
-            self.filename = p.GetNameExtension()
-            self.extension = p.GetExtension()
+            self.filename = os.path.basename(path)
+            f, fileExtension = os.path.splitext(path)
+            self.extension = fileExtension[1:6]
         if self.size == 0:
+            p = DvPath(path)
             self.size = p.GetSize()
         self.tempfile = True
-        self.path = path
+        self.file = open(path, "rb")
 
 
     def read(self, size=-1):
-        if not self.file and not size:
-            file = open(self.path)
-            data = file.read()
-            file.close()
-            return data
-        elif not size:
-            data = self.file.read()
-            self.file.close()
-            self.file = None
-            return data
-        elif not self.file:
-            self.file = open(self.path)
+        # 1) read temp file
+        if self.isTempFile():
+            if not self.file:
+                # error no file 
+                raise IOError("Tempfile is none")
             data = self.file.read(size)
-            if not size:
-                self.file.close()
-                self.file = None
             return data
-        if self.file.closed:
-            self.file = open(self.path)
-            data = self.file.read(size)
-            if not size:
-                self.file.close()
-                self.file = None
-            return data
-        return self.file.read(size)
-    
-    
+            
+        # 2) read blob file
+        if not self.file:
+            # read all
+            file = open(self.fileentry()._Path(self))
+            if size < 1 or size == None:
+                data = file.read()
+                file.close()
+                return data
+            self.file = file
+        data = self.file.read(size)        
+        return data
+ 
     def seek(self, offset):
         if not self.file:
             return
         self.file.seek(offset)
 
-
     def tell(self):
         if not self.file:
             return 0
         return self.file.tell()
-    
 
     def close(self):
         if self.file:
             self.file.close()
+
 
     def __iter__(self):
         return iter(self.__dict__.keys())
@@ -151,21 +164,32 @@ class FileManager:
     Data Pool File Manager class for SQL Database with version support.
 
     Files are stored in filesystem, aditional information in database table.
-    Table "pool_files" ("id", "fileid", "tag", "path", "filename", "size", "extension", "version").
+    Table "pool_files" ("id", "fileid", "filekey", "path", "filename", "size", "extension", "version").
     Field path stores internal path to the file in filesystem without root.
 
     Preperty descriptions are dictionaries with key:value pairs.
     Property values:
     id = unit id to store file for (id is required)
     version = the version of the file
-    tag = custom value
+    filekey = custom value
 
     key:
-    id_tag_version_backup
+    id_filekey_version
 
     directory structure:
-    root/id[-4:-2]00/id_tag_version.ext
+    root/id[-4:-2]00/id_filekey_version.ext
     """
+
+    DirectoryCnt = -4                 # directory id range limit
+    FileTable = u"pool_files"    # file table name
+    FileTableFields = (u"id", u"fileid", u"filekey", u"path", u"filename", u"size", u"extension", u"version")
+    Trashcan = u"_trashcan"
+    
+    def GetFileClass(self):
+        """
+        Returns the required file class for File object instantiation 
+        """
+        return File
 
     def SetRoot(self, root):
         """
@@ -178,8 +202,6 @@ class FileManager:
         self.root.AppendSeperator()
         self.root.CreateDirectoriesExcp()
 
-    def GetFileClass(self):
-        return File
 
     # Searching --------------------------------------------------------------
 
@@ -194,9 +216,9 @@ class FileManager:
         """
         search files
         """
-        flds = FileTableFields
+        flds = self.FileTableFields
         kw["singleTable"] = 1
-        sql = self.GetSQLSelect(flds, parameter, dataTable=FileTable, sort = sort, start=start, max=max, ascending = ascending, **kw)
+        sql = self.GetSQLSelect(flds, parameter, dataTable=self.FileTable, sort = sort, start=start, max=max, ascending = ascending, **kw)
         files = self.Query(sql)
         f2 = []
         for f in files:
@@ -206,19 +228,19 @@ class FileManager:
 
     # Internal --------------------------------------------------------------
 
-    def GetSystemPath(self, file, path="", absolute = True, includeTemp = True):
+    def _GetSystemPath(self, file, path="", absolute = True, includeTemp = True):
         """
         Get the physical path of the file. Checks the database.
         """
         if file and file.tempfile:
-            return file[u"path"]
+            return file.path
         elif file:
-            if absolute and file[u"path"][:len(str(self.root))] != str(self.root):
+            if absolute and file.path[:len(str(self.root))] != str(self.root):
                 path = DvPath(str(self.root))
                 path.AppendSeperator()
-                path.Append(file[u"path"])
+                path.Append(file.path)
             else:
-                path = DvPath(file[u"path"])
+                path = DvPath(file.path)
             return path.GetStr()
         else:
             p = DvPath()
@@ -236,13 +258,13 @@ class FileManager:
         """
         files = self.SearchFiles({u"id":id}, sort=u"id")
         for f in files:
-            aOriginalPath = DvPath(self.GetSystemPath(None, path=f["path"]))
-            if aOriginalPath.Exists() and not self._MoveToTrashcan(aOriginalPath, id):
+            originalPath = DvPath(self._GetSystemPath(None, path=f["path"]))
+            if originalPath.Exists() and not self._MoveToTrashcan(originalPath, id):
                 #"Delete failed!"
                 pass
         if len(files):
-            aSql = u"delete from %s where id = %d" % (FileTable, id)
-            self.Query(aSql, cursor=cursor)
+            sql = u"delete from %s where id = %d" % (self.FileTable, id)
+            self.Query(sql, cursor=cursor)
         return True
 
 
@@ -250,8 +272,8 @@ class FileManager:
         """
         construct directory path without root
         """
-        return (u"%06d" % (id))[DirectoryCnt:-2] + u"00/" + (u"%06d" % (id))[DirectoryCnt+2:]
-        #return ("%06d" % (id))[DirectoryCnt:-2] + "00"
+        return (u"%06d" % (id))[self.DirectoryCnt:-2] + u"00/" + (u"%06d" % (id))[self.DirectoryCnt+2:]
+        #return ("%06d" % (id))[self.DirectoryCnt:-2] + "00"
 
 
     def _MoveToTrashcan(self, path, id):
@@ -265,22 +287,11 @@ class FileManager:
         return path.Rename(str(aP))
 
 
-    def _GetBackupDirectory(self, id):
-        aP = DvPath()
-        aP.SetStr(str(self.root))
-        aP.AppendSeperator()
-        aP.AppendDirectory(BackupVersion)
-        aP.AppendSeperator()
-        aP.AppendDirectory(self._GetDirectory(id))
-        aP.AppendSeperator()
-        return aP
-
-
     def _GetTrashcanDirectory(self, id):
         aP = DvPath()
         aP.SetStr(str(self.root))
         aP.AppendSeperator()
-        aP.AppendDirectory(Trashcan)
+        aP.AppendDirectory(self.Trashcan)
         aP.AppendSeperator()
         aP.AppendDirectory(self._GetDirectory(id))
         aP.AppendSeperator()
@@ -291,10 +302,12 @@ class FileManager:
 
 class FileEntry:
     """
-    File container class
+    Data pool entry extension to handle physical files. 
+    
+    This class provides all functions to store and read files from the backend. Each file
+    is stored with a key (a field name like and other data field) and loaded and stored using
+    the `File` container class. The file entry has no restrictions on the number of files.
     """
-
-    # Searching and file meta-------------------------------------------------------------------------
 
     def Files(self, param={}):
         """
@@ -302,33 +315,26 @@ class FileEntry:
         Returns a dictionary.
         """
         param[u"id"] = self.id
-        operators={u"tag":u"=", u"version":u"=", "filename": u"="}
-        if param.has_key(u"version") and type(param[u"version"]) in (type(()), type([])):
-            BREAK("version")
-            operators[u"version"] = u"in"
-        sql = self.pool.GetSQLSelect(FileTableFields, param, dataTable=FileTable, operators=operators, singleTable=1)
+        operators={u"filekey":u"=", "filename": u"="}
+        sql = self.pool.GetSQLSelect(self.pool.FileTableFields, param, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
         recs = self.pool.Query(sql)
         if len(recs) == 0:
             return []
         files = []
         for f in recs:
-            d = self.pool.ConvertRecToDict(f, FileTableFields)
-            file = File(d["tag"], filedict=d, fileentry=self)
-            file.path = self.pool.GetSystemPath(file, True)
+            d = self.pool.ConvertRecToDict(f, self.pool.FileTableFields)
+            file = File(d["filekey"], filedict=d, fileentry=self)
             files.append(file)
         return files
 
 
-    def GetTags(self):
+    def FileKeys(self):
         """
-        return all existing file tags as list
+        return all existing file keys as list
         """
-        aFlds = u"tag"
-        if self.version:
-            BREAK("version")
-        aSql = u"select %s from %s where id = %d group by tag" % (aFlds, FileTable, self.id)
+        sql = u"select filekey from %s where id = %d group by filekey" % (self.pool.FileTable, self.id)
 
-        aList = self.pool.Query(aSql)
+        aList = self.pool.Query(sql)
         if len(aList) == 0:
             return []
         l = []
@@ -337,26 +343,14 @@ class FileEntry:
         return l
 
 
-    def GetFileID(self, file):
-        """
-        lokkup unique fileid for file
-        """
-        f = self.Files(param={"tag":file.tag})
-        if len(f)==0:
-            return 0
-        return f[0]["fileid"]
-         
-         
-    # Read File --------------------------------------------------------------------
-
-    def GetFile(self, tag):
+    def GetFile(self, key):
         """
         return the meta file informations from db or None if no
         matching record found
         """
-        if not tag or tag == u"":
+        if not key or key == u"":
             return None
-        param = {u"tag": tag}
+        param = {u"filekey": key}
         files = self.Files(param)
         if len(files)==0:
             return None
@@ -364,260 +358,72 @@ class FileEntry:
         return file
 
 
-    def GetFileData(self, tag=None, fileid=None):
-        """
-        Get the file matching the prop description
-        """
-        file = self.GetFile(tag)
-        if not file:
-            return None
-        data = file.read()
-        file.close()
-        return data
-
-
     # Store File --------------------------------------------------------------------
 
-    def SetFile(self, tag, file, cursor=None):
+    def CommitFiles(self, files, cursor=None):
         """
-        Store the file under tag. File can either be a path, dictionary with file informations 
+        Commit multiple files in a row
+        """
+        for key, file in files.items():
+            self.CommitFile(key, file, cursor=cursor)
+
+
+    def CommitFile(self, key, file, cursor=None):
+        """
+        Store the file under key. File can either be a path, dictionary with file informations 
         or a File object.
         """
-        if not self.IsTagValid(tag):
-            #self.err = u"Invalid Tag!"
-            return False
+        if key in (u"", None):
+            raise IOError("File key invalid")
 
         # convert to File object
         if isinstance(file, dict):
-            file = File(tag, filedict=file, fileentry=self)
+            file = File(key, filedict=file, fileentry=self)
         elif isinstance(file, basestring):
             # load from temp path
-            f = File(tag, fileentry=self)
-            f.SetFromPath(file)
+            f = File(key, fileentry=self)
+            f.fromPath(file)
             file = f
         else:
-            file.tag = tag
+            file.filekey = key
 
-        return self._SetStream(file)
-
-
-    def UpdateFileMeta(self, file):
-        """
-        store file meta information in database table
-        """
-        if not self.IsTagValid(file.tag):
-            #self.err = u"Invalid Tag!"
-            return False
-        aInternalPath = self._CutInternalPath(str(file.path))
-        version = u"" #
-        
-        ph = self.pool.GetPlaceholder()
+        # lookup exiting file to replace
         if file.fileid == 0:
-            fileid = self.GetFileID(file)
+            fileid = self._LookupFileID(file, cursor)
+            file.fileid = fileid
         else:
             fileid = file.fileid
-        if fileid:
-            aSql = u"""UPDATE %(table)s SET
-                    filename = %(ph)s,
-                    path = %(ph)s,
-                    tag = %(ph)s,
-                    extension = %(ph)s,
-                    version = %(ph)s,
-                    size = %(ph)s
-                    WHERE fileid = %(ph)s and id = %(ph)s
-                    """ % {u"table":FileTable, u"ph":ph}
-            values = (file.filename,
-                    aInternalPath,
-                    file.tag,
-                    file.extension,
-                    version,
-                    file.size,
-                    fileid,
-                    self.id)
-            self.pool.Query(aSql, values)
-        else:
-            aSql = u"""INSERT INTO %(table)s
-                    (id,
-                    filename,
-                    path,
-                    tag,
-                    extension,
-                    version,
-                    size)
-                    VALUES
-                    (%(ph)s, %(ph)s, %(ph)s, %(ph)s, %(ph)s, %(ph)s, %(ph)s)
-                    """ % {u"table":FileTable, u"ph":ph}
-            values = (self.id,
-                    file.filename,
-                    aInternalPath,
-                    file.tag,
-                    file.extension,
-                    version,
-                    file.size)
-            self.pool.Query(aSql, values)
+        
+        # update file records
+        self._Write(file)
+        self._UpdateMeta(file, cursor=cursor)
         return True
 
 
-    # Options --------------------------------------------------------------------
-
-    def FileExists(self, file):
+    def _Write(self, file):
         """
-        check if the file physically exists
+        This functions writes the file to the pool directory. If the file is not marked
+        as tempfile, nothing is written.
+        
+        Files are processed in the following order:
+        - a temp path is created
+        - the file is written to this path
+        - the original file is renamed to be deleted on success and stored as `file.deleteOnSuccess`
+        - the tempfile is renamed to the original path
+        - the original file can be removed by calling `Cleanup()`
         """
-        if isinstance(file, basestring):
-            path = DvPath(self.GetPath(file))
-            return path.Exists()
-        aP = DvPath(self.pool.GetSystemPath(file))
-        return aP.Exists()
-            
-
-    def IsTagValid(self, tag):
-        """
-        validate tag
-        """
-        if tag in (u"", None):
-            return False
-        return True
-
-
-    def CopyFile(self, file, newPath):
-        """
-        Returns the physical path of the file or copies it to newpath if set
-        """
-        if not newPath:
-            return False
-        if isinstance(file, basestring):
-            path = DvPath(self.GetPath(file))
-        else:
-            path = DvPath(self.pool.GetSystemPath(file))
-        try:
-            return path.Copy(newPath)
-        except Exception, e:
-            pass
-        return False
-
-
-    def DuplicateFile(self, newEntry, parameter = {}, replaceExisting = True):
-        """
-        Copy the file
-        If tag = "" all files are copied
-        """
-        aFiles = self.Files(parameter)
-        result = True
-        for f in aFiles:
-            if not self.FileExists(f):
-                result = False
-                continue
-
-            #p = self.pool.GetPropertiesFromMeta(f)
-            if newEntry.FileExists(f[u"tag"]):
-                if not replaceExisting:
-                    #u"File exists!"
-                    result = False
-                    continue
-
-            if not newEntry.SetFile(f[u"tag"], self.pool.GetSystemPath(f)):
-                #u"File copy error!"
-                result = False
-        return result
-
-
-    def DeleteFile(self, tag):
-        """
-        Delete the file with the prop description
-        """
-        self.files.set(tag, None)
-        aMeta = self.GetFile(tag)
-        if not aMeta:
-            #not found
-            return False
-        aOriginalPath = DvPath(self.pool.GetSystemPath(aMeta))
-        if not aOriginalPath.IsFile():
-            #not a file
-            return False
-        if aOriginalPath.Exists() and not self.pool._MoveToTrashcan(aOriginalPath, self.id):
-            #Delete failed!
-            return False
-
-        aSql = u"delete from %s where fileid = %d" % (FileTable, aMeta[u"fileid"])
-        self.pool.Query(aSql)
-        return True
-
-
-    # Path handling --------------------------------------------------------------------
-
-    def GetPath(self, file, absolute = True):
-        """
-        Get the physical path of the file. Checks the database.
-        """
-        if isinstance(file, basestring):
-            file = self.GetFile(file)
-        if not file:
-            return u""
-        return self.pool.GetSystemPath(file, absolute)
-
-
-    # Backups -------------------------------------------------------------------------
-
-    def GetRecentBackup(self, tag):
-        """
-        Lookup the last version of the file in the vesion bakup folder
-        """
-        aFile = DvPath(self._CreatePath(tag, u"", backup=u"*"))
-
-        # get version path
-        aP = self._GetBackupDirectory()
-        aP.SetNameExtension(aFile.GetNameExtension())
-
-        # loop all files
-        aVersion = 0
-        if not aP.FindFirst():
-            return aVersion
-        aVersionProp = self.pool.ConvertPathToProp(str(aP))
-        aVersion = int(aVersionProp.get(u"backup"))
-        while aP.FindNext():
-            aVersionProp = self.pool.ConvertPathToProp(str(aP))
-            if int(aVersionProp.get(u"backup")) > aVersion:
-                aVersion = int(aVersionProp.get(u"backup"))
-        return aVersion
-
-
-    def GetBackups(self, tag):
-        """
-        Lookup all versions of the file in the vesion bakup folder
-        """
-        aFile = DvPath(self._CreatePath(tag, u"", backup=u"*"))
-
-        # get version path
-        aP = self._GetBackupDirectory()
-        aP.SetNameExtension(aFile.GetNameExtension())
-
-        # get all files
-        aFiles = aP.FindFiles()
-        return aFiles
-
-
-    # internal --------------------------------------------------------------------
-
-    def _SetStream(self, file, cursor=None):
-        """
-        Save the stream. the prop description is extracted from stream meta settings
-        Mime type is used if the filename has no extension. basically
-        the extension is converted to mime type
-
-        *tempfile = True
-        the file is stored as temp file. the functions filemaeta for new file including
-        the temporary path. fielmeta is not updated in database.
-
-        """
-        # get the filename and extension
-        extension = file.extension
-        if not extension or extension == u"" and file.mime:
-            extension = GetExtensionMimeType(file.mime)
-
-        tempPath = DvPath(self._CreatePath(file.tag, file.filename))
-        finalPath = str(tempPath)
-        tempPath.SetName(u"_temp_" + tempPath.GetName())
+        if not file.isTempFile():
+            # nothing to write -> return
+            return True
+        
+        # create temp path for current
+        backupPath = None
+        originalPath = DvPath(self._Path(file))
+        
+        newPath = DvPath(self._CreatePath(file.filekey, file.filename))
+        tempPath = DvPath(str(newPath))
+        tempPath.SetName(u"_temp_" + unicode(uuid.uuid4()))
+        tempPath.SetExtension(newPath.GetExtension())
 
         if tempPath.Exists():
             tempPath.Delete()
@@ -639,45 +445,176 @@ class FileEntry:
             except: pass
             # reset old file
             tempPath.Delete()
-            return False
+            raise
 
-        # delete existing file
-        originalPath = DvPath(finalPath)
-        if originalPath.Exists() and not self._MakeBackup(file.tag, originalPath):
-            #u"Delete failed!"
-            return False
-        # rename temp path
-        if not size:
-            size = tempPath.GetSize()
-        result = tempPath.Rename(finalPath)
-        if not result:
+        # store path for cleanup on success
+        if str(originalPath) and originalPath.Exists():
+            backupPath = DvPath(str(originalPath))
+            backupPath.SetName("_del_" + unicode(uuid.uuid4()))
+            backupPath.SetExtension(originalPath.GetExtension())
+            if originalPath.Exists() and not originalPath.Rename(backupPath):
+                tempPath.Delete()
+                raise IOError, "Rename file failed"
+            file.deleteOnSuccess = str(backupPath)
+
+        try:
+            # rename temp path
+            os.renames(str(tempPath), str(newPath))
+            # update meta properties
+            file.path = self._RelativePath(str(newPath))
+            file.size = size
+            return True
+        except:
             tempPath.Delete()
-            #u"Rename failed!"
-            return False
-        # update meta properties
-        file.path = str(finalPath)
-        file.size = size
-        self.UpdateFileMeta(file)
-        self.Touch()
+            if backupPath:
+                backupPath.Rename(originalPath)
+            raise
+
+
+    def _UpdateMeta(self, file, cursor):
+        """
+        store file meta information in database table
+        """
+        data = {
+            "filename": file.filename,
+            "path": file.path,
+            "filekey": file.filekey,
+            "extension": file.extension,
+            "size": file.size
+        }
+        if file.fileid:
+            file.fileid = self.pool.UpdateFields(self.pool.FileTable, file.fileid, data, cursor=cursor, idColumn=u"fileid")
+        else:
+            data["id"] = self.id
+            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, getInsertIDValue=True)
         return True
 
 
-    def _GetKey(self, tag, backup = None):
+    def Cleanup(self, files):
+        """
+        Cleanup tempfiles after succesful writes
+        """
+        if not isinstance(files, dict):
+            files = {"":files}
+        for key, file in files.items():
+            if not hasattr(file, "deleteOnSuccess"):
+                continue
+            path = DvPath(file.deleteOnSuccess)
+            try:
+                path.Delete()
+            except:
+                pass
+
+    
+    # Options --------------------------------------------------------------------
+
+    def FileExists(self, file):
+        """
+        check if the file physically exists
+        """
+        path = DvPath(self._Path(file))
+        return path.Exists()
+            
+
+    def CopyFile(self, file, newPath):
+        """
+        Returns the physical path of the file or copies it to newpath if set
+        """
+        if not newPath:
+            return False
+        path = DvPath(self._Path(file))
+        try:
+            return path.Copy(newPath)
+        except Exception, e:
+            pass
+        return False
+
+
+    def DuplicateFile(self, newEntry, parameter = {}, replaceExisting = True):
+        """
+        Copy the file
+        If filekey = "" all files are copied
+        """
+        aFiles = self.Files(parameter)
+        result = True
+        for f in aFiles:
+            if not self.FileExists(f):
+                result = False
+                continue
+
+            #p = self.pool.GetPropertiesFromMeta(f)
+            if newEntry.FileExists(f[u"filekey"]):
+                if not replaceExisting:
+                    #u"File exists!"
+                    result = False
+                    continue
+
+            if not newEntry.CommitFile(f[u"filekey"], self.pool._GetSystemPath(f)):
+                #u"File copy error!"
+                result = False
+        return result
+
+
+    def DeleteFile(self, key):
+        """
+        Delete the file with the prop description
+        """
+        self.files.set(key, None)
+        file = self.GetFile(key)
+        if not file:
+            #not found
+            return False
+        if not file.fileid:
+            fileid = self._LookupFileID(file)
+            if not fileid:
+                return True
+            file.fileid = fileid
+        
+        originalPath = DvPath(self.pool._GetSystemPath(file))
+        if not originalPath.IsFile():
+            #not a file
+            return False
+        if originalPath.Exists() and not self.pool._MoveToTrashcan(originalPath, self.id):
+            #Delete failed!
+            return False
+        
+        sql = u"delete from %s where fileid = %d" % (self.pool.FileTable, file.fileid)
+        self.pool.Query(sql)
+        return True
+
+
+    # internal --------------------------------------------------------------------
+
+    def _Path(self, file, absolute = True):
+        """
+        Get the physical path of the file. Checks the database.
+        """
+        if isinstance(file, basestring):
+            file = self.GetFile(file)
+        if not file:
+            return u""
+        return self.pool._GetSystemPath(file, absolute)
+
+
+    def _LookupFileID(self, file, cursor=None):
+        """
+        lookup unique fileid for file
+        """
+        f = self.Files(param={"filekey":file.filekey})
+        if len(f)==0:
+            return 0
+        return f[0]["fileid"]
+         
+         
+    def _FmtFilename(self, key):
         """
         Constructs the key for the file. Used as filename.
         """
         aID = u"%06d" % (self.id)
-        version = ""
-        if self.version:
-            BREAK("version")
-        backup = u""
-        if backup:
-            backup = u"_" + backup
-
-        return u"%s_%s_%s%s" % (aID, tag, version, backup)
+        return u"%s_%s_" % (aID, key)
 
 
-    def _CreatePath(self, tag, filename, backup = None):
+    def _CreatePath(self, key, filename):
         """
         Create the physical path of the file
         """
@@ -689,7 +626,7 @@ class FileEntry:
         aP.AppendDirectory(self._GetDirectory())
         aP.AppendSeperator()
 
-        aP.SetName(self._GetKey(tag, backup))
+        aP.SetName(self._FmtFilename(key))
         aP.SetExtension(aExtension)
         return aP.GetStr()
 
@@ -697,43 +634,11 @@ class FileEntry:
     def _GetDirectory(self):
         return self.pool._GetDirectory(self.id)
 
-    def _GetBackupDirectory(self):
-        return self.pool._GetBackupDirectory(self.id)
-
     def _GetTrashcanDirectory(self):
         return self.pool._GetTrashcanDirectory(self.id)
 
-
-    def _CutInternalPath(self, path):
+    def _RelativePath(self, path):
         p = path[len(str(self.pool.root)):]
         p = p.replace(u"\\", u"/")
         return p
 
-
-    def _MakeBackup(self, tag, path):
-        if not self.pool.useBackups:
-            return path.Delete()
-
-        aFile = path
-        aP = self._GetBackupDirectory()
-        aP.SetNameExtension(aFile.GetNameExtension())
-        result = path.Rename(str(aP))
-
-        # delete versions
-        aVersions = self.GetBackups(tag)
-        aV = 1
-        if len(aVersions) > CntVersions:
-            # find lowest number
-            aDel = ""
-            for p in aVersions:
-                aVersionProp = self.pool.ConvertPathToProp(p)
-                if int(aVersionProp.get(u"backup")) < aV:
-                    aV = int(aVersionProp.get(u"backup"))
-                    aDel = p
-            if aDel != u"":
-                aP = self._GetBackupDirectory()
-                aP.SetNameExtension(aDel)
-                #if aP.Exists():
-                aP.Delete()
-
-        return result

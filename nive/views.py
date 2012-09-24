@@ -349,13 +349,14 @@ class BaseView(object):
         """
         if not file:
             return HTTPNotFound()
+        path = file.abspath()
         try:
-            last_mod = os.path.getmtime(file.path)
+            last_mod = os.path.getmtime(path)
         except:
             last_mod = self.context.meta.pool_change
         r = Response(content_type=str(GetMimeTypeExtension(file.extension)), conditional_response=True)
         if file.path:
-            r.app_iter = FileIterable(file.path)
+            r.app_iter = FileIterable(path)
         else:
             r.body = file.read()
         r.content_length = file.size

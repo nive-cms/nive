@@ -107,14 +107,14 @@ class objTest_db:
         # create
         user = User(u"test")
 
-        # testing SetFile()
+        # testing StoreFile()
         o1 = createObj2(r)
         o2 = createObj2(r)
         o1.Update(data2_1, user)
         o2.Update(data2_2, user)
-        o1.SetFile(u"file1", File(**file2_1), user=user)
-        o1.SetFile(u"file2", File(**file2_2), user=user)
-        o2.SetFile(u"file2", File(**file2_2), user=user)
+        o1.StoreFile(u"file1", File(**file2_1), user=user)
+        o1.StoreFile(u"file2", File(**file2_2), user=user)
+        o2.StoreFile(u"file2", File(**file2_2), user=user)
         self.assert_(o1.GetFld(u"ftext")==data2_1[u"ftext"])
         self.assert_(o1.GetFld(u"title")==data2_1[u"title"])
         self.assert_(o1.GetFile(u"file1").filename==file2_1["filename"])
@@ -223,7 +223,7 @@ class objTest_db:
 
         # testing undo
         o1 = createObj2(r)
-        o1.SetFile(u"file1", File(**file2_1), user=user)
+        o1.StoreFile(u"file1", File(**file2_1), user=user)
         d = data2_2.copy()
         d[u"file1"] = File(**file2_2)
         data, meta, files = o1.SplitData(d)

@@ -139,6 +139,11 @@ class MySql(FileManager, Base):
     defaultConnection = MySqlConnThreadLocal
 
 
+    def _GetInsertIDValue(self, cursor):
+        cursor.execute(u"SELECT LAST_INSERT_ID()")
+        return cursor.fetchone()[0]
+
+               
     def _CreateNewID(self, table = u"", dataTbl = None):
         #
         aC = self.connection.cursor()
