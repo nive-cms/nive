@@ -1097,7 +1097,7 @@ class Search:
         return recs
 
 
-    #[s] Name / ID lookup -----------------------------------------------------------
+    # Name / ID lookup -----------------------------------------------------------
 
     def FilenameToID(self, filename, unitref=None, parameter={}, firstResultOnly=True, operators={}):
         """

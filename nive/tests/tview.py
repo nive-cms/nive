@@ -58,7 +58,6 @@ class viewTest(unittest.TestCase):
         
         #files
         view.File()
-        view.FileByID("file1")
         file = self.context2.GetFile("file1")
         view.SendFile(file)
 

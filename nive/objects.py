@@ -123,22 +123,26 @@ class Object(object):
         return None
 
 
-    def GetFile(self, fldname):
+    def GetFile(self, fldname, loadFileData=False):
         """
         Get the file as `File` object with meta information. The included file 
         pointer is opened on read. 
+        This functions dierctly acceses the database and omits files files cached in 
+        object.files.
         
         returns File object or None
         """
-        return self.files.get(fldname)
+        return self.dbEntry.GetFile(fldname, loadFileData)
 
     def GetFileByName(self, filename):
         """
         Get a file by filename. See GetFile() for details.
+        This functions dierctly acceses the database and omits files files cached in 
+        object.files.
         
         returns File object or None
         """
-        file = self.dbEntry.Files(param={u"filename":filename})
+        file = self.dbEntry.Files(parameter={u"filename":filename})
         if not len(file):
             return None
         return file[0]
@@ -146,10 +150,12 @@ class Object(object):
     def GetFileByUID(self, uid):
         """
         Get a file by uid. Only for files contained in this object. See GetFile() for details.
+        This functions dierctly acceses the database and omits files files cached in 
+        object.files.
         
         returns File object or none
         """
-        file = self.dbEntry.Files(param={u"fileid":uid})
+        file = self.dbEntry.Files(parameter={u"fileid":uid})
         if not len(file):
             return None
         return file[0]

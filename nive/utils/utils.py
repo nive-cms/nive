@@ -400,19 +400,14 @@ def CutText(text, textlen, cutchars=[" ", ",", ".", "\r"]):
 
 def FormatBytesForDisplay(size):
     """Return the size of a file or directory formatted for display."""
-    if size is None: return u'-' * 5
-    if size == -1: return u'(unknown)'
-    k = 1024.0
-    if (size > k):
-        size = size / k
-        if (size > k):
-            size = size / k
-            return u'%.1f MB' % size
-        else:
-            return u'%.1f kb' % size
-    else:
-        return u'%d bytes' % size
-
+    if size in (None,-1,0):
+        return u""
+    if size == 1:
+        return u"1 byte"
+    for factor, suffix in ((1<<30L, u"GB"),(1<<20L, u"MB"),(1<<10L, u"kB"),(1, u"bytes")):
+        if size >= factor:
+            break
+    return u"%d %s" % (size / factor, suffix)
 
 def FmtSeconds(seconds):
     # Format seconds for display

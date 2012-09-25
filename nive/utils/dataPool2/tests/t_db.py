@@ -208,9 +208,9 @@ class dbTest:
 
         self.assertItemsEqual(e.FileKeys(), [u"file1",u"file2"])
 
-        self.assert_(e.FileExists(u"file1"))
-        self.assert_(e.FileExists(u"file2"))
-        self.assert_(e.FileExists(u"file_xxx")==False)
+        self.assert_(e.FileExists(e.GetFile(u"file1")))
+        self.assert_(e.FileExists(e.GetFile(u"file2")))
+        self.assert_(e.FileExists(e.GetFile(u"file_xxx"))==False)
 
         self.assert_(e.GetFile(u"file1").filename==u"file1.txt")
         self.assert_(e.GetFile(u"file2").filename==u"file2.txt")
@@ -452,7 +452,8 @@ class dbTest:
                         start=1,
                         max=123)
         self.pool.Query(sql)
-        self.pool.QueryRaw(sql)
+        c=self.pool.Execute(sql)
+        c.close()
         #print "OK"
 
         #print "GetSQLSelect singleTable",
@@ -466,7 +467,8 @@ class dbTest:
                                      max=123,
                                      singleTable=1)
         self.pool.Query(sql)
-        self.pool.QueryRaw(sql)
+        c=self.pool.Execute(sql)
+        c.close()
         #print "OK"
 
         #print "GetFulltextSQL",
@@ -477,7 +479,8 @@ class dbTest:
                             ascending = 1,
                             dataTable = u"data1")
         self.pool.Query(sql)
-        self.pool.QueryRaw(sql)
+        c=self.pool.Execute(sql)
+        c.close()
         #print "OK"
 
 

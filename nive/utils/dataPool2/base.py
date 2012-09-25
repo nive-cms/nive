@@ -515,23 +515,20 @@ class Base(object):
         return set2
 
 
-    def QueryRaw(self, sql, values = None, cursor=None, getResult=True):
+    def Execute(self, sql, values = None, cursor=None):
         """
-        execute a query on the database.
+        Execute a query on the database. Returns the dbapi cursor. Use `cursor.fetchall()` or
+        `cursor.fetchone()` to retrieve results. The cursor should be closed after usage.
         """
-        cc=True
-        if cursor:
-            c = cursor
-            cc=False
-        else:
-            c = self.connection.cursor()
+        if not cursor:
+            cursor = self.connection.cursor()
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         # adjust different accepted empty values sets
         if not values:
             values = self.EmptyValues
         try:
-            c.execute(sql, values)
+            cursor.execute(sql, values)
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
@@ -539,14 +536,7 @@ class Base(object):
             # map to nive.utils.dataPool2.base.OperationalError
             self.Undo()
             raise ProgrammingError, e
-        if not getResult:
-            if cc:
-                c.close()
-            return
-        l = c.fetchall()
-        if cc:
-            c.close()
-        return l
+        return cursor
 
 
     def InsertFields(self, table, data, cursor = None, getInsertIDValue = False):
@@ -1497,7 +1487,7 @@ class Entry(object):
 
     # Files -------------------------------------------------------------------------------------------
 
-    def DuplicateFile(self, newEntry):
+    def DuplicateFiles(self, newEntry):
         """
         """
         BREAK("subclass")
@@ -1531,7 +1521,7 @@ class Entry(object):
 
         # check if entry contains file and file exists
         if duplicateFiles:
-            if not self.DuplicateFile(newEntry):
+            if not self.DuplicateFiles(newEntry):
                 self.pool.DeleteEntry(id)
                 del newEntry
                 return None

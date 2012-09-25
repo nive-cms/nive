@@ -230,11 +230,13 @@ class FileManager:
 
     def _GetSystemPath(self, file, path="", absolute = True, includeTemp = True):
         """
-        Get the physical path of the file. Checks the database.
+        Constructs the physical path of the file.
         """
         if file and file.tempfile:
-            return file.path
+            return u""
         elif file:
+            if not file.path:
+                return u""
             if absolute and file.path[:len(str(self.root))] != str(self.root):
                 path = DvPath(str(self.root))
                 path.AppendSeperator()
@@ -242,7 +244,7 @@ class FileManager:
             else:
                 path = DvPath(file.path)
             return path.GetStr()
-        else:
+        elif path:
             p = DvPath()
             if absolute and path[:len(str(self.root))] != str(self.root):
                 p = DvPath(str(self.root))
@@ -250,6 +252,7 @@ class FileManager:
                 p.Append(path)
                 return p.GetStr()
             return path
+        return u""
 
 
     def _DeleteFiles(self, id, cursor=None, version=None):
@@ -258,13 +261,13 @@ class FileManager:
         """
         files = self.SearchFiles({u"id":id}, sort=u"id")
         for f in files:
-            originalPath = DvPath(self._GetSystemPath(None, path=f["path"]))
-            if originalPath.Exists() and not self._MoveToTrashcan(originalPath, id):
-                #"Delete failed!"
-                pass
+            if f["path"]:
+                originalPath = DvPath(self._GetSystemPath(None, path=f["path"]))
+                if originalPath.Exists() and not self._MoveToTrashcan(originalPath, id):
+                    pass
         if len(files):
             sql = u"delete from %s where id = %d" % (self.FileTable, id)
-            self.Query(sql, cursor=cursor)
+            self.Query(sql, cursor=cursor, getResult=False)
         return True
 
 
@@ -309,14 +312,16 @@ class FileEntry:
     the `File` container class. The file entry has no restrictions on the number of files.
     """
 
-    def Files(self, param={}):
+    def Files(self, parameter=None, cursor=None, loadFileData=False):
         """
         List all files matching the parameters.
         Returns a dictionary.
         """
-        param[u"id"] = self.id
+        if not parameter:
+            parameter = {}
+        parameter[u"id"] = self.id
         operators={u"filekey":u"=", "filename": u"="}
-        sql = self.pool.GetSQLSelect(self.pool.FileTableFields, param, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
+        sql = self.pool.GetSQLSelect(self.pool.FileTableFields, parameter, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
         recs = self.pool.Query(sql)
         if len(recs) == 0:
             return []
@@ -343,15 +348,18 @@ class FileEntry:
         return l
 
 
-    def GetFile(self, key):
+    def GetFile(self, key, fileid=None, loadFileData=False):
         """
         return the meta file informations from db or None if no
         matching record found
         """
         if not key or key == u"":
             return None
-        param = {u"filekey": key}
-        files = self.Files(param)
+        if fileid!=None:
+            parameter = {u"fileid":fileid}
+        else:
+            parameter = {u"filekey": key}
+        files = self.Files(parameter, loadFileData=loadFileData)
         if len(files)==0:
             return None
         file = files[0]
@@ -400,7 +408,7 @@ class FileEntry:
         return True
 
 
-    def _Write(self, file):
+    def _Write(self, file, abortSize=0):
         """
         This functions writes the file to the pool directory. If the file is not marked
         as tempfile, nothing is written.
@@ -434,10 +442,12 @@ class FileEntry:
             data = file.read(10000)
             while data:
                 size += len(data)
+                if abortSize and size > abortSize:
+                    raise IOError, "File too big"
                 out.write(data)
                 data = file.read(10000)
             out.close()
-            file.close()
+            #file.close()
         except:
             try:    file.file.close()
             except: pass
@@ -512,6 +522,10 @@ class FileEntry:
         """
         check if the file physically exists
         """
+        if not file:
+            return False
+        if not file.path:
+            return True
         path = DvPath(self._Path(file))
         return path.Exists()
             
@@ -530,28 +544,25 @@ class FileEntry:
         return False
 
 
-    def DuplicateFile(self, newEntry, parameter = {}, replaceExisting = True):
+    def DuplicateFiles(self, newEntry, replaceExisting = True):
         """
         Copy the file
         If filekey = "" all files are copied
         """
-        aFiles = self.Files(parameter)
+        files = self.Files()
         result = True
-        for f in aFiles:
-            if not self.FileExists(f):
+        for file in files:
+            if not self.FileExists(file):
                 result = False
                 continue
-
-            #p = self.pool.GetPropertiesFromMeta(f)
-            if newEntry.FileExists(f[u"filekey"]):
-                if not replaceExisting:
-                    #u"File exists!"
-                    result = False
-                    continue
-
-            if not newEntry.CommitFile(f[u"filekey"], self.pool._GetSystemPath(f)):
-                #u"File copy error!"
-                result = False
+            if newEntry.FileExists(file) and not replaceExisting:
+                continue
+            newFile = self.pool.GetFileClass()(file=file, filename=file.filename, size=file.size, tempfile=True)
+            try:
+                newEntry.CommitFile(file.filekey, newFile)
+            except:
+                newFile.file = None
+                raise 
         return result
 
 
@@ -562,24 +573,19 @@ class FileEntry:
         self.files.set(key, None)
         file = self.GetFile(key)
         if not file:
-            #not found
+            # not found
             return False
-        if not file.fileid:
-            fileid = self._LookupFileID(file)
-            if not fileid:
-                return True
-            file.fileid = fileid
-        
-        originalPath = DvPath(self.pool._GetSystemPath(file))
-        if not originalPath.IsFile():
-            #not a file
-            return False
-        if originalPath.Exists() and not self.pool._MoveToTrashcan(originalPath, self.id):
-            #Delete failed!
-            return False
+        if file.path:
+            originalPath = DvPath(self._Path(file))
+            if not originalPath.IsFile():
+                #not a file
+                return False
+            if originalPath.Exists() and not self.pool._MoveToTrashcan(originalPath, self.id):
+                #Delete failed!
+                return False
         
         sql = u"delete from %s where fileid = %d" % (self.pool.FileTable, file.fileid)
-        self.pool.Query(sql)
+        self.pool.Query(sql, getResult=False)
         return True
 
 
@@ -600,7 +606,7 @@ class FileEntry:
         """
         lookup unique fileid for file
         """
-        f = self.Files(param={"filekey":file.filekey})
+        f = self.Files(parameter={"filekey":file.filekey})
         if len(f)==0:
             return 0
         return f[0]["fileid"]

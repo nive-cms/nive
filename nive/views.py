@@ -314,6 +314,7 @@ class BaseView(object):
         """
         return {}
     
+    
     # file handling ------------------------------------------------------------------
     
     def file(self):
@@ -328,16 +329,6 @@ class BaseView(object):
         if not len(self.request.subpath):
             raise NotFound
         file = self.context.GetFileByName(self.request.subpath[0])
-        if not file:
-            return self.FileByID(self.request.subpath[0])
-        return self.SendFile(file)
-
-
-    def FileByID(self, fieldID):
-        """
-        Returns the file by id of the current context.
-        """
-        file = self.context.files.get(fieldID)
         if not file:
             raise NotFound
         return self.SendFile(file)
