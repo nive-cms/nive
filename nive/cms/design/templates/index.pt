@@ -60,7 +60,7 @@
         tal:replace="structure cmsview.editBlockPage(context)" />  
   </article>
 
-<div class="footer"><span class="benchmark" tal:content="'%04f'%view.mark2()"/></div>
+<div class="footer"> </div>
 </tal:block>
 </div>
  

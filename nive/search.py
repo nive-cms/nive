@@ -121,7 +121,7 @@ class Search:
         db = self.db
         if pool_type==None:
             dataTable=kw.get("dataTable") or u"pool_meta"
-            sql = db.GetSQLSelect(fields, parameter, dataTable=dataTable, singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
+            sql, values = db.GetSQLSelect(fields, parameter, dataTable=dataTable, singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
         else:
             if not parameter.has_key("pool_type") and not kw.get("dontAddType"):
                 parameter["pool_type"] = pool_type
@@ -130,8 +130,8 @@ class Search:
             typeInf = self.app.GetObjectConf(pool_type)
             if not typeInf:
                 raise ConfigurationError, pool_type + " type not found"
-            sql = db.GetSQLSelect(fields, parameter, dataTable=typeInf["dbparam"], operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
-        recs = db.Query(sql)
+            sql, values = db.GetSQLSelect(fields, parameter, dataTable=typeInf["dbparam"], operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
+        recs = db.Query(sql, values)
         return recs
 
 
@@ -235,14 +235,14 @@ class Search:
         #BREAK(parameter)
         #BREAK(fldList)
         #BREAK(operators)
-        sql = db.GetSQLSelect(fldList, parameter=parameter, operators=operators, 
+        sql, values = db.GetSQLSelect(fldList, parameter=parameter, operators=operators, 
                               sort=sort, ascending=ascending, start=start, max=max, 
                               groupby=kw.get("groupby"), 
                               logicalOperator=kw.get("logicalOperator"), 
                               condition=kw.get("condition"), 
                               join=kw.get("join"))
         #BREAK(sql)
-        records = db.Query(sql)
+        records = db.Query(sql, values)
         #BREAK(records)
 
         # prepare field renderer
@@ -284,21 +284,21 @@ class Search:
         total = len(items)
         if total == max and kw.get("skipCount") != 1:
             if not kw.get("groupby"):
-                sql2 =db.GetSQLSelect([u"-count(*)"], parameter=parameter, operators=operators, 
+                sql2, values =db.GetSQLSelect([u"-count(*)"], parameter=parameter, operators=operators, 
                                       sort=sort, ascending=ascending, start=None, max=None, 
                                       logicalOperator=kw.get("logicalOperator"), 
                                       condition=kw.get("condition"), 
                                       join=kw.get("join"))
                 #BREAK(sql)
-                total = db.Query(sql2)[0][0]
+                total = db.Query(sql2, values)[0][0]
             else:
-                sql2 = db.GetSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
+                sql2, values = db.GetSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
                                        sort=sort, ascending=ascending, start=None, max=None, 
                                        logicalOperator=kw.get("logicalOperator"), 
                                        condition=kw.get("condition"), 
                                        join=kw.get("join"))
                 #BREAK(sql)
-                total = db.Query(sql2)[0][0]
+                total = db.Query(sql2, values)[0][0]
 
         #BREAK(items)
         # prepare result dictionary and paging information
@@ -411,10 +411,10 @@ class Search:
             ct = time.time() - ct
 
             #BREAK(parameter)
-            sql = db.GetSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
+            sql, values = db.GetSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
             #BREAK(fldList)
             #BREAK(sql)
-            aL = db.Query(sql)
+            aL = db.Query(sql, values)
             #BREAK(aL)
 
             # render
@@ -448,13 +448,13 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2 = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+                    total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2 = db.GetSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.GetSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+                    total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
 
@@ -556,10 +556,10 @@ class Search:
             ct = time.time() - ct
 
             #BREAK(parameter)
-            sql = db.GetSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+            sql, values = db.GetSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
             #BREAK(fldList)
             #BREAK(sql)
-            aL = db.Query(sql)
+            aL = db.Query(sql, values)
             #BREAK(aL)
 
             # render
@@ -593,13 +593,13 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2 = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+                    sql2, values = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
                     #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+                    total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2 = db.GetSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+                    sql2, values = db.GetSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
                     #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+                    total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
 
@@ -701,9 +701,9 @@ class Search:
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
-            sql = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, operators=kw.get("operators",{}), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, operators=kw.get("operators",{}), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
             #BREAK(sql)
-            aL = db.Query(sql)
+            aL = db.Query(sql, values)
             #BREAK(aL)
 
             # render
@@ -732,9 +732,9 @@ class Search:
                     break
 
             # total records
-            sql2 = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, operators=kw.get("operators",{}), skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+            sql2, values = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, operators=kw.get("operators",{}), skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
             #BREAK(sql)
-            total = db.Query(sql2)[0][0]
+            total = db.Query(sql2, values)[0][0]
             #BREAK(total)
 
         #BREAK(items)
@@ -859,9 +859,9 @@ class Search:
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
-            sql = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
+            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
             #BREAK(sql)
-            aL = db.Query(sql)
+            aL = db.Query(sql, values)
             #BREAK(aL)
 
             # render
@@ -893,13 +893,13 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2 = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+                    total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2 = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
-                    total = db.Query(sql2)[0][0]
+                    total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
             #BREAK(total)

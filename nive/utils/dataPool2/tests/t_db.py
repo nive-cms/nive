@@ -443,7 +443,7 @@ class dbTest:
 
         t = time()
         #print "GetSQLSelect",
-        sql=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
+        sql, values=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
                         {u"pool_type": "data1", u"ftext": "123", u"fnumber": 300000},
                         sort = u"title, id, fnumber",
                         ascending = 0,
@@ -451,13 +451,13 @@ class dbTest:
                         operators={u"pool_type":u"=", u"ftext": u"<>", u"fnumber": u"<"},
                         start=1,
                         max=123)
-        self.pool.Query(sql)
-        c=self.pool.Execute(sql)
+        self.pool.Query(sql, values)
+        c=self.pool.Execute(sql, values)
         c.close()
         #print "OK"
 
         #print "GetSQLSelect singleTable",
-        sql=self.pool.GetSQLSelect(list(struct[u"data1"]),
+        sql, values=self.pool.GetSQLSelect(list(struct[u"data1"]),
                                      {u"ftext": "", u"fnumber": 3},
                                      dataTable=u"data1",
                                      sort = u"id, fnumber",
@@ -466,20 +466,20 @@ class dbTest:
                                      start=1,
                                      max=123,
                                      singleTable=1)
-        self.pool.Query(sql)
-        c=self.pool.Execute(sql)
+        self.pool.Query(sql, values)
+        c=self.pool.Execute(sql, values)
         c.close()
         #print "OK"
 
         #print "GetFulltextSQL",
-        sql=self.pool.GetFulltextSQL(u"is",
+        sql, values=self.pool.GetFulltextSQL(u"is",
                             list(stdMeta)+list(struct[u"data1"]),
                             {},
                             sort = u"title",
                             ascending = 1,
                             dataTable = u"data1")
-        self.pool.Query(sql)
-        c=self.pool.Execute(sql)
+        self.pool.Query(sql, values)
+        c=self.pool.Execute(sql, values)
         c.close()
         #print "OK"
 
@@ -487,7 +487,7 @@ class dbTest:
     def test_sql2(self):
 
         t = time()
-        sql1=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
+        sql1, values1=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
                         {u"pool_type": "data1", u"ftext": "", u"fnumber": 3},
                         sort = u"title, id, fnumber",
                         ascending = 0,
@@ -495,7 +495,7 @@ class dbTest:
                         operators={u"pool_type":u"=", u"ftext": u"<>", u"fnumber": u">"},
                         start=1,
                         max=123)
-        sql2=self.pool.GetSQLSelect(list(struct[u"data1"]),
+        sql2, values2=self.pool.GetSQLSelect(list(struct[u"data1"]),
                                      {u"ftext": u"", u"fnumber": 3},
                                      dataTable=u"data1",
                                      sort = u"id, fnumber",
@@ -504,37 +504,42 @@ class dbTest:
                                      start=1,
                                      max=123,
                                      singleTable=1)
-        sql3=self.pool.GetFulltextSQL(u"is",
+        sql3, values3=self.pool.GetFulltextSQL(u"is",
                             list(stdMeta)+list(struct[u"data1"]),
                             {},
                             sort = u"title",
                             ascending = 1,
                             dataTable = u"data1")
         c=self.pool.connection.cursor()
-        c.execute(sql1)
-        c.execute(sql2)
-        c.execute(sql3)
+        c.execute(sql1, values1)
+        c.execute(sql2, values2)
+        c.execute(sql3, values3)
 
 
     def test_insertdelete(self):
         self.pool.DeleteRecords("pool_meta", {"pool_type": "notype", "title": "test entry"}, cursor=None)
+        self.pool.Commit()
 
         self.pool.InsertFields("pool_meta", {"pool_type": "notype", "title": "test entry"}, cursor = None)
-        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
-        id = self.pool.Query(sql)
+        self.pool.Commit()
+        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql, values)
         self.assert_(id)
         
         self.pool.UpdateFields("pool_meta", id[0][0], {"pool_type": "notype 123", "title": "test entry 123"}, cursor = None)
-        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
-        id = self.pool.Query(sql)
+        self.pool.Commit()
+        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql, values)
         self.assertFalse(id)
-        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
-        id = self.pool.Query(sql)
+        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql, values)
         self.assert_(id)
         
-        self.pool.DeleteRecords("pool_meta", {"id":id[0][0]}, cursor=None)
-        sql = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
-        id = self.pool.Query(sql)
+        for i in id:
+            self.pool.DeleteRecords("pool_meta", {"id":i[0]}, cursor=None)
+        self.pool.Commit()
+        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
+        id = self.pool.Query(sql, values)
         self.assertFalse(id)
 
 

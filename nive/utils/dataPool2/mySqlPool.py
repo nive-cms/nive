@@ -191,10 +191,6 @@ class MySql(FileManager, Base):
 
     # types/classes -------------------------------------------------------------------
 
-    def GetPlaceholder(self):
-        return u"%s"
-
-    
     def _GetPoolEntry(self, id, **kw):
         try:
             return MySqlEntry(self, id, **kw)

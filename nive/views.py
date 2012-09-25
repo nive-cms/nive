@@ -88,7 +88,7 @@ class BaseView(object):
         """
         if not resource:
             resource=self.context
-        if hasattr(resource, "extension"):
+        if hasattr(resource, "extension") and resource.extension:
             return u"%s.%s" % (resource_url(resource, self.request)[:-1], resource.extension)
         return resource_url(resource, self.request)
 
@@ -160,6 +160,17 @@ class BaseView(object):
         if hasattr(page, "extension"):
             return u"%s.%s" % (resource_url(page, self.request)[:-1], page.extension)
         return resource_url(page, self.request)
+
+    def CurrentUrl(self, retainUrlParams=False):
+        """
+        Returns the current url that triggered this request. Url parameter are removed by
+        default.
+        
+        returns url
+        """
+        if retainUrlParams:
+            return self.request.url
+        return self.request.url.split(u"?")[0]
 
     def ResolveUrl(self, url, object=None):
         """
@@ -669,8 +680,10 @@ class BaseView(object):
         return time() - self._t
 
     def mark2(self):
-        return time() - self.request.environ.get("START_TIME", self._t)
-
+        try:
+            return u"""<div class="mark">%.04f</div>""" % (time() - self.request.environ.get("START_TIME", self._t))
+        except:
+            return u""
 
 
 class FieldRenderer(object):

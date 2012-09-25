@@ -218,8 +218,8 @@ class FileManager:
         """
         flds = self.FileTableFields
         kw["singleTable"] = 1
-        sql = self.GetSQLSelect(flds, parameter, dataTable=self.FileTable, sort = sort, start=start, max=max, ascending = ascending, **kw)
-        files = self.Query(sql)
+        sql, values = self.GetSQLSelect(flds, parameter, dataTable=self.FileTable, sort = sort, start=start, max=max, ascending = ascending, **kw)
+        files = self.Query(sql, values)
         f2 = []
         for f in files:
             f2.append(self.ConvertRecToDict(f, flds))
@@ -321,8 +321,8 @@ class FileEntry:
             parameter = {}
         parameter[u"id"] = self.id
         operators={u"filekey":u"=", "filename": u"="}
-        sql = self.pool.GetSQLSelect(self.pool.FileTableFields, parameter, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
-        recs = self.pool.Query(sql)
+        sql, values = self.pool.GetSQLSelect(self.pool.FileTableFields, parameter, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
+        recs = self.pool.Query(sql, values)
         if len(recs) == 0:
             return []
         files = []

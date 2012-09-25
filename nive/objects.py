@@ -132,7 +132,7 @@ class Object(object):
         
         returns File object or None
         """
-        return self.dbEntry.GetFile(fldname, loadFileData)
+        return self.dbEntry.GetFile(fldname, loadFileData=loadFileData)
 
     def GetFileByName(self, filename):
         """

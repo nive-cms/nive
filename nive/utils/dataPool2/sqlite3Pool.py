@@ -135,7 +135,7 @@ class Sqlite3ConnSingle(Connection):
         d = unicode(param)
         if d.find(u'"')!=-1:
             d = d.replace(u'"',u'\\"')
-        return u'"'+d+u'"'
+        return u'"%s"'%d
 
 
     def Duplicate(self):
@@ -302,6 +302,10 @@ class Sqlite3(FileManager, Base):
         return id, dataref
 
     # types/classes -------------------------------------------------------------------
+
+    def FormatListForQuery(self, values):
+        FmtParam = self.connection.FmtParam
+        return u",".join([FmtParam(v) for v in values])
 
     def GetPlaceholder(self):
         return u"?"

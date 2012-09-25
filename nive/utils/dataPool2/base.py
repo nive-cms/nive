@@ -213,35 +213,37 @@ class Base(object):
         version = kw.get("version")
         metaStructure = self.structure.get(self.MetaTable, version=version)
         mapJoinFld = kw.get("mapJoinFld")
+        plist = []   # sorted list of query parameters for execute()
+        ph = self.GetPlaceholder()   # placeholder to be used instead plist values
         fields = []
-        for f in flds:
+        for field in flds:
             if singleTable:
-                aTable = u""
-                if f[0] == u"-":
-                    f = f[1:]
+                table = u""
+                if field[0] == u"-":
+                    field = field[1:]
             else:
-                aTable = u"meta__."
+                table = u"meta__."
                 # aggregate functions marked with - e.g. "-count(*)"
-                if f[0] == u"-":
-                    aTable = u""
-                    f = f[1:]
-                asName = f.find(u" as ")!=-1
-                f2=f
+                if field[0] == u"-":
+                    table = u""
+                    field = field[1:]
+                asName = field.find(u" as ")!=-1
+                f2=field
                 if asName:
-                    f2 = f.split(u" as ")[0]
-                elif f2 in metaStructure or f2 == u"pool_stag":
-                    aTable = u"meta__."
+                    f2 = field.split(u" as ")[0]
+                elif f2 in metaStructure:   # ?? or f2 == u"pool_stag":
+                    table = u"meta__."
                 elif dataTable != u"":
                     if jointype.lower() != u"inner":
-                        if f == mapJoinFld:
-                            fields.append(u"IF(meta__.pool_datatbl='%s', %s, meta__.title)" % (dataTable, f))
+                        if field == mapJoinFld:
+                            fields.append(u"IF(meta__.pool_datatbl='%s', %s, meta__.title)" % (dataTable, field))
                         else:
-                            fields.append(u"IF(meta__.pool_datatbl='%s', %s, '')" % (dataTable, f))
+                            fields.append(u"IF(meta__.pool_datatbl='%s', %s, '')" % (dataTable, field))
                         continue
-                    aTable = u"data__."
+                    table = u"data__."
             if(len(fields) > 0):
                 fields.append(u", ")
-            fields.append(aTable + f)
+            fields.append(table + field)
         fields = u"".join(fields)
 
         aCombi = kw.get("logicalOperator")
@@ -255,90 +257,88 @@ class Base(object):
         connection = self.connection
 
         where = []
-        for aK in parameter.keys():
-            aT = type(parameter[aK])
-            aKey = aK
+        for key in parameter.keys():
+            value = parameter[key]
+            paramname = key
 
-            aOperator = u"="
-            if operators:
-                if operators.has_key(aK):
-                    aOperator = operators.get(aK)
+            operator = u"="
+            if operators and key in operators:
+                operator = operators[key]
 
             if singleTable:
-                aTable = u""
+                table = u""
             else:
-                aTable = u"meta__."
+                table = u"meta__."
                 # aggregate functions marked with - e.g. "-count(*)"
-                if aK[0] == u"-":
-                    aTable = u""
-                    aKey = aK[1:]
-                elif aK in metaStructure or aK == u"pool_stag":
-                    aTable = u"meta__."
+                if key[0] == u"-":
+                    table = u""
+                    paramname = key[1:]
+                elif key in metaStructure:   # ?? or key == u"pool_stag":
+                    table = u"meta__."
                 elif dataTable != u"":
-                    aTable = u"data__."
+                    table = u"data__."
             
             # fmt string values
-            if aT in (StringType, UnicodeType):
-                aW = self.DecodeText(parameter[aK])
-                if aOperator == u"LIKE":
-                    if aW == u"":
+            if isinstance(value, basestring):
+                if operator == u"LIKE":
+                    if value == u"":
                         continue
-                    aW = aW.replace(u"*", u"%")
-                    if aW.find(u"%") == -1:
-                        aW = u"%%%s%%" % (aW)
-                    aW = connection.FmtParam(aW)
+                    value = u"%%%s%%" % value.replace(u"*", u"%")
                     if addCombi:
                         where.append(u" %s " % aCombi)
-                    where.append(u"%s%s %s %s " % (aTable, aKey, aOperator, aW))
-                elif aOperator == u"BETWEEN":
-                    if aW == u"":
+                    where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
+                    plist.append(value)
+                elif operator == u"BETWEEN":
+                    if value == u"":
                         continue
                     if addCombi:
                         where.append(u" %s " % aCombi)
-                    where.append(u"%s%s %s %s " % (aTable, aKey, aOperator, aW))
+                    where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
+                    plist.append(value)
                 else:
-                    aW = connection.FmtParam(aW)
                     if addCombi:
                         where.append(u" %s " % aCombi)
-                    where.append(u"%s%s %s %s " % (aTable, aKey, aOperator, aW))
+                    where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
+                    plist.append(value)
                 addCombi = True
 
             # fmt list values
-            elif aT in (TupleType, ListType):
-                aW = parameter[aK]
-                if aW == None or len(aW)==0:
+            elif isinstance(value, (tuple, list)):
+                if not value:
                     continue
                 if addCombi:
                     where.append(u" %s " % aCombi)
-                if aOperator.upper() in (u"IN",u"NOT IN"):
-                    aW = u""
-                    for item in parameter[aK]:
-                        if aW != u"":
-                            aW += u","
-                        if type(item) == StringType:
-                            item = self.DecodeText(item)
-                        aW += connection.FmtParam(item)
-                    if aW == u"":
-                        aW = u"None"
-                    where.append(u"%s%s %s (%s) " % (aTable, aKey, aOperator, aW))
-                elif aOperator == u"BETWEEN":
-                    if len(aW) < 2:
+                if operator == u"BETWEEN":
+                    if len(value) < 2:
                         continue
-                    where.append(u"%s%s %s %s AND %s" % (aTable, aKey, aOperator, connection.FmtParam(aW[0]), connection.FmtParam(aW[1])))
+                    where.append(u"%s%s %s %s AND %s" % (table, paramname, operator, ph, ph))
+                    plist.append(value[0])
+                    plist.append(value[1])
+                elif len(value)==1:
+                    if operator == u"IN":
+                        operator = u"="
+                    elif operator == u"NOT IN":
+                        operator = u"<>"
+                    where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
+                    plist.append(value[0])
                 else:
-                    aW = u"%%%s%%" % (self.DecodeText(ConvertToStr(aW, "list")))
-                    aW = connection.FmtParam(aW)
-                    where.append(u"%s%s LIKE %s " % (aTable, aKey, aW))
+                    v = self.FormatListForQuery(value)
+                    if isinstance(v, basestring):
+                        # sqlite error
+                        where.append(u"%s%s %s (%s) " % (table, paramname, operator, v))
+                    else:
+                        where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
+                        plist.append(value)
                 addCombi = True
 
             # fmt number values
-            elif aT in (IntType, LongType, FloatType):
+            elif isinstance(value, (int, long, float)):
                 if addCombi:
                     where.append(u" %s " % aCombi)
-                if aOperator == u"LIKE":
-                    aOperator = u"="
-                aW = connection.FmtParam(parameter[aK])
-                where.append(u"%s%s %s %s" % (aTable, aKey, aOperator, aW))
+                if operator == u"LIKE":
+                    operator = u"="
+                where.append(u"%s%s %s %s" % (table, paramname, operator, ph))
+                plist.append(value)
                 addCombi = True
 
         condition = kw.get("condition")
@@ -358,7 +358,7 @@ class Base(object):
         if sort==None:
             sort = u""
         if sort != u"" and not singleTable:
-            aTable = u"meta__."
+            table = u"meta__."
             s = sort.split(u",")
             sort = []
             for sortfld in s:
@@ -366,15 +366,15 @@ class Base(object):
                 sortfld.Trim()
                 sortfld = str(sortfld)
                 if len(sortfld) > 0 and sortfld[0] == u"-":
-                    aTable = u""
+                    table = u""
                     sortfld = sortfld[1:]
                 elif sortfld in metaStructure or sortfld == u"pool_stag":
-                    aTable = u"meta__."
+                    table = u"meta__."
                 elif dataTable != u"":
-                    aTable = u"data__."
+                    table = u"data__."
                 if len(sort):
                     sort.append(u", ")
-                sort.append(aTable)
+                sort.append(table)
                 sort.append(sortfld)
             sort = u"".join(sort)
 
@@ -415,7 +415,7 @@ class Base(object):
         %s
         %s
         """ % (fields, table, join, joindata, customJoin, where, groupby, sort, limit)
-        return sql
+        return sql, plist
 
 
     def _FmtWhereClause(self, where, singleTable):
@@ -440,11 +440,12 @@ class Base(object):
 
         For further options see -> GetSQLSelect
         """
-        sql = self.GetSQLSelect(flds, parameter, dataTable=dataTable, **kw)
+        sql, values = self.GetSQLSelect(flds, parameter, dataTable=dataTable, **kw)
         connection = self.connection
         searchPhrase = connection.FmtParam(self.DecodeText(searchPhrase))
-
-        phrase = u"""%s.text LIKE %s""" % (self.FulltextTable, searchPhrase)
+        values.append(searchPhrase)
+        ph = self.GetPlaceholder()
+        phrase = u"""%s.text LIKE %s""" % (self.FulltextTable, ph)
 
         if not searchPhrase in (u"", u"'%%'", None):
             if sql.find(u"WHERE ") == -1:
@@ -456,8 +457,9 @@ class Base(object):
                     sql += u"WHERE %s " % (phrase)
             else:
                 sql = sql.replace(u"WHERE ", "WHERE %s AND " % (phrase))
+
         sql = sql.replace(u"FROM %s AS meta__"%(self.MetaTable), "FROM %s AS meta__\r\n        LEFT JOIN %s ON (meta__.id = %s.id)"%(self.MetaTable, self.FulltextTable, self.FulltextTable))
-        return sql
+        return sql, values
 
 
     def Query(self, sql, values = None, cursor=None, getResult=True):
@@ -477,7 +479,9 @@ class Base(object):
             #opt
             v1 = []
             for v in values:
-                if type(v) == StringType:
+                if isinstance(v, list):
+                    v1.append(tuple(v))
+                elif isinstance(v, bytes):
                     v1.append(self.DecodeText(v))
                 else:
                     v1.append(v)
@@ -538,6 +542,13 @@ class Base(object):
             raise ProgrammingError, e
         return cursor
 
+    
+    def FormatListForQuery(self, value):
+        return tuple(value)
+
+    def GetPlaceholder(self):
+        return u"%s"
+    
 
     def InsertFields(self, table, data, cursor = None, getInsertIDValue = False):
         """
@@ -736,8 +747,8 @@ class Base(object):
             p["userid"] = userid
         if group:
             p["groupid"] = group
-        sql = self.GetSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
-        r = self.Query(sql)
+        sql, values = self.GetSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
+        r = self.Query(sql, values)
         return r
 
 
@@ -780,8 +791,8 @@ class Base(object):
         # check if exists
         p = {u"userid": userid}
         o = {u"userid": u"="}
-        sql = self.GetSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
-        r = self.Query(sql)
+        sql, values = self.GetSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
+        r = self.Query(sql, values)
         return r
 
 
@@ -821,10 +832,10 @@ class Base(object):
         cursor = self.connection.cursor()
 
         # base record
-        sql = self.GetSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
+        sql, values = self.GetSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        cursor.execute(sql)
+        cursor.execute(sql, values)
         r = cursor.fetchone()
         if not r:
             return 0
@@ -848,11 +859,11 @@ class Base(object):
         """
         Query database if id exists
         """
-        sql = self.GetSQLSelect(["id"], parameter={"id":id}, dataTable = self.MetaTable, singleTable=1)
+        sql, values = self.GetSQLSelect(["id"], parameter={"id":id}, dataTable = self.MetaTable, singleTable=1)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         c = self.connection.cursor()
-        c.execute(sql)
+        c.execute(sql, values)
         n = c.fetchone()
         c.close()
         return n!=None
@@ -885,8 +896,8 @@ class Base(object):
                 raise ConfigurationError, "Meta layer is empty."
             parameter = {"id": ids}
             operators = {"id": u"IN"}
-            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, max=len(ids), sort=sort, operators=operators, singleTable=1)
-            recs = self.Query(sql)
+            sql, values = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, max=len(ids), sort=sort, operators=operators, singleTable=1)
+            recs = self.Query(sql, values)
             for r in recs:
                 meta = self.ConvertRecToDict(r, flds)
                 e = self._GetPoolEntry(meta[u"id"], pool_dataref=meta[u"pool_dataref"], pool_datatbl=meta[u"pool_datatbl"], preload=u"skip")
@@ -906,9 +917,9 @@ class Base(object):
             parameter = {"id": ids}
             operators = {"id": u"IN"}
             # select list of datatbls
-            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, sort=sort, groupby=u"pool_datatbl", operators=operators, singleTable=1)
+            sql, values = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, sort=sort, groupby=u"pool_datatbl", operators=operators, singleTable=1)
             tables = []
-            for r in self.Query(sql):
+            for r in self.Query(sql, values):
                 if not r["pool_datatbl"] in tables:
                     tables.append(r[0])
         t = u""
@@ -925,8 +936,8 @@ class Base(object):
             parameter = {u"id": ids, u"pool_datatbl": table}
             operators = {u"id": u"IN", u"pool_datatbl": u"="}
             # select type data
-            sql = self.GetSQLSelect(flds, parameter=parameter, dataTable=table, sort=sort, operators=operators)
-            typeData = self.Query(sql)
+            sql, values = self.GetSQLSelect(flds, parameter=parameter, dataTable=table, sort=sort, operators=operators)
+            typeData = self.Query(sql, values)
             for r2 in typeData:
                 meta = self.ConvertRecToDict(r2[:len(fldsm)], fldsm)
                 data = self.ConvertRecToDict(r2[len(fldsm):], fldsd)
@@ -1341,6 +1352,7 @@ class Entry(object):
             self.data.clear()
             self.meta.SetContent(self.meta.GetTemp())
             self.meta.clear()
+            self.files.SetContent(self.files.GetTemp())
             self.files.clear()
         except Exception, e:
             try:
@@ -1376,8 +1388,8 @@ class Entry(object):
         if not fromDB and self.cacheRec and self.meta.has_key(fld):
             return self.meta[fld]
 
-        sql = self.pool.GetSQLSelect([fld], parameter={"id":self.id}, dataTable=self.pool.MetaTable, singleTable=1)
-        data = self._GetFld(sql)
+        sql, values = self.pool.GetSQLSelect([fld], parameter={"id":self.id}, dataTable=self.pool.MetaTable, singleTable=1)
+        data = self._GetFld(sql, values)
         data = self.pool.structure.deserialize(self.pool.MetaTable, fld, data)
         self._UpdateCache({fld: data})
         return data
@@ -1392,8 +1404,8 @@ class Entry(object):
             return self.data[fld]
 
         tbl = self.GetDataTbl()
-        sql = self.pool.GetSQLSelect([fld], parameter={"id":self.GetDataRef()}, dataTable=tbl, singleTable=1)
-        data = self._GetFld(sql)
+        sql, values = self.pool.GetSQLSelect([fld], parameter={"id":self.GetDataRef()}, dataTable=tbl, singleTable=1)
+        data = self._GetFld(sql, values)
         data = self.pool.structure.deserialize(tbl, fld, data)
         self._UpdateCache(None, {fld: data})
         return data
@@ -1617,11 +1629,11 @@ class Entry(object):
         """
         if text==None:
             text=""
-        sql = self.pool.GetSQLSelect(["id"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
+        sql, values = self.pool.GetSQLSelect(["id"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
         cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
-        cursor.execute(sql)
+        cursor.execute(sql, values)
         r = cursor.fetchone()
         text = self.pool.DecodeText(text)
         if not r:
@@ -1635,11 +1647,11 @@ class Entry(object):
         """
         read fulltext from entry
         """
-        sql = self.pool.GetSQLSelect(["text"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
+        sql, values = self.pool.GetSQLSelect(["text"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
         cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
-        cursor.execute(sql)
+        cursor.execute(sql, values)
         r = cursor.fetchone()
         cursor.close()
         if not r:
@@ -1708,7 +1720,7 @@ class Entry(object):
             param = {u"id": self.id}
         else:
             param = {u"id": self.GetDataRef()}
-        sql = pool.GetSQLSelect(flds, param, dataTable = table, version=self.version, singleTable=1)
+        sql, values = pool.GetSQLSelect(flds, param, dataTable = table, version=self.version, singleTable=1)
 
         c = 0
         if not cursor:
@@ -1716,7 +1728,7 @@ class Entry(object):
             cursor = pool.GetCursor()
         if pool._debug:
             STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
-        cursor.execute(sql)
+        cursor.execute(sql, values)
         r = cursor.fetchone()
         if c:
             cursor.close()
@@ -1732,7 +1744,7 @@ class Entry(object):
         pool = self.pool
         flds2 = list(metaFlds) + list(dataFlds)
         param = {u"id": self.id}
-        sql = pool.GetSQLSelect(flds2, param, dataTable = self.GetDataTbl(), version=self.version)
+        sql, values = pool.GetSQLSelect(flds2, param, dataTable = self.GetDataTbl(), version=self.version)
 
         c = 0
         if not cursor:
@@ -1740,7 +1752,7 @@ class Entry(object):
             cursor = pool.GetCursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
-        cursor.execute(sql)
+        cursor.execute(sql, values)
         r = cursor.fetchone()
         if c:
             cursor.close()
@@ -2280,6 +2292,10 @@ class FileWrapper(Wrapper):
 
     def SetContent(self, files):
         self._content_ = {}
+        if isinstance(files, dict):
+            for f in files:
+                self._content_[f] = files[f]
+            return
         for f in files:
             self._content_[f["filekey"]] = f
 
