@@ -98,10 +98,10 @@ appconf = AppConf(
 data1_1 = { u"ftext": "this is text!",
             u"fnumber": 123456,
             u"fdate": "2008/06/23 16:55:00",
-            u"flist": "item 1, item 2, item 3",
+            u"flist": ["item 1", "item 2", "item 3"],
             u"fmselect": "item 5",
             u"funit": 35,
-            u"funitlist": "34, 35, 36",
+            u"funitlist": [34, 35, 36],
             u"title":"äüöß and others",
             u"pool_type": "type1",
             u"pool_category": "cat1"}

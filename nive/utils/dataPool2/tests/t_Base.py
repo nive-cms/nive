@@ -4,6 +4,7 @@ import copy, time, StringIO
 import unittest
 
 from nive.utils.dataPool2.base import *
+from nive.utils.dataPool2.structure import *
 
 
 conf = {}

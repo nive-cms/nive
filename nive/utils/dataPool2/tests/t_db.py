@@ -6,7 +6,7 @@ import unittest
 from types import *
 
 from nive.utils.dataPool2.base import *
-from nive.utils.dataPool2.sqlite3Pool import Sqlite3
+from nive.utils.dataPool2.sqlite3 import Sqlite3
 from nive.utils.path import DvPath
 
 from sqlite3 import OperationalError
@@ -80,7 +80,7 @@ class dbTest:
         self.assert_(d.get(u"fmselect") == data1_1.get(u"fmselect") )
         self.assert_(d.get(u"funit")    == data1_1.get(u"funit")    )
         self.assert_(d.get(u"funitlist")== data1_1.get(u"funitlist"))
-        self.assert_(type(d.get(u"ftext"))==UnicodeType    )
+        self.assert_(type(d.get(u"ftext"))==UnicodeType)
         #print "OK"
 
     def set2(self, id):

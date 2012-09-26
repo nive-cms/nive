@@ -17,7 +17,7 @@ class DvDateTime:
         self.Set(inDateTime)
 
     def __str__(self):
-        return self.GetDB()
+        return self.GetDBMySql()
     
     def Set(self, inDateTime):
         self._pTime = ()

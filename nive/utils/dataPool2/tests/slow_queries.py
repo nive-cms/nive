@@ -4,7 +4,7 @@ import copy
 
 import t_MySql
 try:
-    from nive.utils.dataPool2.mySqlPool import *
+    from nive.utils.dataPool2.mySql import *
 except:
     pass
 

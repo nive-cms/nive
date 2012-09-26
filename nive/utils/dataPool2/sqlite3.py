@@ -15,16 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
-
-__doc__ = """
+"""
 Data Pool Sqlite Module
 ----------------------
 *Requires python-sqlite*
 """
-
-import string, re, os
-from time import localtime
-from types import IntType, LongType, FloatType
 
 import sqlite3
 
@@ -130,7 +125,7 @@ class Sqlite3ConnSingle(Connection):
     def FmtParam(self, param):
         """??? format a parameter for sql queries like literal for  db"""
         #return self.db.literal(param)
-        if type(param) in (IntType, LongType, FloatType):
+        if isinstance(param, (int, long, float)):
             return unicode(param)
         d = unicode(param)
         if d.find(u'"')!=-1:

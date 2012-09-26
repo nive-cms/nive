@@ -496,7 +496,7 @@ class FileEntry:
             file.fileid = self.pool.UpdateFields(self.pool.FileTable, file.fileid, data, cursor=cursor, idColumn=u"fileid")
         else:
             data["id"] = self.id
-            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, getInsertIDValue=True)
+            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, icColumn=u"fileid")
         return True
 
 

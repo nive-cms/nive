@@ -19,17 +19,10 @@
 __doc__ = "Data Pool 2 SQL Base Module"
 
 import weakref
-import iso8601
 from time import time
 from time import localtime
-from datetime import datetime
-from types import *
-try:
-    from cStringIO import StringIO
-except:
-    from StringIO import StringIO
 
-from nive.utils.utils import ConvertToStr, ConvertListToStr, ConvertToList
+from nive.utils.utils import ConvertListToStr
 from nive.utils.utils import BREAK, STACKF, DUMP
 from nive.utils.path import DvPath
 from nive.utils.strings import DvString
@@ -37,12 +30,8 @@ from nive.utils.dateTime import DvDateTime
 
 from nive.definitions import ConfigurationError, OperationalError, ProgrammingError, Warning
 
-from files import File
-
-
-"""
-error handling and messages
-"""
+from nive.utils.dataPool2.files import File
+from nive.utils.dataPool2.structure import PoolStructure, DataWrapper, MetaWrapper, FileWrapper
 
 
 # Pool Constants ---------------------------------------------------------------------------
@@ -50,7 +39,6 @@ error handling and messages
 #
 StdEncoding = u"utf-8"
 EncodeMapping = u"replace"
-StdMetaFlds = (u"id", u"pool_dataref", u"pool_datatbl")
 
 
 class Base(object):
@@ -476,16 +464,19 @@ class Base(object):
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         sql = self.DecodeText(sql)
         if values:
-            #opt
-            v1 = []
-            for v in values:
-                if isinstance(v, list):
-                    v1.append(tuple(v))
-                elif isinstance(v, bytes):
-                    v1.append(self.DecodeText(v))
-                else:
-                    v1.append(v)
-            values = v1
+            # check for list and strings
+            found = [isinstance(v, list) or isinstance(v, bytes) for v in values]
+            if True in found:
+                # shouldnt happen
+                v1 = []
+                for v in values:
+                    if isinstance(v, list):
+                        v1.append(tuple(v))
+                    elif isinstance(v, bytes):
+                        v1.append(self.DecodeText(v))
+                    else:
+                        v1.append(v)
+                values = v1
         # adjust different accepted empty values sets
         if not values:
             values = self.EmptyValues
@@ -503,20 +494,11 @@ class Base(object):
             if cc:
                 c.close()
             return
-        r = c.fetchall()
+        result = c.fetchall()
         if cc:
             c.close()
 
-        set2 = []
-        for rec in r:
-            rec2 = []
-            for d in rec:
-                if type(d) == StringType:
-                    rec2.append(self.EncodeText(d))
-                else:
-                    rec2.append(d)
-            set2.append(rec2)
-        return set2
+        return result
 
 
     def Execute(self, sql, values = None, cursor=None):
@@ -550,29 +532,26 @@ class Base(object):
         return u"%s"
     
 
-    def InsertFields(self, table, data, cursor = None, getInsertIDValue = False):
+    def InsertFields(self, table, data, cursor = None, icColumn = None):
         """
-        insert row with multiple fields in the table.
-        codepage and dates are converted automatically
+        Insert row with multiple fields in the table.
+        Codepage and dates are converted automatically
+        Set `idColumn` to the column name of the auto increment unique id column
+        to get it returned.
+        
         returns the converted data 
         """
         dataList = []
         flds = []
         phdata = []
         ph = self.GetPlaceholder()
-        for aK in data.keys():
-            if len(flds):
-                flds.append(u",")
-                phdata.append(u",")
-            flds.append(aK)
+        data = self.structure.serialize(table, None, data)
+        for key, value in data.items():
+            flds.append(key)
             phdata.append(ph)
+            dataList.append(value)
 
-            if type(data[aK]) == StringType:
-                data[aK] = self.DecodeText(data[aK])
-            dataList.append(self.structure.serialize(table, aK, data[aK]))
-            data[aK] = dataList[-1]
-
-        sql = u"INSERT INTO %s (%s) VALUES (%s)" % (table, u"".join(flds), u"".join(phdata))
+        sql = u"INSERT INTO %s (%s) VALUES (%s)" % (table, u",".join(flds), u",".join(phdata))
 
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
@@ -589,7 +568,7 @@ class Base(object):
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
         id = 0
-        if getInsertIDValue:
+        if icColumn:
             id = self._GetInsertIDValue(cursor)
         if cc:
             cursor.close()
@@ -602,19 +581,16 @@ class Base(object):
         codepage and dates are converted automatically
         returns the converted data 
         """
-        sql = [u"UPDATE %s SET " % (table)]
         dataList = []
         ph = self.GetPlaceholder()
-        for aK in data.keys():
+        data = self.structure.serialize(table, None, data)
+        sql = [u"UPDATE %s SET " % (table)]
+        for key, value in data.items():
+            dataList.append(value)
             if len(sql)>1:
-                sql.append(u",%s=%s"%(aK, ph))
+                sql.append(u",%s=%s"%(key, ph))
             else:
-                sql.append(u"%s=%s"%(aK, ph))
-
-            if type(data[aK]) == StringType:
-                data[aK] = self.DecodeText(data[aK])
-            dataList.append(self.structure.serialize(table, aK, data[aK]))
-            data[aK] = dataList[-1]
+                sql.append(u"%s=%s"%(key, ph))
 
         sql.append(u" WHERE %s=%s" % (idColumn, ph))
         dataList.append(id)
@@ -692,7 +668,7 @@ class Base(object):
         """
         if text==None:
             return text
-        if type(text) == StringType:
+        if isinstance(text, bytes):
             return unicode(text, self.dbCodePage, EncodeMapping)
         return text
 
@@ -704,7 +680,7 @@ class Base(object):
         """
         if text==None:
             return text
-        if type(text) == StringType:
+        if isinstance(text, bytes):
             return unicode(text, self.codePage, EncodeMapping)
         return text
 
@@ -713,19 +689,7 @@ class Base(object):
         """
         Convert a database record tuple to dictionary based on flds list
         """
-        aD = {}
-        if not rec:
-            return aD
-
-        #opt
-        for aI in range(len(flds)):
-            aStr = flds[aI]
-            # data unicode and codepage conversion
-            if type(rec[aI]) == StringType:
-                aD[aStr] = self.EncodeText(rec[aI])
-            else:
-                aD[aStr] = rec[aI]
-        return aD
+        return dict(zip(flds, rec))
 
 
     # groups - userid assignment storage ------------------------------------------------------------------------------------
@@ -1326,6 +1290,21 @@ class Entry(object):
         """
         return self.id > 0
 
+
+    def SerializeValue(self, fieldname, value, meta=False):
+        if meta:
+            tbl = self.pool.MetaTable
+        else:
+            tbl = self.GetDataTbl()
+        return self.pool.structure.serialize(tbl, fieldname, value)
+
+    def DeserializeValue(self, fieldname, value, meta=False):
+        if meta:
+            tbl = self.pool.MetaTable
+        else:
+            tbl = self.GetDataTbl()
+        return self.pool.structure.deserialize(tbl, fieldname, value)
+
     # Transactions ------------------------------------------------------------------------
 
     def Commit(self, user=""):
@@ -1697,11 +1676,7 @@ class Entry(object):
             cursor.execute(sql)
             r = cursor.fetchone()
             cursor.close()
-            if type(r[0]) == StringType:
-                data = self.pool.EncodeText(r[0])
-            else:
-                data = r[0]
-            return data
+            return r[0]
         except self.pool._Warning, e:
             try:    cursor.close()
             except: pass
@@ -2095,378 +2070,6 @@ class ConnectionThreadLocal(Connection):
     def _setvtime(self):
         # locally store database connection
         self.local._vtime = time()
-
-
-
-
-#  Wrapper ---------------------------------------------------------------------------
-
-class Wrapper(object):
-    """
-    Wrappers are mapping objects for data, files and meta. Content can be accessed as
-    dictionary field.
-    Changes are stored temporarily in memory.
-    """
-
-    __wrapper__ = 1
-
-    def __init__(self, entry, content=None):
-        self._entry_ = entry
-        self._temp_ = {}
-        self._content_ = None
-        
-    def __repr__(self):
-        return str(type(self)) 
-    
-    def __dir__(self):
-        return ["_temp_", "_content_", "_entry_"]
-    
-    def __setitem__(self, key, value):
-        if key in (u"id",u"pool_datatbl", u"pool_dataref"):
-            return
-        if type(value) == StringType:
-            value = self._entry_().pool.DecodeText(value)
-        self._temp_[key] = value
-
-
-    def __getitem__(self, key):
-        if self._temp_.has_key(key):
-            return self._temp_[key]
-        if not self._content_:
-            self._Load()
-        return self._content_.get(key)
-
-
-    def __getattr__(self, key):
-        if key in self.__dict__.keys():
-            return self.__dict__[key]
-        if self._temp_.has_key(key):
-            return self._temp_[key]
-        if not self._content_:
-            self._Load()
-        return self._content_.get(key)
-
-
-    def close(self):
-        self._entry_ = None
-        self._temp_.clear()
-        self._content_ = None
-
-
-    def clear(self):
-        """
-        Reset contents, temp data and entry obj
-        """
-        self._temp_.clear()
-
-
-    def copy(self):
-        """
-        Returns a copy of current content
-        """
-        if not self._content_:
-            self._Load()
-        c = self._content_.copy()
-        c.update(self._temp_)
-        return c
-
-
-    def has_key(self, key):
-        if self.HasTempKey(key):
-            return True
-        return key in self.keys()
-
-
-    def get(self, key, default=None):
-        try:
-            data = self[key]
-            if data == None:
-                return default
-            return data
-        except:
-            return default
-
-
-    def set(self, key, data):
-        if type(data) == StringType:
-            data = self._entry_().pool.DecodeText(data)
-        self[key] = data
-
-
-    def update(self, dict, force = False):
-        if force:
-            for k in dict.keys():
-                data = dict[k]
-                if type(data) == StringType:
-                    dict[k] = self._entry_().pool.DecodeText(data)
-            self._temp_.update(dict)
-            return
-        for k in dict.keys():
-            self[k] = dict[k]
-
-
-    def keys(self):
-        if not self._content_:
-            self._Load()
-        t = self._content_.keys()
-        t += self._temp_.keys()
-        return t
-
-
-
-    def IsEmpty(self):                return self._content_ == None
-    def GetTemp(self):                return self._temp_
-    def HasTemp(self):                return self._temp_ != {}
-    def GetTempKey(self, key):        return self._temp_.get(key)
-    def HasTempKey(self, key):        return self._temp_.has_key(key)
-
-    def GetEntry(self):                return self._entry_()
-
-    def SetContent(self, content):
-        if not self._content_:
-            self._content_ = content
-        else:
-            self._content_.update(content)
-
-    def EmptyTemp(self):
-        self._temp_.clear()
-
-    def _Load(self):
-        self._content_ = {}
-        pass
-
-
-class MetaWrapper(Wrapper):
-    """
-    wrapper class for meta content
-    """
-
-    def _Load(self):
-        self._content_ = {}
-        self._entry_()._PreloadMeta()
-
-
-
-class DataWrapper(Wrapper):
-    """
-    wrapper class for data content
-    """
-
-    def _Load(self):
-        self._content_ = {}
-        self._entry_()._PreloadData()
-
-
-class FileWrapper(Wrapper):
-    """
-    wrapperclass for files. contains only filemta and returns file streams on read.
-    update and __setitem__ take File object with o.file and o.filename attr as parameter
-    entry = {"filename": "", "path": <absolute path for temp files>, "file": <file stream>}
-    """
-
-    def __setitem__(self, key, filedata):
-        """
-        filedata can be a dictionary, File object or file path
-        """
-        if not filedata:
-            if key in self._temp_:
-                del self._temp_[key]
-            elif self._content_ and key in self._content_:
-                del self._content_[key]
-            return
-        if isinstance(filedata, dict):
-            file = File(key, filedict=filedata, fileentry=self._entry_())
-            filedata = file
-        elif type(filedata) == StringType:
-            # load from temp path
-            file = File(key, fileentry=self._entry_())
-            file.fromPath(filedata)
-            filedata = file
-        filedata.tempfile = True
-        self._temp_[key] = filedata
-
-
-    def set(self, key, filedata):
-        self[key] = filedata
-
-
-    def SetContent(self, files):
-        self._content_ = {}
-        if isinstance(files, dict):
-            for f in files:
-                self._content_[f] = files[f]
-            return
-        for f in files:
-            self._content_[f["filekey"]] = f
-
-
-    def _Load(self):
-        files = self._entry_().Files()
-        self._content_ = {}
-        for f in files:
-            self._content_[f["filekey"]] = f
-        return self._content_.keys()
-
-
-#  Pool Structure ---------------------------------------------------------------------------
-
-
-class PoolStructure(object):
-    """
-    Data Pool 2 Structure handling. Defines a table field mapping. If field types are available serializing 
-    and deserializing is performed on database reads and writes.
-
-    ::
-    
-        structure =
-            {
-             meta:   (field1, field2, ...),
-             type1_table: (field5, field6, ...),
-             type2_table: (field8, field9, ...),
-            }
-
-        fieldtypes = 
-            {
-             meta: {field1: string, field2: number},
-             type1_table: {field5: DateTime, field6: text},
-             type2_table: {field8: DateTime, field9: text},
-            }
-            
-        stdMeta = (field1, field2)
-
-    """
-    MetaTable = u"pool_meta"
-    
-    def __init__(self, structure=None, fieldtypes=None, stdMeta=None, **kw):
-        #
-        self.stdMeta = ()
-        self.structure = {}
-        self.fieldtypes = {}
-        if structure:
-            self.Init(structure, fieldtypes, stdMeta, **kw)
-        
-
-    def Init(self, structure, fieldtypes=None, stdMeta=None, **kw):
-        s = structure.copy()
-        meta = list(s[self.MetaTable])
-        # add default fields
-        if not u"pool_dataref" in s[self.MetaTable]:
-            meta.append(u"pool_dataref")
-        if not u"pool_datatbl" in s[self.MetaTable]:
-            meta.append(u"pool_datatbl")
-        s[self.MetaTable] = tuple(meta)
-        for k in s:
-            s[k] = tuple(s[k])
-        self.structure = s
-        
-        if fieldtypes:
-            self.fieldtypes = fieldtypes
-        
-        if stdMeta:
-            m = list(stdMeta)
-            for f in StdMetaFlds:
-                if not f in m:
-                    m.append(f)
-            self.stdMeta = tuple(m)
-
-
-    def IsEmpty(self):
-        return self.structure=={}
-
-    
-    def __getitem__(self, key, version=None):
-        return self.structure[key]
-
-    def get(self, key, default=None, version=None):
-        return self.structure.get(key, default)
-
-    def has_key(self, key, version=None):
-        return self.structure.has_key(key)
-
-    def keys(self, version=None):
-        return self.structure.keys()
-    
-    
-    def serialize(self, table, field, value):
-        # if field==None and value is a dictionary multiple values are deserialized
-        if field==None and isinstance(value, dict):
-            for field, v in value.items():
-                try:        t = self.fieldtypes[table][field]
-                except:     t = None
-                value[field] = self._se(v, t)
-        else:
-            try:        t = self.fieldtypes[table][field]
-            except:     t = None
-            value = self._se(value, t)
-        return value
-        
-
-    def deserialize(self, table, field, value):
-        # if field==None and value is a dictionary multiple values are deserialized
-        if field==None and isinstance(value, dict):
-            for field, v in value.items():
-                try:        t = self.fieldtypes[table][field]
-                except:     t = None
-                value[field] = self._de(v, t)
-        else:
-            try:        t = self.fieldtypes[table][field]
-            except:     t = None
-            value = self._de(value, t)
-        return value
-
-
-    def _se(self, value, fieldtype):
-        if not fieldtype:
-            if type(value) == InstanceType and str(value.__class__).find("DvDateTime") != -1:
-                return value.GetDBMySql()
-            elif type(value) in (ListType, TupleType):
-                return ConvertListToStr(value)
-            return value
-        
-        if fieldtype in ("date", "datetime", "timestamp"):
-            if isinstance(value, DvDateTime):
-                value = value.GetDBMySql()
-            else:
-                value = str(value)
-        
-        elif fieldtype in ("mselection", "mcheckboxes", "list", "urllist", "unitlist"):
-            if type(value) in (ListType, TupleType):
-                value = ConvertListToStr(value)
-
-        elif fieldtype in ("bool"):
-            if isinstance(value, basestring):
-                if value.lower()=="true":
-                    value = 1
-                elif value.lower()=="false":
-                    value = 0
-            else:
-                try:
-                    value = int(value)
-                except:
-                    value = 0
-
-        return value
-
-    def _de(self, value, fieldtype):
-        if not fieldtype:
-            return value
-
-        if fieldtype in ("date", "datetime", "timestamp"):
-            if isinstance(value, basestring):
-                try:
-                    value = iso8601.parse_date(value)
-                except:
-                    d = DvDateTime(value)
-                    value = datetime.fromtimestamp(d.GetFloat())
-                    
-        elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
-            if not type(value) in (ListType, TupleType):
-                value = ConvertToList(value)
-
-        return value
-    
-    
-
 
 
 class NotFound(Exception):

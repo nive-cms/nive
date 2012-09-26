@@ -39,7 +39,7 @@ from operator import itemgetter, attrgetter
 from zope.interface.registry import Components
 from zope.interface import providedBy
 
-from nive.utils.dataPool2.base import PoolStructure
+from nive.utils.dataPool2.structure import PoolStructure
 from nive.i18n import _
 
 from nive.definitions import AppConf, DatabaseConf, SystemFlds, MetaTbl, ReadonlySystemFlds
@@ -1029,7 +1029,7 @@ class Configuration:
             structure[ty.dbparam] = t
             fieldtypes[ty.dbparam] = f
         
-        self._structure.Init(structure, fieldtypes, m)
+        self._structure.Init(structure, fieldtypes, m, self.configuration.frontendCodepage)
         # reset cached db
         self.Close()
         return structure
@@ -1058,9 +1058,9 @@ class AppFactory:
         if not poolTag:
             raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
         elif poolTag.lower() in ("sqlite","sqlite3"):
-            poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
+            poolTag = "nive.utils.dataPool2.sqlite3.Sqlite3"
         elif poolTag.lower() == "mysql":
-            poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
+            poolTag = "nive.utils.dataPool2.mySql.MySql"
 
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
         c = self.dbConfiguration
@@ -1093,9 +1093,9 @@ class AppFactory:
         if not poolTag:
             raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
         elif poolTag.lower() in ("sqlite","sqlite3"):
-            poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
+            poolTag = "nive.utils.dataPool2.sqlite3.Sqlite3"
         elif poolTag.lower() == "mysql":
-            poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
+            poolTag = "nive.utils.dataPool2.mySql.MySql"
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
         return dbObj.defaultConnection(self.dbConfiguration)
 

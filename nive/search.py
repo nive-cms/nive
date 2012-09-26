@@ -170,15 +170,7 @@ class Search:
             if name.find(u" as ")!=-1:
                 name = name.split(u" as ")[1]
                 fields[i] = name
-        recs2 = []
-        for r in recs:
-            d={}
-            #opt
-            for i in range(len(fields)):
-                name = fields[i]
-                d[name] = r[i]
-            recs2.append(d)
-        return recs2
+        return [dict(zip(fields, r)) for r in recs]
 
 
     # Extended search functions ----------------------------------------------------------------------------------------------
@@ -276,7 +268,7 @@ class Search:
                 for p in range(len(fields)):
                     rec2.append(renderer.Render(fields[p], rec[p], False, **kw))
                 rec = rec2
-            items.append(ConvertListToDict(rec, fldList))
+            items.append(dict(zip(rec, fldList)))
             if max > 0 and cnt == max:
                 break
 
@@ -440,7 +432,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(ConvertListToDict(aI2, fldList))
+                items.append(dict(zip(aI2, fldList)))
 
                 if max > 0 and cnt == max:
                     break
@@ -585,7 +577,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(ConvertListToDict(aI2, fldList))
+                items.append(dict(zip(aI2, fldList)))
 
                 if max > 0 and cnt == max:
                     break
@@ -727,7 +719,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(ConvertListToDict(aI2, fldList))
+                items.append(dict(zip(aI2, fldList)))
                 if max > 0 and cnt == max:
                     break
 
@@ -886,7 +878,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(ConvertListToDict(aI2, fldList))
+                items.append(dict(zip(aI2, fldList)))
                 if max > 0 and cnt == max:
                     break
 

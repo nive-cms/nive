@@ -34,7 +34,7 @@ from nive.utils.utils import ConvertToList
 
 from nive.definitions import StagPage, StagPageElement, ObjectConf, FieldConf
 from nive.components.objects.base import PageBase
-
+from nive.security import Allow, Deny, Authenticated, Everyone
 
 
 class page(PageBase):
@@ -45,7 +45,6 @@ class page(PageBase):
         #opt
         groups = self.meta.get("pool_groups")
         if groups:
-            groups = ConvertToList(groups)
             acl = [(Allow, "group:editor", "view"),(Allow, "group:author", "view"),(Allow, "group:admin", "view")]
             for g in groups:
                 if g == u"authenticated":
