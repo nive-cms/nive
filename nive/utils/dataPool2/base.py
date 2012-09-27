@@ -166,7 +166,7 @@ class Base(object):
 
     # SQL queries ---------------------------------------------------------------------
 
-    def GetSQLSelect(self, flds, parameter={}, dataTable = u"", start = 0, max = 0, **kw):
+    def FmtSQLSelect(self, flds, parameter={}, dataTable = u"", start = 0, max = 0, **kw):
         """
         Create a select statement based on pool_structure and given parameters.
         
@@ -426,9 +426,9 @@ class Base(object):
 
         searchPhrase: text to be searched
 
-        For further options see -> GetSQLSelect
+        For further options see -> FmtSQLSelect
         """
-        sql, values = self.GetSQLSelect(flds, parameter, dataTable=dataTable, **kw)
+        sql, values = self.FmtSQLSelect(flds, parameter, dataTable=dataTable, **kw)
         connection = self.connection
         searchPhrase = connection.FmtParam(self.DecodeText(searchPhrase))
         values.append(searchPhrase)
@@ -532,7 +532,7 @@ class Base(object):
         return u"%s"
     
 
-    def InsertFields(self, table, data, cursor = None, icColumn = None):
+    def InsertFields(self, table, data, cursor = None, idColumn = None):
         """
         Insert row with multiple fields in the table.
         Codepage and dates are converted automatically
@@ -568,21 +568,38 @@ class Base(object):
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
         id = 0
-        if icColumn:
+        if idColumn:
             id = self._GetInsertIDValue(cursor)
         if cc:
             cursor.close()
         return data, id
 
 
-    def UpdateFields(self, table, id, data, cursor = None, idColumn = u"id"):
+    def UpdateFields(self, table, id, data, cursor = None, idColumn = u"id", autoinsert=False):
         """
-        updates multiple fields in the table.
-        codepage and dates are converted automatically
-        returns the converted data 
+        Updates multiple fields in the table.
+        If `autoinsert` is True the a new record is automatically inserted if it does not exist. Also
+        the function returns the converted data *and* id (non zero if a new record was inserted)
+        
+        If `autoinsert` is False the function returns the converted data.
         """
-        dataList = []
+        cc = 0
+        if not cursor:
+            cc = 1
+            cursor = self.connection.cursor()
         ph = self.GetPlaceholder()
+        if autoinsert:
+            # if record does not exist, insert it
+            sql = """select id from %s where %s=%s""" %(table, idColumn, ph)
+            self.Execute(sql, (id,), cursor=cursor)
+            r = cursor.fetchone()
+            if not r:
+                data, id = self.InsertFields(table, data, cursor = cursor, idColumn = idColumn)
+                if cc:
+                    cursor.close()
+                return data, id
+            
+        dataList = []
         data = self.structure.serialize(table, None, data)
         sql = [u"UPDATE %s SET " % (table)]
         for key, value in data.items():
@@ -598,10 +615,6 @@ class Base(object):
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
 
-        aClose = 0
-        if not cursor:
-            aClose = 1
-            cursor = self.connection.cursor()
         try:
             cursor.execute(sql, dataList)
         except self._Warning:
@@ -609,8 +622,10 @@ class Base(object):
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
-        if aClose:
+        if cc:
             cursor.close()
+        if autoinsert:
+            return data, 0
         return data
 
 
@@ -711,7 +726,7 @@ class Base(object):
             p["userid"] = userid
         if group:
             p["groupid"] = group
-        sql, values = self.GetSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
+        sql, values = self.FmtSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
         r = self.Query(sql, values)
         return r
 
@@ -755,7 +770,7 @@ class Base(object):
         # check if exists
         p = {u"userid": userid}
         o = {u"userid": u"="}
-        sql, values = self.GetSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
+        sql, values = self.FmtSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
         r = self.Query(sql, values)
         return r
 
@@ -796,7 +811,7 @@ class Base(object):
         cursor = self.connection.cursor()
 
         # base record
-        sql, values = self.GetSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
+        sql, values = self.FmtSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         cursor.execute(sql, values)
@@ -823,7 +838,7 @@ class Base(object):
         """
         Query database if id exists
         """
-        sql, values = self.GetSQLSelect(["id"], parameter={"id":id}, dataTable = self.MetaTable, singleTable=1)
+        sql, values = self.FmtSQLSelect(["id"], parameter={"id":id}, dataTable = self.MetaTable, singleTable=1)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
         c = self.connection.cursor()
@@ -860,7 +875,7 @@ class Base(object):
                 raise ConfigurationError, "Meta layer is empty."
             parameter = {"id": ids}
             operators = {"id": u"IN"}
-            sql, values = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, max=len(ids), sort=sort, operators=operators, singleTable=1)
+            sql, values = self.FmtSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, max=len(ids), sort=sort, operators=operators, singleTable=1)
             recs = self.Query(sql, values)
             for r in recs:
                 meta = self.ConvertRecToDict(r, flds)
@@ -881,7 +896,7 @@ class Base(object):
             parameter = {"id": ids}
             operators = {"id": u"IN"}
             # select list of datatbls
-            sql, values = self.GetSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, sort=sort, groupby=u"pool_datatbl", operators=operators, singleTable=1)
+            sql, values = self.FmtSQLSelect(flds, parameter=parameter, dataTable=self.MetaTable, sort=sort, groupby=u"pool_datatbl", operators=operators, singleTable=1)
             tables = []
             for r in self.Query(sql, values):
                 if not r["pool_datatbl"] in tables:
@@ -900,7 +915,7 @@ class Base(object):
             parameter = {u"id": ids, u"pool_datatbl": table}
             operators = {u"id": u"IN", u"pool_datatbl": u"="}
             # select type data
-            sql, values = self.GetSQLSelect(flds, parameter=parameter, dataTable=table, sort=sort, operators=operators)
+            sql, values = self.FmtSQLSelect(flds, parameter=parameter, dataTable=table, sort=sort, operators=operators)
             typeData = self.Query(sql, values)
             for r2 in typeData:
                 meta = self.ConvertRecToDict(r2[:len(fldsm)], fldsm)
@@ -1367,7 +1382,7 @@ class Entry(object):
         if not fromDB and self.cacheRec and self.meta.has_key(fld):
             return self.meta[fld]
 
-        sql, values = self.pool.GetSQLSelect([fld], parameter={"id":self.id}, dataTable=self.pool.MetaTable, singleTable=1)
+        sql, values = self.pool.FmtSQLSelect([fld], parameter={"id":self.id}, dataTable=self.pool.MetaTable, singleTable=1)
         data = self._GetFld(sql, values)
         data = self.pool.structure.deserialize(self.pool.MetaTable, fld, data)
         self._UpdateCache({fld: data})
@@ -1383,7 +1398,7 @@ class Entry(object):
             return self.data[fld]
 
         tbl = self.GetDataTbl()
-        sql, values = self.pool.GetSQLSelect([fld], parameter={"id":self.GetDataRef()}, dataTable=tbl, singleTable=1)
+        sql, values = self.pool.FmtSQLSelect([fld], parameter={"id":self.GetDataRef()}, dataTable=tbl, singleTable=1)
         data = self._GetFld(sql, values)
         data = self.pool.structure.deserialize(tbl, fld, data)
         self._UpdateCache(None, {fld: data})
@@ -1608,7 +1623,7 @@ class Entry(object):
         """
         if text==None:
             text=""
-        sql, values = self.pool.GetSQLSelect(["id"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
+        sql, values = self.pool.FmtSQLSelect(["id"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
         cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
@@ -1626,7 +1641,7 @@ class Entry(object):
         """
         read fulltext from entry
         """
-        sql, values = self.pool.GetSQLSelect(["text"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
+        sql, values = self.pool.FmtSQLSelect(["text"], parameter={"id":self.id}, dataTable=self.pool.FulltextTable, singleTable=1)
         cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
@@ -1695,7 +1710,7 @@ class Entry(object):
             param = {u"id": self.id}
         else:
             param = {u"id": self.GetDataRef()}
-        sql, values = pool.GetSQLSelect(flds, param, dataTable = table, version=self.version, singleTable=1)
+        sql, values = pool.FmtSQLSelect(flds, param, dataTable = table, version=self.version, singleTable=1)
 
         c = 0
         if not cursor:
@@ -1719,7 +1734,7 @@ class Entry(object):
         pool = self.pool
         flds2 = list(metaFlds) + list(dataFlds)
         param = {u"id": self.id}
-        sql, values = pool.GetSQLSelect(flds2, param, dataTable = self.GetDataTbl(), version=self.version)
+        sql, values = pool.FmtSQLSelect(flds2, param, dataTable = self.GetDataTbl(), version=self.version)
 
         c = 0
         if not cursor:

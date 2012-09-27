@@ -10,7 +10,7 @@ class utc:
 uTestCase = utc
 
 if ENABLE_MYSQL_TESTS:
-    from nive.utils.dataPool2.mySql import *
+    from nive.utils.dataPool2.mySqlPool import *
     uTestCase = unittest.TestCase
     
 from nive.utils.dataPool2.base import *

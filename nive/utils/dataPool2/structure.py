@@ -53,7 +53,6 @@ class Wrapper(object):
             return
         self._temp_[key] = self._entry_().DeserializeValue(key, value, self.meta)
 
-
     def __getitem__(self, key):
         if self._temp_.has_key(key):
             return self._temp_[key]
@@ -400,9 +399,10 @@ class PoolStructure(object):
                     value = 0
 
         elif fieldtype == "json":
-            if isinstance(value, basestring):
-                return value
-            value = json.dumps(value)
+            if not value:
+                value = u""
+            elif not isinstance(value, basestring):
+                value = json.dumps(value)
             
         # assure unicode except filedata
         if isinstance(value, bytes) and fieldtype!="file":
@@ -443,9 +443,10 @@ class PoolStructure(object):
             
         elif fieldtype == "json":
             # -> to python type
-            if not isinstance(value, basestring):
-                return value
-            value = json.loads(value)
+            if not value:
+                value = None
+            elif isinstance(value, basestring):
+                value = json.loads(value)
             
         return value
     

@@ -4,12 +4,12 @@ import copy
 
 import t_MySql
 try:
-    from nive.utils.dataPool2.mySql import *
+    from nive.utils.dataPool2.mySqlPool import *
 except:
     pass
 
 import t_db
-from nive.utils.dataPool2.sqlite3 import *
+from nive.utils.dataPool2.sqlite3Pool import *
 
 
 def create_mysql(n):

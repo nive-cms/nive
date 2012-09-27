@@ -121,7 +121,7 @@ class Search:
         db = self.db
         if pool_type==None:
             dataTable=kw.get("dataTable") or u"pool_meta"
-            sql, values = db.GetSQLSelect(fields, parameter, dataTable=dataTable, singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
+            sql, values = db.FmtSQLSelect(fields, parameter, dataTable=dataTable, singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
         else:
             if not parameter.has_key("pool_type") and not kw.get("dontAddType"):
                 parameter["pool_type"] = pool_type
@@ -130,7 +130,7 @@ class Search:
             typeInf = self.app.GetObjectConf(pool_type)
             if not typeInf:
                 raise ConfigurationError, pool_type + " type not found"
-            sql, values = db.GetSQLSelect(fields, parameter, dataTable=typeInf["dbparam"], operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
+            sql, values = db.FmtSQLSelect(fields, parameter, dataTable=typeInf["dbparam"], operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
         recs = db.Query(sql, values)
         return recs
 
@@ -219,7 +219,6 @@ class Search:
             fields.append(self.app.GetFld("id"))
             removeID = True
 
-        ct = time.time()
         db = self.db
         if not db:
             raise ConnectionError, "No database connection"
@@ -227,7 +226,7 @@ class Search:
         #BREAK(parameter)
         #BREAK(fldList)
         #BREAK(operators)
-        sql, values = db.GetSQLSelect(fldList, parameter=parameter, operators=operators, 
+        sql, values = db.FmtSQLSelect(fldList, parameter=parameter, operators=operators, 
                               sort=sort, ascending=ascending, start=start, max=max, 
                               groupby=kw.get("groupby"), 
                               logicalOperator=kw.get("logicalOperator"), 
@@ -268,7 +267,7 @@ class Search:
                 for p in range(len(fields)):
                     rec2.append(renderer.Render(fields[p], rec[p], False, **kw))
                 rec = rec2
-            items.append(dict(zip(rec, fldList)))
+            items.append(dict(zip(fldList, rec)))
             if max > 0 and cnt == max:
                 break
 
@@ -276,7 +275,7 @@ class Search:
         total = len(items)
         if total == max and kw.get("skipCount") != 1:
             if not kw.get("groupby"):
-                sql2, values =db.GetSQLSelect([u"-count(*)"], parameter=parameter, operators=operators, 
+                sql2, values =db.FmtSQLSelect([u"-count(*)"], parameter=parameter, operators=operators, 
                                       sort=sort, ascending=ascending, start=None, max=None, 
                                       logicalOperator=kw.get("logicalOperator"), 
                                       condition=kw.get("condition"), 
@@ -284,7 +283,7 @@ class Search:
                 #BREAK(sql)
                 total = db.Query(sql2, values)[0][0]
             else:
-                sql2, values = db.GetSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
+                sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
                                        sort=sort, ascending=ascending, start=None, max=None, 
                                        logicalOperator=kw.get("logicalOperator"), 
                                        condition=kw.get("condition"), 
@@ -300,7 +299,6 @@ class Search:
         result["total"] = total
         result["items"] = items
         result["time"] = time.time() - t
-        result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         if debug:
@@ -395,15 +393,13 @@ class Search:
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
-        ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
-            ct = time.time() - ct
 
             #BREAK(parameter)
-            sql, values = db.GetSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
+            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
             #BREAK(fldList)
             #BREAK(sql)
             aL = db.Query(sql, values)
@@ -432,7 +428,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(aI2, fldList)))
+                items.append(dict(zip(fldList, aI2)))
 
                 if max > 0 and cnt == max:
                     break
@@ -440,11 +436,11 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2, values = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2, values = db.GetSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
                     #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
             else:
@@ -456,7 +452,6 @@ class Search:
         result["total"] = total
         result["items"] = items
         result["time"] = time.time() - t
-        result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         result["sql"] = sql
@@ -540,15 +535,12 @@ class Search:
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
-        ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
-            ct = time.time() - ct
-
             #BREAK(parameter)
-            sql, values = db.GetSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
             #BREAK(fldList)
             #BREAK(sql)
             aL = db.Query(sql, values)
@@ -577,7 +569,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(aI2, fldList)))
+                items.append(dict(zip(fldList, aI2)))
 
                 if max > 0 and cnt == max:
                     break
@@ -585,11 +577,11 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2, values = db.GetSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
                     #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2, values = db.GetSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
                     #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
             else:
@@ -601,7 +593,6 @@ class Search:
         result["total"] = total
         result["items"] = items
         result["time"] = time.time() - t
-        result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         result["sql"] = sql
@@ -683,13 +674,10 @@ class Search:
         items = []
         cnt = 0
         total = 0
-        ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
-            ct = time.time() - ct
-
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
@@ -719,7 +707,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(aI2, fldList)))
+                items.append(dict(zip(fldList, aI2)))
                 if max > 0 and cnt == max:
                     break
 
@@ -737,7 +725,6 @@ class Search:
         result["total"] = total
         result["items"] = items
         result["time"] = time.time() - t
-        result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         result["sql"] = sql
@@ -841,13 +828,10 @@ class Search:
         total = 0
         sql = ""
 
-        ct = time.time()
         db = self.db
         if not db:
             ct = 0
         else:
-            ct = time.time() - ct
-
             #BREAK(parameter)
             #BREAK(fldList)
             #BREAK(kw.get("operators"))
@@ -878,7 +862,7 @@ class Search:
                 aI2 = []
                 for p in range(len(fields)):
                     aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(aI2, fldList)))
+                items.append(dict(zip(fldList, aI2)))
                 if max > 0 and cnt == max:
                     break
 
@@ -904,7 +888,6 @@ class Search:
         result["total"] = total
         result["items"] = items
         result["time"] = time.time() - t
-        result["connecttime"] = ct
         result["start"] = start
         result["max"] = max
         result["sql"] = sql
@@ -1232,37 +1215,42 @@ class Search:
             if not dyn:
                 pass
             elif dyn == "users":
-                values = GetUsers(self.app)
+                return GetUsers(self.app)
             elif dyn == "groups":
                 portal = self.app.GetPortal()
                 if portal==None:
                     portal = self.app
-                values = portal.GetGroups(sort="name", visibleOnly=True)
+                return portal.GetGroups(sort="name", visibleOnly=True)
+            elif dyn == "localgroups":
+                return self.app.GetGroups(sort="name", visibleOnly=True)
             elif dyn == "languages":
-                values = LanguageExtension().Codelist()
+                return LanguageExtension().Codelist()
             elif dyn == "countries":
-                values = CountryExtension().Codelist()
+                return CountryExtension().Codelist()
             elif dyn == "types":
-                values = self.app.GetAllObjectConfs()
+                return self.app.GetAllObjectConfs()
             elif dyn == "categories":
-                values = self.app.GetAllCategories()
+                return self.app.GetAllCategories()
             elif dyn[:5] == "type:":
                 type = dyn[5:]
-                values = self.GetEntriesAsCodeList(type, "title", parameter= {}, operators = {}, sort = "title")
+                return self.GetEntriesAsCodeList(type, "title", parameter= {}, operators = {}, sort = "title")
             elif dyn == "meta":
-                values = self.GetEntriesAsCodeList2("title", parameter= {}, operators = {}, sort = "title")
-        
-        elif fld == "pool_type":
+                return self.GetEntriesAsCodeList2("title", parameter= {}, operators = {}, sort = "title")
+
+        if fld == "pool_type":
             values = self.app.GetAllObjectConfs()
 
         elif fld == "pool_category":
             values = self.app.GetAllCategories()
 
         elif fld == "pool_groups":
-            portal = self.app.GetPortal()
-            if portal==None:
-                portal = self.app
-            values = portal.GetGroups(sort="name", visibleOnly=True)
+            local = fieldconf.settings.get("local")
+            loader = self.app
+            if not local:
+                portal = self.app.GetPortal()
+                if portal:
+                    loader = portal
+            values = loader.GetGroups(sort="name", visibleOnly=True)
 
         elif fld == "pool_language":
             values = self.app.GetLanguages()

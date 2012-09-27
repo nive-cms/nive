@@ -4,12 +4,12 @@ import copy
 
 import t_MySql
 try:
-    from nive.utils.dataPool2.mySql import *
+    from nive.utils.dataPool2.mySqlPool import *
 except:
     pass
 
 import t_db
-from nive.utils.dataPool2.sqlite3 import *
+from nive.utils.dataPool2.sqlite3Pool import *
 
 
 mode = "mysql"
@@ -112,7 +112,7 @@ def createsql(n):
     print_( "Create SQL: ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.GetSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
             {u"pool_type": u"data1", u"ftext": u"", u"fnumber": 3},
             sort = u"title, id, fnumber",
             ascending = 0,
@@ -133,7 +133,7 @@ def sqlquery1(n, start):
     print_( "SQL Query data+meta (join no index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.GetSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
             {u"pool_type": u"data1", u"ftext": u"123", u"fnumber": i+start},
             sort = u"title, id, fnumber",
             ascending = 0,
@@ -155,7 +155,7 @@ def sqlquery2(n, start):
     print_( "SQL Query data+meta=id (join index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.GetSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
             {u"id": i+start},
             sort = u"title",
             ascending = 0,
@@ -177,7 +177,7 @@ def sqlquery3(n, start):
     print_( "SQL Query meta=id (index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.GetSQLSelect(list(t_MySql.stdMeta),
+        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta),
             {u"id": start+i},
             sort = u"id",
             ascending = 0,
@@ -200,7 +200,7 @@ def sqlquery4(n, start):
     print_( "SQL Query meta=id+pool_type=data1 (index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.GetSQLSelect(list(t_MySql.stdMeta),
+        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta),
             {u"id": start+i, u"pool_type": u"data1"},
             sort = u"id",
             ascending = 0,
@@ -223,7 +223,7 @@ def sqlquery5(n, start):
     print_( "SQL Query meta=id+pool_type=data1+data.funit (join index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.GetSQLSelect(list(t_MySql.stdMeta),
+        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta),
             {u"id": start+i, u"pool_type": u"data1", u"funit": 35},
             sort = u"id",
             ascending = 0,

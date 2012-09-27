@@ -465,6 +465,23 @@ class ObjectEdit:
         return True
 
 
+    def RenameFile(self, filekey, filename, user):
+        """
+        Changes the filename field of the file `filekey`. ::
+
+            filekey = file to set the new filename for
+            filename = new filename
+            user = the current user
+            returns bool
+
+        """
+        if self.dbEntry.RenameFile(filekey, filename):
+            self.dbEntry.Touch()
+            self.Commit(user)
+            return True
+        return False
+    
+    
     # Edit functions without workflow ------------------------------------------
 
     def UpdateInternal(self, data):

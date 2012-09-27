@@ -371,9 +371,6 @@ def SchemaFactory(self, form, fields, actions, force=False):
         else:
             continue
             # skipped
-            #lines -> text
-            #xml -> text
-            #bytesize (Filesize) -> number
             #timestamp (Timestamp) -> readonly
             
         # add to class

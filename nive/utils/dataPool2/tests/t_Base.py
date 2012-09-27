@@ -135,18 +135,18 @@ class BaseTest(unittest.TestCase):
             base.SetConnection(Connection())
         except TypeError:
             pass
-        #GetSQLSelect(self, flds, parameter={}, dataTable = "", start = 0, max = 1000, **kw)
+        #FmtSQLSelect(self, flds, parameter={}, dataTable = "", start = 0, max = 1000, **kw)
         flds = list(struct[u"pool_meta"])+list(struct[u"data1"])
-        base.GetSQLSelect(struct[u"pool_meta"])
-        base.GetSQLSelect(struct[u"pool_meta"], parameter={u"id":1})
-        base.GetSQLSelect(struct[u"pool_meta"], parameter={u"pool_type":u"data1"})
-        base.GetSQLSelect(flds, parameter={u"pool_type":u"data1"}, dataTable=u"data1")
-        base.GetSQLSelect(list(struct[u"data1"])+[u"-count(*)"], parameter={u"id":123}, dataTable=u"data1", singleTable=1)
-        base.GetSQLSelect(flds,
+        base.FmtSQLSelect(struct[u"pool_meta"])
+        base.FmtSQLSelect(struct[u"pool_meta"], parameter={u"id":1})
+        base.FmtSQLSelect(struct[u"pool_meta"], parameter={u"pool_type":u"data1"})
+        base.FmtSQLSelect(flds, parameter={u"pool_type":u"data1"}, dataTable=u"data1")
+        base.FmtSQLSelect(list(struct[u"data1"])+[u"-count(*)"], parameter={u"id":123}, dataTable=u"data1", singleTable=1)
+        base.FmtSQLSelect(flds,
                           parameter={u"pool_type":u"data1"},
                           dataTable=u"data1",
                           operators={u"pool_type":u">"})
-        base.GetSQLSelect(flds,
+        base.FmtSQLSelect(flds,
                           parameter={u"pool_type":u"data1"},
                           dataTable=u"data1",
                           operators={u"pool_type":u"="},
@@ -154,7 +154,7 @@ class BaseTest(unittest.TestCase):
                           max=20,
                           ascending=1,
                           sort=u"title, pool_type")
-        base.GetSQLSelect(flds,
+        base.FmtSQLSelect(flds,
                           parameter={u"pool_type":u"data1",u"id":[1,2,3,4,5,6,7,8,9,0]},
                           dataTable=u"data1",
                           operators={u"pool_type":u"=", u"id":u"IN"},

@@ -45,7 +45,8 @@ type1.data = [
     FieldConf(id="flist", datatype="list", size=100, name=u"flist", listItems=[{"id": u"item 1", "name":u"Item 1"},{"id": u"item 2", "name":u"Item 2"},{"id": u"item 3", "name":u"Item 3"}]),
     FieldConf(id="fmselect", datatype="mselection", size=50, name=u"fmselect"),
     FieldConf(id="funit", datatype="unit", size=8, name=u"funit"),
-    FieldConf(id="funitlist", datatype="unitlist", size=100, name=u"funitlist")
+    FieldConf(id="funitlist", datatype="unitlist", size=100, name=u"funitlist"),
+    FieldConf(id="fjson", datatype="json", size=1000, name=u"fjson"),
 ]
 
 type2 = ObjectConf(
@@ -142,16 +143,14 @@ def app_db(modules=None):
     root = DvPath(a.dbConfiguration.fileRoot)
     if not root.IsDirectory():
         root.CreateDirectories()
+    """
     try:
         a.Query("select id from pool_meta where id=1")
-        a.Query("select id from data1 where id=1")
-        a.Query("select id from data2 where id=1")
-        a.Query("select id from data3 where id=1")
-        a.Query("select id from pool_files where id=1")
-        a.Query("select id from pool_sys where id=1")
-        a.Query("select id from pool_groups where id=1")
     except:
         a.GetTool("nive.components.tools.dbStructureUpdater")()
+    """
+    # disable this to update test tables each time the tests are called
+    a.GetTool("nive.components.tools.dbStructureUpdater")()
     a.Startup(None)
     return a
 

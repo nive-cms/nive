@@ -1,10 +1,11 @@
 - queryRestraint tests
 - FieldConf.listItems callback tests
-- json mapping form tests
 - fieldconf lisitem handling
+- json mapping form tests
 - field renderer tests
-- mselection, mcheckboxes, urllist, unitlist store and load as list
 - default installation design bootstrap
-- fulltext search root page
 - form action map to view permission
 - test mailresetpass
+- test application.StoreSysValue and LoadSysValue
+- move datapool2 Group functions
+- universal datetime handling

@@ -995,6 +995,26 @@ class Configuration:
 
     # nive Configuration -------------------------------------------------------------
 
+    def StoreSysValue(self, key, value):
+        """
+        Stores a value in `pool_sys` table. Value must be a string of any size.
+        """
+        db = self.db
+        db.UpdateFields(u"pool_sys", key, {u"id": key, u"value":value, u"ts":time()}, autoinsert=True)
+        db.Commit()
+
+    def LoadSysValue(self, key):
+        """
+        Loads the value stored as `key` from `pool_sys` table. 
+        """
+        db = self.db
+        sql, values = db.FmtSQLSelect([u"value", u"ts"], parameter={"id":key}, dataTable=u"pool_sys", singleTable=1)
+        r = db.Query(sql, values)
+        if not r:
+            return None
+        return r[0][0]
+
+
     def LoadStructure(self, forceReload = False):
         """
         returns dictionary containing database tables and columns
@@ -1038,7 +1058,10 @@ class Configuration:
     def _SortFields(self, listtosort, sort):
         if not sort:
             return listtosort
-        return sorted(listtosort, key=attrgetter(sort))   
+        try:
+            return sorted(listtosort, key=attrgetter(sort))   
+        except AttributeError:
+            return sorted(listtosort, key=itemgetter(sort))   
 
 
 
@@ -1058,9 +1081,9 @@ class AppFactory:
         if not poolTag:
             raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
         elif poolTag.lower() in ("sqlite","sqlite3"):
-            poolTag = "nive.utils.dataPool2.sqlite3.Sqlite3"
+            poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
         elif poolTag.lower() == "mysql":
-            poolTag = "nive.utils.dataPool2.mySql.MySql"
+            poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
 
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
         c = self.dbConfiguration
@@ -1093,9 +1116,9 @@ class AppFactory:
         if not poolTag:
             raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"
         elif poolTag.lower() in ("sqlite","sqlite3"):
-            poolTag = "nive.utils.dataPool2.sqlite3.Sqlite3"
+            poolTag = "nive.utils.dataPool2.sqlite3Pool.Sqlite3"
         elif poolTag.lower() == "mysql":
-            poolTag = "nive.utils.dataPool2.mySql.MySql"
+            poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
         return dbObj.defaultConnection(self.dbConfiguration)
 

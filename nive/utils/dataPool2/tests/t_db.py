@@ -6,7 +6,7 @@ import unittest
 from types import *
 
 from nive.utils.dataPool2.base import *
-from nive.utils.dataPool2.sqlite3 import Sqlite3
+from nive.utils.dataPool2.sqlite3Pool import Sqlite3
 from nive.utils.path import DvPath
 
 from sqlite3 import OperationalError
@@ -442,8 +442,7 @@ class dbTest:
     def test_sql(self):
 
         t = time()
-        #print "GetSQLSelect",
-        sql, values=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
+        sql, values=self.pool.FmtSQLSelect(list(stdMeta)+list(struct[u"data1"]),
                         {u"pool_type": "data1", u"ftext": "123", u"fnumber": 300000},
                         sort = u"title, id, fnumber",
                         ascending = 0,
@@ -456,8 +455,7 @@ class dbTest:
         c.close()
         #print "OK"
 
-        #print "GetSQLSelect singleTable",
-        sql, values=self.pool.GetSQLSelect(list(struct[u"data1"]),
+        sql, values=self.pool.FmtSQLSelect(list(struct[u"data1"]),
                                      {u"ftext": "", u"fnumber": 3},
                                      dataTable=u"data1",
                                      sort = u"id, fnumber",
@@ -487,7 +485,7 @@ class dbTest:
     def test_sql2(self):
 
         t = time()
-        sql1, values1=self.pool.GetSQLSelect(list(stdMeta)+list(struct[u"data1"]),
+        sql1, values1=self.pool.FmtSQLSelect(list(stdMeta)+list(struct[u"data1"]),
                         {u"pool_type": "data1", u"ftext": "", u"fnumber": 3},
                         sort = u"title, id, fnumber",
                         ascending = 0,
@@ -495,7 +493,7 @@ class dbTest:
                         operators={u"pool_type":u"=", u"ftext": u"<>", u"fnumber": u">"},
                         start=1,
                         max=123)
-        sql2, values2=self.pool.GetSQLSelect(list(struct[u"data1"]),
+        sql2, values2=self.pool.FmtSQLSelect(list(struct[u"data1"]),
                                      {u"ftext": u"", u"fnumber": 3},
                                      dataTable=u"data1",
                                      sort = u"id, fnumber",
@@ -522,23 +520,23 @@ class dbTest:
 
         self.pool.InsertFields("pool_meta", {"pool_type": "notype", "title": "test entry"}, cursor = None)
         self.pool.Commit()
-        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
+        sql, values = self.pool.FmtSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
         id = self.pool.Query(sql, values)
         self.assert_(id)
         
         self.pool.UpdateFields("pool_meta", id[0][0], {"pool_type": "notype 123", "title": "test entry 123"}, cursor = None)
         self.pool.Commit()
-        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
+        sql, values = self.pool.FmtSQLSelect(["id"], {"pool_type": "notype", "title": "test entry"}, dataTable="pool_meta", singleTable=1) 
         id = self.pool.Query(sql, values)
         self.assertFalse(id)
-        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
+        sql, values = self.pool.FmtSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
         id = self.pool.Query(sql, values)
         self.assert_(id)
         
         for i in id:
             self.pool.DeleteRecords("pool_meta", {"id":i[0]}, cursor=None)
         self.pool.Commit()
-        sql, values = self.pool.GetSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
+        sql, values = self.pool.FmtSQLSelect(["id"], {"pool_type": "notype 123", "title": "test entry 123"}, dataTable="pool_meta", singleTable=1) 
         id = self.pool.Query(sql, values)
         self.assertFalse(id)
 

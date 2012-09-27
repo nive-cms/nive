@@ -38,6 +38,7 @@ This is an example to be used in object view code: ::
     # process and render the form.
     result, data, action = form.Process(defaultAction="defaultEdit")
 
+*view* must be an instance of `nive.views.BaseView`.  
 *data* will contain the rendered HTML whether the is loaded for the first time, validated ok or 
 not. *result* will be *false* if the form input did not validate. The *ObjectForm* already includes 
 all necessary functions to load data initially, create an object and store data for existing objects.
@@ -60,6 +61,30 @@ Form action callback methods use the following footage: ::
 
 These callback methods are automatically looked up and executed in Process(). Use action.method to
 link a method to a specific form action.
+
+A custom HTMLForm example: ::
+
+    form = HTMLForm(view=self)
+    form.actions = [
+        Conf(id="default",    method="StartForm",             name=u"Initialize",          hidden=True),
+        Conf(id="create",     method="ReturnDataOnSuccess",   name=u"Create a new group",  hidden=False),
+    ]
+    form.fields = [
+        FieldConf(id="id",   name=u"Group id",   datatype="string", size="20", required=True),
+        FieldConf(id="name", name=u"Group name", datatype="string", size="40", required=True)
+    ]
+    form.Setup()
+    data, html, action = form.Process()
+
+
+Callback for dynamic list item loading: ::
+
+    def loadGroups(fieldconf, object):
+        return [{"id": id, "name":name}]
+
+
+    FieldConf(..., listItems=loadGroups, ...)
+
 
 In short forms are explained as follows:
 
@@ -169,6 +194,8 @@ class Form(Events,ReForm):
         """
         Initialize form context. If view is not None and context, request, app are automatically
         extracted from the view object. Form fields and actions are processed in Setup(). 
+        
+        Please note: `view` must be an instance of `nive.views.BaseView`  
         """
         # form context
         self.view = view
@@ -632,22 +659,28 @@ class HTMLForm(Form):
             if a["id"]+u"$" in formValues.keys():
                 action = a
                 break
-            if a["id"] == defaultAction:
-                default = a
 
-        if not action and default:
-            action = default
+        if not action and defaultAction:
+            # lookup default action 
+            if isinstance(defaultAction, basestring):
+                for a in self.actions:
+                    if a["id"]==defaultAction:
+                        action = a
+                        break
+            else:
+                action = defaultAction
+
+        # no action -> raise exception
+        if not action:
+            raise ConfigurationError, "No action found to process the form"
 
         # call action
-        if action:
-            if isinstance(action["method"], basestring):
-                method = getattr(self, action["method"])
-            else:
-                method = action["method"]
-            result, data = method(action, redirect_success, **kw)
+        if isinstance(action["method"], basestring):
+            method = getattr(self, action["method"])
         else:
-            result, data = self.StartForm(None, redirect_success, **kw)
-        return result, data, action
+            method = action["method"]
+        result, html = method(action, redirect_success, **kw)
+        return result, html, action
 
 
     def IsRequestAction(self, action):
@@ -662,13 +695,17 @@ class HTMLForm(Form):
 
     def StartForm(self, action, redirect_success, **kw):
         """
-        Default action. Called if no action in request or self.actions.default set.
-        Loads default data for initial from display from field definitions.
-        
+        Default action. Use this function to initially render a form if:
+        - startEmpty is True
+        - defaultData is passed in kw
+        - load form default data
+
         returns bool, html
         """
         if self.startEmpty:
             data = {}
+        elif "defaultData" in kw:
+            data = kw["defaultData"]
         else:
             data = self.LoadDefaultData()
         return True, self.Render(data)
@@ -685,6 +722,24 @@ class HTMLForm(Form):
         return True, self.Render(data)
 
 
+    def ReturnDataOnSuccess(self, action, redirect_success, **kw):
+        """
+        Process request data and returns validated data as `result` and rendered
+        form as `data`. If validation fails `result` is False. `redirect_success`
+        is ignored.
+
+        returns bool, html
+        """
+        msgs = []
+        result,data,errors = self.Validate(self.request)
+        if result:
+            msgs.append(_(u"OK."))
+            errors=None
+            result = data
+            data = {}
+        return result, self.Render(data, msgs=msgs, errors=errors)
+
+    
     def Cancel(self, action, redirect_success, **kw):
         """
         Cancel form action
@@ -1134,15 +1189,9 @@ class JsonMappingForm(HTMLForm):
             return result,data,errors
         # merge existing data
         if self.mergeContext and self.context:
-            jdata = self.context.data[self.jsonDataField]
-            if jdata:
-                jdata = json.loads(jdata)
-            if not isinstance(jdata, dict):
-                jdata = {}
+            jdata = self.context.data[self.jsonDataField] or {}
             jdata.update(data)
             data = jdata
-        # convert to json string 
-        data = json.dumps(data)
         return result,data,errors
 
     
@@ -1160,14 +1209,8 @@ class JsonMappingForm(HTMLForm):
         # merge existing data
         if self.mergeContext and self.context:
             jdata = self.context.data[self.jsonDataField]
-            if jdata:
-                jdata = json.loads(jdata)
-            if not isinstance(jdata, dict):
-                jdata = {}
             jdata.update(data)
             data = jdata
-        # convert to json string 
-        data = json.dumps(data)
         return result,data
 
 
@@ -1178,11 +1221,7 @@ class JsonMappingForm(HTMLForm):
         
         returns bool, html
         """
-        data = self.context.data.get(self.jsonDataField)
-        if data:
-            data = json.loads(data)
-        else:
-            data = self.LoadDefaultData()
+        data = self.context.data.get(self.jsonDataField) or {}
         return data!=None, self.Render(data)
 
 

@@ -222,11 +222,11 @@ class FormTest(unittest.TestCase):
         data = {"parameter1": "True", "parameter2": "test"}
         r,v,e = form.Validate(data)
         self.assert_(r, e)
-        self.assert_(isinstance(v, basestring))
+        self.assert_(isinstance(v, dict))
         data = {"parameter1": "True", "parameter2": "test"}
         r,v = form.Extract(data)
         self.assert_(r, v)
-        self.assert_(isinstance(v, basestring))
+        self.assert_(isinstance(v, dict))
         
 
     def test_actions(self, **kw):
@@ -257,9 +257,9 @@ class FormTest(unittest.TestCase):
         form.Setup()
 
         f = form.GetFields(removeReadonly=True)
-        self.assert_(len(f)==7)
+        self.assert_(len(f)==8)
         f = form.GetFields(removeReadonly=False)
-        self.assert_(len(f)==12)
+        self.assert_(len(f)==13)
 
         
 
@@ -446,17 +446,17 @@ class FormTest_db(unittest.TestCase):
         user = UserO(u"test")
         root = self.app.GetRoot()
         obj = root.Create("type1", data1_2, user)
-        obj.data["ftext"] = ""
+        obj.data["fjson"] = {}
         obj.Commit(user=user)
         self.remove.append(obj.id)
         v = Viewy()
 
         form = JsonMappingForm(request=Request(),app=self.app,context=obj, view=v)
         form.fields = (
-            FieldConf(id="parameter1", datatype="text", size=1000),
+            FieldConf(id="parameter1", datatype="string", size=1000),
             FieldConf(id="parameter2", datatype="string", size=100),
         )
-        form.jsonDataField = "ftext"
+        form.jsonDataField = "fjson"
         form.Setup()
 
         data = {"parameter1": "True", "parameter2": "test"}

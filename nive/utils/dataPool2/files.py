@@ -218,7 +218,7 @@ class FileManager:
         """
         flds = self.FileTableFields
         kw["singleTable"] = 1
-        sql, values = self.GetSQLSelect(flds, parameter, dataTable=self.FileTable, sort = sort, start=start, max=max, ascending = ascending, **kw)
+        sql, values = self.FmtSQLSelect(flds, parameter, dataTable=self.FileTable, sort = sort, start=start, max=max, ascending = ascending, **kw)
         files = self.Query(sql, values)
         f2 = []
         for f in files:
@@ -321,7 +321,7 @@ class FileEntry:
             parameter = {}
         parameter[u"id"] = self.id
         operators={u"filekey":u"=", "filename": u"="}
-        sql, values = self.pool.GetSQLSelect(self.pool.FileTableFields, parameter, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
+        sql, values = self.pool.FmtSQLSelect(self.pool.FileTableFields, parameter, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
         recs = self.pool.Query(sql, values)
         if len(recs) == 0:
             return []
@@ -496,7 +496,7 @@ class FileEntry:
             file.fileid = self.pool.UpdateFields(self.pool.FileTable, file.fileid, data, cursor=cursor, idColumn=u"fileid")
         else:
             data["id"] = self.id
-            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, icColumn=u"fileid")
+            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, idColumn=u"fileid")
         return True
 
 
@@ -587,6 +587,18 @@ class FileEntry:
         sql = u"delete from %s where fileid = %d" % (self.pool.FileTable, file.fileid)
         self.pool.Query(sql, getResult=False)
         return True
+
+
+    def RenameFile(self, key, filename):
+        """
+        Changes the filename field of the file `key`.
+        """
+        self.files.set(key, None)
+        file = self.GetFile(key)
+        if not file:
+            return False
+        data = {"filename": filename}
+        return self.pool.UpdateFields(self.pool.FileTable, file.fileid, data, idColumn=u"fileid")
 
 
     # internal --------------------------------------------------------------------
