@@ -309,9 +309,12 @@ class ContainerEdit:
             if app.configuration.autocommit:
                 obj.CommitInternal(user=user)
         except Exception, e:
-            if dbEntry:
-                id = dbEntry.GetID()
-                db.DeleteEntry(id)
+            #try:
+            #    if dbEntry:
+            #        id = dbEntry.GetID()
+            #        db.DeleteEntry(id)
+            #except:
+            #    pass
             db.Undo()
             raise 
         return obj
@@ -366,11 +369,14 @@ class ContainerEdit:
             newobj.Signal("duplicate", **kw)
             
         except Exception, e:
-            if newDataEntry:
-                id = newDataEntry.GetID()
-                db = app.db
-                db.DeleteEntry(id)
-                db.Undo()
+            try:
+                if newDataEntry:
+                    id = newDataEntry.GetID()
+                    db = app.db
+                    db.DeleteEntry(id)
+            except:
+                pass
+            db.Undo()
             raise 
 
         try:    

@@ -631,7 +631,7 @@ class HTMLForm(Form):
     """
     # html styling
     formid = u"upload"
-    css_class = u"poolform"
+    css_class = u"form form-horizontal"
     use_ajax = False
     
     # Form actions --------------------------------------------------------------------------------------------
@@ -736,7 +736,7 @@ class HTMLForm(Form):
             msgs.append(_(u"OK."))
             errors=None
             result = data
-            data = {}
+            #data = {}
         return result, self.Render(data, msgs=msgs, errors=errors)
 
     
@@ -932,7 +932,9 @@ class ObjectForm(HTMLForm):
         """
         Process request data and update object.
         
-        returns bool, html
+        `Process()` returns the form data as result if update succeeds.
+
+        returns form data or false, html
         """
         msgs = []
         obj=self.context
@@ -961,7 +963,9 @@ class ObjectForm(HTMLForm):
         Pass kw['pool_type'] to specify type to be created. If not passed pool_type
         will be extracted from data dictionary.
 
-        returns bool, html
+        `Process()` returns the new object as result if create succeeds.
+
+        returns new object or none, html
         """
         msgs = []
         result,data,errors = self.Validate(self.request)
@@ -1161,6 +1165,8 @@ class JsonMappingForm(HTMLForm):
         jsonDataField = the field to merge data to
         mergeContext = if true the database values will be updated
                        by form values
+                       
+    `Process()` returns the form data as dictionary on success.
     
     """
     jsonDataField = "data"
@@ -1236,8 +1242,7 @@ class JsonMappingForm(HTMLForm):
         result,data,errors = self.Validate(self.request)
         if result:
             user = self.view.User()
-            data = {self.jsonDataField: data}
-            result = obj.Update(data, user)
+            result = obj.Update({self.jsonDataField: data}, user)
             if result:
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
@@ -1248,6 +1253,6 @@ class JsonMappingForm(HTMLForm):
                         self.view.AjaxRelocate(redirect_success, messages=msgs)
                     else:
                         self.view.Redirect(redirect_success, messages=msgs)
-                result = obj
+                result = data
         return result, self.Render(data, msgs=msgs, errors=errors)
         

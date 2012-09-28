@@ -769,9 +769,9 @@ class FieldRenderer(object):
             if not options:
                 options = fieldConf.get("listItems")
                 if hasattr(options, "__call__"):
-                    options = self.context.root().LoadListItems(fieldConf, obj=None)
+                    options = options(fieldConf, obj=None)
                 elif options == None:
-                    options = []
+                    options = self.context.root().LoadListItems(fieldConf, obj=None)
 
             for item in options:
                 if item["id"] == data:
@@ -784,10 +784,11 @@ class FieldRenderer(object):
             if not options:
                 options = fieldConf.get("listItems")
                 if hasattr(options, "__call__"):
-                    options = self.context.root().LoadListItems(fieldConf, obj=None)
+                    options = options(fieldConf, obj=None)
                 elif options == None:
-                    options = []
-
+                    options = self.context.root().LoadListItems(fieldConf, obj=None)
+            if isinstance(data, basestring):
+                data = tuple(value.split(u"\n"))
             for ref in data:
                 if options:
                     for item in options:
@@ -796,7 +797,7 @@ class FieldRenderer(object):
                 else:
                     values.append(ref)
                 
-            data = u"<br />".join(values)
+            data = u", ".join(values)
 
         elif fType == "text":
             data = data.replace(u"\r\n", u"\r\n<br />")
