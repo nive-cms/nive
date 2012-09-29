@@ -124,7 +124,7 @@ class FormTest(unittest.TestCase):
         form = HTMLForm(loadFromType="type1", app=self.app, view=self.view, request=Request())
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
         form.Setup()
 
         v,d,e = form.Validate(data1_1)
@@ -144,7 +144,7 @@ class FormTest(unittest.TestCase):
         form = HTMLForm(loadFromType="type1", app=self.app, view=self.view, request=Request())
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
         form.subsets = {u"test": {"fields": [u"ftext",u"funit",u"title"]}}
         form.Setup(subset=u"test")
         v,d,e = form.Validate(data1_2)
@@ -156,7 +156,7 @@ class FormTest(unittest.TestCase):
         form = HTMLForm(loadFromType="type1", app=self.app, view=self.view, request=Request())
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
         form.subsets = {u"test": {"fields": [u"ftext", FieldConf(**{"id": "section1", "name": "Section 1", "datatype": "section", "fields": [u"funit"]}), u"title"]}}
         form.Setup(subset=u"test")
         v,d,e = form.Validate(data1_2)
@@ -169,11 +169,11 @@ class FormTest(unittest.TestCase):
         form = ToolForm(loadFromType=tool.configuration, context=tool,app=self.app, view=self.view, request=Request())
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
         form.actions = [
-            Conf(**{"id": "default", "name": "Speichern", "method": "StartForm", "description": "", "hidden":True, "cssClass":"", "html":"", "tag":""}),
-            Conf(**{"id": "run",       "name": "Speichern", "method": "RunTool",      "description": "", "cssClass":"", "html":"", "tag":""}),
-            Conf(**{"id": "cancel",  "name": "Abbrechen", "method": "Cancel",    "description": "", "cssClass":"", "html":"", "tag":""})
+            Conf(**{"id": "default", "name": "Speichern", "method": "StartForm", "description": "", "hidden":True, "css_class":"", "html":"", "tag":""}),
+            Conf(**{"id": "run",       "name": "Speichern", "method": "RunTool",      "description": "", "css_class":"", "html":"", "tag":""}),
+            Conf(**{"id": "cancel",  "name": "Abbrechen", "method": "Cancel",    "description": "", "css_class":"", "html":"", "tag":""})
             ]
         form.Setup()
         data = {"parameter1": "True", "parameter2": "test"}
@@ -233,13 +233,13 @@ class FormTest(unittest.TestCase):
         form = HTMLForm(loadFromType="type1", app=self.app, view=self.view, request=Request())
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
 
         # create
         form.actions = [
-        Conf(**{"id": "default", "method": "StartForm","name": "Initialize", "hidden":True,  "description": "", "cssClass":"", "html":"", "tag":""}),
-        Conf(**{"id": "create",  "method": "CreateObj","name": "Create",     "hidden":False, "description": "", "cssClass":"", "html":"", "tag":""}),
-        Conf(**{"id": "cancel",  "method": "Cancel",   "name": "Cancel",     "hidden":False, "description": "", "cssClass":"", "html":"", "tag":""})
+        Conf(**{"id": "default", "method": "StartForm","name": "Initialize", "hidden":True,  "description": "", "css_class":"", "html":"", "tag":""}),
+        Conf(**{"id": "create",  "method": "CreateObj","name": "Create",     "hidden":False, "description": "", "css_class":"", "html":"", "tag":""}),
+        Conf(**{"id": "cancel",  "method": "Cancel",   "name": "Cancel",     "hidden":False, "description": "", "css_class":"", "html":"", "tag":""})
         ]
         form.Setup()
         a = form.GetActions(removeHidden=False)
@@ -252,7 +252,7 @@ class FormTest(unittest.TestCase):
         form = HTMLForm(loadFromType="type1", app=self.app, view=self.view, request=Request())
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
         # create
         form.Setup()
 
@@ -288,13 +288,13 @@ class FormTest_db(unittest.TestCase):
         form = ObjectForm(loadFromType="type1", context=root, view=v, request=Request(), app=self.app)
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
 
         # create
         form.actions = [
-        Conf(**{"id": "default", "method": "StartForm","name": "Initialize", "hidden":True,  "description": "", "cssClass":"", "html":"", "tag":""}),
-        Conf(**{"id": "create",  "method": "CreateObj","name": "Create",     "hidden":False, "description": "", "cssClass":"", "html":"", "tag":""}),
-        Conf(**{"id": "cancel",  "method": "Cancel",   "name": "Cancel",     "hidden":False, "description": "", "cssClass":"", "html":"", "tag":""})
+        Conf(**{"id": "default", "method": "StartForm","name": "Initialize", "hidden":True,  "description": "", "css_class":"", "html":"", "tag":""}),
+        Conf(**{"id": "create",  "method": "CreateObj","name": "Create",     "hidden":False, "description": "", "css_class":"", "html":"", "tag":""}),
+        Conf(**{"id": "cancel",  "method": "Cancel",   "name": "Cancel",     "hidden":False, "description": "", "css_class":"", "html":"", "tag":""})
         ]
         form.Setup(addTypeField = True)
         
@@ -381,13 +381,13 @@ class FormTest_db(unittest.TestCase):
         form = ObjectForm(loadFromType="type1", context=obj, view=v, request=Request(), app=self.app)
         form.formUrl = "form/url"
         form.cssID = u"upload"
-        form.cssClass = u"niveform"
+        form.css_class = u"niveform"
         count = self.app.db.GetCountEntries()
         # edit
         form.actions = [
-        Conf(**{"id": "default", "method": "StartObject","name": "Initialize",    "hidden":True, "description": "", "cssClass":"", "html":"", "tag":""}),
-        Conf(**{"id": "save",       "method": "UpdateObj","name": "Save",         "hidden":False, "description": "", "cssClass":"", "html":"", "tag":""}),
-        Conf(**{"id": "cancel",  "method": "Cancel",    "name": "Cancel",         "hidden":False, "description": "", "cssClass":"", "html":"", "tag":""})
+        Conf(**{"id": "default", "method": "StartObject","name": "Initialize",    "hidden":True, "description": "", "css_class":"", "html":"", "tag":""}),
+        Conf(**{"id": "save",       "method": "UpdateObj","name": "Save",         "hidden":False, "description": "", "css_class":"", "html":"", "tag":""}),
+        Conf(**{"id": "cancel",  "method": "Cancel",    "name": "Cancel",         "hidden":False, "description": "", "css_class":"", "html":"", "tag":""})
         ]
         form.Setup()
         form.Process()

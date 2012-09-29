@@ -129,6 +129,7 @@ class Tool(object):
 
         # call function
         values = self.ExtractValues(**kw)
+        values["original"] = kw
         result = self._Run(**values)
         return result, self.stream
 

@@ -98,8 +98,8 @@ dbAdminConfiguration = ViewModuleConf(
 class ConfigurationForm(HTMLForm):
     
     actions = [
-        Conf(id=u"default",    method="Start",   name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="Update",  name=u"Save",       hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"default",    method="Start",   name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
+        Conf(id=u"edit",       method="Update",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
     ]
     
     def Start(self, action, redirect_success, **kw):

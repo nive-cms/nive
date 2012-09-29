@@ -861,11 +861,11 @@ class ObjectForm(HTMLForm):
     Contains actions for object creation and updates.
     """
     actions = [
-        Conf(id=u"default",    method="StartForm",  name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
-        Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
-        Conf(id=u"defaultEdit",method="StartObject",name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
-        Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, cssClass=u"buttonCancel",html=u"", tag=u"")
+        Conf(id=u"default",    method="StartForm",  name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
+        Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"defaultEdit",method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, css_class=u"buttonCancel",html=u"", tag=u"")
     ]
     subsets = {
         "create": {"actions": [u"default",u"create"]},
@@ -1005,8 +1005,8 @@ class ToolForm(HTMLForm):
     A simple example to render a tool form and execute it.
     """
     actions = [
-        Conf(id=u"default", method="StartForm", name=u"Initialize", hidden=True,  cssClass=u"", html=u"", tag=u""),
-        Conf(id=u"run",     method="RunTool",   name=u"Start",      hidden=False, cssClass=u"", html=u"", tag=u""),
+        Conf(id=u"default", method="StartForm", name=u"Initialize", hidden=True,  css_class=u"", html=u"", tag=u""),
+        Conf(id=u"run",     method="RunTool",   name=u"Start",      hidden=False, css_class=u"", html=u"", tag=u""),
     ]
 
     def Setup(self, subset=None):
@@ -1173,8 +1173,8 @@ class JsonMappingForm(HTMLForm):
     mergeContext = True
 
     actions = [
-        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  cssClass=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, cssClass=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
     ]
 
     def Validate(self, data, removeNull=True):
