@@ -474,6 +474,7 @@ class ObjectEdit:
             user = the current user
             returns bool
 
+        -
         """
         if self.dbEntry.RenameFile(filekey, filename):
             self.dbEntry.Touch()
