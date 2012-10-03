@@ -27,7 +27,7 @@ from nive.definitions import FieldConf, ViewConf, ViewModuleConf, Conf
 configuration = ViewModuleConf(
     id = "userview",
     name = _(u"User signup"),
-    static = "",
+    static = "nive.userdb.userview:static",
     containment = "nive.userdb.app.UserDB",
     context = "nive.userdb.root.root",
     view = "nive.userdb.userview.view.UserView",

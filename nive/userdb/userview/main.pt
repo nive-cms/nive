@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="description" content="" />
 <meta name="keywords" content="" />
-<meta name="generator" content="NIVE cms" />
+<meta name="generator" content="Nive cms" />
 <style>
 body {font-family: Verdana, Arial, sans-serif; font-size:80%;}
 #container {margin: auto; height:auto;width:380px;}
@@ -36,7 +36,7 @@ h3 {font-size:100%;}
 <div id="container">
   <div id="main">
   <div id="header">
-  <img src="${view.StaticUrl('nive.cms.design:static/imgs/logocms2.png')}" class="logo" title="NIVE cms" />
+  <img src="${view.StaticUrl('nive.userdb.userview:static/logocms2.png')}" class="logo" title="Nive cms" />
   </div>
 
   <tal:block metal:define-slot="tmpls"></tal:block>
