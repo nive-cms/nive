@@ -50,15 +50,15 @@ import time
 import logging
 import gc
 
-from utils.utils import SortDictList
-
 from pyramid.events import NewRequest
 
-from nive.definitions import IPortal, PortalConf, implements
+from nive.i18n import _
+from nive.definitions import IPortal, PortalConf, implements, Conf
 from nive.definitions import ConfigurationError
 from nive.helper import ResolveConfiguration, ResolveName
 from nive.security import User, authenticated_userid, Allow, ALL_PERMISSIONS
 from nive.events import Events
+from nive.utils.utils import SortDictList
 
 
 
@@ -75,7 +75,7 @@ class Portal(Events, object):
         - init(configuration)
         """
         self.components = []
-        self.groups = []
+        self.groups = [Conf(id=u"authenticated", name=_(u"Authenticated"), visible=True)]
         self.__acl__ = [(Allow, "group:admin", ALL_PERMISSIONS)]
         self.portal = self
         

@@ -5,12 +5,12 @@ body {
 	margin: 0px;
 	font-size: 80%;
 }
-h2 { font-size: 110%; }
 
 #header { 
-  width: 100%; 
-  height: 30px;   
-  background-color:#aaaaaa; 
+  width: 100%; height: 30px; background-color:#aaaaaa; 
+  background-image: url(images/logocms.png);
+  background-repeat: no-repeat;
+  background-position: 870px 3px;
 }
 #header h1 {
   font-family: courier, monospace;
@@ -33,6 +33,20 @@ h2 { font-size: 110%; }
 	margin-left: auto;
 	margin-right: auto;
 }
+
+h1     { font-size: 160%; line-height: 1.3em; }
+h2     { font-size: 140%; line-height: 1.3em; }
+h3     { font-size: 120%; line-height: 1.3em; }
+h4     { font-size: 100%; line-height: 1.3em; }
+.btn   { font-size: 100%; line-height: 1.3em; }
+.block { width: 48%; margin: 1%; float:left; }
+
+/*form styling --------------------------------------------------*/
+form.form .control-label { width: 150px; }
+form.form .controls      { width:520px; margin-left:20px; float:left; }
+form.form .controls input, textarea, select { width:500px; }
+form.form .help-block    { width:220px; margin-left:20px; display:block; float:left; }
+
 /*tabs--------------------------------------------------*/
 nav .spacer { width:10px; height:13px; float:left; border-right: 1px solid #ffffff; color: #aaaaaa; background-color: #aaaaaa; }
 nav a.tab {
@@ -54,54 +68,8 @@ nav a.tab {
 nav a.tab:hover { background-color: #999999; }
 nav a.activeTrue { background-color: #686868; }
 nav .btn-group {margin-top:5px;}
-/*forms--------------------------------------------------*/
-.poolform { }
-.poolform .formHeader { color: #999999; border-bottom: 1px solid #e5e5e5; padding-bottom: 5px; }
-.poolform .formFooter { color: #999999; border-top: 1px solid #e5e5e5; padding-top: 5px; clear:both; }
-.poolform .section { clear:both; margin-top: 10px; }
-.poolform .sectionHeader { 
-	font-size: 150%;
-	font-family: Times, serif;
-	font-weight: bold;
-	width: 100%;
-	display: block;
-	color: #999999;
-	border-bottom: 1px dotted #996600;
-	margin-bottom: 0px;
-	margin-top: 10px;
-	padding-bottom: 0px;
-}
-.poolform ul {margin:0px; padding:0px; }
-.poolform li {margin:0px; padding:0px; list-style: none; }
-.poolform .sectionDescription { display: block; }
-.poolform .fieldRow { clear:both; padding-bottom: 5px; padding-top: 5px; border-bottom: 1px solid #cdcdcd; }
-.poolform .fieldName { width: 175px; padding-left:5px; padding-right:10px; float: left; text-align: left; }
-.poolform .fieldEdit { width: 520px; float: left; }
-.poolform .fieldDescription { width: 200px; float:left; color: #999999; }
-.poolform span.clear { display:block; clear:both; }
-.poolform .formOptions { clear:both; margin-top: 10px; margin-bottom: 10px; padding-left: 190px; }
-.poolform .formOptionsleft { clear:both; margin-top: 10px; margin-bottom: 10px; }
-.poolform input, .poolform select { border: 1px solid #aaaaaa; margin: 0px; width: 500px; }
-.poolform textarea { border: 1px solid #aaaaaa; margin: 0px; width: 500px; height: 100px; }
-.poolform input[type="radio"] { margin: 0px; width: auto; }
-.poolform input[type="checkbox"] { margin: 0px; width:auto; }
-.poolform .reformSet li {margin-top: 2px;margin-bottom: 2px; width: 49%; float:left;}
-.poolform .reformSet label {display: inline; }
-.poolform div.mcb { width:500px; float:left; padding:4px; }
-.poolform .optional { color:#999999; }
-.poolform button { 
-    cursor: pointer;
-	font-weight: bold; 
-	margin-top:10px;
-	padding: 0px 20px 0px 20px;
-	width: auto; 
-}
-.poolform input:focus, .poolform textarea:focus { background-color: #e5ffe5; }
-.poolform .filepreview { width:494px; border: 1px solid #cdcdcd; margin-bottom: 6px; padding:3px;}
-.poolform .filepreview a.filedelete { float:right;}
-.poolform .filepreview span { font-weight:bold; }
-.poolform input.confirm {margin-top:4px;}
-  
+
+
 /* error handling, messages */
 .alert-error { border: 1px solid #999999; background-color: #ffcaca; width: auto; padding: 10px; }
 .alert-info { border: 1px solid #999999; background-color: #ecffc6; width: auto; padding: 0px; }
@@ -159,15 +127,3 @@ a.button {
   text-decoration:none;
 }
 
-/*blocks--------------------------------------------------*/
-.block50 {
-  width:48%;
-  float:left;
-}
-
-
-/*table--------------------------------------------------
-table {border:none;width:100%;}
-table th {float:left;text-align:left;margin-right:12px;}
-table th, table td {border-top:1px solid #dddddd;}
-*/

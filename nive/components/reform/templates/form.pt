@@ -11,21 +11,19 @@
   enctype="multipart/form-data"
   i18n:domain="nive">
 
-    <div tal:condition="field.error" class="alert alert-error">
-      <ul>
-      <li tal:condition="field.error">
-        <h4 class="alert-heading" i18n:translate=""
-            >There was a problem with your submission</h4>
-        <p i18n:translate=""
+    <ul tal:condition="field.error">
+      <li class="errorLi" tal:condition="field.error">
+        <h3 class="errorMsgLbl" i18n:translate=""
+            >There was a problem with your submission</h3>
+        <p class="errorMsg" i18n:translate=""
            >Errors have been highlighted below</p>
-        <p>${field.errormsg}</p>
+        <p class="errorMsg">${field.errormsg}</p>
       </li>
-      </ul>
-    </div>
+    </ul>
       
-    <div tal:condition="field.messages|None" class="alert alert-success">
-      <ul><li tal:repeat="msg field.messages">${msg}</li></ul>
-    </div>
+    <ul tal:condition="field.messages|None" class="boxOK">
+      <li tal:repeat="msg field.messages" class="msgs">${msg}</li>
+    </ul>
       
     <tal:block tal:define="rndr field.renderer;
                            tmpl field.widget.item_template"
@@ -33,14 +31,14 @@
          <div tal:replace="structure rndr(tmpl,field=f,cstruct=cstruct.get(f.name, null))"/>
     </tal:block>
       
-    <div class="formOptions">
+    <div class="form-actions">
         <tal:block repeat="button field.buttons">
           <button
               tal:attributes="disabled button.disabled"
               id="${field.formid+button.name}"
               name="${button.name}"
               type="${button.type}"
-              class="${button.cls}"
+              class="btn ${button.action.get('css_class')}"
               value="${button.value}">
             <span i18n:translate="">${button.title}</span>
           </button>

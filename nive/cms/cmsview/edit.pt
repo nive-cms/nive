@@ -5,9 +5,7 @@
 </tal:block>
 
 <tal:block metal:fill-slot="editmain">
-<div class="block">
   <span tal:replace="structure content"/>
-</div>
 </tal:block>
    
 </tal:block>

@@ -15,14 +15,19 @@
 </tal:block>
    
 <tal:block metal:fill-slot="editmain">
-  <h2 i18n:translate="">Sort</h2>
+  <h3 i18n:translate="">Sort</h3>
+  <tal:block tal:condition="sortelements">
   <ul id="sortable">
-    <li tal:repeat="obj python:sortelements"
+    <li tal:repeat="obj sortelements"
         id="${obj.GetID()}"
         ><img src="${view.StaticUrl('nive.cms.cmsview:static/images/types/'+obj.GetTypeID()+'.png')}" align="top"/> 
               (${repeat.obj.number}) ${obj.GetTitle()}</li>
   </ul>
   <a onClick="return store();" class="button" i18n:translate="">Save</a>
+  </tal:block>
+
+  <p tal:condition="not sortelements" class="alert">Nothing to sort!</p>
+
 </tal:block>
 
 </tal:block>

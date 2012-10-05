@@ -348,6 +348,10 @@ class baseConf(object):
         return self.__class__(**data)
     
     def __str__(self):
+        if hasattr(self, "id"):
+            return str(self.id)
+        elif hasattr(self, "name"):
+            return str(self.name)
         return ""
 
     def __repr__(self):

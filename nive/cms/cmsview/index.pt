@@ -5,11 +5,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="generator" content="niveCMS 0.6" />
 
-<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/jquery-1.6.4.min.js')" type="text/javascript"></script>
+<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap.min.css')" rel="stylesheet" type="text/css" media="all" />
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/nive.css')" rel="stylesheet" type="text/css" media="all" />
+<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/jquery.min.js')" type="text/javascript"></script>
+<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/js/bootstrap.min.js')" type="text/javascript"></script>
 <tal:block metal:define-macro="editorHead">
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/toolbox/toolbox.css')" rel="stylesheet" type="text/css" media="all" />
-<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/ui/jquery-ui-1.8.12.custom.min.js')" type="text/javascript"></script>
+<script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/ui/jquery-ui-1.8.24.custom.min.js')" type="text/javascript"></script>
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/overlay/overlay.css')" rel="stylesheet" type="text/css" media="all" />
 <script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/overlay/overlay.js')" type="text/javascript"></script>
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/pe.css')" rel="stylesheet" type="text/css" media="all" />
@@ -22,8 +24,7 @@
 <body>
 <div id="container">
 <a name="top"></a>
-<header id="header">
-</header>
+<header id="header"></header>
 <nav>
 <div class="spacer"> </div>
 <a tal:repeat="tab view.getEditorWidgets(context)"

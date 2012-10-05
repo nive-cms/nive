@@ -146,6 +146,8 @@ Requires: Events
 import copy, json
 from types import StringType
 
+from pyramid.url import static_url
+
 from nive.utils.utils import GetDLItem, ConvertToList
 from nive.definitions import Conf, FieldConf, ConfigurationError
 from nive.events import Events
@@ -828,8 +830,9 @@ class HTMLForm(Form):
         resources = self.get_widget_resources()
         js_resources = resources['js']
         css_resources = resources['css']
-        js_links = [u'/reform/%s' % r for r in filter(lambda v: v not in disableResources, js_resources)]
-        css_links = [ u'/reform/%s' % r for r in css_resources ]
+        static = static_url("nive.components.reform:static/", self.request) + u"%s"
+        js_links = [static % r for r in filter(lambda v: v not in disableResources, js_resources)]
+        css_links = [static % r for r in filter(lambda v: v not in disableResources, css_resources)]
         js_tags = [u'<script src="%s" type="text/javascript"></script>' % link for link in js_links]
         css_tags = [u'<link href="%s" rel="stylesheet" type="text/css" media="all"/>' % link for link in css_links]
         return (u"\r\n").join(js_tags + css_tags)

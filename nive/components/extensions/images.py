@@ -167,7 +167,7 @@ class ImageProcessor(object):
         # file meta data
         filename = DvPath(profile.dest+"_"+source.filename)
         filename.SetExtension(profile.extension)
-        file = File(tag=profile.dest, 
+        file = File(filekey=profile.dest, 
                     filename=str(filename), 
                     file=None, 
                     size=p.GetSize(), 

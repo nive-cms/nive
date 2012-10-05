@@ -448,14 +448,14 @@ class FileEntry:
                 data = file.read(10000)
             out.close()
             #file.close()
-        except:
+        except Exception, e:
             try:    file.file.close()
             except: pass
             try:    out.close()
             except: pass
             # reset old file
             tempPath.Delete()
-            raise
+            raise Exception, e
 
         # store path for cleanup on success
         if str(originalPath) and originalPath.Exists():
