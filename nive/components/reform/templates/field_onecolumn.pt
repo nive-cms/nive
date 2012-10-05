@@ -3,7 +3,12 @@
 </div>
 
 <div tal:condition="not field.widget.hidden"
-     class="fieldRow" 
+     class="${field.error and field.widget.error_class} control-group" 
      i18n:domain="nive">
-  <div class="fieldEdit"><span tal:replace="structure field.serialize(cstruct)"/></div>
+  <div class="controls ${'required' if field.required else ''}">
+    <span tal:replace="structure field.serialize(cstruct)"/>
+    <span tal:condition="field.error"
+          tal:repeat="msg field.error.messages()"
+          class="help-inline" i18n:translate="">${msg}</span>
+  </div>
 </div>

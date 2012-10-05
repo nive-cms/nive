@@ -409,6 +409,10 @@ class BaseView(object):
 
     # user and security -------------------------------------------------
     
+    @property
+    def user(self):
+        return self.User()
+    
     def User(self):
         """
         returns the *Authenticated User Object* or None

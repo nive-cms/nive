@@ -43,6 +43,7 @@ configuration.title = _(u"Users")
 configuration.context = "nive.userdb.app.UserDB"
 #configuration.systemAdmin = (u"email", u"display name")
 #configuration.admin = {"name": "admin", "password": "adminpass", "email": "admin@domain.com"}
+configuration.loginByEmail = False
 
 configuration.modules = [
     "nive.userdb.root", "nive.userdb.user", 

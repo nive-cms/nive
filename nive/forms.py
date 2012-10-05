@@ -822,7 +822,7 @@ class HTMLForm(Form):
         return html
 
     
-    def HTMLHead(self, disableResources=[u"scripts/jquery.min.js",u"css/form.css"]):
+    def HTMLHead(self, disableResources=[u"scripts/jquery.min.js"]):
         """
         get necessary includes (js and css) for html header
         """
@@ -830,7 +830,10 @@ class HTMLForm(Form):
         resources = self.get_widget_resources()
         js_resources = resources['js']
         css_resources = resources['css']
-        static = static_url("nive.components.reform:static/", self.request) + u"%s"
+        try: # fail silently and set /reform as static url
+            static = static_url("nive.components.reform:static/", self.request) + u"%s"
+        except:
+            static = u"/reform/%s"
         js_links = [static % r for r in filter(lambda v: v not in disableResources, js_resources)]
         css_links = [static % r for r in filter(lambda v: v not in disableResources, css_resources)]
         js_tags = [u'<script src="%s" type="text/javascript"></script>' % link for link in js_links]
@@ -847,11 +850,11 @@ class HTMLForm(Form):
         if isinstance(msgs, basestring):
             msgs = [msgs]
         for m in msgs:
-            h+= u"""<li>%s</li>""" % (m)
-        css = u"boxOK"
+            h.append(u"""<li>%s</li>""" % (m))
+        css = u"alert"
         if err:
-            css = u"boxAlert"
-        return u"""<ul class="%s">%s</ul>
+            css = u"alert alert-danger"
+        return u"""<div class="%s"><ul>%s</ul></div>
         """ % (css, u"".join(h))
 
 

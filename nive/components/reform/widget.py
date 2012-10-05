@@ -1273,8 +1273,6 @@ default_resources = {
             'js':('scripts/jquery.min.js',
                   'scripts/jquery.form.js',
                   'scripts/reform.js'),
-            'css':('css/form.css')
-
             },
         },
     'tinymce': {

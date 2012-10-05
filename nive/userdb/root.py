@@ -366,7 +366,13 @@ class root(UserCache, RootBase):
 
         # session login
         user = self.GetUserByName(name)
-        if not user or not user.Authenticate(password):
+        if not user and self.app.configuration.get("loginByEmail"): 
+            user = self.GetUserByMail(name)
+        if not user:
+            if raiseUnauthorized:
+                raise Unauthorized, "Login failed"
+        
+        if not user.Authenticate(password):
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
             report.append(_(u"Login failed. Please check your username and password."))
@@ -596,16 +602,39 @@ class adminuser(object):
 
 
 from nive.components.reform.schema import Invalid
+from nive.components.reform.schema import Email
 
-class UsernameValidator(object):
+def UsernameValidator(node, value):
     """ 
     Validator which succeeds if the username does not exist.
-    Can be used for the name input fields in user creation forms.
+    Can be used for the name input field in a sign up form.
     """
+    # lookup name in database
+    r = node.widget.form.context.root()
+    u = r.Select(pool_type=u"user", parameter={u"name": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"name":u"="})
+    if u:
+        # check if its the current user
+        ctx = node.widget.form.context
+        if len(u)==1 and ctx.id == u[0][0]:
+            return
+        err = _(u"Username '${name}' already in use. Please choose a different name.", mapping={'name':value})
+        raise Invalid(node, err)
 
-    def __call__(self, node, value):
-        u=node.widget.form.context.root().LookupUser(name=value, activeOnly=0)
-        if u:
-            err = _(u"Username '${name}' already in use. Please choose a different name.", mapping={'name':value})
-            raise Invalid(node, err)
+def EmailValidator(node, value):
+    """ 
+    Validator which succeeds if the email does not exist.
+    Can be used for the email input field in a sign up form.
+    """
+    # validate email format
+    Email()(node, value)
+    # lookup email in database
+    r = node.widget.form.context.root()
+    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"email":u"="})
+    if u:
+        # check if its the current user
+        ctx = node.widget.form.context
+        if len(u)==1 and ctx.id == u[0][0]:
+            return
+        err = _(u"Email '${name}' already in use. Please use the login form if you already have a account.", mapping={'name':value})
+        raise Invalid(node, err)
 

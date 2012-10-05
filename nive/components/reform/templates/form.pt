@@ -11,19 +11,15 @@
   enctype="multipart/form-data"
   i18n:domain="nive">
 
-    <ul tal:condition="field.error">
-      <li class="errorLi" tal:condition="field.error">
-        <h3 class="errorMsgLbl" i18n:translate=""
-            >There was a problem with your submission</h3>
-        <p class="errorMsg" i18n:translate=""
-           >Errors have been highlighted below</p>
-        <p class="errorMsg">${field.errormsg}</p>
-      </li>
-    </ul>
-      
-    <ul tal:condition="field.messages|None" class="boxOK">
-      <li tal:repeat="msg field.messages" class="msgs">${msg}</li>
-    </ul>
+    <div tal:condition="field.error" class="alert">
+      <h5 i18n:translate="">There was a problem with your submission</h5>
+      <p i18n:translate="">Errors have been highlighted below</p>
+      <p class="errorMsg">${field.errormsg}</p>
+    </div>
+
+    <div tal:condition="field.messages|None" 
+         tal:repeat="msg field.messages"
+         class="alert">${msg}</div>
       
     <tal:block tal:define="rndr field.renderer;
                            tmpl field.widget.item_template"

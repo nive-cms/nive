@@ -18,6 +18,10 @@ body { font-family: Verdana, Arial, sans-serif; }
 	width:85px;
 }
 
+/*form additions--------------------------------------------------*/
+form label.required:after  { content: "*"; }
+form input.password        { display:block; }
+
 /*elements--------------------------------------------------*/
 .pageelement { margin-top:6px; }
 .peSeparator { clear:both; margin-bottom: 0px; }
@@ -33,9 +37,9 @@ body { font-family: Verdana, Arial, sans-serif; }
 	background-position: left top;
 }
 .peImage div.title { color: #666666; font-size: 90%; }
-.peImage div.left { margin-right: 20px; margin-bottom: 10px; float:left; }
+.peImage div.left  { margin-right: 20px; margin-bottom: 10px; float:left; }
 .peImage p { padding-bottom: 0px; margin-bottom: 0px; }
-.peImage .teaser { margin-bottom: 20px; }
+.peImage .teaser  { margin-bottom: 20px; }
 .peImage .teaserl { margin-bottom: 20px; }
 .peImage .teasers { margin-bottom: 20px; }
 
@@ -51,6 +55,6 @@ body { font-family: Verdana, Arial, sans-serif; }
 .peNews .newsline h4 { width: 240px; float:left; padding:0px; margin:0px; }
 .peNews span.date { color:#333333; }
 .peNews span.dateright { float:right; margin-right:10px; color:#333333; }
-.peNote { background-color:#eeFF00; border: 1px solid #CECECE; padding: 10px; margin-bottom: 12px; }
+.peNote { background-color:#eeff00; border: 1px solid #cecece; padding: 10px; margin-bottom: 12px; }
 
 
