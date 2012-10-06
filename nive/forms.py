@@ -729,13 +729,17 @@ class HTMLForm(Form):
         Process request data and returns validated data as `result` and rendered
         form as `data`. If validation fails `result` is False. `redirect_success`
         is ignored.
+        
+        A custom success message can be passed as success_message as keyword.
 
         returns bool, html
         """
         msgs = []
         result,data,errors = self.Validate(self.request)
         if result:
-            msgs.append(_(u"OK."))
+            if kw.get("success_message"):
+                msgs.append(kw.get("success_message"))
+            # disabled default message. msgs.append(_(u"OK."))
             errors=None
             result = data
             #data = {}

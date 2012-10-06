@@ -371,7 +371,9 @@ class root(UserCache, RootBase):
         if not user:
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
-        
+            report.append(_(u"Login failed. Please check your username and password."))
+            return False, report
+            
         if not user.Authenticate(password):
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"

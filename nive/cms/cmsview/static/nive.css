@@ -46,6 +46,8 @@ form.form .control-label { width: 150px; }
 form.form .controls      { width:520px; margin-left:20px; float:left; }
 form.form .controls input, textarea, select { width:500px; }
 form.form .help-block    { width:220px; margin-left:20px; display:block; float:left; }
+form label.required:after  { content: "*"; }
+form input.password        { display:block; }
 
 /*tabs--------------------------------------------------*/
 nav .spacer { width:10px; height:13px; float:left; border-right: 1px solid #ffffff; color: #aaaaaa; background-color: #aaaaaa; }
