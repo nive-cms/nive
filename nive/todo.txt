@@ -1,11 +1,13 @@
-- queryRestraint tests
-- FieldConf.listItems callback tests
 - fieldconf lisitem handling
-- json mapping form tests
-- field renderer tests
 - default installation design bootstrap
 - form action map to view permission
-- test mailresetpass
-- test application.StoreSysValue and LoadSysValue
 - move datapool2 Group functions
 - universal datetime handling
+
+- cms browser tests
+- queryRestraint tests
+- FieldConf.listItems callback tests
+- json mapping form tests
+- field renderer tests
+- mailresetpass tests 
+- application.StoreSysValue and LoadSysValue tests 

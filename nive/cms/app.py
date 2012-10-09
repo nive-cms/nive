@@ -70,7 +70,7 @@ from nive.components.objects.base import ApplicationBase
 #@nive_module
 configuration = AppConf(
     id = "website",
-    title = u"nive CMS",
+    title = u"Nive cms",
     context = "nive.cms.app.WebsitePublisher",
     workflowEnabled = True
 )

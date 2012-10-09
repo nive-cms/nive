@@ -31,7 +31,7 @@ from pyramid.i18n import get_localizer
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, WidgetConf
 from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot, IToolboxWidgetConf, IEditorWidgetConf
-from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, ICMSRoot
+from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, ICMSRoot, IColumn
 from nive.cms.design import view as design 
 
 

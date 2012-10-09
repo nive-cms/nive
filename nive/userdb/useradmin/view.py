@@ -34,7 +34,7 @@ configuration = ViewModuleConf(
     static = "",
     containment = "nive.userdb.useradmin.adminroot.adminroot",
     context = "nive.userdb.useradmin.adminroot.adminroot",
-    view = "nive.userdb.useradmin.view.AdminView",
+    view = "nive.userdb.useradmin.view.UsermanagementView",
     templates = "nive.userdb.useradmin:",
     permission = "manage users"
 )
@@ -59,19 +59,15 @@ from nive.userdb.root import UsernameValidator
 from nive.adminview.view import AdminBasics
     
 
-class AdminView(AdminBasics):
+class UsermanagementView(AdminBasics):
     
-    def index_tmpl(self):
-        i = get_renderer("nive.userdb.useradmin:index.pt").implementation()
-        return i
-
     def view(self):
         return {}
 
     
     def add(self):
         name = self.context.app.GetObjectFld("name", "user").copy()
-        name.settings["validator"] = UsernameValidator()
+        name.settings["validator"] = UsernameValidator
         form = ObjectForm(loadFromType="user", view=self)
         form.subsets = {
             "create": {"fields":  [name, "password", "email", "groups", "surname", "lastname"], 

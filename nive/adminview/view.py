@@ -22,7 +22,8 @@ from pyramid.renderers import get_renderer
 
 from nive.i18n import _
 from nive.definitions import ViewConf, ViewModuleConf, FieldConf, WidgetConf, Conf
-from nive.definitions import IApplication, IUser, IAdminWidgetConf, IUserDatabase, ICMSRoot, IPersistent, IModuleConf
+from nive.definitions import IApplication, IUser, IAdminWidgetConf, IUserDatabase, IPersistent, IModuleConf
+from nive.definitions import IWebsiteRoot, ICMSRoot
 
 from nive.views import BaseView
 from nive.forms import ValidationError, HTMLForm
@@ -150,6 +151,23 @@ class ConfigurationForm(HTMLForm):
 
 class AdminBasics(BaseView):
 
+    def index_tmpl(self):
+        i = get_renderer("nive.adminview:index.pt").implementation()
+        return i
+
+    def getAdminWidgets(self):
+        app = self.context.app
+        widgets = app.QueryConf(IAdminWidgetConf, app)
+        confs = []
+        if not widgets:
+            return confs
+        for n,w in widgets:
+            confs.append(w)
+        return SortDictList(confs, "sort")
+
+    def view(self):
+        return {}
+
     def RenderConf(self, c):
         return u"""<strong><a onclick="$('#%d').toggle()" style="cursor:pointer">%s</a></strong><br/>%s""" % (
                 abs(id(c)), 
@@ -201,42 +219,26 @@ class AdminBasics(BaseView):
         else:
             apps = self.context.app.portal.GetApps()
         links = []
-        for c in apps:
-            if not hasattr(c, "modules"):
+        for app in apps:
+            if not hasattr(app, "registry"):
                 continue
-            # check for editor
-            for r in c.GetRoots():
-                if not ICMSRoot.providedBy(r):
-                    continue
-                links.append({"href":self.Url(r), "title":c.configuration.title + u": editor"})
+            # search for cms editor
+            for root in app.GetRoots():
+                if ICMSRoot.providedBy(root):
+                    links.append({"href":self.Url(root), "title":app.configuration.title + u": " + _(u"editor")})
+                elif IWebsiteRoot.providedBy(root):
+                    links.append({"href":self.Url(root), "title":app.configuration.title + u": " + _(u"public")})
             # administration
-            links.append({"href":self.FolderUrl(c)+u"admin", "title":c.configuration.title + u": administration"})
+            links.append({"href":self.FolderUrl(app)+u"admin", "title":app.configuration.title + u": " + _(u"administration")})
             # user management
-            if IUserDatabase.providedBy(c):
-                links.append({"href":self.FolderUrl(c)+u"usermanagement", "title":u"User management"})
+            if IUserDatabase.providedBy(app):
+                links.append({"href":self.FolderUrl(app)+u"usermanagement", "title":app.configuration.title + u": " + _(u"user management")})
         return links
                 
     
 
 class AdminView(AdminBasics):
     
-    def index_tmpl(self):
-        i = get_renderer("nive.adminview:index.pt").implementation()
-        return i
-
-    def getAdminWidgets(self):
-        app = self.context
-        widgets = app.QueryConf(IAdminWidgetConf, app)
-        confs = []
-        if not widgets:
-            return confs
-        for n,w in widgets:
-            confs.append(w)
-        return SortDictList(confs, "sort")
-
-    def view(self):
-        return {}
-
     def editbasics(self):
         fields = (
             FieldConf(id=u"title",           datatype="string", size=255,  required=0, name=_(u"Application title")),

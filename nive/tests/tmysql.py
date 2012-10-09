@@ -81,7 +81,7 @@ class mycontainerTest_db(containerTest_db, uTestCase):
         self.app = myapp()
         self.remove=[]
 
-class mygroupsTest_db(groupsTest_db, unittest.TestCase):
+class mygroupsTest_db(groupsTest_db, uTestCase):
 
     def setUp(self):
         #emptypool()
@@ -96,7 +96,7 @@ class myobjTest_db(objTest_db, uTestCase):
         self.remove=[]
 
 
-class mygroupsrootTest_db(groupsrootTest_db, unittest.TestCase):
+class mygroupsrootTest_db(groupsrootTest_db, uTestCase):
 
     def setUp(self):
         #emptypool()

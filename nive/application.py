@@ -178,8 +178,8 @@ class Application(object):
         # reload database structure
         self.LoadStructure(forceReload = True)
         self._dbpool = self._GetDataPoolObj()
-        
-        # test database
+                           
+        # test and create database fields 
         if debug:
             self.GetTool("nive.components.tools.dbStructureUpdater", self).Run()
             result, report = self.TestDB()
@@ -189,8 +189,8 @@ class Application(object):
                 log.info('Database test result: %s %s', str(result), ", ".join(report))
             if not self._structure.get(u"pool_meta"):
                 log.error('No meta fields in _structure %s', repr(self._structure))
-                   
-        # rest caching after startup
+ 
+        # reset caching after startup
         #self.configuration.useCache = cache
         self._Lock()
         
@@ -1085,16 +1085,24 @@ class AppFactory:
         elif poolTag.lower() == "mysql":
             poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
 
+        # if a database connection other than the default is configured
+        cTag = self.dbConfiguration.connection
+        if cTag:
+            connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
+            connObj = connObj(config=self.dbConfiguration)
+        else:
+            connObj = None
+
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
-        c = self.dbConfiguration
-        dbObj = dbObj(connection=self._GetConnectionObj(),
-                      connParam=self.dbConfiguration,      # use the default connection defined in db if connection is none
+        conn = self.dbConfiguration
+        dbObj = dbObj(connection=connObj,
+                      connParam=conn,      # use the default connection defined in db if connection is none
                       structure=self._structure, 
-                      root=c.fileRoot, 
-                      useTrashcan=c.useTrashcan, 
-                      dbCodePage=c.dbCodePage,
-                      debug=c.querylog[0],
-                      log=c.querylog[1])
+                      root=conn.fileRoot, 
+                      useTrashcan=conn.useTrashcan, 
+                      dbCodePage=conn.dbCodePage,
+                      debug=conn.querylog[0],
+                      log=conn.querylog[1])
         return dbObj
 
     

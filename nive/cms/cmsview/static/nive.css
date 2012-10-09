@@ -21,11 +21,10 @@ body {
   margin: 0px;
   padding: 4px 12px;
   width: auto;
-  text-align: right;
 }
 #nive_edit { padding: 10px; min-height: 400px; }
 #breadcrumbs { clear:both; padding: 10px 0px 0px 10px; color: #999999; }
-
+#main { clear: both; }
 #container {
 	text-align: left;
 	vertical-align: top;
