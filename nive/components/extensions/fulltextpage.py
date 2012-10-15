@@ -27,7 +27,7 @@ from nive.helper import FakeLocalizer
 
 from nive.utils.utils import ConvertToNumberList
 from nive.utils.utils import ConvertHTMLToText
-from nive.definitions import implements, Interface, ModuleConf, ToolConf, IApplication, Conf
+from nive.definitions import implements, Interface, ModuleConf, ToolConf, IApplication, Conf, IPage
 
 class IFulltext(Interface):
     pass
@@ -51,7 +51,7 @@ class PageFulltext(object):
         """
         if not self.app.configuration.fulltextIndex:
             return
-        if self.IsPage():
+        if IPage.providedBy(self):
             # get text from contained elements
             text = [self.GetTexts()]
             for e in self.GetPageElements(addBoxContents=1, skipColumns=0):

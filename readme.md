@@ -45,8 +45,6 @@ bootstrap (nive.cms.design.static.bootstrap)
 
 jquery / jquery-ui / jquery.form
 
-html2text (nive.utils.html2text) by Aaron Swartz http://github.com/aaronsw/html2text
-
 iconset (nive.cms.cmsview.static.images) by Mark James http://www.famfamfam.com/ 
 
 xssescape (nive.utils.xssescape) http://code.activestate.com/recipes/496942-cross-site-scripting-xss-defense/

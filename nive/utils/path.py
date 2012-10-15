@@ -937,7 +937,6 @@ class DvPath(object):
 
 
 # --------------------------------------------------------------------------------
-from utils import LoadFromFile
 
 class DvDirCleaner(object):
     """
@@ -1103,7 +1102,8 @@ class DvDirCleaner(object):
     def _ProcessFile(self, file, references):
         # load file data
         name = file.GetNameExtension()
-        data = LoadFromFile(str(file))
+        import utils
+        data = utils.LoadFromFile(str(file))
         # loop files
         for ref in references.keys():
             if ref == str(file):
