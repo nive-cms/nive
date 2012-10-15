@@ -43,7 +43,7 @@ class tViews(unittest.TestCase):
 
 
     def test_views(self):
-        v = view.AdminView(context=self.root, request=self.request)
+        v = view.UsermanagementView(context=self.root, request=self.request)
 
         self.assert_(v.index_tmpl())
         v.view()
@@ -56,7 +56,7 @@ class tViews(unittest.TestCase):
         user = self.root.GetUserByName("testuser")
         if user:
             self.root.DeleteUser("testuser")
-        v = view.AdminView(context=self.root, request=self.request)
+        v = view.UsermanagementView(context=self.root, request=self.request)
         r = v.add()
         self.assert_(r["result"])
         if self.root.GetUserByName("testuser"):
@@ -85,7 +85,7 @@ class tViews(unittest.TestCase):
         user = self.root.GetUserByName("testuser")
         if user:
             self.root.DeleteUser("testuser")
-        v = view.AdminView(context=self.root, request=self.request)
+        v = view.UsermanagementView(context=self.root, request=self.request)
         self.request.POST = {"name":"testuser", "email":"test@aaa.com", "groups":("group:admin",)}
         self.request.POST["password"] = "password"
         self.request.POST["password-confirm"] = "password"
@@ -95,7 +95,7 @@ class tViews(unittest.TestCase):
         if not user:
             self.assert_(False, "User should exist")
         
-        v = view.AdminView(context=user, request=self.request)
+        v = view.UsermanagementView(context=user, request=self.request)
         self.request.POST = {}
         r = v.edit()
         self.assert_(r["result"])
@@ -116,7 +116,7 @@ class tViews(unittest.TestCase):
 
 
     def test_delete(self):
-        v = view.AdminView(context=self.root, request=self.request)
+        v = view.UsermanagementView(context=self.root, request=self.request)
         user = self.root.GetUserByName("testuser")
         if not user:
             self.request.POST = {"name":"testuser", "email":"test@aaa.com", "groups":("group:admin",)}

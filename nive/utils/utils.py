@@ -18,283 +18,52 @@
 
 __doc__ = ""
 
-import string, sys, binascii, re, htmlentitydefs
-from types import *
+import re, htmlentitydefs
+import iso8601, datetime
+import os, tempfile, json
 from mimetypes import guess_type, guess_extension
-import os, stat, tempfile
+from operator import itemgetter, attrgetter
+from types import StringType
 
-from strings import DvString
 from dateTime import DvDateTime
 from path import DvPath
 
 
-def ConvertToBool(inData, inExcept = False):
-    try:
-        return int(inData)
-    except:
-        if type(inData) in (StringType,UnicodeType):
-            if string.lower(inData) in (u"true", u"yes", u"checked", u"ja"):
-                return True
-            if string.lower(inData) in (u"false", u"no", u"nein"):
-                return False
-        if inExcept:
-            raise "Conversion failure - Convert data to bool", str(inData) + "    " + EXCP()
-        return False
-
-def ConvertToInt(inData, inExcept = False):
-    try:
-        return int(inData)
-    except:
-        if type(inData) in (StringType,UnicodeType):
-            if string.lower(inData) == u"true" or string.lower(inData) == u"yes" or string.lower(inData) == u"checked":
-                return 1
-            if string.lower(inData) == u"false" or string.lower(inData) == u"no":
-                return 0
-        if inExcept:
-            raise "Conversion failure - Convert data to integer", str(inData) + "    " + EXCP()
-        return 0
-
-def ConvertToFloat(inData, inExcept = False):
-    try:
-        return float(inData)
-    except:
-        if type(inData) in (StringType,UnicodeType):
-            if string.lower(inData) == u"true" or string.lower(inData) == u"yes" or string.lower(inData) == u"checked":
-                return 1.0
-            if string.lower(inData) == u"false" or string.lower(inData) == u"no":
-                return 0.0
-        if inExcept:
-            raise "Conversion failure - Convert data to float", str(inData) + "    " + EXCP()
-        return 0
-
-def ConvertToLong(inData, inExcept = False):
-    try:
-        if type(inData) == LongType:
-            return inData
-        if  type(inData) == IntType:
-            return long(inData)
-        return string.atol(inData)
-    except:
-        if type(inData) in (StringType,UnicodeType):
-            if string.lower(inData) == u"true" or string.lower(inData) == u"yes" or string.lower(inData) == u"checked":
-                return 1
-            if string.lower(inData) == u"false" or string.lower(inData) == u"no":
-                return 0
-        if inExcept:
-            raise "Conversion failure - Convert data to long", str(inData) + "    " + EXCP()
-        return 0
-
-def ConvertToTuple(inData, inExcept = False):
-    try:
-        return tuple(inData)
-    except:
-        if inExcept:
-            raise "Conversion failure - Convert data to tuple", str(inData) + "    " + EXCP()
-        return ()
-
-def ConvertToList(inData, inExcept = False):
-    try:
-        if not inData:
-            return []
-        return DvString(str(inData)).ConvertToList()
-    except:
-        if inExcept:
-            raise "Conversion failure - Convert data to list", str(inData) + "    " + EXCP()
-        return []
-
-def ConvertToNumberList(inData, inExcept = False):
-    try:
-        l = DvString(str(inData)).ConvertToList()
-        for i in range(len(l)):
-            l[i] = ConvertToLong(l[i], inExcept)
-        return l
-    except:
-        if inExcept:
-            raise "Conversion failure - Convert data to number list", str(inData) + "    " + EXCP()
-        return []
-
-def ConvertToDict(inData, inExcept = False):
-    try:
-        return DvString(inData).ConvertToDict()
-    except:
-        if inExcept:
-            raise "Conversion failure - Convert data to dictionary", str(inData) + "    " + EXCP()
-        return {}
-
-def ConvertKeyList(inData, inSep = u",", inExcept = False):
-    try:
-        return DvString(inData).ConvertKeyListToDict(inSep)
-    except:
-        if inExcept:
-            raise "Conversion failure - Convert data to dictionary", str(inData) + "    " + EXCP()
-        return {}
-
-def ConvertToType(inData, inType):
-    if inType == "string" or inType == "str":
-        if type(inData) in (StringType,UnicodeType):
-            return inData
-        return str(inData)
-    elif inType == "int":
-        return ConvertToInt(inData)
-    elif inType in ("long", "unit", "number", "codelist"):
-        return ConvertToLong(inData)
-    elif inType == "float":
-        return ConvertToFloat(inData)
-    elif inType == "bool":
-        return ConvertToBool(inData)
-    elif inType == "date":
-        if inData == "":
-            return null
-        if inData == "NOW":
-            aD = DvDateTime()
-            aD.Now()
-            return aD
-        if str(inData.__class__).find("DvDateTime") != -1:
-            return inData
-        aD = DvDateTime(inData)
-        return aD
-    elif inType == "datetime":
-        if inData == "":
-            return null
-        if inData == "NOW":
-            aD = DvDateTime()
-            aD.Now()
-            return aD
-        if str(inData.__class__).find("DvDateTime") != -1:
-            return inData
-        aD = DvDateTime(inData)
-        return aD
-    elif inType == "dict":
-        return ConvertToDict(inData)
-    elif inType in ("list",):
-        return ConvertToList(inData)
-    elif inType in ("mselection", "unitlist", "mcodelist", "radio", "mcheckboxes"):
-        if type(inData) == ListType or type(inData) == TupleType:
-            return inData
-        return DvString(unicode(inData)).ConvertToList()
-    if type(inData) in (StringType,UnicodeType):
-        return inData
-    return str(inData)
-
-
-def ConvertToStr(inData, inType=None):
-    if not inType:
-        if type(inData) in (ListType,TupleType):
-            return ConvertListToStr(inData)
-        elif type(inData) == DictType:
-            return ConvertDictToStr(inData)
-    if inType == "date":
-        if inData == "NOW":
-            aD = DvDateTime()
-            aD.Now()
-            return aD.GetDDMMYYYY()
-        aD = DvDateTime(str(inData))
-        return aD.GetDDMMYYYY()
-    elif inType == "datetime":
-        if inData == "NOW":
-            aD = DvDateTime()
-            aD.Now()
-            return aD.GetDDMMYYYYHHMMSS()
-        aD = DvDateTime(str(inData))
-        return aD.GetDDMMYYYYHHMMSS()
-    elif inType == "list":
-        return ConvertListToStr(inData)
-    return str(inData)
-
-
-
-def ConvertListToStr(inList, inSep = u", ", inTextMarker = u"", keepType = False):
-    """(inList) return string
-    converts a python list to string. .
-    the list items are seperated by ",". list items are converted to string
-    """
-    aStr = ""
-    if not inList:
-        return aStr
-    if type(inList) == StringType:
-        return inTextMarker + inList + inTextMarker
-    for aI in inList:
-        if len(aStr) > 0:
-            aStr += inSep
-        if inTextMarker != u"":
-            if keepType:
-                if type(aI) in (IntType, LongType, FloatType):
-                    inTextMarker = u""
-            aStr += inTextMarker + str(aI) + inTextMarker
-        else:
-            aStr += str(aI)
-    return aStr
-
-
-def ConvertDictToStr(inDict, inSep = u", "):
-    """(inList) return string
-    converts a python dictionary to key list string. .
-    the list items are seperated by ",". list items are converted to string
-    key=value,
-    """
-    aStr = u""
-    for aK in inDict.keys():
-        if len(aStr) > 0:
-            aStr += inSep
-        aStr += u"%s=%s" % (aK, str(inDict[aK]))
-    return aStr
-
-
-def ConvertListToDict(inList, inDictFields):
-    """(list inList, list inDictFields) return dict
-    """
-    if(len(inList) != len(inDictFields)):
-        return {}
-    aDict = {}
-    aCnt = 0
-    for aI in inList:
-        aDict[inDictFields[aCnt]] = aI
-        aCnt += 1
-    return aDict
-
-
-def ConvertDictListToTuple(inList):
-    """
-    converts [{"id":"first","name":"Name"},...] to [("first","First"),...]
-    """
-    l=[]
-    for d in inList:
-        l.append((unicode(d["id"]),d["name"]))
-    return l
-
-
-def ConvertHexToBin(m):
-    """
-    """
-    return u''.join(map(lambda x: chr(16*int(u'0x%s'%m[x*2],0)+int(u'0x%s'%m[x*2+1],0)),range(len(m)/2)))
-
-
-def ConvertBinToHex(m):
-    """
-    """
-    return u''.join(map(lambda x: hex(ord(x)/16)[-1]+hex(ord(x)%16)[-1],m))
-
-
 def ConvertHTMLToText(html, url="", removeReST=True):
-    try:
-        import html2text
-        #text = html2text.html2text(html, url)
-        h = html2text.HTML2Text()
-        h.ignore_links = True
-        if removeReST:
-            h.ignore_emphasis = True
-        return h.handle(html)
-    except:
-        return html
+    # requires html2text module
+    import html2text
+    h = html2text.HTML2Text()
+    h.ignore_links = True
+    if removeReST:
+        h.ignore_emphasis = True
+        text = h.handle(html)
+        # replace markdown #
+        text = text.replace(u"# ","")
+        return text
+    return h.handle(html)
 
 
 def ConvertTextToHTML(html):
+    # replaces lines breaks with br's
     return html.replace(u"\n", u"\n<br/>")
+
+
+def ConvertToDateTime(date):
+    try:
+        date = iso8601.parse_date(date)
+    except (iso8601.ParseError, TypeError), e:
+        # date without time
+        try:
+            year, month, day = map(int, date.split('-', 2))
+            date = datetime.datetime(year, month, day)
+        except:
+            date = datetime.datetime.now()
+    return date
 
 
 def XssEscape(html, permitted_tags=None, requires_no_close=None, allowed_attributes=None):
     """
-    http://code.activestate.com/recipes/496942-cross-site-scripting-xss-defense/
+    source: http://code.activestate.com/recipes/496942-cross-site-scripting-xss-defense/
     
     A list of the only tags allowed.  Be careful adding to this.  Adding
     "script," for example, would not be smart.  'img' is out by default 
@@ -325,77 +94,25 @@ def XssEscape(html, permitted_tags=None, requires_no_close=None, allowed_attribu
     return xss.strip(html)
 
 
-def ConvertToPyFile(data, codepage="utf-8", header=""):
-    """
-    data = dictionary. keys are converted to variables, lists and dictionaries are included in valid 
-    python syntax
-    """
-    file = "# -*- coding: %s -*-\r\n" % (codepage)
-    file += '"""\r\n'
-    file += header
-    file += '\r\n"""\r\n\r\n'
-    for k in data.keys():
-        value = data[k]
-        t = type(value)
-        
-        # convert types to string
-        if t in (LongType, IntType, FloatType):
-            value = str(value)
-        
-        elif t in (StringType, UnicodeType):
-            if t == StringType:
-                value = unicode(value, codepage)
-            if value.find(u'"')==-1 and value.find(u'\n')==-1:
-                value = u'u"'+value+u'"'
-            elif value.find(u"'")==-1 and value.find(u'\n')==-1:
-                value = u"u'"+value+u"'"
-            elif value.find(u'"""')==-1:
-                value = u'u"""'+value+u'"""'
-            else:
-                raise TypeError, "Found long comment in string."
-            
-        elif t == ListType:
-            if len(value)>1:
-                value2 = u""
-                value2 += u"["
-                for li in value:
-                    value2 += str(li)+u",\r\n\t\t"
-                value2 += u"]"
-                value = value2
-            else:
-                value = unicode(str(value), codepage)
-
-        elif t == TupleType:
-            if len(value)>1:
-                value2 = u""
-                value2 += u"("
-                for li in value:
-                    value2 += str(li)+u",\r\n\t\t"
-                value2 += u")"
-                value = value2
-            else:
-                value = unicode(str(value), codepage)
-
-        elif t == DictType:
-            value = unicode(str(value), codepage)
-
-        elif t == InstanceType and str(value.__class__).find("DvDateTime") != -1:
-            value = u'"'+unicode(value.GetDB())+u'"'
-            
-        file += u"%s = %s\r\n" % (k, value)
-    return file
-
-
-def CutText(text, textlen, cutchars=[" ", ",", ".", "\r"]):
+def CutText(text, textlen, cutchars=" ;:,.\r\n", postfix=u" ..."):
     """
     For text preview. cut the text at the last found char in cutchars.
     """
+    if len(text)<textlen:
+        return text
     pos = len(text)-1
     for c in cutchars:
         p = text.find(c, textlen)
         if p!=-1 and p<pos:
             pos=p
-    return text[:pos]    
+    return text[:pos] + postfix
+
+
+def ConvertHexToBin(m):
+    return u''.join(map(lambda x: chr(16*int(u'0x%s'%m[x*2],0)+int(u'0x%s'%m[x*2+1],0)),range(len(m)/2)))
+
+def ConvertBinToHex(m):
+    return u''.join(map(lambda x: hex(ord(x)/16)[-1]+hex(ord(x)%16)[-1],m))
 
 
 def FormatBytesForDisplay(size):
@@ -415,10 +132,10 @@ def FmtSeconds(seconds):
     if seconds is None: return '-' * 5
     if seconds == -1: return '-'
 
-    minutesSingular = u'%d&nbsp;Minute '
-    minutesPlural = u'%d&nbsp;Minuten '
-    hoursSingular = u'%d&nbsp;Stunde '
-    hoursPlural = u'%d&nbsp;Stunden '
+    minutesSingular = u'%d minute '
+    minutesPlural = u'%d minutes '
+    hoursSingular = u'%d hour '
+    hoursPlural = u'%d hours '
 
     k = 60
     if (seconds > k):
@@ -441,110 +158,90 @@ def FmtSeconds(seconds):
                 return minutesSingular % t2
             return minutesPlural % t2
     else:
-        return u'%d&nbsp;Sekunden' % seconds
+        return u'%d seconds' % seconds
 
 
-def _SortDictListFunc(x, y, fld):
-    if type(x.get(fld)) == StringType and type(y.get(fld)) == StringType:
-        return cmp(string.lower(x.get(fld)), string.lower(y.get(fld)))
-    return cmp(x.get(fld), y.get(fld))
-
-
-def SortDictList(ioList, inFld, inSort = ">"):
-    """Sorts the dict list.
-    inSort = > or <
+def SortConfigurationList(values, sort, ascending=True):
     """
-    if type(ioList) == TupleType:
-        return ioList
-    ioList.sort(lambda x, y, fld = inFld: _SortDictListFunc(x, y, fld))
-    if inSort == "<":
-        ioList.reverse()
-    return ioList
-
-
-def GetDL(li, key, default=None):
+    Sorts the dictionary list `values` by attribute or key `sort`. This works for definitions.Conf() objects 
+    and simple dictionaries. 
+    Results can be ordered ascending or descending.
     """
-    """
-    if type(li)==DictType:
-        return li.get(key, default)
-    for l in li:
-        if l["id"] == key:
-            return l["name"]
-    return default
-
-def GetDLItem(li, key):
-    """
-    """
-    for l in li:
-        if l["id"] == key:
-            return l
-    return None
+    if not sort:
+        return values
+    try:
+        values = sorted(values, key=attrgetter(sort))   
+    except AttributeError:
+        values = sorted(values, key=itemgetter(sort))   
+    if not ascending:
+        values.reverse()
+    return values
 
 
-def GetMimeTypeExtension(inExt):
-    if inExt.find(".") != -1:
-        inExt = DvPath(inExt).GetExtension()
+def GetMimeTypeExtension(extension):
+    if extension.find(".") != -1:
+        extension = DvPath(extension).GetExtension()
     # custom and uncommeon
-    if inExt == u"fla":        return u"application/flash"
+    if extension == u"fla":          return u"application/flash"
     # standard
-    elif inExt == u"html":        return u"text/html"
-    elif inExt == u"txt":        return u"text/plain"
-    elif inExt == u"dtml":        return u"text/html"
-    elif inExt == u"jpg":        return u"image/jpeg"
-    elif inExt == u"gif":        return u"image/gif"
-    elif inExt == u"png":        return u"image/png"
-    elif inExt == u"jpeg":        return u"image/jpeg"
-    elif inExt == u"psd":        return u"image/psd"
-    elif inExt == u"pdf":        return u"application/pdf"
-    elif inExt == u"swf":        return u"application/x-shockwave-flash"
-    elif inExt == u"flv":        return u"application/x-shockwave-flash"
-    elif inExt == u"dcr":        return u"application/x-director"
-    elif inExt == u"doc":        return u"application/msword"
-    elif inExt == u"xls":        return u"application/vnd.ms-excel"
-    elif inExt == u"ppt":        return u"application/vnd.ms-powerpoint"
-    elif inExt == u"mpp":        return u"application/vnd.ms-project"
-    elif inExt == u"rtf":        return u"text/rtf"
-    elif inExt == u"dat":        return u"application/octet-stream"
-    elif inExt == u"flv":        return u"video/flv"
-    elif inExt == u"ogv":        return u"video/ogg"
-    elif inExt == u"webm":        return u"video/webm"
-    elif inExt == u"mp4":        return u"video/mp4"
-    elif inExt == u"mp3":        return u"audio/mp3"
-    elif inExt == u"ogg":        return u"audio/ogg"
-    e = guess_type(u"x." + inExt)
+    elif extension == u"html":       return u"text/html"
+    elif extension == u"txt":        return u"text/plain"
+    elif extension == u"dtml":       return u"text/html"
+    elif extension == u"jpg":        return u"image/jpeg"
+    elif extension == u"gif":        return u"image/gif"
+    elif extension == u"png":        return u"image/png"
+    elif extension == u"jpeg":       return u"image/jpeg"
+    elif extension == u"psd":        return u"image/psd"
+    elif extension == u"pdf":        return u"application/pdf"
+    elif extension == u"swf":        return u"application/x-shockwave-flash"
+    elif extension == u"flv":        return u"application/x-shockwave-flash"
+    elif extension == u"dcr":        return u"application/x-director"
+    elif extension == u"doc":        return u"application/msword"
+    elif extension == u"xls":        return u"application/vnd.ms-excel"
+    elif extension == u"ppt":        return u"application/vnd.ms-powerpoint"
+    elif extension == u"mpp":        return u"application/vnd.ms-project"
+    elif extension == u"rtf":        return u"text/rtf"
+    elif extension == u"dat":        return u"application/octet-stream"
+    elif extension == u"flv":        return u"video/flv"
+    elif extension == u"ogv":        return u"video/ogg"
+    elif extension == u"webm":       return u"video/webm"
+    elif extension == u"mp4":        return u"video/mp4"
+    elif extension == u"mp3":        return u"audio/mp3"
+    elif extension == u"ogg":        return u"audio/ogg"
+    e = guess_type(u"x." + extension)
     if e[0]:                return e[0]
     return u""
 
-def GetExtensionMimeType(inMime):
+def GetExtensionMimeType(mime):
     # custom and uncommeon
-    if inMime == u"application/flash":        return u"fla"
+    if mime == u"application/flash":  return u"fla"
     # standard
-    elif inMime == u"text/html":        return u"html"
-    elif inMime == u"text/plain":        return u"txt"
-    elif inMime == u"text/html":        return u"dtml"
-    elif inMime == u"image/jpeg":        return u"jpg"
-    elif inMime == u"image/gif":        return u"gif"
-    elif inMime == u"image/png":        return u"png"
-    elif inMime == u"image/jpeg":        return u"jpeg"
-    elif inMime == u"image/psd":        return u"psd"
-    elif inMime == u"application/pdf":                    return u"pdf"
-    elif inMime == u"application/x-shockwave-flash":    return u"swf"
-    elif inMime == u"application/x-director":            return u"dcr"
-    elif inMime == u"application/msword":                return u"doc"
-    elif inMime == u"application/vnd.ms-excel":        return u"xls"
-    elif inMime == u"application/vnd.ms-word":            return u"doc"
-    elif inMime == u"application/vnd.ms-powerpoint":    return u"ppt"
-    elif inMime == u"application/vnd.ms-project":        return u"mpp"
-    elif inMime == u"text/rtf":                        return u"rtf"
-    elif inMime == u"application/octet-stream":        return u"dat"
-    elif inMime == u"video/flv":        return u"flv"
-    elif inMime == u"video/ogg":        return u"ogv"
-    elif inMime == u"video/webm":        return u"webm"
-    elif inMime == u"video/mp4":        return u"mp4"
-    elif inMime == u"audio/mp3":        return u"mp3"
-    elif inMime == u"audio/ogg":        return u"ogg"
+    elif mime == u"text/html":        return u"html"
+    elif mime == u"text/plain":       return u"txt"
+    elif mime == u"text/html":        return u"dtml"
+    elif mime == u"image/jpeg":       return u"jpg"
+    elif mime == u"image/gif":        return u"gif"
+    elif mime == u"image/png":        return u"png"
+    elif mime == u"image/jpeg":       return u"jpeg"
+    elif mime == u"image/psd":        return u"psd"
+    elif mime == u"application/pdf":                  return u"pdf"
+    elif mime == u"application/x-shockwave-flash":    return u"swf"
+    elif mime == u"application/x-director":           return u"dcr"
+    elif mime == u"application/msword":               return u"doc"
+    elif mime == u"application/vnd.ms-excel":         return u"xls"
+    elif mime == u"application/vnd.ms-word":          return u"doc"
+    elif mime == u"application/vnd.ms-powerpoint":    return u"ppt"
+    elif mime == u"application/vnd.ms-project":       return u"mpp"
+    elif mime == u"text/rtf":                         return u"rtf"
+    elif mime == u"application/octet-stream":         return u"dat"
+    elif mime == u"video/flv":        return u"flv"
+    elif mime == u"video/ogg":        return u"ogv"
+    elif mime == u"video/webm":       return u"webm"
+    elif mime == u"video/mp4":        return u"mp4"
+    elif mime == u"audio/mp3":        return u"mp3"
+    elif mime == u"audio/ogg":        return u"ogg"
 
-    m = guess_extension(inMime)
+    m = guess_extension(mime)
     if m:                            return m[1:]
     return u""
 
@@ -639,58 +336,184 @@ def ReplaceHTMLEntities(text, codepage = None):
     return result
 
 
+def LoadFromFile(path):
+    file = open(path)
+    if not file:
+        return None
+    value = file.read()
+    file.close()
+    return value
+
+
+def WriteToFile(path, value, append = False):
+    if append:
+        file = open(path, "ab+")
+        if not file:
+            return False
+    else:
+        file = open(path, "wb")
+        if not file:
+            return False
+    file.write(value)
+    file.close()
+    return True
+
+
+# failsafe type conversion ---------------------------------------------------------------------------------------
+
+def ConvertToStr(data):
+    if isinstance(data, (list, tuple)):
+        return ConvertListToStr(data)
+    elif isinstance(data, dict):
+        return json.dumps(data)
+    return unicode(data)
+
+def ConvertToBool(data, raiseExcp = False):
+    try:
+        return int(data)
+    except:
+        if isinstance(data, basestring):
+            if data.lower() in (u"true", u"yes", u"checked", u"ja", u"qui", u"si"):
+                return True
+            if data.lower() in (u"false", u"no", u"nein", u"non"):
+                return False
+        if raiseExcp:
+            raise
+        return False
+
+def ConvertToInt(data, raiseExcp = False):
+    try:
+        return int(data)
+    except:
+        if ConvertToBool(data, raiseExcp):
+            return 1
+        else:
+            return 0
+        if raiseExcp:
+            raise 
+        return 0
+
+def ConvertToFloat(data, raiseExcp = False):
+    try:
+        return float(data)
+    except:
+        if ConvertToBool(data, raiseExcp):
+            return 1.0
+        else:
+            return 0.0
+        if raiseExcp:
+            raise 
+        return 0.0
+
+def ConvertToLong(data, raiseExcp = False):
+    try:
+        return long(data)
+    except:
+        if ConvertToBool(data, raiseExcp):
+            return 1L
+        else:
+            return 0L
+        if raiseExcp:
+            raise 
+        return 0L
+
+def ConvertToList(data, raiseExcp = False):
+    """
+    converts a string to list.
+    the list items can be seperated by "," or "\n"
+    """
+    try:
+        if not data:
+            return []
+        if isinstance(data, (list,tuple)):
+            return data
+        data = data.strip()
+        if not len(data):
+            return []
+        if data[0] in (u"[", u"("):
+            data = data[1:-1]
+
+        sep = u","
+        if data.find(u"\n") != -1:
+            sep = u"\n"
+
+        result = []
+        l = data.split(sep)
+        for value in l:
+            value = value.strip()
+            if not len(value):
+                continue
+            if value[0] in (u"'", u"\""):
+                value = value[1:-1]
+            result.append(value)
+        return result
+    except:
+        if raiseExcp:
+            raise 
+        return []
+
+def ConvertToNumberList(data, raiseExcp = False):
+    try:
+        l = ConvertToList(data, raiseExcp)
+        for i in range(len(l)):
+            l[i] = ConvertToLong(l[i], raiseExcp)
+        return l
+    except:
+        if raiseExcp:
+            raise 
+        return []
+
+
+def ConvertListToStr(values, sep = u", ", textMarker = u"", keepType = False):
+    """
+    converts a python list to string. .
+    the list items are seperated by ",". list items are converted to string
+    """
+    if not values:
+        return u""
+    if isinstance(values, basestring):
+        return u"%s%s%s" % (textMarker, values, textMarker)
+    s = []
+    for v in values:
+        if textMarker != u"":
+            tm = textMarker
+            if keepType:
+                if isinstance(v, (int, long, float)):
+                    tm = u""
+            s.append(u"%s%s%s" % (textMarker, unicode(v), textMarker))
+        else:
+            s.append(unicode(v))
+    return sep.join(s)
+
+
+def ConvertDictToStr(values, sep = u"\n"):
+    """
+    converts a python dictionary to key list string.
+    the list items are seperated by ",". list items are converted to string
+    
+    ::
+        key1=value1
+        key2=value2
+        
+    result string
+    """
+    s = [u"%s=%s" % (key, ConvertToStr(value)) for key, value in values.items()]
+    return sep.join(s)
+
+
 
 # Logging --------------------------------------------------------------------------
 
 
-def ASSERT(inCondition, inMsg=""):
-    if not inCondition:
-        if inMsg=="":
-            inMsg = "False"
-        raise "ASSERT", inMsg
-        
-def BREAK(inParam):
-    raise "BREAK", inParam
-
-
-def EXCP():
-    import sys, traceback, string
-    type, val, tb = sys.exc_info()
-    return string.join(traceback.format_exception(type, val, tb), "")
-
-
-def EXCP_HTML():
-    import sys, traceback, string
-    type, val, tb = sys.exc_info()
-    s = "<pre>"
-    s += string.join(traceback.format_exception(type, val, tb), "")
-    s += "</pre>"
-    return s
-    
-    
-def DUMP(inData, inPath = "dump.txt", addTime=False):
-    from nive.utils.strings import DvString
+def DUMP(data, path = "dump.txt", addTime=False):
     if addTime:
         from nive.utils.dateTime import DvDateTime
         aD = DvDateTime()
         aD.Now()
-        aS = DvString("\r\n\r\n" + aD.GetHHMMSSDDMMYYYY() + "\r\n" + str(inData))
+        aS = "\r\n\r\n" + aD.GetHHMMSSDDMMYYYY() + "\r\n" + str(data)
     else:
-        aS = DvString("\r\n\r\n" + str(inData))
-    aS.WriteToFile(inPath, True)
-
-
-# Benchmark -----------------------------------------------------------
-
-def START():
-    import time
-    return time.time()
-    
-def STACK(t=0, label = "", limit = 15):
-    import time
-    import traceback
-    n = time.time() - t
-    print label, n, traceback.print_stack(limit=limit)
+        aS = "\r\n\r\n" + str(data)
+    WriteToFile(path, True)
 
 def STACKF(t=0, label = "", limit = 15, path = "_stackf.txt", name=""):
     import time
@@ -708,12 +531,7 @@ def STACKF(t=0, label = "", limit = 15, path = "_stackf.txt", name=""):
     traceback.print_stack(limit=limit, file=s)
     DUMP("%s\r\n%s\r\n%s" % (h, label, s.getvalue()), path)
 
-def MARK(t, label = ""):
-    import time
-    n = time.time() - t
-    print label, n
-
-def LOG(data = "", path="/work/instances/nive/_log.txt", t=0):
+def LOG(data = "", path="_log.txt", t=0):
     import time
     n = time.time() - t
     try:
@@ -793,3 +611,4 @@ def LOGHTTP(client="-", user="-", t=0, action="GET", url="-", state="200", refer
         logObj._path = path
     return logObj.write(log)
     
+

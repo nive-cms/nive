@@ -27,11 +27,7 @@ data rendering, url generation, http headers and user lookup.
 import os
 from time import time
 from datetime import datetime
-from nive.utils.dateTime import DvDateTime, FmtSeconds
-
-from nive.utils.utils import ConvertToStr, ConvertListToStr, FormatBytesForDisplay
-from nive.utils.utils import GetDL, FmtSeconds, GetMimeTypeExtension
-from nive.definitions import IPage
+from email.utils import formatdate
 
 from pyramid.response import Response
 from pyramid.renderers import render_to_response, get_renderer, render
@@ -43,6 +39,10 @@ from pyramid.i18n import get_localizer
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPFound, HTTPOk, HTTPForbidden
 from pyramid.exceptions import NotFound
+
+from nive.utils.utils import ConvertToStr, ConvertListToStr, ConvertToDateTime
+from nive.utils.utils import FmtSeconds, FormatBytesForDisplay, CutText, GetMimeTypeExtension
+from nive.definitions import IPage
 
 
 
@@ -348,6 +348,8 @@ class BaseView(object):
     def SendFile(self, file):
         """
         Creates the response and sends the file back. Uses the FileIterator.
+        
+        #!date formmat
         """
         if not file:
             return HTTPNotFound()
@@ -363,7 +365,7 @@ class BaseView(object):
             r.body = file.read()
         r.content_length = file.size
         r.last_modified = last_mod
-        r.etag = '%s-%s-%s' % (last_mod, file.size, hash(file.path))
+        r.etag = '%s-%s' % (last_mod, hash(file.path))
         r.cache_expires(self.fileExpires)
         return r    
 
@@ -398,11 +400,12 @@ class BaseView(object):
         returns response
         """
         if user:
-            d = DvDateTime()
-            d.Now()
-            response.last_modified = d.GetGMT()
+            response.last_modified = formatdate(timeval=None, localtime=False, usegmt=True)
         else:
-            response.last_modified = self.context.meta.get("pool_change")
+            if self.context.meta.get("pool_change"):
+                t = ConvertToDateTime(self.context.meta.get("pool_change")).timetuple()
+            t = None
+            response.last_modified = formatdate(timeval=t, localtime=False, usegmt=True)
         response.etag = '%s-%s-%s' % (response.last_modified, response.content_length, str(self.context.id))
         return response
 
@@ -524,8 +527,9 @@ class BaseView(object):
         """
         if not date:
             return u""
-        d = DvDateTime(str(date))
-        return d.GetTextGerman()
+        if not isinstance(date, datetime):
+            date = ConvertToDateTime(date)
+        return date.strftime(u"%c")
 
     def FmtDateNumbers(self, date, language=None):
         """
@@ -535,9 +539,10 @@ class BaseView(object):
         """
         if not date:
             return u""
-        d = DvDateTime(str(date))
-        return d.GetDDMMYYYY()
-
+        if not isinstance(date, datetime):
+            date = ConvertToDateTime(date)
+        return date.strftime(u"%x")
+    
     def FmtSeconds(self, secs):
         """ seconds to readable text """
         return FmtSeconds(secs)
@@ -545,6 +550,10 @@ class BaseView(object):
     def FmtBytes(self, size):
         """ bytes to readable text """
         return FormatBytesForDisplay(size)
+
+    def CutText(self, text, length):
+        """ bytes to readable text """
+        return CutText(text, length)
 
 
     # parameter handling ------------------------------------------------------------
@@ -735,28 +744,29 @@ class FieldRenderer(object):
                 data = u"No"
 
         elif fType == "date":
-            if isinstance(data, datetime):
-                return data.strftime(u"%d.%m.%Y")
-            aD = DvDateTime(str(data))
-            data = aD.GetYYYYMMDD()
+            if not isinstance(data, datetime):
+                if not data:
+                    return u""
+                data = ConvertToDateTime(data)
+            fmt = fieldConf.settings.get("strftime", u"%x")
+            return data.strftime(fmt)
 
         elif fType in ("datetime", "timestamp"):
-            fmt = GetDL(fieldConf.get("settings",[]), "format")
-            if fmt:
-                aD = DvDateTime(str(data))
-                data = aD.GetFormat(fmt)
-            else:
-                if isinstance(data, datetime):
-                    return data.strftime(u"%Y-%m-%d %H:%M")
-                elif isinstance(data, basestring):
-                    aD = DvDateTime(str(data))
-                    if aD.GetHour() == 0 and aD.GetMin() == 0 and aD.GetSec() == 0:
-                        data = aD.GetDDMMYYYY()
-                    else:
-                        if GetDL(fieldConf.get("settings",[]), "seconds")=="1":
-                            data = aD.GetYYYYMMDDHHMMSS()
-                        else:
-                            data = aD.GetYYYYMMDDHHMM()
+            fmt = fieldConf.settings.get("format")
+            if not isinstance(data, datetime):
+                if not data:
+                    return u""
+                data = ConvertToDateTime(data)
+            # defaults
+            fmt = fieldConf.settings.get("strftime")
+            if not fmt:
+                fmt = u"%x %H:%M"
+                # hide hour and minutes if zero
+                if data.hour==0 and data.minute==0 and data.second==0:
+                    fmt = u"%x"
+                elif fieldConf.settings.get("seconds"):
+                    fmt = u"%x %X"
+            return data.strftime(fmt)
 
         elif fType == "unit":
             if data == 0 or data == "0":

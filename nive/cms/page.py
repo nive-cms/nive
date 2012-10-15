@@ -30,7 +30,6 @@ Optionally pages can
 """
 
 from nive.i18n import _
-from nive.utils.utils import ConvertToList
 
 from nive.definitions import StagPage, StagPageElement, ObjectConf, FieldConf
 from nive.components.objects.base import PageBase

@@ -16,12 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 
-__doc__ = ""
-
-
-"""
-"""
-
 try:    import win32api, win32con
 except:    pass
 
@@ -32,20 +26,21 @@ import os, sys, string, stat, shutil, tempfile, time, re, binascii, subprocess, 
 import zipfile, tarfile
 
 from dateTime import DvDateTime
-from strings import DvString
 
 WIN32 = sys.platform == "win32"
 USE_WIN32 = False
 kSeperator = os.sep
 
-class DvPath:
+class DvPath(object):
     """
     Common path and directory operations
+    
+    ...to be refactored...
     """
 
     def __init__(self, path = None):
         """ (string path) """
-        self._pPath = u""
+        self._path = u""
         self._pFindList = None
         self._pFindDirList = None
         self._pFindPos = 0
@@ -57,37 +52,37 @@ class DvPath:
                 self.SetStr(str(path))
 
     def __str__(self):
-        return self._pPath
+        return self._path
 
     def SetStr(self, path):
         """(string path)"""
-        self._pPath = path
+        self._path = path
 
     def GetStr(self):
         """return string """
-        return self._pPath
+        return self._path
 
 
     # set ----------------------------------------------------------------------------
     def SetDrive(self, drive):
         """(string drive) """
-        aD, aP = os.path.splitdrive(self._pPath)
-        self._pPath = drive + aP
+        aD, aP = os.path.splitdrive(self._path)
+        self._path = drive + aP
 
     def SetPath(self, path):
         """(string path) """
-        aP, aNE = os.path.split(self._pPath)
-        self._pPath = path
+        aP, aNE = os.path.split(self._path)
+        self._path = path
         self.AppendSeperator()
-        self._pPath += aNE
+        self._path += aNE
 
     def SetName(self, n):
         """(string name) """
-        aP, aStr = os.path.split(self._pPath)
-        aStr, aE = os.path.splitext(self._pPath)
+        aP, aStr = os.path.split(self._path)
+        aStr, aE = os.path.splitext(self._path)
         if len(aP) > 0:
             aP += os.sep
-        self._pPath = aP + n + aE
+        self._path = aP + n + aE
 
     def SetExtension(self, ext):
         """(string ext) """
@@ -95,15 +90,15 @@ class DvPath:
             return
         if not ext[0] == ".":
             ext = "." + ext
-        aP, aE = os.path.splitext(self._pPath)
-        self._pPath = aP + ext
+        aP, aE = os.path.splitext(self._path)
+        self._path = aP + ext
 
     def SetNameExtension(self, nameExt):
         """(string nameExt) """
-        aP, aStr = os.path.split(self._pPath)
-        self._pPath = aP
+        aP, aStr = os.path.split(self._path)
+        self._path = aP
         self.AppendSeperator()
-        self._pPath += nameExt
+        self._path += nameExt
 
     def SetModTime(self, time):
         """(string time) return bool"""
@@ -121,13 +116,13 @@ class DvPath:
         if inPath[0] == os.sep:
             inPath = inPath[1:]
         self.AppendSeperator()
-        self._pPath += inPath
+        self._path += inPath
 
     def RemoveLastDirectory(self):
         name = self.GetNameExtension()
         self.SetNameExtension("")
         if self.HasSeperatorEnd():
-            self._pPath = self._pPath[:-1]
+            self._path = self._path[:-1]
         self.SetNameExtension("")
         self.AppendSeperator()
         self.SetNameExtension(name)
@@ -138,7 +133,7 @@ class DvPath:
         """return string """
         if not self.IsValid():
             return ""
-        aD, aP = os.path.splitdrive(self._pPath)
+        aD, aP = os.path.splitdrive(self._path)
         return aD
 
     def GetPath(self):
@@ -147,7 +142,7 @@ class DvPath:
         """
         if not self.IsValid():
             return ""
-        aP, aNE = os.path.split(self._pPath)
+        aP, aNE = os.path.split(self._path)
         if aP == "":
             return ""
         if not aP[-1] == os.sep:
@@ -158,7 +153,7 @@ class DvPath:
         """return string """
         if not self.IsValid():
             return ""
-        aP, aNE = os.path.split(self._pPath)
+        aP, aNE = os.path.split(self._path)
         aN, aE = os.path.splitext(aNE)
         return aN
 
@@ -166,7 +161,7 @@ class DvPath:
         """return string """
         if not self.IsValid():
             return ""
-        aP, aE = os.path.splitext(self._pPath)
+        aP, aE = os.path.splitext(self._path)
         if len(aE) and aE[0] == ".":
             aE = aE[1:]
         return aE
@@ -175,7 +170,7 @@ class DvPath:
         """return string """
         if not self.IsValid():
             return ""
-        aP, aNE = os.path.split(self._pPath)
+        aP, aNE = os.path.split(self._path)
         return aNE
 
     def GetAccessTime(self):
@@ -183,7 +178,7 @@ class DvPath:
         if not self.IsValid():
             return ""
         try:
-            return DvDateTime(os.stat(self._pPath)[stat.ST_ATIME])
+            return DvDateTime(os.stat(self._path)[stat.ST_ATIME])
         except:
             return 0
 
@@ -192,7 +187,7 @@ class DvPath:
         if not self.IsValid():
             return ""
         try:
-            return DvDateTime(os.stat(self._pPath)[stat.ST_MTIME])
+            return DvDateTime(os.stat(self._path)[stat.ST_MTIME])
         except:
             return 0
 
@@ -203,7 +198,7 @@ class DvPath:
         if self.IsDirectory():
             return 0
         try:
-            return os.stat(self._pPath)[stat.ST_SIZE]
+            return os.stat(self._path)[stat.ST_SIZE]
         except:
             return -1
 
@@ -213,7 +208,7 @@ class DvPath:
         """
         if not self.IsValid():
             return ""
-        aP, aNE = os.path.split(self._pPath)
+        aP, aNE = os.path.split(self._path)
         if aP[-1] == os.sep:
             aP = aP[:-1]
         aL = string.split(aP, os.sep)
@@ -225,17 +220,17 @@ class DvPath:
         """return bool"""
         if not self.IsValid():
             return False
-        return self._pPath.find(".") != -1
+        return self._path.find(".") != -1
 
 
     # state ----------------------------------------------------------------------------
     def IsFile(self):
         """return bool """
-        return os.path.isfile(self._pPath)
+        return os.path.isfile(self._path)
 
     def IsDirectory(self):
         """return bool """
-        return os.path.isdir(self._pPath)
+        return os.path.isdir(self._path)
 
     def Exists(self):
         """return bool """
@@ -243,15 +238,15 @@ class DvPath:
 
     def IsValid(self):
         """return bool """
-        return len(self._pPath) > 0
+        return len(self._path) > 0
 
     def IsEmpty(self):
         """return bool """
-        if os.path.isdir(self._pPath):
-            temp = self._pPath
+        if os.path.isdir(self._path):
+            temp = self._path
             self.SetName("*")
             result = self.FindFirst(inSearchSubDirs = False, inReturnDirectories = True)
-            self._pPath = temp
+            self._path = temp
             return not result
         return self.GetSize()
 
@@ -306,24 +301,24 @@ class DvPath:
 
     def HasSeperatorEnd(self):
         """return bool """
-        if len(self._pPath) == 0:
+        if len(self._path) == 0:
             return 0
-        if not self._pPath[-1] == os.sep:
+        if not self._path[-1] == os.sep:
             return 0
         return 1
 
     def AppendSeperator(self):
         """return void"""
-        if self._pPath!="" and not self.HasSeperatorEnd():
-            self._pPath += os.sep
+        if self._path!="" and not self.HasSeperatorEnd():
+            self._path += os.sep
 
     def ConvertSeperators(self):
         """
         """
-        if self._pPath.find("\\") != -1 and kSeperator != "\\":
-            self._pPath = self._pPath.replace("\\", kSeperator)
-        if self._pPath.find("/") != -1 and kSeperator != "/":
-            self._pPath = self._pPath.replace("/", kSeperator)
+        if self._path.find("\\") != -1 and kSeperator != "\\":
+            self._path = self._path.replace("\\", kSeperator)
+        if self._path.find("/") != -1 and kSeperator != "/":
+            self._path = self._path.replace("/", kSeperator)
 
 
     # operations ----------------------------------------------------------------------------
@@ -333,13 +328,13 @@ class DvPath:
         Move file to new path
         """
         try:
-            aOldPath = self._pPath
-            self._pPath = newPath
+            aOldPath = self._path
+            self._path = newPath
             self.CreateDirectories()
             os.rename(aOldPath, newPath)
             return True
         except:
-            self._pPath = aOldPath
+            self._path = aOldPath
             return False
 
 
@@ -348,13 +343,13 @@ class DvPath:
         Copy file to copyPath. Directories are created if necessary
         """
         try:
-            aOldPath = self._pPath
-            self._pPath = copyPath
+            aOldPath = self._path
+            self._path = copyPath
             self.CreateDirectories()
             shutil.copy2(aOldPath, copyPath)
             return True
         except Exception, e:
-            self._pPath = aOldPath
+            self._path = aOldPath
             self.err = str(e)
             return False
 
@@ -363,8 +358,8 @@ class DvPath:
         """(string copyPath) return bool
         Copy file to copyPath. Directories are created if necessary
         """
-        aOldPath = self._pPath
-        self._pPath = copyPath
+        aOldPath = self._path
+        self._path = copyPath
         self.CreateDirectories()
         shutil.copy2(aOldPath, copyPath)
         return True
@@ -402,7 +397,7 @@ class DvPath:
             return True
         aCopy = True
         while aCopy:
-            aSrcPath = self._pPath
+            aSrcPath = self._path
             aDestPath = destRoot + aSrcPath[len(aRoot):]
             try:
                 aP, aNE = os.path.split(aDestPath)
@@ -426,7 +421,7 @@ class DvPath:
             return True
         aCopy = True
         while aCopy:
-            aSrcPath = self._pPath
+            aSrcPath = self._path
             aDestPath = destRoot + aSrcPath[len(aRoot):]
             try:
                 aP, aNE = os.path.split(aDestPath)
@@ -451,27 +446,27 @@ class DvPath:
             self.SetNameExtension("*.*")
             if not self.FindFirst(True):
                 try:
-                    os.rmdir(self._pPath)
+                    os.rmdir(self._path)
                 except:
                     pass
                 return not self.IsDirectory()
             aDel = True
             while aDel:
-                if os.path.isfile(self._pPath):
-                    os.remove(self._pPath)
+                if os.path.isfile(self._path):
+                    os.remove(self._path)
                 aDel = self.FindNext()
-            self._pPath = aRoot
+            self._path = aRoot
             try:
-                os.removedirs(self._pPath)
+                os.removedirs(self._path)
             except:
                 pass
             return not self.IsDirectory()
 
         if self.IsDirectory():
-            os.rmdir(self._pPath)
+            os.rmdir(self._path)
             return not self.IsDirectory()
         try:
-            os.remove(self._pPath)
+            os.remove(self._path)
         except:
             pass
         return not self.IsFile()
@@ -481,10 +476,10 @@ class DvPath:
         """return bool """
         # list directories
         level = 0
-        dirs = [[self._pPath]]
-        path = self._pPath
-        dirs = self._SubList(self._pPath, dirs, level+1)
-        self._pPath = path
+        dirs = [[self._path]]
+        path = self._path
+        dirs = self._SubList(self._path, dirs, level+1)
+        self._path = path
 
         # delete
         dirs.reverse()
@@ -504,7 +499,7 @@ class DvPath:
         if self.Exists():
             return True
         try:
-            aP, aNE = os.path.split(self._pPath)
+            aP, aNE = os.path.split(self._path)
             os.makedirs(aP)
             return True
         except:
@@ -515,7 +510,7 @@ class DvPath:
         """return bool"""
         if self.Exists():
             return True
-        aP, aNE = os.path.split(self._pPath)
+        aP, aNE = os.path.split(self._path)
         os.makedirs(aP)
         return True
 
@@ -524,7 +519,7 @@ class DvPath:
         """return bool"""
         if not self.IsFile():
             return False
-        os.renames(self._pPath, inNewName)
+        os.renames(self._path, inNewName)
         return True
 
 
@@ -533,7 +528,7 @@ class DvPath:
         return data
         compare this file with inFile
         """
-        f = open(self._pPath)
+        f = open(self._path)
         d = f.read()
         f.close()
         return d
@@ -549,13 +544,13 @@ class DvPath:
             aDir = tempfile.gettempdir()
             if not aDir:
                 return False
-            self._pPath = aDir
+            self._path = aDir
             self.AppendSeperator()
             aName = "tmp_" + str(time.time())
             self.SetNameExtension(aName)
             return True
 
-        self._pPath, x = win32api.GetTempFileName(win32api.GetTempPath(), "tmp_", 0)
+        self._path, x = win32api.GetTempFileName(win32api.GetTempPath(), "tmp_", 0)
         return True
 
 
@@ -567,13 +562,13 @@ class DvPath:
             aDir = tempfile.gettempdir()
             if not aDir:
                 return False
-            self._pPath = aDir
+            self._path = aDir
             self.AppendSeperator()
             aName = prefix + str(time.time())
             self.AppendDirectory(aName)
             return True
 
-        self._pPath, x = win32api.GetTempFileName(win32api.GetTempPath(), prefix, 0)
+        self._path, x = win32api.GetTempFileName(win32api.GetTempPath(), prefix, 0)
         return True
 
 
@@ -585,11 +580,11 @@ class DvPath:
             aDir = tempfile.gettempdir()
             if not aDir:
                 return False
-            self._pPath = aDir
+            self._path = aDir
             self.AppendSeperator()
             return True
 
-        self._pPath = win32api.GetTempPath()
+        self._path = win32api.GetTempPath()
         return True
 
 
@@ -599,10 +594,10 @@ class DvPath:
         """
         if not module:
             import DvLib
-            self._pPath = nive.utils.path.__file__
+            self._path = nive.utils.path.__file__
             self.SetNameExtension("")
         else:
-            self._pPath = module.__file__
+            self._path = module.__file__
             self.SetNameExtension("")
 
 
@@ -610,7 +605,7 @@ class DvPath:
         """
         execute the current path with popen and returns std out
         """
-        s = popen(self._pPath + " " + cmd, "r")
+        s = popen(self._path + " " + cmd, "r")
         if returnStream:
             return s
         r = ""
@@ -627,9 +622,9 @@ class DvPath:
         adds the current path to the PATH enviroment
         """
         path=os.environ["PATH"]
-        if path.find(self._pPath) != -1:
+        if path.find(self._path) != -1:
             return
-        path += ":" + self._pPath
+        path += ":" + self._path
         os.environ["PATH"] = path
 
 
@@ -648,7 +643,7 @@ class DvPath:
         """
         unzip to destination directory
         """
-        zfobj = zipfile.ZipFile(self._pPath)
+        zfobj = zipfile.ZipFile(self._path)
         for name in zfobj.namelist():
             while name.startswith(os.sep):
                 name = name[1:]
@@ -669,7 +664,7 @@ class DvPath:
         """
         unzip to destination directory
         """
-        tar = tarfile.open(self._pPath, "r:gz")
+        tar = tarfile.open(self._path, "r:gz")
         tar.extractall(destDirectory)
         return True
 
@@ -687,7 +682,7 @@ class DvPath:
 
     
     def Zip(self, add=[], rootDir=""):
-        zfobj = zipfile.ZipFile(self._pPath, mode="w")
+        zfobj = zipfile.ZipFile(self._path, mode="w")
         if rootDir != "" and not rootDir.endswith(os.sep):
             rootDir += os.sep
         for path in add:
@@ -702,18 +697,18 @@ class DvPath:
 
 
     def _ZipPath(self, zfobj, path, rootDir):
-        temp = self._pPath
-        self._pPath = path
+        temp = self._path
+        self._path = path
         self.SetName("*")
         f = self.FindFirst(inSearchSubDirs = True, inReturnDirectories = False)
         if not f:
-            self._pPath = temp
+            self._path = temp
             return False
         while f:
-            if os.path.isfile(self._pPath):
-                zfobj.write(self._pPath, self._pPath[len(rootDir):], zipfile.ZIP_DEFLATED)
+            if os.path.isfile(self._path):
+                zfobj.write(self._path, self._path[len(rootDir):], zipfile.ZIP_DEFLATED)
             f = self.FindNext()
-        self._pPath = temp
+        self._path = temp
         return True
         
 
@@ -721,7 +716,7 @@ class DvPath:
         files = ""
         for f in add:
             files += "'%s' "%(f)
-        cmd = """cvzf %(path)s %(files)s""" % {"path": self._pPath, "files": str(files)}
+        cmd = """cvzf %(path)s %(files)s""" % {"path": self._path, "files": str(files)}
         s = popen("tar " + cmd, "r")
         r = ""
         while 1:
@@ -761,7 +756,7 @@ class DvPath:
     # internal -------------------------------------------------------------------------------
 
     def _SubList(self, path, dirs, level):
-        self._pPath = path
+        self._path = path
         l = self.GetSubDirList(True)
         if len(dirs) <= level:
             dirs.append(l)
@@ -776,12 +771,12 @@ class DvPath:
 
     def _FindFilesWin(self):
         """return list """
-        return win32api.FindFiles(self._pPath)
+        return win32api.FindFiles(self._path)
 
 
     def _FindFirstWin(self, inSearchSubDirs = False, inReturnDirectories = False):
         """return bool """
-        try:    self._pFindList = win32api.FindFiles(self._pPath)
+        try:    self._pFindList = win32api.FindFiles(self._path)
         except: return False
         self._pFindPos = -1
         self._pFindDirList = []
@@ -810,10 +805,10 @@ class DvPath:
                 return False
             self._pFindDirList.sort()
 
-            self._pPath = self._pFindDirList.pop(0)                   # get NEXT directory
+            self._path = self._pFindDirList.pop(0)                   # get NEXT directory
             self.AppendSeperator()
             self.SetNameExtension(self.pFindFile)
-            self._pFindList = win32api.FindFiles(self._pPath)         # start find in new directory
+            self._pFindList = win32api.FindFiles(self._path)         # start find in new directory
             self._pFindPos = -1
             return self.FindNext()
 
@@ -897,8 +892,8 @@ class DvPath:
                 return False
             self._pFindDirList.sort()
 
-            self._pPath = self._pFindDirList.pop(0)                   # get NEXT directory
-            #print self._pPath
+            self._path = self._pFindDirList.pop(0)                   # get NEXT directory
+            #print self._path
             self.AppendSeperator()
             self.SetNameExtension(self.pFindFile)
             self._pFindList = self._FindFilesUnix(self.regex)        # start find in new directory
@@ -942,8 +937,9 @@ class DvPath:
 
 
 # --------------------------------------------------------------------------------
+from utils import LoadFromFile
 
-class DvDirCleaner:
+class DvDirCleaner(object):
     """
     Clean up directories
 
@@ -1107,15 +1103,14 @@ class DvDirCleaner:
     def _ProcessFile(self, file, references):
         # load file data
         name = file.GetNameExtension()
-        data = DvString()
-        data.LoadFromFile(str(file))
+        data = LoadFromFile(str(file))
         # loop files
         for ref in references.keys():
             if ref == str(file):
                 continue
             refPath = DvPath(ref)
             refName = refPath.GetNameExtension()
-            if data.Find(refName) != -1:
+            if data.find(refName) != -1:
                 references[ref] = references[ref] + 1
         return references
 

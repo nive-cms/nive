@@ -148,7 +148,6 @@ from types import StringType
 
 from pyramid.url import static_url
 
-from nive.utils.utils import GetDLItem, ConvertToList
 from nive.definitions import Conf, FieldConf, ConfigurationError
 from nive.events import Events
 

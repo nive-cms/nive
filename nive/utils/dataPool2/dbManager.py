@@ -104,8 +104,7 @@ class MySQLManager(object):
                 time.sleep(0.5)
                 aCnt += 1
                 if aCnt == 10:
-                    BREAK("timeout create table")
-                    return False
+                    raise OperationalError, "timeout create table"
             return True
 
         columns = self.GetColumns(tableName, structure)

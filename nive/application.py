@@ -34,7 +34,6 @@ import logging
 
 from time import time
 from types import DictType
-from operator import itemgetter, attrgetter
 
 from zope.interface.registry import Components
 from zope.interface import providedBy
@@ -50,7 +49,7 @@ from nive.security import User, authenticated_userid
 from nive.helper import ResolveName, ResolveConfiguration, FormatConfTestFailure, GetClassRef, ClassFactory
 from nive.tools import _IGlobal, _GlobalObject
 from nive.workflow import IWfProcessConf
-
+from nive.utils.utils import SortConfigurationList
 
 
 class Application(object):
@@ -922,9 +921,9 @@ class Configuration:
         returns list
         """
         if not visibleOnly:
-            return self._SortFields(self.configuration.categories, sort)
+            return SortConfigurationList(self.configuration.categories, sort)
         c = filter(lambda a: not a.get("hidden"), self.configuration.categories)
-        return self._SortFields(c, sort)
+        return SortConfigurationList(c, sort)
 
 
     def GetCategoryName(self, categoryID):
@@ -948,9 +947,9 @@ class Configuration:
         returns list
         """
         if not visibleOnly:
-            return self._SortFields(self.configuration.groups, sort)
+            return SortConfigurationList(self.configuration.groups, sort)
         c = filter(lambda a: not a.get("hidden"), self.configuration.groups)
-        return self._SortFields(c, sort)
+        return SortConfigurationList(c, sort)
 
 
     def GetGroupName(self, groupID):
@@ -1053,15 +1052,6 @@ class Configuration:
         # reset cached db
         self.Close()
         return structure
-
-
-    def _SortFields(self, listtosort, sort):
-        if not sort:
-            return listtosort
-        try:
-            return sorted(listtosort, key=attrgetter(sort))   
-        except AttributeError:
-            return sorted(listtosort, key=itemgetter(sort))   
 
 
 

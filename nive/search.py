@@ -83,11 +83,12 @@ sql            the sql statement used
 
 import time
 
-from nive.utils.utils import ConvertToNumberList, ConvertListToDict
+from nive.utils.utils import ConvertToNumberList
 from nive.utils.language import LanguageExtension, CountryExtension
 from nive.views import FieldRenderer
 from nive.security import GetUsers
 from nive.definitions import IFieldConf
+from nive.definitions import FieldConf
 from nive.definitions import ConfigurationError
 
 class Search:
@@ -223,18 +224,13 @@ class Search:
         if not db:
             raise ConnectionError, "No database connection"
 
-        #BREAK(parameter)
-        #BREAK(fldList)
-        #BREAK(operators)
         sql, values = db.FmtSQLSelect(fldList, parameter=parameter, operators=operators, 
                               sort=sort, ascending=ascending, start=start, max=max, 
                               groupby=kw.get("groupby"), 
                               logicalOperator=kw.get("logicalOperator"), 
                               condition=kw.get("condition"), 
                               join=kw.get("join"))
-        #BREAK(sql)
         records = db.Query(sql, values)
-        #BREAK(records)
 
         # prepare field renderer
         skipRender = kw.get("skipRender", False)
@@ -280,7 +276,6 @@ class Search:
                                       logicalOperator=kw.get("logicalOperator"), 
                                       condition=kw.get("condition"), 
                                       join=kw.get("join"))
-                #BREAK(sql)
                 total = db.Query(sql2, values)[0][0]
             else:
                 sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
@@ -288,10 +283,8 @@ class Search:
                                        logicalOperator=kw.get("logicalOperator"), 
                                        condition=kw.get("condition"), 
                                        join=kw.get("join"))
-                #BREAK(sql)
                 total = db.Query(sql2, values)[0][0]
 
-        #BREAK(items)
         # prepare result dictionary and paging information
         result = {}
         result["criteria"] = parameter
@@ -320,7 +313,6 @@ class Search:
         prevend = prev + max
         result["prevend"] = prevend
 
-        #BREAK(result)
         return result
 
 
@@ -398,13 +390,9 @@ class Search:
             ct = 0
         else:
 
-            #BREAK(parameter)
             sql, values = db.FmtSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
-            #BREAK(fldList)
-            #BREAK(sql)
             aL = db.Query(sql, values)
-            #BREAK(aL)
-
+            
             # render
             converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
@@ -437,11 +425,9 @@ class Search:
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
                     sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-                    #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
                 else:
                     sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-                    #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
@@ -472,7 +458,6 @@ class Search:
         prevend = prev + max
         result["prevend"] = prevend
 
-        #BREAK(result)
         return result
 
 
@@ -539,13 +524,9 @@ class Search:
         if not db:
             ct = 0
         else:
-            #BREAK(parameter)
             sql, values = db.FmtSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
-            #BREAK(fldList)
-            #BREAK(sql)
             aL = db.Query(sql, values)
-            #BREAK(aL)
-
+            
             # render
             converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
@@ -578,11 +559,9 @@ class Search:
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
                     sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
-                    #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
                 else:
                     sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
-                    #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
@@ -613,7 +592,6 @@ class Search:
         prevend = prev + max
         result["prevend"] = prevend
 
-        #BREAK(result)
         return result
 
 
@@ -678,14 +656,9 @@ class Search:
         if not db:
             ct = 0
         else:
-            #BREAK(parameter)
-            #BREAK(fldList)
-            #BREAK(kw.get("operators"))
             sql, values = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, operators=kw.get("operators",{}), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-            #BREAK(sql)
             aL = db.Query(sql, values)
-            #BREAK(aL)
-
+            
             # render
             converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
@@ -713,11 +686,8 @@ class Search:
 
             # total records
             sql2, values = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, operators=kw.get("operators",{}), skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-            #BREAK(sql)
             total = db.Query(sql2, values)[0][0]
-            #BREAK(total)
-
-        #BREAK(items)
+            
         result = {}
         result["phrase"] = searchFor
         result["criteria"] = parameter
@@ -745,7 +715,6 @@ class Search:
         prevend = prev + max
         result["prevend"] = prevend
 
-        #BREAK(result)
         return result
 
 
@@ -832,14 +801,9 @@ class Search:
         if not db:
             ct = 0
         else:
-            #BREAK(parameter)
-            #BREAK(fldList)
-            #BREAK(kw.get("operators"))
             sql, values = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
-            #BREAK(sql)
             aL = db.Query(sql, values)
-            #BREAK(aL)
-
+            
             # render
             converter = FieldRenderer(self)
             skipRender = kw.get("skipRender", False)
@@ -870,17 +834,13 @@ class Search:
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
                     sql2, values = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-                    #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
                 else:
                     sql2, values = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
-                    #BREAK(sql)
                     total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
-            #BREAK(total)
-
-        #BREAK(items)
+            
         result = {}
         result["phrase"] = searchFor
         result["criteria"] = parameter
@@ -908,7 +868,6 @@ class Search:
         prevend = prev + max
         result["prevend"] = prevend
 
-        #BREAK(result)
         return result
 
 
@@ -945,8 +904,7 @@ class Search:
             filesMapped[str(f["id"])].append(f)
         if len(ids)==0:
             ids.append(0)
-        #BREAK(aFilesID)
-
+        
         if not kw.has_key("operators"):
             kw["operators"] = {}
         parameter["id"] = ids
@@ -969,7 +927,6 @@ class Search:
         # update result
         del result["criteria"]["id"]
         result["criteria"]["filename"] = filename
-        #BREAK(result)
         return result
 
 
@@ -1158,7 +1115,6 @@ class Search:
                 if f["datatype"] != "unit":
                     continue
                 l = self.Select(pool_type=t["id"], parameter={f["id"]:unitID}, fields=["id", "title", "pool_type"], sort="pool_sort")
-                #BREAK(aSql)
                 for r in l:
                     if not r[0] in ids:
                         ids.append(r[0])
@@ -1301,7 +1257,7 @@ class Search:
                 continue
             # Aggregate functions, custom flds
             if fld[0] == "-":
-                f.append({"id": fld, "name": fld, "datatype": "string"})
+                f.append(FieldConf(**{"id": fld, "name": fld, "datatype": "string"}))
                 continue
 
             fl = self.app.GetFld(fld, pool_type)

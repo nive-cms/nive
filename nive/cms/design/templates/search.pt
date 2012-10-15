@@ -11,7 +11,11 @@
     <p tal:condition="result['count']==0"> <em>Nothing found!</em></p>
     <p tal:condition="result['count']!=0"> <em>${result['count']} pages found!</em></p>
     <table class="table table-striped">
-    <tr tal:repeat="rec result['items']"><td><a href="${rooturl}su?r=${rec['id']}">${rec['title']}</a></td><td>${rec['fulltext'][:120]} <span tal:condition="len(rec['fulltext'])>120">...</span><br/><a href="${rooturl}su?r=${rec['id']}">&gt; more</a></td></tr>
+    <tr tal:repeat="rec result['items']">
+      <td><a href="${rooturl}su?r=${rec['id']}">${rec['title']}</a></td>
+      <td><span tal:replace="structure view.CutText(rec['fulltext'], 300).replace('\n','<br/>')"/> 
+      <br/><a href="${rooturl}su?r=${rec['id']}">&gt; more</a></td>
+    </tr>
     </table>
       
     </div>

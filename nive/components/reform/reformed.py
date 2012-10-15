@@ -55,7 +55,6 @@ from form import Button
 from field import Field
 
 from nive.helper import File
-from nive.utils.utils import ConvertDictListToTuple
 
 
 class FileData2(object):
@@ -303,28 +302,28 @@ def SchemaFactory(self, form, fields, actions, force=False):
                 v = form.app.root().LoadListItems(field, context)
                 if field.settings and field.settings.get("addempty"):
                     v.insert(0,{"id":u"","name":u""})
-                values=ConvertDictListToTuple(v)
+                values = [(a["id"],a["name"]) for a in v]
                 kw["widget"] = SelectWidget(values=values, **kwWidget)
             n = SchemaNode(String(), **kw)
             
         elif ftype == "radio":
             if not "widget" in kw:
                 v = form.app.root().LoadListItems(field, context)
-                values=ConvertDictListToTuple(v)
+                values=[(a["id"],a["name"]) for a in v]
                 kw["widget"] = RadioChoiceWidget(values=values, **kwWidget)
             n = SchemaNode(String(), **kw)
 
         elif ftype == "mselection":
             if not "widget" in kw:
                 v = form.app.root().LoadListItems(field, context)
-                values=ConvertDictListToTuple(v)
+                values=[(a["id"],a["name"]) for a in v]
                 kw["widget"] = SelectWidget(values=values, size=field.get("len", 4), **kwWidget)
             n = SchemaNode(List(allow_empty=True), **kw)
 
         elif ftype == "mcheckboxes":
             if not "widget" in kw:
                 v = form.app.root().LoadListItems(field, context)
-                values=ConvertDictListToTuple(v)
+                values=[(a["id"],a["name"]) for a in v]
                 kw["widget"] = CheckboxChoiceWidget(values=values, **kwWidget)
             n = SchemaNode(List(allow_empty=True), **kw)
 

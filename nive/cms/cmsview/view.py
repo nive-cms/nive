@@ -24,15 +24,13 @@ try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
-from operator import itemgetter, attrgetter
     
-from pyramid.i18n import get_localizer
-
-from nive.i18n import _
+from nive.i18n import _, translator
 from nive.definitions import ViewModuleConf, ViewConf, WidgetConf
 from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot, IToolboxWidgetConf, IEditorWidgetConf
 from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, ICMSRoot, IColumn
 from nive.cms.design import view as design 
+from nive.utils.utils import SortConfigurationList
 
 
 # view module definition ------------------------------------------------------------------
@@ -315,7 +313,7 @@ class Editor(BaseView, CopyView, SortView):
         if not elements:
             elements = obj.GetPageElements()
             
-        localizer = get_localizer(self.request)
+        localizer = translator(self.request)
         
         blocks = StringIO()
         static = self.StaticUrl("nive.cms.cmsview:static/images/types/")
@@ -323,15 +321,15 @@ class Editor(BaseView, CopyView, SortView):
         
             t = el.GetTitle()
             if not t:
-                t = u"<em>%s</em>" % (localizer.translate(el.GetTypeName()))
+                t = u"<em>%s</em>" % (localizer(el.GetTypeName(), self.request))
 
             if el.GetTypeID()=="box":
-                title = u"<img src='%s%s.png' align='top'/> %s: %s" % (static, el.GetTypeID(), localizer.translate(u"Box"), t)
+                title = u"<img src='%s%s.png' align='top'/> %s: %s" % (static, el.GetTypeID(), localizer(u"Box"), t)
                 blocks.write(elHtml % {u"title": title, u"options": self.editBlockList(obj=el, showCCP=True)})
                 for elb in el.GetPageElements():
                     t = elb.GetTitle()
                     if not t:
-                        t = u"<em>%s</em>" % (localizer.translate(elb.GetTypeName()))
+                        t = u"<em>%s</em>" % (localizer(elb.GetTypeName()))
                     title = u"&gt; <img src='%s%s.png' align='top'/> %s" % (static, elb.GetTypeID(), t)
                     blocks.write(elHtml % {u"title": title, u"options": self.editBlockList(obj=elb, showCCP=True)})
         
@@ -339,8 +337,8 @@ class Editor(BaseView, CopyView, SortView):
                 title = u"<img src='%s%s.png' align='top'/> %s" % (static, el.GetTypeID(), t)
                 blocks.write(elHtml % {u"title": title, u"options": self.editBlockList(obj=el, showCCP=True)})
         if not len(elements):
-            blocks.write(localizer.translate(_(u"<i>empty</i>")))
-        data = html % {u"blocks": blocks.getvalue(), u"id": str(obj.GetID()), u"title": localizer.translate(_(u"Page elements"))}
+            blocks.write(localizer(_(u"<i>empty</i>")))
+        data = html % {u"blocks": blocks.getvalue(), u"id": str(obj.GetID()), u"title": localizer(_(u"Page elements"))}
         if addResponse:
             r = Response(content_type="text/html", conditional_response=True)
             r.unicode_body = data
@@ -364,20 +362,19 @@ class Editor(BaseView, CopyView, SortView):
 </div>"""
         
         useworkflow = 1
-        localizer = get_localizer(self.request)
+        localizer = translator(self.request)
         static = self.StaticUrl("nive.cms.workflow:static/exclamation.png")
 
         if not pages:
             pages = page.GetPages(includeMenu=1)
-        localizer = get_localizer(self.request) 
         blocks = StringIO()
         for p in pages:
             wf = u""
             if useworkflow and not p.meta.pool_state:
-                wf = u"""<a href="%(url)sworkflow" class="right" rel="niveOverlay"><img src="%(static)s" title="%(name)s"/></a>""" % {u"static": static, u"url": self.FolderUrl(p), u"name": localizer.translate(_(u"This page is not public."))}
+                wf = u"""<a href="%(url)sworkflow" class="right" rel="niveOverlay"><img src="%(static)s" title="%(name)s"/></a>""" % {u"static": static, u"url": self.FolderUrl(p), u"name": localizer(_(u"This page is not public."))}
             blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": p.meta.get(u"title"), u"options": self.editBlockList(obj=p, page=page), u"workflow": wf})
         if not len(pages):
-            blocks.write(localizer.translate(_(u"<p><i>no sub pages</i></p>")))
+            blocks.write(localizer(_(u"<p><i>no sub pages</i></p>")))
         return html % {u"blocks": blocks.getvalue()}
         
 
@@ -420,7 +417,7 @@ class Editor(BaseView, CopyView, SortView):
         #opt
         for n,w in widgets:
             l.append({u"id":w.sort, u"data": self.RenderView(object, name=w.viewmapper, secure=True, raiseUnauthorized=False)})
-        for i in sorted(l, key=itemgetter(u"id")):
+        for i in SortConfigurationList(l, u"id"):
             if i[u"data"]:
                 html += i[u"data"]
         return html
@@ -434,7 +431,7 @@ class Editor(BaseView, CopyView, SortView):
         #opt
         for n,w in widgets:
             confs.append(w)
-        return sorted(confs, key=itemgetter(u"sort"))
+        return SortConfigurationList(confs, u"sort")
         
 
     #class Edit(Editor):

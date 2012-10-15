@@ -1,8 +1,8 @@
 - fieldconf lisitem handling
-- default installation design bootstrap
 - form action map to view permission
 - move datapool2 Group functions
-- universal datetime handling
+- universal and locale date/time handling
+- cleanup utils conversion functions
 
 - cms browser tests
 - queryRestraint tests

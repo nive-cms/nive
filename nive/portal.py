@@ -58,7 +58,7 @@ from nive.definitions import ConfigurationError
 from nive.helper import ResolveConfiguration, ResolveName
 from nive.security import User, authenticated_userid, Allow, ALL_PERMISSIONS
 from nive.events import Events
-from nive.utils.utils import SortDictList
+from nive.utils.utils import SortConfigurationList
 
 
 
@@ -223,7 +223,7 @@ class Portal(Events, object):
         if not sort:
             return g
         l = copy.deepcopy(g)
-        return SortDictList(l, sort, ">")
+        return SortConfigurationList(l, sort)
 
 
     def GetPortal(self):

@@ -28,7 +28,7 @@ from nive.definitions import IWebsiteRoot, ICMSRoot
 from nive.views import BaseView
 from nive.forms import ValidationError, HTMLForm
 
-from nive.utils.utils import SortDictList, ConvertDictToStr
+from nive.utils.utils import SortConfigurationList, ConvertDictToStr
 
 
 # view module definition ------------------------------------------------------------------
@@ -163,7 +163,7 @@ class AdminBasics(BaseView):
             return confs
         for n,w in widgets:
             confs.append(w)
-        return SortDictList(confs, "sort")
+        return SortConfigurationList(confs, "sort")
 
     def view(self):
         return {}

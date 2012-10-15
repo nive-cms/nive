@@ -19,15 +19,12 @@ __doc__ = """
 """
 
 import hashlib
+from datetime import datetime
 
-from nive.utils.dateTime import DvDateTime
-from nive.utils.utils import ConvertListToStr, ConvertToList
 from nive.i18n import _
 from nive.definitions import implements, IUser
 
 from nive.components.objects.base import ObjectBase
-
-
 
 
 
@@ -66,8 +63,7 @@ class user(ObjectBase):
         events: login()
         """
         lastlogin = self.data.get("lastlogin")
-        date = DvDateTime()
-        date.Now()
+        date = datetime.now()
         self.data.set("lastlogin", date)
         self.Signal("login")
         self.Commit(self)

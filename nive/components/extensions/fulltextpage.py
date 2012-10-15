@@ -56,10 +56,16 @@ class PageFulltext(object):
             text = [self.GetTexts()]
             for e in self.GetPageElements(addBoxContents=1, skipColumns=0):
                 text.append(e.GetTexts())
-            self.dbEntry.WriteFulltext(u"\n\n".join(text))
+            self.dbEntry.WriteFulltext(self.FormatFulltext(text))
         else:
             self.GetPage().UpdateFulltext()
             
+    def FormatFulltext(self, textlist):
+        # formats the raw text better display
+        text = u"\n".join(textlist)
+        text = text.replace(u"\n\n\n", u"\n")
+        text = text.replace(u"\n\n", u"\n")
+        return text
 
     def GetTexts(self):
         # loop all fulltext fields and make one string
@@ -145,7 +151,7 @@ class RewriteFulltext(Tool):
         c.execute(sql)
         c.close()
         conn.commit()
-        self.stream.write(localizer.translate(_(u"Deleted previous fulltext.<br/>")))
+        self.stream.write(localizer.translate(_(u"Deleted previous fulltext index.<br/>")))
         
         pages = root.Select(parameter={"pool_stag":10,"pool_state":1})
         cnt = len(pages)

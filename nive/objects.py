@@ -37,7 +37,6 @@ See :py:mod:`nive.components.objects.base` for subclassing base classes
 """
 
 import weakref
-from utils.utils import ConvertToType
 
 from nive.definitions import StagContainer, ReadonlySystemFlds, ICache, IContainer
 from nive.definitions import ConfigurationError
@@ -115,11 +114,14 @@ class Object(object):
             if f["id"] == fldname:
                 if f["datatype"] == "file":
                     return self.GetFile(fldname)
-                return ConvertToType(self.data.get(fldname), f["datatype"])
+                return self.data.get(fldname)
+                #disabled conversion return ConvertToType(self.data.get(fldname), f["datatype"])
+                
         # meta
         f = self.app.GetMetaFld(fldname)
         if f:
-            return ConvertToType(self.meta.get(fldname), f["datatype"])
+            return self.meta.get(fldname)
+            #disabled conversion return ConvertToType(self.meta.get(fldname), f["datatype"])
         return None
 
 

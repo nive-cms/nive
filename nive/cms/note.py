@@ -37,7 +37,7 @@ class note(PageElementBase):
 
     def OnCommit(self):
         text = ConvertHTMLToText(self.data.get("textblock"), removeReST=True)
-        self.meta["title"] = CutText(text, self.titleLen)
+        self.meta["title"] = CutText(text, self.titleLen, postfix=u"")
         return True
     
 

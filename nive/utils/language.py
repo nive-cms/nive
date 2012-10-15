@@ -2,7 +2,6 @@
 from copy import deepcopy
 import language_data 
 
-from strings import DvString
 
 class LanguageExtension:
     """    

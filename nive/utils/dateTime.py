@@ -10,7 +10,7 @@ import re, sys, os, math
 kMonth = [u"", u"Januar",u"Februar",u"März",u"April",u"Mai",u"Juni",u"Juli",u"August",u"September",u"Oktober",u"November",u"Dezember"]
 kDay = [u"Sonntag",u"Montag",u"Dienstag",u"Mittwoch",u"Donnerstag",u"Freitag",u"Samstag"]
 
-class DvDateTime:
+class DvDateTime(object):
     """Universal Date/Time class"""
 
     def __init__(self, inDateTime = None):
@@ -404,41 +404,4 @@ def _correctYear(year):
         else:
             year = 1900 + year
     return year
-
-
-
-def FmtSeconds(seconds):
-    # Format seconds for display
-    #[$] seconds: seconds to convert
-    if seconds is None: return u'-' * 5
-    if seconds == -1: return u'-'
-
-    minutesSingular = u'%d&nbsp;Minute '
-    minutesPlural = u'%d&nbsp;Minuten '
-    hoursSingular = u'%d&nbsp;Stunde '
-    hoursPlural = u'%d&nbsp;Stunden '
-
-    k = 60
-    if (seconds > k):
-        t2 = seconds / k
-        if (t2 > k):
-            t3 = t2 / k
-            s = u""
-            if t3 == 1:
-                s += hoursSingular % t3
-            else:
-                s += hoursPlural % t3
-            m = t2%k
-            if m==1:
-                s += minutesSingular % m
-            else:
-                s += minutesPlural % m
-            return s
-        else:
-            if t2 == 1:
-                return minutesSingular % t2
-            return minutesPlural % t2
-    else:
-        return u'%d&nbsp;Sekunden' % seconds
-
 

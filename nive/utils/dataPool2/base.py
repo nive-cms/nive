@@ -23,9 +23,8 @@ from time import time
 from time import localtime
 
 from nive.utils.utils import ConvertListToStr
-from nive.utils.utils import BREAK, STACKF, DUMP
+from nive.utils.utils import STACKF, DUMP
 from nive.utils.path import DvPath
-from nive.utils.strings import DvString
 from nive.utils.dateTime import DvDateTime
 
 from nive.definitions import ConfigurationError, OperationalError, ProgrammingError, Warning
@@ -350,9 +349,7 @@ class Base(object):
             s = sort.split(u",")
             sort = []
             for sortfld in s:
-                sortfld = DvString(sortfld)
-                sortfld.Trim()
-                sortfld = str(sortfld)
+                sortfld = sortfld.strip(u" ")
                 if len(sortfld) > 0 and sortfld[0] == u"-":
                     table = u""
                     sortfld = sortfld[1:]
@@ -430,8 +427,8 @@ class Base(object):
         """
         sql, values = self.FmtSQLSelect(flds, parameter, dataTable=dataTable, **kw)
         connection = self.connection
-        searchPhrase = connection.FmtParam(self.DecodeText(searchPhrase))
-        values.append(searchPhrase)
+        searchPhrase = self.DecodeText(searchPhrase)
+        values.insert(0, searchPhrase)
         ph = self.GetPlaceholder()
         phrase = u"""%s.text LIKE %s""" % (self.FulltextTable, ph)
 
@@ -806,8 +803,6 @@ class Base(object):
         """
         Delete the entry and files
         """
-        if version:
-            BREAK("version")
         cursor = self.connection.cursor()
 
         # base record
@@ -1496,14 +1491,14 @@ class Entry(object):
     def DuplicateFiles(self, newEntry):
         """
         """
-        BREAK("subclass")
+        #BREAK("subclass")
         pass
 
 
     def CommitFile(self, key, file, cursor=None):
         """
         """
-        BREAK("subclass")
+        #BREAK("subclass")
         pass
 
 
