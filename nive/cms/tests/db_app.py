@@ -19,10 +19,12 @@ dbconf = DatabaseConf(
 appconf = AppConf("nive.cms.app")
 appconf.modules.append("nive.cms.design.view")
 
-def app():
+def app(confs=[]):
     a = WebsitePublisher()
     a.Register(appconf)
     a.Register(dbconf)
+    for c in confs:
+        a.Register(c)
     p = Portal()
     p.Register(a)
     a.Startup(None)
@@ -154,5 +156,13 @@ def create_code(c, user):
     o = c.Create(type, data = data, user = user)
     #o.Commit()
     return o
+
+def create_news(c, user):
+    type = "news"
+    data = {"title":u"a link", "text": u"a text", "publish": "2012-12-12", "link": u"http://www.nive.net"}
+    o = c.Create(type, data = data, user = user)
+    #o.Commit()
+    return o
+
 
 

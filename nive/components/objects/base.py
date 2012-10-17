@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,7 @@ from nive.definitions import IPage, IPageContainer, IPageElement, IFile, IPageEl
 
 class ApplicationBase(Application, AppFactory, Configuration, Registration, Events):
     """
-    *nive CMS application* 
+    *Nive cms application* 
     
     The application manages module registration, module configuration, root dispatching
     and basic application events.

@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -40,9 +40,10 @@ configuration.views = [
     ViewConf(name="login",    attr="login",    renderer=t+"loginpage.pt"),
     ViewConf(name="signup",   attr="create",   renderer=t+"signup.pt", permission="signup"),
     ViewConf(name="update",   attr="update",   renderer=t+"update.pt", permission="updateuser"),
-    #ViewConf(name="mailpass", attr="mailpass", renderer=t+"mailpass.pt"),
-    ViewConf(name="resetpass",attr="resetpass",renderer=t+"mailpass.pt"),
+    ViewConf(name="resetpass",attr="resetpass",renderer=t+"resetpass.pt"),
     ViewConf(name="logout",   attr="logout"),
+    # disabled
+    #ViewConf(name="mailpass", attr="mailpass", renderer=t+"mailpass.pt"),
 ]
 
 
@@ -94,6 +95,7 @@ class UserForm(ObjectForm):
         self.mail = None
         self.mailpass = None
         self.groups = ""
+        self.css_class = "smallform"
 
     def AddUser(self, action, redirect_success):
         """
@@ -170,27 +172,16 @@ class UserForm(ObjectForm):
 
     def MailPass(self, action, redirect_success):
         """
-        Form action: user login 
+        """
+        return self.ResetPass(action, redirect_success, createNewPasswd=False)
+
+
+    def ResetPass(self, action, redirect_success, createNewPasswd=True):
+        """
         """
         #result, data, e = self.Validate(self.request)
         data = self.GetFormValues(self.request)
-        result, msgs = self.context.MailUserPass(email=data.get("email"), mailtmpl=self.mailpass)
-        if result:
-            if self.view and redirect_success:
-                self.view.Redirect(redirect_success, messages=msgs)
-                return
-            data = {}
-        errors=None
-        return result, self.Render(data, msgs=msgs, errors=errors)
-
-
-    def ResetPass(self, action, redirect_success):
-        """
-        Form action: user login 
-        """
-        #result, data, e = self.Validate(self.request)
-        data = self.GetFormValues(self.request)
-        result, msgs = self.context.MailResetPass(currentUser=self.view.User(), email=data.get("email"), mailtmpl=self.mailpass)
+        result, msgs = self.context.MailUserPass(email=data.get("email"), mailtmpl=self.mailpass, createNewPasswd=createNewPasswd, currentUser=self.view.User())
         if result:
             if self.view and redirect_success:
                 self.view.Redirect(redirect_success, messages=msgs)
@@ -248,7 +239,7 @@ class UserView(BaseView):
 
     def resetpass(self):
         self.form.startEmpty = True
-        self.form.mail = Mail(_(u"Your password"), "nive.userdb:userview/mailpassmail.pt")
+        self.form.mail = Mail(_(u"Your new password"), "nive.userdb:userview/resetpassmail.pt")
         self.form.Setup(subset="resetpass")
         return self._render()
 

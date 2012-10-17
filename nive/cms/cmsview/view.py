@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #----------------------------------------------------------------------
 
 __doc__ = """
-nive CMS toolbox and editor view layer
+Nive cms toolbox and editor view layer
 ----------------------------------------
 """
 try:
@@ -51,8 +51,8 @@ configuration = ViewModuleConf(
 t = configuration.templates 
 
 configuration.views = [
-    ViewConf(name = "editor", attr = "editor", context=IContainer, permission="view", containment=IApplication),
-    ViewConf(name = "exiteditor", attr = "exit", context=IContainer, permission="view", containment=IApplication),
+    ViewConf(name = "editor",     attr = "editor",  context=IContainer,   permission="view", containment=IApplication),
+    ViewConf(name = "exiteditor", attr = "exit",    context=IContainer,   permission="view", containment=IApplication),
     ViewConf(name = "exiteditor", attr = "exitapp", context=IApplication, permission="view", containment=IPortal),
     
     ViewConf(id="rootview", name = "",     attr = "view", context = ICMSRoot, containment=IApplication),
@@ -130,24 +130,29 @@ class Editor(BaseView, CopyView, SortView):
         BaseView.__init__(self, context, request)
         request.editmode = "editmode"
 
+    def IsEditmode(self):
+        return True
+        
+    def GetEditorWidgets(self, object):
+        app = self.context.app
+        widgets = app.QueryConf(IEditorWidgetConf, context=object)
+        confs = []
+        if not widgets:
+            return confs
+        #opt
+        for n,w in widgets:
+            confs.append(w)
+        return SortConfigurationList(confs, u"sort")
+        
+
+    # macros ------------------------------------------------------------------------ 
+
     def cmsIndex_tmpl(self):
         i = get_renderer('nive.cms.cmsview:index.pt').implementation()
         return i
     
-    def editorHead(self):
-        # necessary includes 
-        t = self.cmsIndex_tmpl()
-        return t.macros[u'editorHead'](self.request, self.context)
-        
+    # redirects ------------------------------------------------------------------------ 
 
-    def view(self):
-        #if self..Allowed(u"edit", self.context):
-        #    vars["cmsview"] = cmsview.CMS(self.context, self.request)
-        d = design.Design(self.context, self.request)
-        html = d.view(self)
-        self.NoCache(self.request.response, user=self.User())
-        return html
-    
     def editor(self):
         # switch to editor mode
         root = self.context.app.root("editor")
@@ -155,7 +160,6 @@ class Editor(BaseView, CopyView, SortView):
         if not self.context.IsRoot():
             url = url + self.PageUrl(self.context)[len(self.FolderUrl(self.context.GetRoot())):]
         self.Redirect(url)
-
     
     def exit(self):
         # leave editor mode
@@ -166,7 +170,7 @@ class Editor(BaseView, CopyView, SortView):
         self.Redirect(url)
 
     def exitapp(self):
-        # leave editor mode
+        # leave editor mode in application context
         root = self.context.root()
         url = self.FolderUrl(root)
         self.Redirect(url)
@@ -174,10 +178,7 @@ class Editor(BaseView, CopyView, SortView):
     
     # cms editor interface elements -------------------------------------------------
     
-    def IsEditmode(self):
-        return True
-        
-    def cmsMain(self, obj, elements=None):
+    def cmsToolbox(self, obj, elements=None):
         """
         nive toolbox widget.
         call with obj = current object / page
@@ -422,46 +423,46 @@ class Editor(BaseView, CopyView, SortView):
                 html += i[u"data"]
         return html
 
-    def getEditorWidgets(self, object):
-        app = self.context.app
-        widgets = app.QueryConf(IEditorWidgetConf, context=object)
-        confs = []
-        if not widgets:
-            return confs
+
+    # add list widgets -------------------------------------------------------------------
+
+    def selectType(self):
+        user = self.User()
+        lt = self.context.GetAllowedTypes(user)
+        tmpl = u"""<a href="add?pool_type=%s" rel="niveOverlay" class="nivecms addlink">%s</a> """
+        html = StringIO()
+        html.write(u"""<div class="addElements">""")
         #opt
-        for n,w in widgets:
-            confs.append(w)
-        return SortConfigurationList(confs, u"sort")
-        
-
-    #class Edit(Editor):
-    def edit(self):
-        form = ObjectForm(view=self, loadFromType=self.context.configuration)
-        form.use_ajax = True
-        form.Setup(subset="edit")
-        head = form.HTMLHead()
-        result, data, action = form.Process(defaultAction="defaultEdit", redirect_success="page_url")
-        return {u"content": data, u"result": result, u"cmsview":self, u"head": head}
-
-    def delfile(self):
-        file = self.GetFormValue(u"fid")
-        try:
-            r=self.context.DeleteFile(file, self.User())
-            if not r:
-                m=_(u"Delete failed")
-            else:
-                m=_(u"OK")
-        except Exception, e:
-            m=str(e)
-        r = Response(content_type="text/html", conditional_response=True)
-        r.text = """<span>%(msg)s</span>""" % {"name": str(file), "msg":m}
-        return r
-
-    def meta(self):
-        return {}
+        for t in lt:
+            html.write(tmpl % (t[u"id"], _(t[u"name"])))
+        html.write(u"</div>")
+        return html.getvalue()
+    
+    def selectPageElement(self):
+        user = self.User()
+        lt = self.context.GetAllowedTypes(user)
+        tmpl = u"""<a href="add?pool_type=%s" rel="niveOverlay" class="nivecms addlink">%s</a> """
+        html = StringIO()
+        html.write(u"""<div class="addElements">""")
+        #opt
+        for t in lt:
+            html.write(tmpl % (t[u"id"], _(t[u"name"])))
+        html.write(u"</div>")
+        return html.getvalue()
+    
 
 
-    #class EditContainer(Editor, SortView):
+    # template rendering -----------------------------------------------------------------------
+    
+    def view(self):
+        #if self..Allowed(u"edit", self.context):
+        #    vars["cmsview"] = cmsview.CMS(self.context, self.request)
+        d = design.Design(self.context, self.request)
+        html = d.view(self)
+        self.NoCache(self.request.response, user=self.User())
+        return html
+    
+    
     def add(self):
         typeID = self.GetFormValue("pool_type")
         if not typeID:
@@ -491,32 +492,35 @@ class Editor(BaseView, CopyView, SortView):
         result[u"result"] = self.context.Delete(id, user=self.User(), obj=obj)
         return result
     
-
-    # widgets -------------------------------------------------------------------
-
-    def selectType(self):
-        user = self.User()
-        lt = self.context.GetAllowedTypes(user)
-        tmpl = u"""<a href="add?pool_type=%s" rel="niveOverlay" class="nivecms addlink">%s</a> """
-        html = StringIO()
-        html.write(u"""<div class="addElements">""")
-        #opt
-        for t in lt:
-            html.write(tmpl % (t[u"id"], _(t[u"name"])))
-        html.write(u"</div>")
-        return html.getvalue()
     
-    def selectPageElement(self):
-        user = self.User()
-        lt = self.context.GetAllowedTypes(user)
-        tmpl = u"""<a href="add?pool_type=%s" rel="niveOverlay" class="nivecms addlink">%s</a> """
-        html = StringIO()
-        html.write(u"""<div class="addElements">""")
-        #opt
-        for t in lt:
-            html.write(tmpl % (t[u"id"], _(t[u"name"])))
-        html.write(u"</div>")
-        return html.getvalue()
-    
+    def edit(self):
+        form = ObjectForm(view=self, loadFromType=self.context.configuration)
+        form.use_ajax = True
+        form.Setup(subset="edit")
+        head = form.HTMLHead()
+        result, data, action = form.Process(defaultAction="defaultEdit", redirect_success="page_url")
+        return {u"content": data, u"result": result, u"cmsview":self, u"head": head}
 
-        
+
+    def delfile(self):
+        file = self.GetFormValue(u"fid")
+        try:
+            r=self.context.DeleteFile(file, self.User())
+            if not r:
+                m=_(u"Delete failed")
+            else:
+                m=_(u"OK")
+        except Exception, e:
+            m=str(e)
+        r = Response(content_type="text/html", conditional_response=True)
+        r.text = """<span>%(msg)s</span>""" % {"name": str(file), "msg":m}
+        return r
+
+
+    def meta(self):
+        return {}
+
+
+    # bw 0.9.4 ----------------------------------------------------------------------------
+    def cmsMain(self, obj, elements=None):
+        return self.cmsToolbox(obj, elements=elements)

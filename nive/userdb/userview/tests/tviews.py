@@ -9,8 +9,9 @@ from nive.userdb.tests.db_app import *
 from nive.userdb.userview.view import *
 from nive.views import BaseView
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPFound, HTTPOk, HTTPForbidden
+from pyramid.httpexceptions import HTTPFound
 from pyramid import testing 
+from pyramid.renderers import render
 
 
 class TestView(BaseView):
@@ -39,27 +40,58 @@ class tViews(unittest.TestCase):
         testing.tearDown()
 
 
+    
     def test_views(self):
-        # !!! test result and form parameters
         view = UserView(context=self.root, request=self.request)
         view.create()
-        view = UserView(context=self.root, request=self.request)
         view.createNotActive()
-        view = UserView(context=self.root, request=self.request)
         view.createPassword()
-        view = UserView(context=self.root, request=self.request)
         view.update()
-        view = UserView(context=self.root, request=self.request)
         view.mailpass()
-        view = UserView(context=self.root, request=self.request)
+        view.resetpass()
         view.login()
-        view = UserView(context=self.root, request=self.request)
         view.logoutlink()
-        view = UserView(context=self.root, request=self.request)
         self.assertRaises(HTTPFound, view.logout)
-        view = UserView(context=self.root, request=self.request)
         view.logouturl()
-
+        
+        
+    def test_templates(self):    
+        view = UserView(context=self.root, request=self.request)
+        vrender = {"context":self.root, "view":view, "request": self.request}
+        
+        values = view.login()
+        values.update(vrender)
+        render("nive.userdb.userview:loginpage.pt", values)
+        
+        values = view.mailpass()
+        values.update(vrender)
+        render("nive.userdb.userview:mailpass.pt", values)
+        values = view.resetpass()
+        values.update(vrender)
+        render("nive.userdb.userview:resetpass.pt", values)
+        
+        values = view.create()
+        values.update(vrender)
+        render("nive.userdb.userview:signup.pt", values)
+        values = view.createNotActive()
+        values.update(vrender)
+        render("nive.userdb.userview:signup.pt", values)
+        values = view.createPassword()
+        values.update(vrender)
+        render("nive.userdb.userview:signup.pt", values)
+        
+        values = view.update()
+        values.update(vrender)
+        render("nive.userdb.userview:update.pt", values)
+        render("nive.userdb.userview:main.pt", values)
+    
+    
+    def test_mails(self):
+        user = User(u"test")
+        values = {"user": user, "password": "12345"}
+        render("nive.userdb.userview:mailpassmail.pt", values)
+        render("nive.userdb.userview:resetpassmail.pt", values)
+    
     
     def test_form(self):
         view = TestView(context=self.root, request=self.request)

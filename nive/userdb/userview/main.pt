@@ -12,23 +12,18 @@ body {font-family: Verdana, Arial, sans-serif; font-size:80%;}
 #main {margin-top:40%; width:auto;padding:10px;}
 #header {padding-bottom:20px;font-family: Courier, monospace;text-align:left;color: #000000;font-size:20pt;border-bottom:1px dashed #aaaaaa;}
 form {margin-top:10px; width:49%; float:left;}
-.fieldRow {color:#666666;float:left; margin-right:1%; margin-bottom:10px;}
-.widget .fieldRow {width:99%;}
-.mailpass .fieldRow {width:99%;}
-.formOptions {margin-top:10px;margin-right:1%;clear:both;}
+.control-group {color:#666666;float:left; margin-right:1%; margin-bottom:10px;}
+.form-actions {margin-top:10px;margin-right:1%;clear:both;}
 .clear {clear:both;}
 input {width:95%;}
 .widget .req {display:none;}
-ul {list-style:none;padding:0px;margin-bottom:10px;}
-li {padding:0px;margin:0px;}
+ul { list-style:none; padding:0px; margin-bottom:10px; }
+li { padding:0px;margin:0px; }
 .links {width:40%;float:right;margin-top:20px;}
 a {padding:2px 8px 2px 8px;margin-bottom:10px;display:block;background-color:gray;margin-right:1px;text-decoration:none;color:white;}
 /* error handling */
-h3 {font-size:100%;}
-.poolform .errorLi { text-align: left; }
-.poolform li.error, .poolform div.error{ background-color: #FFDFDF; }
-.poolform li.error label.desc, .poolform p.error, .poolform h3.errorMsgLbl{ color: #DF0000; }
-.poolform p.error{font-size: 70%;}
+.boxOK { padding:2px 8px 2px 8px; background-color:#8de4d4; }
+.boxError, .alert { padding:2px 8px 2px 8px; background-color:#FFDFDF; display:block; width:100%; margin-bottom:10px;}
 </style>
 </head>
 
@@ -40,6 +35,7 @@ h3 {font-size:100%;}
   </div>
 
   <tal:block metal:define-slot="tmpls"></tal:block>
+  
   <div tal:define="user view.User()" class="links">
   <a tal:condition="not user and request.view_name!='login'"
      href="login" i18n:translate="">Login</a>

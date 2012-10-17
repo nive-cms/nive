@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,16 +26,20 @@ This module includes everything required to render the public website:
 - the main template (design/templates/index.pt)
 - required views
 """
+
+import os
+from time import time
 try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
+from pyramid.renderers import get_renderer, render_to_response
+from pyramid.httpexceptions import HTTPNotFound
 
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, ConfigurationError
-from nive.definitions import IApplication, IPortal, IWebsiteRoot, IPage, IRoot, IPageElement, IObject, IViewModuleConf
-from pyramid.response import Response
-from nive.definitions import IWebsiteRoot
+from nive.definitions import IApplication, IWebsiteRoot, IPage, IRoot, IPageElement, IObject, IViewModuleConf
+from nive.views import BaseView
 
     
 # view module definition ------------------------------------------------------------------
@@ -60,19 +64,7 @@ configuration = ViewModuleConf(
     ]
 )
 
-# view implementation ------------------------------------------------------------------
-        
-import os
-from time import time
-from types import StringType, UnicodeType
 
-from nive.views import BaseView
-
-from pyramid.renderers import get_renderer, render_to_response
-from pyramid.url import resource_url
-from pyramid.httpexceptions import HTTPNotFound, HTTPFound
-from pyramid.exceptions import NotFound
-from pyramid.view import render_view
 
 
 
@@ -92,51 +84,6 @@ class Design(BaseView):
         self._t = time()
         self.fileExpires = 3600
         
-    def index_tmpl(self):
-        tmpl = self._LookupTemplate(self.viewModule.mainTemplate)
-        i = get_renderer(tmpl).implementation()
-        return i
-    
-    def view(self, cmsview = None):
-        mark = time()
-        vars = {u"cmsview": cmsview, u"context": self.context, u"view": self} 
-        name = self.context.configuration.template
-        if not name:
-            name = self.context.configuration.id
-        tmpl = self._LookupTemplate(name)
-        if not tmpl:
-            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}
-        self.CacheHeader(self.request.response, user=self.User())
-        return render_to_response(tmpl, vars, request=self.request)
-    
-    def app(self):
-        root = self.context.GetRoot()
-        url = self.PageUrl(root)
-        self.Redirect(url)
-    
-    def search(self, cmsview = None):
-        mark = time()
-        vars = {u"cmsview": cmsview, u"context": self.context, u"view": self}
-        name = u"search.pt"
-        tmpl = self._LookupTemplate(name)
-        if not tmpl:
-            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}
-        self.CacheHeader(self.request.response, user=self.User())
-        return render_to_response(tmpl, vars, request=self.request)
-        
-    def open(self):
-        ref = self.GetFormValue(u"r")
-        page = self.context.LookupObj(ref)
-        if not page:
-            raise HTTPNotFound, unicode(ref)
-        page = page.GetPage()
-        url = self.PageUrl(page)
-        self.Redirect(url)
-    
-        
-    
-    # interface elements ----------------------------------------------------
-    
     def IsEditmode(self):
         try:
             return self.request.editmode
@@ -150,7 +97,75 @@ class Design(BaseView):
         t2 = self.context.app.configuration.title
         return t2 + u" - " + t
 
+    # main template ----------------------------------------------------------------------------
+        
+    def index_tmpl(self):
+        tmpl = self._LookupTemplate(self.viewModule.mainTemplate)
+        i = get_renderer(tmpl).implementation()
+        return i
     
+    
+    # views -------------------------------------------------------------------------------------
+    
+    def view(self, cmsview = None):
+        mark = time()
+        vars = {u"cmsview": cmsview, u"context": self.context, u"view": self} 
+        name = self.context.configuration.template
+        if not name:
+            name = self.context.configuration.id
+        tmpl = self._LookupTemplate(name)
+        if not tmpl:
+            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}
+        self.CacheHeader(self.request.response, user=self.User())
+        return render_to_response(tmpl, vars, request=self.request)
+    
+    def search(self, cmsview = None):
+        mark = time()
+        vars = {u"cmsview": cmsview, u"context": self.context, u"view": self}
+        name = u"search.pt"
+        tmpl = self._LookupTemplate(name)
+        if not tmpl:
+            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}
+        self.CacheHeader(self.request.response, user=self.User())
+        return render_to_response(tmpl, vars, request=self.request)
+
+        
+    # redirects ----------------------------------------------------
+
+    def app(self):
+        root = self.context.GetRoot()
+        url = self.PageUrl(root)
+        self.Redirect(url)
+    
+    def open(self):
+        ref = self.GetFormValue(u"r")
+        page = self.context.LookupObj(ref)
+        if not page:
+            raise HTTPNotFound, unicode(ref)
+        page = page.GetPage()
+        url = self.PageUrl(page)
+        self.Redirect(url)
+    
+        
+    # html widgets ----------------------------------------------------
+    
+    def breadcrumbs(self, addHome=0):
+        """
+        """
+        base = self.context.GetPage()
+        parents = base.GetParents()
+        parents.reverse()
+        if not addHome:
+            parents = parents[1:]
+        if len(parents)==0:
+            return u""
+        html = StringIO()
+        for page in parents:
+            html.write(u"""<li><a href="%s">%s</a> <span class="divider">/</span></li>""" % (self.PageUrl(page), page.GetTitle()))
+        html.write(u"""<li class="active">%s </li>""" % (base.GetTitle()))
+        return html.getvalue()
+    
+
     def navigationTop(self, addHome=1):
         """
         only first level pages
@@ -263,21 +278,4 @@ class Design(BaseView):
             io.write(u"""</ul></li>\r\n""")
         return io
 
-        
-    def breadcrumbs(self, addHome=0):
-        """
-        """
-        base = self.context.GetPage()
-        parents = base.GetParents()
-        parents.reverse()
-        if not addHome:
-            parents = parents[1:]
-        if len(parents)==0:
-            return u""
-        html = StringIO()
-        for page in parents:
-            html.write(u"""<li><a href="%s">%s</a> <span class="divider">/</span></li>""" % (self.PageUrl(page), page.GetTitle()))
-        html.write(u"""<li class="active">%s </li>""" % (base.GetTitle()))
-        return html.getvalue()
-    
     

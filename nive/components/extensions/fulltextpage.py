@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,8 @@ from nive.helper import FakeLocalizer
 
 from nive.utils.utils import ConvertToNumberList
 from nive.utils.utils import ConvertHTMLToText
-from nive.definitions import implements, Interface, ModuleConf, ToolConf, IApplication, Conf, IPage
+from nive.definitions import implements, Interface, ModuleConf, ToolConf, Conf 
+from nive.definitions import IApplication, IPage, IRoot
 
 class IFulltext(Interface):
     pass
@@ -57,6 +58,13 @@ class PageFulltext(object):
             for e in self.GetPageElements(addBoxContents=1, skipColumns=0):
                 text.append(e.GetTexts())
             self.dbEntry.WriteFulltext(self.FormatFulltext(text))
+        elif IPage.providedBy(self) or IRoot.providedBy(self):
+            # get text from contained elements
+            text = []
+            for e in self.GetPageElements(addBoxContents=1, skipColumns=0):
+                text.append(e.GetTexts())
+            #!fulltext storage root
+            #self.dbEntry.WriteFulltext(self.FormatFulltext(text))
         else:
             self.GetPage().UpdateFulltext()
             
@@ -192,7 +200,7 @@ def SetupFulltext(app, pyramidConfig):
             e.append(extension)
             c.extensions = tuple(e) 
     
-    #add(app.GetAllRootConfs())
+    add(app.GetAllRootConfs())
     add(app.GetAllObjectConfs())
 
 

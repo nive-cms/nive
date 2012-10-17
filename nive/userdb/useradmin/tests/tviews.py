@@ -10,16 +10,12 @@ from nive.i18n import _
 from nive.userdb.tests.db_app import *
 from nive.userdb.useradmin import view
 from nive.userdb.useradmin import adminroot
-from nive.views import BaseView
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPFound, HTTPOk, HTTPForbidden
+from pyramid.httpexceptions import HTTPFound
 from pyramid import testing 
+from pyramid.renderers import render
 
 
-class TestView(BaseView):
-    """
-    """
-    
 
 class tViews(unittest.TestCase):
 
@@ -31,6 +27,7 @@ class tViews(unittest.TestCase):
         self.app = app()
         self.portal = Portal()
         self.portal.Register(self.app, "nive")
+        self.app.Register("nive.cms.cmsview.view")
         self.app.Register(adminroot.configuration)
         self.app.Startup(self.config)
         self.root = self.app.root("usermanagement")
@@ -44,12 +41,36 @@ class tViews(unittest.TestCase):
 
     def test_views(self):
         v = view.UsermanagementView(context=self.root, request=self.request)
-
-        self.assert_(v.index_tmpl())
-        v.view()
+        self.assert_(v.GetAdminWidgets())
         self.assert_(v.add())
         self.assert_(v.edit())
         self.assert_(v.delete())
+        v.view()
+
+    def test_templates(self):
+        user = User(u"test")
+        v = view.UsermanagementView(context=self.root, request=self.request)
+        vrender = {"context":self.root, "view":v, "request": self.request}
+        
+        values = v.add()
+        values.update(vrender)
+        render("nive.userdb.useradmin:add.pt", values)
+        u=self.root.Create("user",{"name":"testuser", "password":"test", "email":"test@aaa.com", "groups":("group:admin",)},user=user)
+        v.context = u
+        values = v.edit()
+        values.update(vrender)
+        values["context"] = u
+        render("nive.userdb.useradmin:edit.pt", values)
+        v.context = self.root
+        values = v.view()
+        values.update(vrender)
+        render("nive.userdb.useradmin:root.pt", values)
+        values = v.delete()
+        values.update(vrender)
+        render("nive.userdb.useradmin:delete.pt", values)
+        
+        self.root.Delete(u.id, user=user)
+        
 
 
     def test_add(self):

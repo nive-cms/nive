@@ -4,7 +4,7 @@
 
 <h2 i18n:translate="">Administration sections</h2>
 
-<tal:block tal:repeat="tab view.getAdminWidgets()">
+<tal:block tal:repeat="tab view.GetAdminWidgets()">
 <div class="well">
 <div class="row">
   <div class="span4"><strong><a href="${tab.viewmapper}">${tab.name}</a></strong></div> <div class="span7">${tab.description}</div>

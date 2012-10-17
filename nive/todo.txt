@@ -1,9 +1,10 @@
 - fieldconf lisitem handling
 - form action map to view permission
 - move datapool2 Group functions
+- move datapool2 Fulltext functions
 - universal and locale date/time handling
-- cleanup utils conversion functions
-
+- nive cmsview.configuration sort functions to sort extension
+  
 - cms browser tests
 - queryRestraint tests
 - FieldConf.listItems callback tests

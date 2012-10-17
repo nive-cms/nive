@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
-__doc__ = """
-"""
+
 
 from pyramid.renderers import get_renderer, render, render_to_response
 
@@ -42,6 +41,7 @@ t = configuration.templates
 configuration.views = [
     # User Management Views
     ViewConf(name = "",       attr = "view",   containment=IApplication, renderer = t+"root.pt"),
+    ViewConf(name = "list",   attr = "view",   containment=IApplication, renderer = t+"root.pt"),
     ViewConf(name = "add",    attr = "add",    containment=IApplication, renderer = t+"add.pt"),
     ViewConf(name = "delete", attr = "delete", containment=IApplication, renderer = t+"delete.pt"),
     ViewConf(name = "",       attr = "edit",   context = IUser, renderer = t+"edit.pt"),
@@ -61,10 +61,20 @@ from nive.adminview.view import AdminBasics
 
 class UsermanagementView(AdminBasics):
     
+    
+    def GetAdminWidgets(self):
+        url = self.FolderUrl(self.context.root())
+        confs = [
+            Conf(id="admin.root", viewmapper=url+"list", name=_(u"List users")),
+            Conf(id="admin.add", viewmapper=url+"add", name=_(u"Add user"))
+        ]
+        return confs
+
+
     def view(self):
         return {}
 
-    
+
     def add(self):
         name = self.context.app.GetObjectFld("name", "user").copy()
         name.settings["validator"] = UsernameValidator

@@ -29,8 +29,8 @@ function peEnable() {
     //peHideAll();
   }
   $('.pageelement').each( function(index) {
-    if(peEnabled)  $(this).addClass("pageelement_ov");
-    else           $(this).removeClass("pageelement_ov");
+    if(peEnabled)  $(this).hasClass("peBox") ? $(this).addClass("peBox_ov") : $(this).addClass("pageelement_ov");
+    else           $(this).hasClass("peBox_ov") ? $(this).removeClass("peBox_ov") : $(this).removeClass("pageelement_ov");
     //alert(this.attr("class"));
   });
 }

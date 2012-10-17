@@ -3,13 +3,9 @@
 import time
 import unittest
 
-from nive.definitions import *
-from nive.security import *
 from nive.helper import FormatConfTestFailure
 
-from nive.cms.cmsview import view
-from nive.cms.cmsview import cmsroot
-
+from nive.cms.workflow import view, wf
 
 
 
@@ -28,8 +24,8 @@ class TestConf(unittest.TestCase):
         print FormatConfTestFailure(r)
         self.assert_(False, "Configuration Error")
 
-    def test_conf2(self):
-        r=cmsroot.configuration.test()
+    def test_conf3(self):
+        r=wf.wfProcess.test()
         if not r:
             return
         print FormatConfTestFailure(r)

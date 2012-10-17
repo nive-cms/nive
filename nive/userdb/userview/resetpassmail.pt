@@ -1,0 +1,4 @@
+<br/>
+Your new password: <span tal:replace="password"/><br/>
+<br/>
+Please login and change it.

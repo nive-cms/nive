@@ -3,11 +3,9 @@
 import time
 import unittest
 
-from nive.definitions import *
-from nive.security import *
 from nive.helper import FormatConfTestFailure
 
-from nive.cms import app, box, column, file, folder, image, link, media, menublock, news, note, page, root
+from nive.cms import app, box, column, file, image, link, media, menublock, news, note, page, root
 from nive.cms import spacer, text, code
 
 
@@ -44,13 +42,6 @@ class TestConf(unittest.TestCase):
 
     def test_conf5(self):
         r=file.configuration.test()
-        if not r:
-            return
-        print FormatConfTestFailure(r)
-        self.assert_(False, "Configuration Error")
-
-    def test_conf6(self):
-        r=folder.configuration.test()
         if not r:
             return
         print FormatConfTestFailure(r)

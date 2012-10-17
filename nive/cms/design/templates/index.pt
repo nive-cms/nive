@@ -66,7 +66,7 @@
 </div>
 
 <span tal:condition="python:cmsview"
-      tal:replace="structure cmsview.cmsMain(context)" />
+      tal:replace="structure cmsview.cmsToolbox(context)" />
 <span tal:condition="python:cmsview"
       tal:replace="structure cmsview.cmsEditorBlocks(context)" />  
 <span tal:condition="python:cmsview"

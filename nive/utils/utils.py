@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -361,11 +361,14 @@ def WriteToFile(path, value, append = False):
 
 # failsafe type conversion ---------------------------------------------------------------------------------------
 
-def ConvertToStr(data):
+def ConvertToStr(data, sep=u"\n"):
     if isinstance(data, (list, tuple)):
         return ConvertListToStr(data)
     elif isinstance(data, dict):
-        return json.dumps(data)
+        v = []
+        for key, value in data.items():
+            v.append(u"%s: %s"%(unicode(key), ConvertToStr(value, sep)))
+        return sep.join(v)
     return unicode(data)
 
 def ConvertToBool(data, raiseExcp = False):
@@ -492,12 +495,12 @@ def ConvertDictToStr(values, sep = u"\n"):
     the list items are seperated by ",". list items are converted to string
     
     ::
-        key1=value1
-        key2=value2
+        key1: value1
+        key2: value2
         
     result string
     """
-    s = [u"%s=%s" % (key, ConvertToStr(value)) for key, value in values.items()]
+    s = [u"%s: %s" % (key, ConvertToStr(value, sep)) for key, value in values.items()]
     return sep.join(s)
 
 

@@ -5,8 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/jquery.min.js')" type="text/javascript"></script>
 <script tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/js/bootstrap.min.js')" type="text/javascript"></script>
-<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap.css')" rel="stylesheet">
-<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap-responsive.css')" rel="stylesheet">
+<link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap.min.css')" rel="stylesheet">
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/nive.css')" rel="stylesheet" type="text/css" media="all" />
 <tal:block metal:define-slot="head"></tal:block>
 <tal:block tal:condition="head|None" tal:replace="structure head" tal:on-error="nothing"></tal:block>
@@ -19,10 +18,11 @@
 </header>
 <nav>
 <div class="spacer"> </div>
-<a tal:repeat="tab view.getAdminWidgets()"
+<tal:block metal:define-slot="adminsections">
+<a tal:repeat="tab view.GetAdminWidgets()"
    tal:content="structure tab.name"
    tal:attributes="href tab.viewmapper; class 'tab active'+str(request.view_name==tab.viewmapper)"></a>
-
+</tal:block>
 <div style="float:right" class="btn-group">
   <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
    <span i18n:translate="">Switch location or Logout</span> <span class="caret"></span>

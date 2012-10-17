@@ -3,7 +3,7 @@
 <head>
 <title tal:content="view.HtmlTitle()"></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="generator" content="niveCMS 0.6" />
+<meta name="generator" content="Nive cms" />
 
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/mods/bootstrap/css/bootstrap.min.css')" rel="stylesheet" type="text/css" media="all" />
 <link tal:attributes="href view.StaticUrl('nive.cms.cmsview:static/nive.css')" rel="stylesheet" type="text/css" media="all" />
@@ -27,7 +27,7 @@
 <header id="header"></header>
 <nav>
 <div class="spacer"> </div>
-<a tal:repeat="tab view.getEditorWidgets(context)"
+<a tal:repeat="tab view.GetEditorWidgets(context)"
    tal:content="structure tab.name"
    tal:attributes="href tab.viewmapper; class 'tab active'+str(request.view_name==tab.viewmapper)"></a>
 </nav>

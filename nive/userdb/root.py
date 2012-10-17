@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -234,8 +234,10 @@ class root(UserCache, RootBase):
         return obj, report
 
 
-    def MailUserPass(self, email = None, mailtmpl = None):
+    def MailUserPass(self, email=None, mailtmpl=None, createNewPasswd=True, currentUser=None):
         """
+        Mails a new password or the current password in plain text.
+        
         returns status and report list
         """
         report=[]
@@ -259,12 +261,18 @@ class root(UserCache, RootBase):
             return False, report
         recv = [(email, title)]
 
+        if createNewPasswd:
+            pwd = self.GenerateID(5)
+            obj.data["password"] = pwd
+            obj.Commit(user=currentUser)
+        else:
+            pwd = obj.data.get("password")
         if mailtmpl:
             title = mailtmpl.title
-            body = mailtmpl(user=obj,password=obj.data.get("password"))
+            body = mailtmpl(user=obj, password=pwd)
         else:
             title = _("Password")
-            body = obj.data.get("password")
+            body = pwd
         tool = self.app.GetTool("sendMail")
         try:
             result, value = tool(body=body, title=title, recvmails=recv, force=1)
@@ -278,54 +286,6 @@ class root(UserCache, RootBase):
         report.append(_(u"The new password has been sent to your email address. Please sign in and change it."))
         return True, report
 
-
-    def MailResetPass(self, currentUser, email = None, mailtmpl = None):
-        """
-        returns status and report list
-        """
-        report=[]
-
-        if not email:
-            report.append(_(u"Please enter your email address or username."))
-            return False, report
-
-        obj = self.GetUserByMail(email)
-        if not obj:
-            obj = self.GetUserByName(email)
-            if not obj:
-                report.append(_(u"No account found with that email address. Please try again."))
-                return False, report
-
-        email = obj.data.get("email")
-        title = obj.meta.get("title")
-        name = obj.data.get("name")
-        if email == "":
-            report.append(_("No email address found."))
-            return False, report
-        recv = [(email, title)]
-
-        passwd = self.GenerateID(6)
-        obj.data["password"] = passwd
-        obj.Commit(user=currentUser)
-        if mailtmpl:
-            title = mailtmpl.title
-            body = mailtmpl(user=obj,password=passwd)
-        else:
-            title = _("Password")
-            body = passwd
-        tool = self.app.GetTool("sendMail")
-        try:
-            result, value = tool(body=body, title=title, recvmails=recv, force=1)
-            if not result:
-                report.append(_(u"The email could not be sent."))
-                return False, report
-        except Exception, e:
-            report.append(_(u"The email could not be sent."))
-            #report.append("Send Mail Error: "+str(e))
-            return False, report
-        report.append(_(u"The password has been sent to your email address."))
-        return True, report
-   
 
     def GenerateID(self, length=20, repl="-"):
         # generates a id

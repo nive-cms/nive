@@ -3,8 +3,6 @@
 import time
 import unittest
 
-from nive.definitions import *
-from nive.security import *
 from nive.helper import FormatConfTestFailure
 
 from nive.cms.design import view

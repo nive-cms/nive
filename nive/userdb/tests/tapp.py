@@ -46,7 +46,7 @@ class ObjectTest(unittest.TestCase):
         self.assertFalse(o.meta.pool_state)
         
         root.MailUserPass(email = "user1", mailtmpl = None)
-        root.MailUserPass(email = "user2@aaa.ccc", mailtmpl = None)
+        root.MailUserPass(email = "user2@aaa.ccc", mailtmpl = None, createNewPasswd=False)
         root.MailUserPass(email = "user3@aaa.ccc", mailtmpl = None)
         
         self.assert_(root.GetUserByName("user2", activeOnly=1))

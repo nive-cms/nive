@@ -1,16 +1,10 @@
 
-/*#container {
-	margin-left: 10px;
-	margin-right: 0px;
-}*/
-
 /* pageeditor --------------------------------------------- */
-.pageelement {
-  /*border: 1px solid white;*/
-}
 .pageelement_ov:hover {
-  /*border: 1px dashed #6e6e6e;*/
   background-color: #ffff8e;
+}
+.peBox_ov:hover {
+  background-color: #8effff;
 }
 .pageeditorEditblock {
   width: auto;

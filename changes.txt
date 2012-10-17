@@ -1,3 +1,11 @@
 0.9.5b
 ------
+The first beta release. Finally, all major features are included in this release. 
 
+- Boostrap css framework used for the default design
+- Responsive selectors added to box forms and html rendering
+- Fulltext search
+- Ctrl-key disables links in edit mode
+- Updated scaffold for sqlite and mysql
+- many fixed issues and cleanup
+- code moved to github repository

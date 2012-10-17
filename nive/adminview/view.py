@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# Nive CMS
+# Nive cms
 # Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,6 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 __doc__ = """
+Administration interface module
+
+Requires `nive.cms.cmsview.view` static definitions for css and js.
 """
 
 from pyramid.renderers import get_renderer
@@ -46,12 +49,12 @@ configuration = ViewModuleConf(
 t = configuration.templates
 configuration.views = [
     # User Management Views
-    ViewConf(name = "admin",    attr = "view",   renderer = t+"root.pt"),
-    ViewConf(name = "basics",   attr = "editbasics",   renderer = t+"form.pt"),
-    #ViewConf(name = "portal",   attr = "editportal",   renderer = t+"form.pt"),
-    ViewConf(name = "tools",    attr = "tools",   renderer = t+"tools.pt"),
-    ViewConf(name = "modules",  attr = "view",   renderer = t+"modules.pt"),
-    ViewConf(name = "views",    attr = "view",   renderer = t+"views.pt"),
+    ViewConf(name = "admin",    attr = "view",       renderer = t+"root.pt"),
+    ViewConf(name = "basics",   attr = "editbasics", renderer = t+"form.pt"),
+    #ViewConf(name = "portal",   attr = "editportal", renderer = t+"form.pt"),
+    ViewConf(name = "tools",    attr = "tools",      renderer = t+"tools.pt"),
+    ViewConf(name = "modules",  attr = "view",       renderer = t+"modules.pt"),
+    ViewConf(name = "views",    attr = "view",       renderer = t+"views.pt"),
 ]
 
 configuration.widgets = [
@@ -155,7 +158,10 @@ class AdminBasics(BaseView):
         i = get_renderer("nive.adminview:index.pt").implementation()
         return i
 
-    def getAdminWidgets(self):
+    def view(self):
+        return {}
+
+    def GetAdminWidgets(self):
         app = self.context.app
         widgets = app.QueryConf(IAdminWidgetConf, app)
         confs = []
@@ -164,9 +170,6 @@ class AdminBasics(BaseView):
         for n,w in widgets:
             confs.append(w)
         return SortConfigurationList(confs, "sort")
-
-    def view(self):
-        return {}
 
     def RenderConf(self, c):
         return u"""<strong><a onclick="$('#%d').toggle()" style="cursor:pointer">%s</a></strong><br/>%s""" % (
