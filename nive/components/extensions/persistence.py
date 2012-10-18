@@ -122,7 +122,11 @@ class DbPersistence(PersistentConf):
         if close:
             db.close()
         if data:
-            values = pickle.loads(data[0][0])
+            try:
+                values = pickle.loads(data[0][0])
+            except KeyError:
+                # Invalid data
+                return None
             lock = 0
             if self.conf.locked:
                 lock = 1

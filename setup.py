@@ -43,7 +43,8 @@ setupkw = dict(
       test_suite="nive",
       entry_points = """\
         [pyramid.scaffold]
-        defaultWebsite=nive.scaffolds:defaultWebsite
+        defaultSqlite=nive.scaffolds:DefaultSqliteTemplate
+        defaultMysql=nive.scaffolds:DefaultMysqlTemplate
       """
 )
 
