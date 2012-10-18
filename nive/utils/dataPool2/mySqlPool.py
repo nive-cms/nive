@@ -30,7 +30,6 @@ import MySQLdb
 
 
 from nive.utils.utils import STACKF
-from nive.utils.dateTime import DvDateTime
 
 from nive.utils.dataPool2.base import *
 from nive.utils.dataPool2.dbManager import MySQLManager

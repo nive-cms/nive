@@ -19,13 +19,13 @@
 __doc__ = ""
 
 import re, htmlentitydefs
-import iso8601, datetime
+import iso8601
 import os, tempfile, json
+from datetime import datetime
 from mimetypes import guess_type, guess_extension
 from operator import itemgetter, attrgetter
 from types import StringType
 
-from dateTime import DvDateTime
 from path import DvPath
 
 
@@ -49,16 +49,32 @@ def ConvertTextToHTML(html):
 
 
 def ConvertToDateTime(date):
+    if isinstance(date, datetime):
+        return date
+    elif not date:
+        return None
     try:
-        date = iso8601.parse_date(date)
+        return iso8601.parse_date(date)
     except (iso8601.ParseError, TypeError), e:
-        # date without time
-        try:
-            year, month, day = map(int, date.split('-', 2))
-            date = datetime.datetime(year, month, day)
-        except:
-            date = datetime.datetime.now()
-    return date
+        pass
+    # try other string format versions
+    try: # 2011-12-23
+        return datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        pass
+    try: # 2011/12/23
+        return datetime.strptime(date, "%Y/%m/%d")
+    except ValueError:
+        pass
+    try: # 2011/12/23 13:22
+        return datetime.strptime(date, "%Y/%m/%d %H:%M")
+    except ValueError:
+        pass
+    try: # 2011/12/23 13:22:11
+        return datetime.strptime(date, "%Y/%m/%d %H:%M:%S")
+    except ValueError:
+        pass
+
 
 
 def XssEscape(html, permitted_tags=None, requires_no_close=None, allowed_attributes=None):
@@ -510,10 +526,8 @@ def ConvertDictToStr(values, sep = u"\n"):
 
 def DUMP(data, path = "dump.txt", addTime=False):
     if addTime:
-        from nive.utils.dateTime import DvDateTime
-        aD = DvDateTime()
-        aD.Now()
-        aS = "\r\n\r\n" + aD.GetHHMMSSDDMMYYYY() + "\r\n" + str(data)
+        date = datetime.now()
+        aS = "\r\n\r\n" + date.strftime("%Y-%m-%d %H:%M:%S") + "\r\n" + str(data)
     else:
         aS = "\r\n\r\n" + str(data)
     WriteToFile(path, True)
@@ -522,10 +536,8 @@ def STACKF(t=0, label = "", limit = 15, path = "_stackf.txt", name=""):
     import time
     import traceback
     n = time.time() - t
-    from nive.utils.dateTime import DvDateTime
-    aD = DvDateTime()
-    aD.Now()
-    h = "%s: %f (%s)" % (aD.GetHHMMSSDDMMYYYY(),n,name)
+    date = datetime.now()
+    h = "%s: %f (%s)" % (date.strftime("%Y-%m-%d %H:%M:%S"),n,name)
     if limit<2:
         DUMP("%s\r\n%s\r\n" % (h, label), path)
         return

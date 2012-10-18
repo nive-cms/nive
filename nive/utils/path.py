@@ -24,8 +24,7 @@ except: from os import popen
 
 import os, sys, string, stat, shutil, tempfile, time, re, binascii, subprocess, types
 import zipfile, tarfile
-
-from dateTime import DvDateTime
+from datetime import datetime
 
 WIN32 = sys.platform == "win32"
 USE_WIN32 = False
@@ -174,20 +173,20 @@ class DvPath(object):
         return aNE
 
     def GetAccessTime(self):
-        """return DvDateTime"""
+        """return datetime"""
         if not self.IsValid():
             return ""
         try:
-            return DvDateTime(os.stat(self._path)[stat.ST_ATIME])
+            return datetime.fromtimestamp(os.stat(self._path)[stat.ST_ATIME])
         except:
             return 0
 
     def GetModTime(self):
-        """return DvDateTime"""
+        """return datetime"""
         if not self.IsValid():
             return ""
         try:
-            return DvDateTime(os.stat(self._path)[stat.ST_MTIME])
+            return datetime.fromtimestamp(os.stat(self._path)[stat.ST_MTIME])
         except:
             return 0
 
@@ -730,24 +729,17 @@ class DvPath(object):
     # directory rotation ----------------------------------------------------------------------------
 
     def AppendDirectoryRotation(self, period):
+        d = datetime.now()
         if period == "day":
             return True
         elif period == "week":
-            d = DvDateTime()
-            d.Now()
-            name = d.GetFormat("%A")
+            name = d.strftime("%A")
         elif period == "month":
-            d = DvDateTime()
-            d.Now()
-            name = str(d.GetDay())
+            name = d.strftime("%d")
         elif period == "year-month":
-            d = DvDateTime()
-            d.Now()
-            name = d.GetFormat("%Y-%m")
+            name = d.strftime("%Y-%m")
         elif period == "timestamp":
-            d = DvDateTime()
-            d.Now()
-            name = d.GetFormat("%Y-%m-%d_%H%M%S")
+            name = d.strftime("%Y-%m-%d_%H%M%S")
         self.AppendSeperator()
         self.AppendDirectory(name)
         return True

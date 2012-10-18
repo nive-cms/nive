@@ -16,13 +16,11 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 
-import iso8601
 import json
 from datetime import datetime
 
-from nive.utils.dateTime import DvDateTime
-
-from files import File
+from nive.utils.utils import ConvertToDateTime
+from nive.utils.dataPool2.files import File
 
 
 # Database records wrapper ---------------------------------------------------------------------------
@@ -356,8 +354,8 @@ class PoolStructure(object):
     def _se(self, value, fieldtype):
         if not fieldtype:
             # no datatype information set
-            if isinstance(value, DvDateTime):
-                return value.GetDBMySql()
+            if isinstance(value, datetime):
+                return value.strftime("%Y-%m-%d %H:%M:%S")
             elif isinstance(value, (list, tuple)):
                 value = u"\n".join([unicode(v, self.codepage) for v in value])
             elif isinstance(value, bytes):
@@ -421,11 +419,7 @@ class PoolStructure(object):
         if fieldtype in ("date", "datetime", "timestamp"):
             # -> to datatime
             if isinstance(value, basestring):
-                try:
-                    value = iso8601.parse_date(value)
-                except:
-                    d = DvDateTime(value)
-                    value = datetime.fromtimestamp(d.GetFloat())
+                value = ConvertToDateTime(value)
                     
         elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
             # -> to string tuple

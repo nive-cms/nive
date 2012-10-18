@@ -13,17 +13,18 @@ except:
     README = ''
     CHANGES = ''
 
-requires = ['pyramid', 
-            'iso8601', 
-            'translationstring',
-            'mako',
-            'html2text'
-           ]
+requires = [
+    'pyramid', 
+    'iso8601', 
+    'translationstring',
+    'mako',
+    'html2text'
+]
 
 setupkw = dict(
       name='nive',
       version='0.9.5',
-      description='Nive CMS',
+      description='Nive cms',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
@@ -42,8 +43,7 @@ setupkw = dict(
       test_suite="nive",
       entry_points = """\
         [pyramid.scaffold]
-        defaultSqlite=nive.scaffolds:DefaultSqliteTemplate
-        defaultMysql=nive.scaffolds:DefaultMysqlTemplate
+        defaultWebsite=nive.scaffolds:defaultWebsite
       """
 )
 

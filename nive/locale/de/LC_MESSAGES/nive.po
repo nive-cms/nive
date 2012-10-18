@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nive 0.9.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-06-28 18:06+0200\n"
+"POT-Creation-Date: 2012-10-18 14:08+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -14,234 +14,251 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: nive/definitions.py:1293
+#: nive/definitions.py:1354
 msgid "String"
 msgstr "String"
 
-#: nive/definitions.py:1294
+#: nive/definitions.py:1355
 msgid "Number"
 msgstr "Number"
 
-#: nive/definitions.py:1295
+#: nive/definitions.py:1356
 msgid "Float"
 msgstr "Float"
 
-#: nive/definitions.py:1296
+#: nive/definitions.py:1357
 msgid "Bool"
 msgstr "Bool"
 
-#: nive/definitions.py:1297
+#: nive/definitions.py:1358
 #: nive/cms/file.py:61
 #: nive/cms/file.py:70
 msgid "File"
 msgstr "Datei"
 
-#: nive/definitions.py:1298
+#: nive/definitions.py:1359
 msgid "HTML Text"
 msgstr "HTML Text"
 
-#: nive/definitions.py:1299
-#: nive/definitions.py:1365
-#: nive/cms/image.py:64
+#: nive/definitions.py:1360
+#: nive/definitions.py:1426
+#: nive/cms/image.py:71
 #: nive/cms/media.py:61
 #: nive/cms/media.py:62
 #: nive/cms/news.py:53
 #: nive/cms/text.py:54
 #: nive/cms/text.py:63
-#: nive/components/tools/sendMail.py:61
+#: nive/components/tools/sendMail.py:60
 msgid "Text"
 msgstr "Text"
 
-#: nive/definitions.py:1300
+#: nive/definitions.py:1361
 #: nive/cms/news.py:54
 msgid "Date"
 msgstr "Datum"
 
-#: nive/definitions.py:1301
+#: nive/definitions.py:1362
 msgid "Datetime"
 msgstr "Datum und Uhrzeit"
 
-#: nive/definitions.py:1302
+#: nive/definitions.py:1363
 msgid "List"
 msgstr "Liste"
 
-#: nive/definitions.py:1303
+#: nive/definitions.py:1364
 msgid "Radio Selection"
 msgstr "Radio Auswahl"
 
-#: nive/definitions.py:1304
+#: nive/definitions.py:1365
 msgid "Multiple Selection"
 msgstr "Mehrfach Auswahl"
 
-#: nive/definitions.py:1305
+#: nive/definitions.py:1366
 msgid "Multiple Checkboxes"
 msgstr "Mehrfache Checkboxen"
 
-#: nive/definitions.py:1306
+#: nive/definitions.py:1367
 msgid "URL"
 msgstr "URL"
 
-#: nive/definitions.py:1307
+#: nive/definitions.py:1368
 msgid "URL List"
 msgstr "URL Liste"
 
-#: nive/definitions.py:1308
-#: nive/userdb/user.py:172
+#: nive/definitions.py:1369
+#: nive/userdb/user.py:185
 msgid "Email"
 msgstr "E-Mail"
 
-#: nive/definitions.py:1309
+#: nive/definitions.py:1370
 #: nive/components/reform/templates/checked_password.pt:2
-#: nive/userdb/root.py:262
-#: nive/userdb/user.py:171
-#: nive/userdb/userview/view.py:78
+#: nive/userdb/root.py:274
+#: nive/userdb/user.py:184
 #: nive/userdb/userview/view.py:81
+#: nive/userdb/userview/view.py:84
 msgid "Password"
 msgstr "Passwort"
 
-#: nive/definitions.py:1310
+#: nive/definitions.py:1371
 msgid "ID Reference"
 msgstr "ID Referenz"
 
-#: nive/definitions.py:1311
+#: nive/definitions.py:1372
 msgid "ID Reference List"
 msgstr "ID Referenz Liste"
 
-#: nive/definitions.py:1312
+#: nive/definitions.py:1373
 msgid "Code (Html, Javascript, Css)"
 msgstr "Code (Html, Javascript, Css)"
 
-#: nive/definitions.py:1313
+#: nive/definitions.py:1374
 msgid "Json"
 msgstr "Json"
 
-#: nive/definitions.py:1314
-#: nive/definitions.py:1373
+#: nive/definitions.py:1375
+#: nive/definitions.py:1433
 msgid "Timestamp"
 msgstr "Timestamp"
 
-#: nive/definitions.py:1320
-#: nive/definitions.py:1364
-#: nive/definitions.py:1370
+#: nive/definitions.py:1381
 #: nive/components/tools/dbStructureUpdater.py:228
 msgid "ID"
 msgstr "ID"
 
-#: nive/definitions.py:1321
+#: nive/definitions.py:1382
 #: nive/cms/code.py:56
 #: nive/components/tools/dbStructureUpdater.py:229
 msgid "Type"
 msgstr "Typ"
 
-#: nive/definitions.py:1322
-msgid "Reference"
-msgstr "Referenz"
+#: nive/definitions.py:1383
+msgid "Container"
+msgstr "Container"
 
-#: nive/definitions.py:1323
+#: nive/definitions.py:1384
 msgid "State"
 msgstr "Status"
 
-#: nive/definitions.py:1324
+#: nive/definitions.py:1385
 msgid "Select Number"
 msgstr "Zuordnungsnummer"
 
-#: nive/definitions.py:1325
+#: nive/definitions.py:1386
 msgid "Data Table Name"
 msgstr "Data Tabellen Name"
 
-#: nive/definitions.py:1326
+#: nive/definitions.py:1387
 msgid "Data Table Reference"
 msgstr "Data Tabellen Referenz ID"
 
-#: nive/definitions.py:1327
-#: nive/components/tools/sendMail.py:60
+#: nive/definitions.py:1388
+#: nive/components/tools/sendMail.py:59
 msgid "Title"
 msgstr "Titel"
 
-#: nive/definitions.py:1328
+#: nive/definitions.py:1389
 #: nive/cms/cmsview/sort.pt:18
 msgid "Sort"
 msgstr "Sortierung"
 
-#: nive/definitions.py:1329
+#: nive/definitions.py:1390
 msgid "Workflow Process"
 msgstr "Workflow Prozess"
 
-#: nive/definitions.py:1330
+#: nive/definitions.py:1391
 msgid "Workflow Activity"
 msgstr "Workflow Status"
 
-#: nive/definitions.py:1331
+#: nive/definitions.py:1392
 msgid "Category"
 msgstr "Kategorie"
 
-#: nive/definitions.py:1332
-#: nive/definitions.py:1356
+#: nive/definitions.py:1393
+#: nive/definitions.py:1417
 msgid "Filename"
 msgstr "Dateiname"
 
-#: nive/definitions.py:1333
+#: nive/definitions.py:1394
 msgid "Created"
 msgstr "Erstellt"
 
-#: nive/definitions.py:1334
+#: nive/definitions.py:1395
+#: nive/cms/cmsview/widgets/widget_editpage.pt:48
 msgid "Changed"
 msgstr "Geändert"
 
-#: nive/definitions.py:1335
+#: nive/definitions.py:1396
 msgid "Created by"
 msgstr "Erstellt von"
 
-#: nive/definitions.py:1336
+#: nive/definitions.py:1397
 msgid "Changed by"
 msgstr "Geändert von"
 
-#: nive/definitions.py:1353
+#: nive/definitions.py:1414
 msgid "Unique ID"
 msgstr "Eindeutige ID"
 
-#: nive/definitions.py:1354
-msgid "Entry ID"
-msgstr "Eintrag ID"
+#: nive/definitions.py:1415
+#: nive/definitions.py:1425
+#: nive/definitions.py:1437
+#, fuzzy
+msgid "Object ID"
+msgstr "Objekt Typen"
 
-#: nive/definitions.py:1355
+#: nive/definitions.py:1416
 msgid "File key"
 msgstr "Datei Schlüssel"
 
-#: nive/definitions.py:1357
+#: nive/definitions.py:1418
 msgid "Internal file path"
 msgstr "Interner Pfad"
 
-#: nive/definitions.py:1358
+#: nive/definitions.py:1419
 msgid "File size"
 msgstr "Dateigröße"
 
-#: nive/definitions.py:1359
+#: nive/definitions.py:1420
 msgid "File extension"
 msgstr "Dateiendung"
 
-#: nive/definitions.py:1360
+#: nive/definitions.py:1421
 msgid "Version"
 msgstr "Version"
 
-#: nive/definitions.py:1366
+#: nive/definitions.py:1427
 msgid "Files"
 msgstr "Dateien"
 
-#: nive/definitions.py:1371
+#: nive/definitions.py:1431
 msgid "Unique identifier"
 msgstr "Eindeutige ID"
 
-#: nive/definitions.py:1372
+#: nive/definitions.py:1432
 #: nive/components/reform/widget.py:772
 msgid "Value"
 msgstr "Wert"
 
-#: nive/forms.py:869
-#: nive/forms.py:903
-#: nive/adminview/view.py:146
+#: nive/definitions.py:1438
+#, fuzzy
+msgid "User name"
+msgstr "Benutzerverwaltung"
+
+#: nive/definitions.py:1439
+msgid "Group assignment"
+msgstr "Gruppenzuweisung"
+
+#: nive/forms.py:956
+#: nive/forms.py:990
+#: nive/forms.py:1257
+#: nive/adminview/view.py:141
 msgid "OK. Data saved."
 msgstr "OK. Daten gespeichert."
+
+#: nive/portal.py:78
+#, fuzzy
+msgid "Authenticated"
+msgstr "Konto erstellt."
 
 #: nive/adminview/modules.pt:4
 msgid ""
@@ -266,7 +283,7 @@ msgid "CMS settings"
 msgstr "CMS Einstellungen"
 
 #: nive/adminview/modules.pt:22
-#: nive/adminview/view.py:69
+#: nive/adminview/view.py:64
 msgid "Tools"
 msgstr "Tools"
 
@@ -291,129 +308,144 @@ msgstr "Auf dieser Seite werden alle <em>Tools</em> wie der Datenbank Export ode
 msgid "Administration tools"
 msgstr "Verwaltungstools"
 
-#: nive/adminview/view.py:47
-#: nive/cms/cmsview/widgets/widget_settings.pt:23
+#: nive/adminview/view.py:42
+#: nive/cms/cmsview/widgets/widget_settings.pt:21
 msgid "Administration"
 msgstr "Verwaltung"
 
-#: nive/adminview/view.py:66
+#: nive/adminview/view.py:61
 msgid "Basics"
 msgstr "Einstellungen"
 
-#: nive/adminview/view.py:71
+#: nive/adminview/view.py:66
 msgid "Modules"
 msgstr "Module"
 
-#: nive/adminview/view.py:72
+#: nive/adminview/view.py:67
 msgid "Read only listing of all registered modules and settings."
 msgstr "Liste aller registrierten Module mit Einstellungen im Lesemodus."
 
-#: nive/adminview/view.py:73
+#: nive/adminview/view.py:68
 msgid "Views"
 msgstr "Views"
 
-#: nive/adminview/view.py:74
+#: nive/adminview/view.py:69
 msgid "Read only listing of all registered views grouped by view modules."
 msgstr "Liste aller Views gruppiert nach Modulen im Lesemodus."
 
-#: nive/adminview/view.py:87
+#: nive/adminview/view.py:82
 msgid "Database Administration"
 msgstr "Datenbank Verwaltung"
 
-#: nive/adminview/view.py:98
+#: nive/adminview/view.py:93
 msgid "Database"
 msgstr "Datenbank"
 
-#: nive/adminview/view.py:148
+#: nive/adminview/view.py:143
 msgid "No persistent storage for configurations activated. Nothing saved."
 msgstr "Kein persistenter Speicher für die Konfiguration aktiviert."
 
-#: nive/adminview/view.py:248
-#: nive/adminview/tests/tviews.py:64
+#: nive/adminview/view.py:231
+#, fuzzy
+msgid "editor"
+msgstr "Editor verlassen"
+
+#: nive/adminview/view.py:233
+#, fuzzy
+msgid "public"
+msgstr "Veröffentlicht"
+
+#: nive/adminview/view.py:235
+#, fuzzy
+msgid "administration"
+msgstr "Verwaltung"
+
+#: nive/adminview/view.py:238
+#, fuzzy
+msgid "user management"
+msgstr "Benutzerverwaltung"
+
+#: nive/adminview/view.py:247
 msgid "Application title"
 msgstr "Anwendung Titel"
 
-#: nive/adminview/view.py:249
-#: nive/adminview/tests/tviews.py:65
+#: nive/adminview/view.py:248
 msgid "Application description"
 msgstr "Anwendung Beschreibung"
 
-#: nive/adminview/view.py:250
-#: nive/adminview/tests/tviews.py:66
+#: nive/adminview/view.py:249
 msgid "Enable workflow engine"
 msgstr "Workflow aktivieren"
 
-#: nive/adminview/view.py:251
-#: nive/adminview/tests/tviews.py:67
+#: nive/adminview/view.py:250
 msgid "Enable fulltext index"
 msgstr "Volltext Index aktivieren"
 
-#: nive/adminview/view.py:252
-#: nive/adminview/tests/tviews.py:68
+#: nive/adminview/view.py:251
 msgid "Codepage used in html frontend"
 msgstr "Codepage des Html Frontends"
 
-#: nive/adminview/view.py:265
+#: nive/adminview/view.py:264
 msgid "Database type to be used"
 msgstr "Verwendeter Datenbanktyp"
 
-#: nive/adminview/view.py:266
+#: nive/adminview/view.py:265
 msgid "Supports 'Sqlite3' and 'MySql' by default. MySql requires python-mysqldb installed."
 msgstr "Unterstützt Sqlite3 und MySql als default. Für MySql muss python-mysqldb installiert sein. "
 
-#: nive/adminview/view.py:267
+#: nive/adminview/view.py:266
 msgid "Relative or absolute root directory for files"
 msgstr "Relativer oser absoluter Pfad zur Dateiablage im Dateisystem"
 
-#: nive/adminview/view.py:268
+#: nive/adminview/view.py:267
 msgid "Database file path or name"
 msgstr "Datenbank Dateipfad oder Name"
 
-#: nive/adminview/view.py:269
+#: nive/adminview/view.py:268
 msgid "Sqlite3=database file path, MySql=database name"
 msgstr "Sqlite3=Datenbank Dateiname, MySql=Datenbankname"
 
-#: nive/adminview/view.py:270
+#: nive/adminview/view.py:269
 msgid "Database server host"
 msgstr "Datenbank Server Host"
 
-#: nive/adminview/view.py:271
+#: nive/adminview/view.py:270
 msgid "Database server port"
 msgstr "Datenbank Server Port"
 
-#: nive/adminview/view.py:272
+#: nive/adminview/view.py:271
 msgid "Database server user"
 msgstr "Datenbank Server Benutzername"
 
-#: nive/adminview/view.py:273
+#: nive/adminview/view.py:272
 msgid "Database server password"
 msgstr "Datenbank Server Passwort"
 
-#: nive/adminview/view.py:285
+#: nive/adminview/view.py:284
 msgid "Redirect for portal root (/) requests"
 msgstr "Weiterleitung bei Portal Root Urls (/)"
 
-#: nive/adminview/view.py:286
+#: nive/adminview/view.py:285
 msgid "Favicon asset path"
 msgstr "Favicon Asset Pfad"
 
-#: nive/adminview/view.py:287
+#: nive/adminview/view.py:286
 msgid "robots.txt contents"
 msgstr "robots.txt Inhalt"
 
-#: nive/adminview/view.py:288
+#: nive/adminview/view.py:287
 msgid "Login form url"
 msgstr "Login Formular Url"
 
-#: nive/adminview/view.py:289
+#: nive/adminview/view.py:288
 msgid "Redirect for unauthorized requests"
 msgstr "Umleitung bei fehlenden Rechten"
 
-#: nive/adminview/view.py:290
+#: nive/adminview/view.py:289
 msgid "Redirect on logout"
 msgstr "Umleitung bei Logout"
 
-#: nive/adminview/view.py:291
+#: nive/adminview/view.py:290
 msgid "User account page url"
 msgstr "Konto Url"
 
@@ -433,55 +465,172 @@ msgstr "Einzelne Views"
 msgid "Widgets"
 msgstr "Interface Elemente (Widgets)"
 
-#: nive/cms/app.py:97
+#: nive/cms/app.py:103
 msgid "Permission"
 msgstr "Freigabe"
 
-#: nive/cms/app.py:97
+#: nive/cms/app.py:103
 msgid "Only displayed to users in the selected group"
 msgstr "Wird nur Benutzern/innen in der ausgewählten Gruppe angezeigt."
 
-#: nive/cms/box.py:57
+#: nive/cms/box.py:75
 msgid "Box"
 msgstr "Box"
 
-#: nive/cms/box.py:63
+#: nive/cms/box.py:81
 msgid "A box is a container to group elements on a page. It can be used as anadvanced styling element for web pages. The box itself only stores a title and styling selector."
 msgstr "Eine Box ist ein Container mit dem Elemente zusammengefasst werden können und kann als spezielles Styling-Element auf Webseiten verwendet werden. "
 
-#: nive/cms/box.py:68
-#: nive/cms/menublock.py:60
-msgid "50 % width left"
-msgstr "50 % breit, links"
+#: nive/cms/box.py:86
+msgid "Span 1"
+msgstr "Breite 1"
 
-#: nive/cms/box.py:69
-#: nive/cms/menublock.py:61
-msgid "33 % width left"
-msgstr "33 % breit, links"
+#: nive/cms/box.py:87
+msgid "Span 2"
+msgstr "Breite 2"
 
-#: nive/cms/box.py:70
-#: nive/cms/menublock.py:62
-msgid "66 % width left"
-msgstr "66 % breit, links"
+#: nive/cms/box.py:88
+msgid "Span 3"
+msgstr "Breite 3"
 
-#: nive/cms/box.py:71
-#: nive/cms/menublock.py:63
-msgid "50 % width right"
-msgstr "50 % breit, rechts"
+#: nive/cms/box.py:89
+msgid "Span 4"
+msgstr "Breite 4"
 
-#: nive/cms/box.py:72
-#: nive/cms/menublock.py:64
-msgid "33 % width right"
-msgstr "33 % breit, rechts"
+#: nive/cms/box.py:90
+msgid "Span 5"
+msgstr "Breite 5"
 
-#: nive/cms/box.py:73
-#: nive/cms/menublock.py:65
-msgid "66 % width right"
-msgstr "66 % breit, rechts"
+#: nive/cms/box.py:91
+msgid "Span 6"
+msgstr "Breite 6"
 
-#: nive/cms/box.py:78
-msgid "Size and alignment"
-msgstr "Größe und Anordnung"
+#: nive/cms/box.py:92
+msgid "Span 7"
+msgstr "Breite 7"
+
+#: nive/cms/box.py:93
+msgid "Span 8"
+msgstr "Breite 8"
+
+#: nive/cms/box.py:94
+msgid "Span 9"
+msgstr "Breite 9"
+
+#: nive/cms/box.py:95
+msgid "Span 10"
+msgstr "Breite 10"
+
+#: nive/cms/box.py:96
+msgid "Span 11"
+msgstr "Breite 11"
+
+#: nive/cms/box.py:97
+msgid "Span 12 (100% width)"
+msgstr "Breite 12 (100% breit)"
+
+#: nive/cms/box.py:98
+msgid "Top box (hero-unit)"
+msgstr "Top Box (hero-unit)"
+
+#: nive/cms/box.py:100
+#: nive/cms/link.py:50
+#: nive/cms/link.py:56
+msgid "none"
+msgstr "nicht gesetzt"
+
+#: nive/cms/box.py:101
+msgid "Offset 1"
+msgstr "Abstand 1"
+
+#: nive/cms/box.py:102
+msgid "Offset 2"
+msgstr "Abstand 2"
+
+#: nive/cms/box.py:103
+msgid "Offset 3"
+msgstr "Abstand 3"
+
+#: nive/cms/box.py:104
+msgid "Offset 4"
+msgstr "Abstand 4"
+
+#: nive/cms/box.py:105
+msgid "Offset 5"
+msgstr "Abstand 5"
+
+#: nive/cms/box.py:106
+msgid "Offset 6"
+msgstr "Abstand 6"
+
+#: nive/cms/box.py:107
+msgid "Offset 7"
+msgstr "Abstand 7"
+
+#: nive/cms/box.py:108
+msgid "Offset 8"
+msgstr "Abstand 8"
+
+#: nive/cms/box.py:109
+msgid "Offset 9"
+msgstr "Abstand 9"
+
+#: nive/cms/box.py:110
+msgid "Offset 10"
+msgstr "Abstand 10"
+
+#: nive/cms/box.py:111
+msgid "Offset 11"
+msgstr "Abstand 11"
+
+#: nive/cms/box.py:113
+msgid "Visible in desktop viewports"
+msgstr "Sichtbar auf Desktop Monitoren "
+
+#: nive/cms/box.py:114
+msgid "Visible in tablet viewports"
+msgstr "Sichtbar auf Tablet Monitoren"
+
+#: nive/cms/box.py:115
+msgid "Visible in phone viewports"
+msgstr "Sichtbar auf Smartphone Monitoren"
+
+#: nive/cms/box.py:120
+#, fuzzy
+msgid "Block size"
+msgstr "Block"
+
+#: nive/cms/box.py:122
+msgid "Block empty offset left"
+msgstr "Leerer Abstand links in Spalten"
+
+#: nive/cms/box.py:122
+msgid "Please note: The blocksize and offset values added together can not be larger than 1. Adjust both fields accordingly."
+msgstr "Bitte beachten: Abstand und Spalten zusammen können nicht mehr als 12 betragen."
+
+#: nive/cms/box.py:124
+msgid "Highlight box contents"
+msgstr "Box Inhalte hervorheben"
+
+#: nive/cms/box.py:124
+msgid "This option will add a colored background to highlight the box and its contents."
+msgstr "Diese Option hinterlegt die Box mit einem farbigen Hintergrund und Rahmen."
+
+#: nive/cms/box.py:126
+msgid "Use as image gallery"
+msgstr "Als Bilder-Galerie anzeigen"
+
+#: nive/cms/box.py:126
+msgid "Use this setting if you want to add floating image teasers to this box."
+msgstr "Mit dieser Option können fließende Bild-Galerien erstellt werden. "
+
+#: nive/cms/box.py:128
+msgid "Enable responsive layout"
+msgstr "Responsive Layout aktivieren"
+
+#: nive/cms/box.py:128
+msgid "Show and hide the box and it contents. The setting takes effect based on viewport or browser window sizes. It does not check the hardware device. Please note: The responsive setting is ignored in edit mode."
+msgstr "Automatisches anzeigen und ausblenden der Box-Inhalte. Die Einstellungen orientieren sich an der größe des Browser Fensters, nicht an der tatsächlichen Monitorgröße. Im Edit-Modus wird diese Einstellung ignoriert."
 
 #: nive/cms/code.py:41
 #: nive/cms/code.py:57
@@ -541,66 +690,58 @@ msgid "The file element provides a simple file download with title and optional 
 msgstr "Das Datei Element stellt einen einfachen Datei Download mit Titel und optionaler Beschreibung bereit."
 
 #: nive/cms/file.py:71
-#: nive/cms/folder.py:51
-#: nive/cms/page.py:89
+#: nive/cms/page.py:87
 msgid "Description"
 msgstr "Beschreibung"
 
-#: nive/cms/folder.py:40
-msgid "Folder"
-msgstr "Ordner"
-
-#: nive/cms/folder.py:47
-msgid "The folder is a simple container to store resources."
-msgstr "Der Ordner ist ein einfacher Container um Resourcen zu verwalten."
-
-#: nive/cms/image.py:46
+#: nive/cms/image.py:53
 msgid "Image"
 msgstr "Bild"
 
-#: nive/cms/image.py:51
+#: nive/cms/image.py:58
 msgid "The image element inserts images into the web page."
 msgstr "Mit dem Bild Element lassen sich Bilder in der Webseite einfügen."
 
-#: nive/cms/image.py:54
+#: nive/cms/image.py:61
 msgid "Simple"
 msgstr "Einfach"
 
-#: nive/cms/image.py:55
+#: nive/cms/image.py:62
 msgid "Float right"
 msgstr "Rechts Umfliessend"
 
-#: nive/cms/image.py:56
+#: nive/cms/image.py:63
 #: nive/cms/news.py:47
 msgid "Teaser"
 msgstr "Teaser"
 
-#: nive/cms/image.py:57
+#: nive/cms/image.py:64
+#, fuzzy
+msgid "Teaser large"
+msgstr "Teaser klein"
+
+#: nive/cms/image.py:65
 #: nive/cms/news.py:48
 msgid "Teaser small"
 msgstr "Teaser klein"
 
-#: nive/cms/image.py:58
-msgid "Headline"
-msgstr "Überschrift"
-
-#: nive/cms/image.py:62
+#: nive/cms/image.py:69
 #: nive/cms/news.py:52
 msgid "Imagefile"
 msgstr "Bild Datei"
 
-#: nive/cms/image.py:63
+#: nive/cms/image.py:70
 msgid "Imagefile fullsize"
 msgstr "Bild Datei hochauflösend"
 
-#: nive/cms/image.py:65
+#: nive/cms/image.py:72
 #: nive/cms/menublock.py:73
 #: nive/cms/news.py:55
 #: nive/cms/spacer.py:56
 msgid "Styling"
 msgstr "Style"
 
-#: nive/cms/image.py:66
+#: nive/cms/image.py:73
 #: nive/cms/link.py:40
 #: nive/cms/news.py:56
 msgid "Link"
@@ -618,17 +759,64 @@ msgstr "Im selben Fenster"
 msgid "New window"
 msgstr "Im neuen Fenster"
 
-#: nive/cms/link.py:50
+#: nive/cms/link.py:51
+#, fuzzy
+msgid "Simple button"
+msgstr "Einfach"
+
+#: nive/cms/link.py:52
+msgid "Large button"
+msgstr "Großer Button"
+
+#: nive/cms/link.py:53
+msgid "Small button"
+msgstr "Kleiner Button"
+
+#: nive/cms/link.py:57
+msgid "Primary"
+msgstr "Einfach"
+
+#: nive/cms/link.py:58
+msgid "Info"
+msgstr "Info"
+
+#: nive/cms/link.py:59
+msgid "Success"
+msgstr "OK"
+
+#: nive/cms/link.py:60
+msgid "Warning"
+msgstr "Warnung"
+
+#: nive/cms/link.py:61
+#, fuzzy
+msgid "Danger"
+msgstr "Geändert"
+
+#: nive/cms/link.py:62
+msgid "Inverse"
+msgstr "Umgekehrt"
+
+#: nive/cms/link.py:65
 msgid "Link url"
 msgstr "Link Url"
 
-#: nive/cms/link.py:50
+#: nive/cms/link.py:65
 msgid "External links must start with http:// or similar. Internal links can be referenced as page id (the number) and are resolved automatically."
 msgstr "Externe Links müssen mit http:// beginnen. Interne Links können auch als Seiten ID (Zahl) angegeben werden."
 
-#: nive/cms/link.py:51
+#: nive/cms/link.py:66
 msgid "Target window"
 msgstr "Ziel Fenster"
+
+#: nive/cms/link.py:67
+#, fuzzy
+msgid "Link style"
+msgstr "Link Url"
+
+#: nive/cms/link.py:68
+msgid "Button color"
+msgstr "Farbe des Buttons"
 
 #: nive/cms/media.py:45
 msgid "Media"
@@ -666,8 +854,32 @@ msgstr "Navigation"
 msgid "Element to render navigation trees and linked table of contents. The menublock can be used as main navigation for the web page."
 msgstr "Element um Navigationsbäume und Ihaltslisten anzuzeigen. Kann als Hauptnavigation der Webseite verwendet werden."
 
+#: nive/cms/menublock.py:60
+msgid "50 % width left"
+msgstr "50 % breit, links"
+
+#: nive/cms/menublock.py:61
+msgid "33 % width left"
+msgstr "33 % breit, links"
+
+#: nive/cms/menublock.py:62
+msgid "66 % width left"
+msgstr "66 % breit, links"
+
+#: nive/cms/menublock.py:63
+msgid "50 % width right"
+msgstr "50 % breit, rechts"
+
+#: nive/cms/menublock.py:64
+msgid "33 % width right"
+msgstr "33 % breit, rechts"
+
+#: nive/cms/menublock.py:65
+msgid "66 % width right"
+msgstr "66 % breit, rechts"
+
 #: nive/cms/menublock.py:67
-#: nive/cms/cmsview/widgets/widget_subpages.pt:7
+#: nive/cms/cmsview/widgets/widget_subpages.pt:5
 msgid "Sub pages"
 msgstr "Unterseiten"
 
@@ -716,67 +928,67 @@ msgstr "Notiz"
 msgid "Simple text note for authors. The note is only visible to cms authors and not published."
 msgstr "Text Notiz für Autoren. Wird nur intern und im Bearbeitungsmodus angezeigt."
 
-#: nive/cms/page.py:73
+#: nive/cms/page.py:71
 msgid "Page"
 msgstr "Seite"
 
-#: nive/cms/page.py:80
+#: nive/cms/page.py:78
 msgid "Pages are rendered as html files and make up the website."
 msgstr "Seiten werden als HTML Dateien gerendert und setzen die Webseite zusammen."
 
-#: nive/cms/page.py:85
+#: nive/cms/page.py:83
 msgid "Page header"
 msgstr "Seitenüberschrift"
 
-#: nive/cms/page.py:85
+#: nive/cms/page.py:83
 msgid "Text shown at top of the page"
 msgstr "Wird oben auf der Seite angezeigt"
 
-#: nive/cms/page.py:87
+#: nive/cms/page.py:85
 msgid "Title image"
 msgstr "Titel Bild"
 
-#: nive/cms/page.py:89
+#: nive/cms/page.py:87
 msgid "Description used in meta tag for search engines etc."
 msgstr "Beschreibung für Meta-Tag der Webseite"
 
-#: nive/cms/page.py:91
+#: nive/cms/page.py:89
 msgid "Keywords"
 msgstr "Schlüsselwörter"
 
-#: nive/cms/page.py:91
+#: nive/cms/page.py:89
 msgid "Keywords used in meta tag (not really used by search engines)."
 msgstr "Schlüsselwörter für Meta-Tag der Webseite."
 
-#: nive/cms/page.py:94
+#: nive/cms/page.py:92
 msgid "Hide in navigation"
 msgstr "In Navigation ausblenden"
 
-#: nive/cms/page.py:94
+#: nive/cms/page.py:92
 msgid "Hide the page in navigation. It will only be accessible by direct links."
 msgstr "In der Navigation ausblenden. Wird nur noch durch direkte LInks aufzurufen sein."
 
-#: nive/cms/page.py:96
+#: nive/cms/page.py:94
 msgid "Page is a menu"
 msgstr "Seite ist ein Menu."
 
-#: nive/cms/page.py:96
+#: nive/cms/page.py:94
 msgid "Used in some navigation lists. If checked the page is handled as menu."
 msgstr "Wird in Navigationslisten verwendet. Wenn angekreutzt wird die Seite als Menu behandelt."
 
-#: nive/cms/page.py:98
+#: nive/cms/page.py:96
 msgid "Page is redirected to this link"
 msgstr "Seite wird auf diesen Link umgeleitet"
 
-#: nive/cms/page.py:98
+#: nive/cms/page.py:96
 msgid "Automatically redirect the page to the linked page. Only in view mode."
 msgstr "Im Ansichtsmodus wird die Seite automatisch zu diesem Link weitergeleitet."
 
-#: nive/cms/page.py:100
+#: nive/cms/page.py:98
 msgid "Enter page filename manually"
 msgstr "Url Name der Seite"
 
-#: nive/cms/page.py:100
+#: nive/cms/page.py:98
 msgid "By default page URL-names are generated automatically by the title. Use this option to change the default behaviour."
 msgstr "Per Default werden die Url Namen der Seite automatisch vom Titel generiert. Mit dieser Option kann das Default verhalten deaktiviert werden."
 
@@ -849,7 +1061,7 @@ msgid "Add page after this"
 msgstr "Seite nach dieser einfügen"
 
 #: nive/cms/cmsview/add.pt:28
-#: nive/cms/cmsview/widgets/element_add_list.pt:6
+#: nive/cms/cmsview/widgets/element_add_list.pt:5
 msgid "Add a new page element?"
 msgstr "Neues Seitenelement hinzufügen?"
 
@@ -871,93 +1083,99 @@ msgstr "Warnung: Hiermit werden die Seite und alle Unterseiten gelöscht!"
 msgid "Delete all"
 msgstr "Alle löschen"
 
-#: nive/cms/cmsview/sort.pt:25
+#: nive/cms/cmsview/sort.pt:26
 msgid "Save"
 msgstr "Speichern"
 
-#: nive/cms/cmsview/view.py:110
+#: nive/cms/cmsview/view.py:101
 msgid "Add new page"
 msgstr "Neue Seite hinzufügen"
 
-#: nive/cms/cmsview/view.py:111
-#: nive/cms/cmsview/widgets/widget_editpage.pt:7
+#: nive/cms/cmsview/view.py:102
+#: nive/cms/cmsview/widgets/widget_editpage.pt:9
 msgid "Edit page"
 msgstr "Seite bearbeiten"
 
-#: nive/cms/cmsview/view.py:112
+#: nive/cms/cmsview/view.py:103
 msgid "Sub pages and parent"
 msgstr "Unterseiten und höhere Ebene"
 
-#: nive/cms/cmsview/view.py:113
-#: nive/cms/cmsview/widgets/widget_settings.pt:8
+#: nive/cms/cmsview/view.py:104
+#: nive/cms/cmsview/widgets/widget_settings.pt:6
 #: nive/components/tools/dbStructureUpdater.py:231
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: nive/cms/cmsview/view.py:115
-#: nive/cms/cmsview/widgets/editblock_element.pt:21
-#: nive/cms/cmsview/widgets/editblock_list.pt:8
-#: nive/cms/cmsview/widgets/editblock_list.pt:12
+#: nive/cms/cmsview/view.py:106
+#: nive/cms/cmsview/widgets/editblock_element.pt:24
+#: nive/cms/cmsview/widgets/editblock_list.pt:10
+#: nive/cms/cmsview/widgets/editblock_list.pt:14
 #: nive/cms/workflow/wf.py:46
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: nive/cms/cmsview/view.py:116
+#: nive/cms/cmsview/view.py:107
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: nive/cms/cmsview/view.py:117
-#: nive/cms/cmsview/widgets/widget_editpage.pt:16
+#: nive/cms/cmsview/view.py:108
 #: nive/cms/cmsview/widgets/widget_editpage.pt:18
+#: nive/cms/cmsview/widgets/widget_editpage.pt:20
 msgid "Sort sub pages"
 msgstr "Unterseiten sortieren"
 
-#: nive/cms/cmsview/view.py:118
+#: nive/cms/cmsview/view.py:109
 msgid "Meta"
 msgstr "Meta Informationen"
 
-#: nive/cms/cmsview/view.py:351
+#: nive/cms/cmsview/view.py:341
 msgid "<i>empty</i>"
 msgstr "<i>leer</i>"
 
-#: nive/cms/cmsview/view.py:352
+#: nive/cms/cmsview/view.py:342
 msgid "Page elements"
 msgstr "Seitenelemente"
 
-#: nive/cms/cmsview/view.py:382
-msgid "<i>no sub pages</i>"
+#: nive/cms/cmsview/view.py:375
+#, fuzzy
+msgid "This page is not public."
+msgstr "Diese Seite ist öffentlich."
+
+#: nive/cms/cmsview/view.py:378
+#, fuzzy
+msgid "<p><i>no sub pages</i></p>"
 msgstr "<i>keine Unterseiten</i>"
-
-#: nive/cms/cmsview/view.py:452
-msgid "Delete failed"
-msgstr "Löschen fehlgeschlagen"
-
-#: nive/cms/cmsview/view.py:454
-#: nive/cms/workflow/view.py:69
-#: nive/components/extensions/cutcopy.py:153
-#: nive/components/extensions/cutcopy.py:168
-#: nive/components/extensions/sort.py:115
-#: nive/userdb/userview/view.py:144
-msgid "OK"
-msgstr "OK"
 
 #: nive/cms/cmsview/view.py:482
 msgid "Nothing to delete"
 msgstr "Nichts zu löschen"
 
 #: nive/cms/cmsview/view.py:487
-#: nive/components/extensions/cutcopy.py:77
-#: nive/components/extensions/cutcopy.py:112
+#: nive/components/extensions/cutcopy.py:76
+#: nive/components/extensions/cutcopy.py:111
 msgid "Object not found"
 msgstr "Objekt nicht gefunden"
 
-#: nive/cms/cmsview/widgets/editblock_column.pt:10
+#: nive/cms/cmsview/view.py:510
+msgid "Delete failed"
+msgstr "Löschen fehlgeschlagen"
+
+#: nive/cms/cmsview/view.py:512
+#: nive/cms/workflow/view.py:70
+#: nive/components/extensions/cutcopy.py:152
+#: nive/components/extensions/cutcopy.py:167
+#: nive/components/extensions/sort.py:114
+#: nive/userdb/userview/view.py:150
+msgid "OK"
+msgstr "OK"
+
+#: nive/cms/cmsview/widgets/editblock_column.pt:12
 msgid "Add a local column to this page"
 msgstr "Lokale Spalte zu dieser Seite hinzufügen"
 
-#: nive/cms/cmsview/widgets/editblock_column.pt:17
-#: nive/cms/cmsview/widgets/editblock_element.pt:14
-#: nive/cms/cmsview/widgets/editblock_page.pt:13
+#: nive/cms/cmsview/widgets/editblock_column.pt:18
+#: nive/cms/cmsview/widgets/editblock_element.pt:17
+#: nive/cms/cmsview/widgets/editblock_page.pt:14
 msgid "Add a new page element"
 msgstr "Neues Seitenelement hinzufügen"
 
@@ -971,54 +1189,57 @@ msgid "Edit column settings"
 msgstr "Spalten-Einstellungen bearbeiten"
 
 #: nive/cms/cmsview/widgets/editblock_column.pt:33
+#: nive/cms/cmsview/widgets/editblock_element.pt:50
 #: nive/cms/cmsview/widgets/editblock_page.pt:33
 msgid "Sort elements"
 msgstr "Elemente sortieren"
 
 #: nive/cms/cmsview/widgets/editblock_column.pt:39
-#: nive/cms/cmsview/widgets/editblock_element.pt:39
-#: nive/cms/cmsview/widgets/editblock_list.pt:26
+#: nive/cms/cmsview/widgets/editblock_element.pt:42
+#: nive/cms/cmsview/widgets/editblock_list.pt:28
 #: nive/cms/cmsview/widgets/editblock_page.pt:40
+#: nive/cms/cmsview/widgets/widget_editpage.pt:36
+#: nive/cms/cmsview/widgets/widget_editpage.pt:38
 msgid "Paste here"
 msgstr "Hier einfügen"
 
 #: nive/cms/cmsview/widgets/editblock_column.pt:45
-#: nive/cms/cmsview/widgets/editblock_element.pt:57
-#: nive/cms/cmsview/widgets/editblock_list.pt:40
+#: nive/cms/cmsview/widgets/editblock_element.pt:64
+#: nive/cms/cmsview/widgets/editblock_list.pt:42
 msgid "Delete"
 msgstr "Löschen"
 
-#: nive/cms/cmsview/widgets/editblock_element.pt:29
-#: nive/cms/cmsview/widgets/editblock_list.pt:20
+#: nive/cms/cmsview/widgets/editblock_element.pt:32
+#: nive/cms/cmsview/widgets/editblock_list.pt:22
 msgid "Copy element"
 msgstr "Element kopieren"
 
-#: nive/cms/cmsview/widgets/editblock_element.pt:34
-#: nive/cms/cmsview/widgets/editblock_list.pt:23
+#: nive/cms/cmsview/widgets/editblock_element.pt:37
+#: nive/cms/cmsview/widgets/editblock_list.pt:25
 msgid "Cut element"
 msgstr "Element ausschneiden"
 
-#: nive/cms/cmsview/widgets/editblock_element.pt:46
-#: nive/cms/cmsview/widgets/editblock_list.pt:32
+#: nive/cms/cmsview/widgets/editblock_element.pt:53
+#: nive/cms/cmsview/widgets/editblock_list.pt:34
 msgid "Move up"
 msgstr "Nach oben"
 
-#: nive/cms/cmsview/widgets/editblock_element.pt:50
-#: nive/cms/cmsview/widgets/editblock_list.pt:34
+#: nive/cms/cmsview/widgets/editblock_element.pt:57
+#: nive/cms/cmsview/widgets/editblock_list.pt:36
 msgid "Move down"
 msgstr "Nach unten"
 
 #: nive/cms/cmsview/widgets/editblock_page.pt:27
-#: nive/cms/cmsview/widgets/widget_editpage.pt:11
 #: nive/cms/cmsview/widgets/widget_editpage.pt:13
+#: nive/cms/cmsview/widgets/widget_editpage.pt:15
 msgid "Edit page settings"
 msgstr "Seiten-Einstellungen bearbeiten"
 
-#: nive/cms/cmsview/widgets/toolbox.pt:8
+#: nive/cms/cmsview/widgets/toolbox.pt:5
 msgid "toggle toolbox"
 msgstr "Toolbox sichtbar/unsichtbar"
 
-#: nive/cms/cmsview/widgets/toolbox.pt:10
+#: nive/cms/cmsview/widgets/toolbox.pt:7
 msgid "toolbox"
 msgstr "Toolbox"
 
@@ -1030,56 +1251,66 @@ msgstr "Neue Seite hinzufügen"
 msgid "Add a new sub page"
 msgstr "Neue Unterseite hinzufügen"
 
-#: nive/cms/cmsview/widgets/widget_editpage.pt:22
 #: nive/cms/cmsview/widgets/widget_editpage.pt:24
+#: nive/cms/cmsview/widgets/widget_editpage.pt:26
 msgid "Copy page"
 msgstr "Seite kopieren"
 
-#: nive/cms/cmsview/widgets/widget_editpage.pt:28
-#: nive/cms/cmsview/widgets/widget_editpage.pt:30
+#: nive/cms/cmsview/widgets/widget_editpage.pt:29
+#: nive/cms/cmsview/widgets/widget_editpage.pt:31
 msgid "Cut page"
 msgstr "Seite ausschneiden"
 
+#: nive/cms/cmsview/widgets/widget_editpage.pt:42
+#: nive/cms/cmsview/widgets/widget_editpage.pt:44
+msgid "Delete current page and sub pages"
+msgstr "Aktuelle Seite löschen"
+
+#: nive/cms/cmsview/widgets/widget_editpage.pt:47
+msgid "Page ID"
+msgstr "Seite ID"
+
+#: nive/cms/cmsview/widgets/widget_editpage.pt:49
+msgid "by"
+msgstr "von"
+
+#: nive/cms/cmsview/widgets/widget_settings.pt:9
 #: nive/cms/cmsview/widgets/widget_settings.pt:11
-#: nive/cms/cmsview/widgets/widget_settings.pt:13
 msgid "Enable interactive elements"
 msgstr "Interaktive Elemente aktivieren"
 
+#: nive/cms/cmsview/widgets/widget_settings.pt:14
 #: nive/cms/cmsview/widgets/widget_settings.pt:16
-#: nive/cms/cmsview/widgets/widget_settings.pt:18
 msgid "Disable interactive elements"
 msgstr "Interaktive Elemente deaktivieren"
 
-#: nive/cms/cmsview/widgets/widget_settings.pt:20
-#: nive/userdb/useradmin/view.py:33
+#: nive/cms/cmsview/widgets/widget_settings.pt:18
+#: nive/userdb/useradmin/view.py:32
 msgid "User management"
 msgstr "Benutzerverwaltung"
 
-#: nive/cms/cmsview/widgets/widget_settings.pt:26
+#: nive/cms/cmsview/widgets/widget_settings.pt:24
 msgid "My account"
 msgstr "Mein Konto"
 
-#: nive/cms/cmsview/widgets/widget_settings.pt:27
+#: nive/cms/cmsview/widgets/widget_settings.pt:25
 msgid "Exit editor"
 msgstr "Editor verlassen"
 
-#: nive/cms/cmsview/widgets/widget_settings.pt:28
+#: nive/cms/cmsview/widgets/widget_settings.pt:26
 #: nive/userdb/userview/loginpage.pt:14
 msgid "Log out"
 msgstr "Ausloggen"
 
-#: nive/cms/cmsview/widgets/widget_subpages.pt:9
+#: nive/cms/cmsview/widgets/widget_subpages.pt:7
 msgid "Open parent page"
 msgstr "Übergeordnete Seite öffnen"
 
-#: nive/cms/design/view.py:42
+#: nive/cms/design/view.py:50
 msgid "Website design and view"
 msgstr "Webseite Design und Views"
 
 #: nive/cms/design/templates/image.pt:17
-#: nive/cms/design/templates/image.pt:29
-#: nive/cms/design/templates/image.pt:43
-#: nive/cms/design/templates/image.pt:55
 #: nive/cms/design/templates/news.pt:12
 #: nive/cms/design/templates/news.pt:24
 #: nive/cms/design/templates/news.pt:37
@@ -1091,7 +1322,7 @@ msgstr "&gt; mehr"
 msgid "&gt; open"
 msgstr "&gt; aufklappen"
 
-#: nive/cms/design/templates/page.pt:5
+#: nive/cms/design/templates/page.pt:11
 msgid "This page is redirected in view mode:"
 msgstr "Diese Seite wird im Ansichtsmodus umgeleitet: "
 
@@ -1099,8 +1330,8 @@ msgstr "Diese Seite wird im Ansichtsmodus umgeleitet: "
 msgid "CMS workflow extension"
 msgstr "CMS Workflow Erweiterung"
 
-#: nive/cms/workflow/view.py:45
 #: nive/cms/workflow/view.py:46
+#: nive/cms/workflow/view.py:47
 #: nive/cms/workflow/templates/widget.pt:6
 msgid "Workflow"
 msgstr "Workflow"
@@ -1130,29 +1361,62 @@ msgid "Revoke"
 msgstr "Sperren"
 
 #: nive/cms/workflow/templates/editorpage.pt:12
+msgid "Workflow state of this page"
+msgstr "Workflow Status dieser Seite"
+
+#: nive/cms/workflow/templates/editorpage.pt:14
 #: nive/cms/workflow/templates/widget.pt:9
 msgid "The page is in draft mode and not public."
 msgstr "Diese Seite ist im Entwurfsmodus und nicht öffentlich."
 
-#: nive/cms/workflow/templates/editorpage.pt:13
+#: nive/cms/workflow/templates/editorpage.pt:15
 msgid "The page is public."
 msgstr "Diese Seite ist öffentlich."
 
-#: nive/components/extensions/cutcopy.py:187
+#: nive/components/extensions/cutcopy.py:186
 msgid "Method unknown"
 msgstr "Unbekannte Methode"
 
-#: nive/components/extensions/cutcopy.py:246
+#: nive/components/extensions/cutcopy.py:245
 msgid "Cut and copy to clipboard"
 msgstr "Ausschneiden und in den Zwischenspeicher kopieren"
 
-#: nive/components/extensions/cutcopy.py:256
+#: nive/components/extensions/cutcopy.py:255
 msgid "Copy to clipboard"
 msgstr "In den Zwischenspeicher kopieren"
 
-#: nive/components/extensions/cutcopy.py:265
+#: nive/components/extensions/cutcopy.py:264
 msgid "Paste clipboard"
 msgstr "Zwischenspeicher einfügen"
+
+#: nive/components/extensions/fulltextpage.py:162
+msgid "Deleted previous fulltext index.<br/>"
+msgstr ""
+
+#: nive/components/extensions/fulltextpage.py:172
+msgid "Error: Unable to open page (${id}).<br/>"
+msgstr ""
+
+#: nive/components/extensions/fulltextpage.py:178
+msgid "Error: Unable to update page (${id}).<br/>"
+msgstr ""
+
+#: nive/components/extensions/fulltextpage.py:182
+msgid "Updated fulltext index. Finished.<br/>"
+msgstr ""
+
+#: nive/components/extensions/fulltextpage.py:183
+msgid "${cnt} pages ok. ${err} failed.<br/>"
+msgstr ""
+
+#: nive/components/extensions/fulltextpage.py:210
+#, fuzzy
+msgid "Rewrite fulltext index"
+msgstr "Volltext Index aktivieren"
+
+#: nive/components/extensions/fulltextpage.py:211
+msgid "Delete and rewrite the fulltext index."
+msgstr ""
 
 #: nive/components/extensions/images.py:102
 msgid "Python image library (PIL) not installed."
@@ -1162,22 +1426,22 @@ msgstr "Python image library (PIL) ist nicht installiert."
 msgid "Image not found: "
 msgstr "Bild nicht gefunden: "
 
-#: nive/components/extensions/sort.py:94
+#: nive/components/extensions/sort.py:93
 msgid "List is empty"
 msgstr "Liste ist leer"
 
-#: nive/components/extensions/sort.py:259
-#: nive/components/extensions/sort.py:282
+#: nive/components/extensions/sort.py:258
+#: nive/components/extensions/sort.py:281
 msgid "Nothing to sort."
 msgstr "Nichts zum Sortieren."
 
-#: nive/components/reform/reformed.py:130
-#: nive/components/reform/schema.py:1720
+#: nive/components/reform/reformed.py:128
+#: nive/components/reform/schema.py:1731
 msgid "${value} is not a dictionary"
 msgstr "${value} ist kein dictionary"
 
-#: nive/components/reform/reformed.py:137
-#: nive/components/reform/schema.py:1727
+#: nive/components/reform/reformed.py:135
+#: nive/components/reform/schema.py:1738
 #, fuzzy
 msgid "${value} has no ${key} key"
 msgstr "${value} has no ${key} key"
@@ -1194,117 +1458,121 @@ msgstr "String entspricht nicht dem erwarteten Muster"
 msgid "Invalid email address"
 msgstr "Ungültige E-Mail"
 
-#: nive/components/reform/schema.py:283
+#: nive/components/reform/schema.py:266
+msgid "Invalid characters in string: Only 'a-zA-Z0-9.-_' allowed."
+msgstr ""
+
+#: nive/components/reform/schema.py:294
 msgid "${val} is less than minimum value ${min}"
 msgstr "${val} zu klein. Eingabe mindestens ${min}."
 
-#: nive/components/reform/schema.py:284
+#: nive/components/reform/schema.py:295
 msgid "${val} is greater than maximum value ${max}"
 msgstr "${val} zu groß. Eingabe maximal ${max}."
 
-#: nive/components/reform/schema.py:316
+#: nive/components/reform/schema.py:327
 msgid "Shorter than minimum length ${min}"
 msgstr "Zu kurz. Eingabe mindestens ${min} Zeichen."
 
-#: nive/components/reform/schema.py:322
+#: nive/components/reform/schema.py:333
 msgid "Longer than maximum length ${max}"
 msgstr "Zu lang. Eingabe maximal ${max} Zeichen."
 
-#: nive/components/reform/schema.py:335
+#: nive/components/reform/schema.py:346
 msgid "\"${val}\" is not one of ${choices}"
 msgstr "\"${val}\" nicht möglich. Möglich: ${choices}."
 
-#: nive/components/reform/schema.py:427
+#: nive/components/reform/schema.py:438
 #, fuzzy
 msgid "\"${val}\" is not a mapping type: ${err}"
 msgstr "\"${val}\" is not a mapping type: ${err}"
 
-#: nive/components/reform/schema.py:451
+#: nive/components/reform/schema.py:462
 #, fuzzy
 msgid "Unrecognized keys in mapping: \"${val}\""
 msgstr "Unrecognized keys in mapping: \"${val}\""
 
-#: nive/components/reform/schema.py:544
+#: nive/components/reform/schema.py:555
 #, fuzzy
 msgid "\"${val}\" is not iterable"
 msgstr "\"${val}\" is not iterable"
 
-#: nive/components/reform/schema.py:552
+#: nive/components/reform/schema.py:563
 #, fuzzy
 msgid "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
 msgstr "\"${val}\" has an incorrect number of elements (expected ${exp}, was ${was})"
 
-#: nive/components/reform/schema.py:734
+#: nive/components/reform/schema.py:745
 msgid "\"${val} cannot be serialized: ${err}"
 msgstr "\"${val} kann nicht umgewandelt werden: ${err}"
 
-#: nive/components/reform/schema.py:750
+#: nive/components/reform/schema.py:761
 msgid "${val} is not a string: %{err}"
 msgstr "${val} ist kein string: %{err}"
 
-#: nive/components/reform/schema.py:770
 #: nive/components/reform/schema.py:781
+#: nive/components/reform/schema.py:792
 msgid "\"${val}\" is not a number"
 msgstr "\"${val}\" ist keine Zahl"
 
-#: nive/components/reform/schema.py:857
+#: nive/components/reform/schema.py:868
 msgid "${val} is not a string"
 msgstr "${val} ist keine Zeichenkette"
 
-#: nive/components/reform/schema.py:917
-#: nive/components/reform/schema.py:934
-#: nive/components/reform/schema.py:944
+#: nive/components/reform/schema.py:928
+#: nive/components/reform/schema.py:945
+#: nive/components/reform/schema.py:955
 #, fuzzy
 msgid "relative name \"${val}\" irresolveable without package"
 msgstr "relative name \"${val}\" irresolveable without package"
 
-#: nive/components/reform/schema.py:974
+#: nive/components/reform/schema.py:985
 #, fuzzy
 msgid "\"${val}\" has no __name__"
 msgstr "\"${val}\" has no __name__"
 
-#: nive/components/reform/schema.py:983
+#: nive/components/reform/schema.py:994
 msgid "\"${val}\" is not a string"
 msgstr "\"${val}\" ist keine Zeichenkette"
 
-#: nive/components/reform/schema.py:992
+#: nive/components/reform/schema.py:1003
 #, fuzzy
 msgid "The dotted name \"${name}\" cannot be imported"
 msgstr "The dotted name \"${name}\" cannot be imported"
 
-#: nive/components/reform/schema.py:1039
-#: nive/components/reform/schema.py:1132
+#: nive/components/reform/schema.py:1050
+#: nive/components/reform/schema.py:1143
 msgid "Invalid date"
 msgstr "Ungültiges Datum"
 
-#: nive/components/reform/schema.py:1067
+#: nive/components/reform/schema.py:1078
 #, fuzzy
 msgid "\"${val}\" is not a datetime object"
 msgstr "\"${val}\" is not a datetime object"
 
-#: nive/components/reform/schema.py:1153
+#: nive/components/reform/schema.py:1164
 #, fuzzy
 msgid "\"${val}\" is not a date object"
 msgstr "\"${val}\" is not a date object"
 
-#: nive/components/reform/schema.py:1218
+#: nive/components/reform/schema.py:1229
 msgid "Invalid time"
 msgstr "Ungültige Uhrzeit"
 
-#: nive/components/reform/schema.py:1242
+#: nive/components/reform/schema.py:1253
 #, fuzzy
 msgid "\"${val}\" is not a time object"
 msgstr "\"${val}\" is not a time object"
 
-#: nive/components/reform/schema.py:1453
-#: nive/components/reform/schema.py:1455
-#: nive/components/reform/schema.py:1768
-#: nive/components/reform/schema.py:1800
+#: nive/components/reform/schema.py:1464
+#: nive/components/reform/schema.py:1466
+#: nive/components/reform/schema.py:1779
+#: nive/components/reform/schema.py:1811
 msgid "Required"
 msgstr "Pflichtfeld"
 
-#: nive/components/reform/schema.py:1764
-#: nive/components/reform/schema.py:1796
+#: nive/components/reform/schema.py:1775
+#: nive/components/reform/schema.py:1807
 #, fuzzy
 msgid "${value} is not iterable"
 msgstr "${value} is not iterable"
@@ -1353,13 +1621,30 @@ msgstr "Diese Datei löschen"
 msgid "--disabled!--"
 msgstr "--deaktiviert!--"
 
-#: nive/components/reform/templates/form_original.pt:19
-msgid "There was a problem with your submission"
-msgstr "Es gibt ein Problem mit der Eingabe."
+#: nive/components/tools/cmsstatistics.py:37
+#, fuzzy
+msgid "CMS Statistics"
+msgstr "CMS Einstellungen"
 
-#: nive/components/reform/templates/form_original.pt:21
-msgid "Errors have been highlighted below"
-msgstr "Fehler sind im Formular hervorgehoben."
+#: nive/components/tools/cmsstatistics.py:38
+msgid "This function provides a short summary of elements and data contained in the website."
+msgstr ""
+
+#: nive/components/tools/cmsstatistics.py:67
+msgid "<tr><th>Elements in total</th><td>${value}</td></tr>\n"
+msgstr ""
+
+#: nive/components/tools/cmsstatistics.py:72
+msgid "<tr><th>Physical files</th><td>${value}</td></tr>\n"
+msgstr ""
+
+#: nive/components/tools/cmsstatistics.py:77
+msgid "<tr><th>Physical files size</th><td>${value}</td></tr>\n"
+msgstr ""
+
+#: nive/components/tools/cmsstatistics.py:83
+msgid "<tr><th>${name}</th><td>${value}</td></tr>\n"
+msgstr ""
 
 #: nive/components/tools/dbSqldataDump.py:31
 msgid "Database sql dump"
@@ -1373,8 +1658,8 @@ msgstr "Es werden nur die Tabelleninhalte ausgegeben. Alle 'create table' statem
 msgid "Exclude system columns"
 msgstr "System Felder überspringen"
 
-#: nive/components/tools/dbSqldataDump.py:61
-#: nive/components/tools/dbSqldataDump.py:65
+#: nive/components/tools/dbSqldataDump.py:59
+#: nive/components/tools/dbSqldataDump.py:63
 msgid "Database connection error (${name})\n"
 msgstr "Datenbank Verbindungs-Fehler (${name})\n"
 
@@ -1414,42 +1699,38 @@ msgstr ""
 "Vorhandene Tabellenspalten werden nur bei manuell ausgewähltem 'Ändern' (Häkchen setzen) angepasst. Ändern einer Spalte kann die enthaltenen Daten unbrauchbar machen (werden strings z.B. in eine Zahl umgewandelt), zur Sicherheit also vorher ein Backup der Datenbanl anlegen.<br/>\n"
 "Als Voreinstellung werden nur neue Tabellen und Spalten hinzugefügt. Das aber automatisch bei jedem ausführen des Tools. </div>      "
 
-#: nive/components/tools/dbStructureUpdater.py:109
-#: nive/components/tools/dbStructureUpdater.py:112
+#: nive/components/tools/dbStructureUpdater.py:108
+#: nive/components/tools/dbStructureUpdater.py:111
 msgid "<div class=\"alert alert-error\">No database connection configured</div>"
 msgstr "<div class=\"alert alert-error\">Keine Datenbankverbindung konfiguriert</div>"
 
-#: nive/components/tools/dbStructureUpdater.py:115
+#: nive/components/tools/dbStructureUpdater.py:114
 msgid "<h4>Database '${name}' ${host} </h4><br/>"
 msgstr "<h4>Datenbank '${name}' ${host} </h4><br/>"
 
-#: nive/components/tools/dbStructureUpdater.py:118
-#: nive/components/tools/dbStructureUpdater.py:122
+#: nive/components/tools/dbStructureUpdater.py:117
+#: nive/components/tools/dbStructureUpdater.py:123
 msgid "<div class='alert alert-error'>Database connection error (${name})</div>"
 msgstr "<div class='alert alert-error'>Datenbankverbindug fehlgeschlagen (${name})</div>"
 
-#: nive/components/tools/dbStructureUpdater.py:130
+#: nive/components/tools/dbStructureUpdater.py:131
 msgid "<div class='alert alert-success'>Database created: '${name}'</div>"
 msgstr "<div class='alert alert-success'>Datenbank erstellt: '${name}'</div>"
 
-#: nive/components/tools/dbStructureUpdater.py:150
+#: nive/components/tools/dbStructureUpdater.py:151
 msgid "<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name})</div>"
 msgstr "<div class='alert alert-error'>Tabellen Update fehlgeschlagen: ${dbparam} (Typ: ${name})</div>"
 
-#: nive/components/tools/dbStructureUpdater.py:154
-msgid "<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name}</div>"
-msgstr "<div class='alert alert-error'>Table update failed: ${dbparam} (type: ${name}</div>"
-
-#: nive/components/tools/dbStructureUpdater.py:169
+#: nive/components/tools/dbStructureUpdater.py:164
 msgid "<div class='alert alert-error'>Table creation failed (pool_meta)</div>"
 msgstr "<div class='alert alert-error'>Tabelle erstellen fehlgeschlagen (pool_meta)</div>"
 
-#: nive/components/tools/dbStructureUpdater.py:179
+#: nive/components/tools/dbStructureUpdater.py:175
 msgid "<div class='alert alert-error'>Table update failed (pool_meta)</div>"
 msgstr "<div class='alert alert-error'>Tabelle update fehlgeschlagen (pool_meta)</div>"
 
-#: nive/components/tools/dbStructureUpdater.py:192
-#: nive/components/tools/dbStructureUpdater.py:202
+#: nive/components/tools/dbStructureUpdater.py:189
+#: nive/components/tools/dbStructureUpdater.py:200
 msgid "<div class='alert alert-error'>Table creation failed (${name})</div>"
 msgstr "<div class='alert alert-error'>Tabelle erstellen fehlgeschlagen (${name})</div>"
 
@@ -1460,10 +1741,6 @@ msgstr "Ausgewählte Spalten ändern"
 #: nive/components/tools/dbStructureUpdater.py:212
 msgid "Changes on existing columns have to be applied manually. This will write selected 'Configuration settings' to the database.<br/> <b>Warning: This may destroy something!</b>"
 msgstr "Änderungen an vorhandenen Tabellen müssen manuell ausgewählt werden. Wenn ausgewählt werden die 'Konfigurations-Einstellungen' in die Datenbank übernommen.<br/> <b>Vorsicht: Bei falschen Einstellung kann hierbei etwas kaputt gehen!</b>"
-
-#: nive/components/tools/dbStructureUpdater.py:213
-msgid "</form>"
-msgstr "</form>"
 
 #: nive/components/tools/dbStructureUpdater.py:225
 msgid "Table"
@@ -1485,95 +1762,104 @@ msgstr "Default"
 msgid "Modify?"
 msgstr "Ändern?"
 
-#: nive/components/tools/sendMail.py:40
+#: nive/components/tools/gcdump.py:31
+#, fuzzy
+msgid "Object dump"
+msgstr "Objekt Typen"
+
+#: nive/components/tools/gcdump.py:32
+msgid "This function dumps a list of all objects found in memory."
+msgstr ""
+
+#: nive/components/tools/sendMail.py:39
 msgid "Send mails to registered users"
 msgstr "E-Mails an registrierte User verschicken"
 
-#: nive/components/tools/sendMail.py:44
+#: nive/components/tools/sendMail.py:43
 msgid "SMTP host"
 msgstr "SMTP Host"
 
-#: nive/components/tools/sendMail.py:45
+#: nive/components/tools/sendMail.py:44
 msgid "SMTP port"
 msgstr "SMTP Port"
 
-#: nive/components/tools/sendMail.py:46
+#: nive/components/tools/sendMail.py:45
 msgid "SMTP sender mail"
 msgstr "SMTP Absender E-Mail"
 
-#: nive/components/tools/sendMail.py:47
+#: nive/components/tools/sendMail.py:46
 msgid "SMTP user"
 msgstr "SMTP User"
 
-#: nive/components/tools/sendMail.py:48
+#: nive/components/tools/sendMail.py:47
 msgid "SMTP password"
 msgstr "SMTP Passwort"
 
-#: nive/components/tools/sendMail.py:50
+#: nive/components/tools/sendMail.py:49
 msgid "Sender name"
 msgstr "Absender Name"
 
-#: nive/components/tools/sendMail.py:51
+#: nive/components/tools/sendMail.py:50
 msgid "Sender mail"
 msgstr "Absender E-Mail"
 
-#: nive/components/tools/sendMail.py:52
+#: nive/components/tools/sendMail.py:51
 msgid "Reply to"
 msgstr "Antwort an (Reply-to)"
 
-#: nive/components/tools/sendMail.py:53
+#: nive/components/tools/sendMail.py:52
 msgid "Receiver role"
 msgstr "Empfänger Rollen"
 
-#: nive/components/tools/sendMail.py:54
+#: nive/components/tools/sendMail.py:53
 msgid "Receiver User IDs"
 msgstr "Empfänger User IDs"
 
-#: nive/components/tools/sendMail.py:55
+#: nive/components/tools/sendMail.py:54
 msgid "Receiver Mail"
 msgstr "Empfänger E-Mail"
 
-#: nive/components/tools/sendMail.py:56
+#: nive/components/tools/sendMail.py:55
 msgid "Ignore notify settings"
 msgstr "Benachrichtigungs-Einstellungen übergehen"
 
-#: nive/components/tools/sendMail.py:57
+#: nive/components/tools/sendMail.py:56
 msgid "CC"
 msgstr "CC"
 
-#: nive/components/tools/sendMail.py:58
+#: nive/components/tools/sendMail.py:57
 msgid "BCC"
 msgstr "BCC"
 
-#: nive/components/tools/sendMail.py:62
+#: nive/components/tools/sendMail.py:61
 msgid "Html format"
 msgstr "Html Format"
 
-#: nive/components/tools/sendMail.py:63
+#: nive/components/tools/sendMail.py:62
 msgid "UTF-8 encoding"
 msgstr "UTF-8 Kodierung"
 
-#: nive/components/tools/sendMail.py:64
+#: nive/components/tools/sendMail.py:63
 msgid "Use SSL"
 msgstr "SSL verwenden"
 
-#: nive/components/tools/sendMail.py:65
+#: nive/components/tools/sendMail.py:64
 msgid "Log mails"
 msgstr "Mail Versand loggen"
 
-#: nive/components/tools/sendMail.py:66
+#: nive/components/tools/sendMail.py:65
 msgid "Show all receivers in header"
 msgstr "Alle Empfänger im Header anzeigen"
 
-#: nive/components/tools/sendMail.py:68
+#: nive/components/tools/sendMail.py:67
 msgid "Debug mode"
 msgstr "Debug Modus"
 
-#: nive/components/tools/sendMail.py:68
+#: nive/components/tools/sendMail.py:67
 msgid "All mails are sent to 'Receiver role' or 'Receiver User IDs' field default values. No external mail address is used."
 msgstr "Alle E-Mails werden an die im Default-Wert von 'Empfänger Rollen' und 'Empfänger User IDs' Feld eingetragenen Empfänger versand. "
 
-#: nive/components/tools/sendMail.py:116
+#: nive/components/tools/sendMail.py:115
 msgid "No receiver for the e-mail! Aborting."
 msgstr "Kein Empfänger angegeben. Versand wird abgebrochen."
 
@@ -1582,104 +1868,111 @@ msgstr "Kein Empfänger angegeben. Versand wird abgebrochen."
 msgid "Users"
 msgstr "Benutzer"
 
-#: nive/userdb/root.py:167
+#: nive/userdb/root.py:168
 msgid "Please enter your username"
 msgstr "Bitte den Login-Namen eingeben"
 
-#: nive/userdb/root.py:172
-#: nive/userdb/root.py:550
+#: nive/userdb/root.py:173
+#: nive/userdb/root.py:582
 msgid "Username '${name}' already in use. Please choose a different name."
 msgstr "Name '${name}' wird bereits verwendet. Bitte einen anderen auswählen."
 
-#: nive/userdb/root.py:188
+#: nive/userdb/root.py:191
 msgid "Sorry. Account could not be created."
 msgstr "Entschuldigung. Das Konto konnte nicht erstellt werden."
 
-#: nive/userdb/root.py:200
 #: nive/userdb/root.py:203
-#: nive/userdb/root.py:268
-#: nive/userdb/root.py:271
+#: nive/userdb/root.py:206
+#: nive/userdb/root.py:280
+#: nive/userdb/root.py:283
 msgid "The email could not be sent."
 msgstr "Die E-Mail konnte nicht verschickt werden."
 
-#: nive/userdb/root.py:229
+#: nive/userdb/root.py:233
 msgid "Account created."
 msgstr "Konto erstellt."
 
-#: nive/userdb/root.py:240
+#: nive/userdb/root.py:246
 msgid "Please enter your email address or username."
 msgstr "Bitte den Login-Namen oder die E-Mail eingeben."
 
-#: nive/userdb/root.py:247
+#: nive/userdb/root.py:253
 msgid "No account found with that email address. Please try again."
 msgstr "Kein Konto mit dieser E-Mail gefunden. Bitte die Eingaben überpüfen."
 
-#: nive/userdb/root.py:254
+#: nive/userdb/root.py:260
 msgid "No email address found."
 msgstr "E-Mail Adresse nicht gefunden."
 
-#: nive/userdb/root.py:274
-msgid "The password has been sent to your email address."
+#: nive/userdb/root.py:286
+#, fuzzy
+msgid "The new password has been sent to your email address. Please sign in and change it."
 msgstr "Das Passwort wurde an die eingetragene E-Mail verschickt."
 
-#: nive/userdb/root.py:285
-#: nive/userdb/root.py:290
+#: nive/userdb/root.py:302
+#: nive/userdb/root.py:307
 msgid "Invalid username."
 msgstr "Ungültiger Name."
 
-#: nive/userdb/root.py:295
+#: nive/userdb/root.py:312
 msgid "Sorry. An error occured."
 msgstr "Entschuldigung. Es ist ein Fehler aufgetreten."
 
-#: nive/userdb/root.py:298
+#: nive/userdb/root.py:315
 msgid "User deleted."
 msgstr "User gelöscht."
 
-#: nive/userdb/root.py:315
+#: nive/userdb/root.py:334
+#: nive/userdb/root.py:340
 msgid "Login failed. Please check your username and password."
 msgstr "Login fehlgeschlagen. Bitte die Eingaben überprüfen."
 
-#: nive/userdb/root.py:320
+#: nive/userdb/root.py:345
 msgid "Logged in."
 msgstr "Eingeloggt."
 
-#: nive/userdb/root.py:474
+#: nive/userdb/root.py:501
 msgid "User account"
 msgstr "Konto"
 
-#: nive/userdb/user.py:82
+#: nive/userdb/root.py:600
+#, fuzzy
+msgid "Email '${name}' already in use. Please use the login form if you already have a account."
+msgstr "Name '${name}' wird bereits verwendet. Bitte einen anderen auswählen."
+
+#: nive/userdb/user.py:95
 msgid "Update failed."
 msgstr "Update fehlgeschlagen."
 
-#: nive/userdb/user.py:160
+#: nive/userdb/user.py:173
 msgid "User"
 msgstr "User"
 
-#: nive/userdb/user.py:170
+#: nive/userdb/user.py:183
 msgid "User ID"
 msgstr "User ID"
 
-#: nive/userdb/user.py:173
+#: nive/userdb/user.py:186
 msgid "Groups"
 msgstr "Gruppen"
 
-#: nive/userdb/user.py:175
+#: nive/userdb/user.py:188
 msgid "Activate email notifications"
 msgstr "E-Mail Benachrichtigungen aktivieren"
 
-#: nive/userdb/user.py:177
+#: nive/userdb/user.py:190
 msgid "Surname"
 msgstr "Vorname"
 
-#: nive/userdb/user.py:178
+#: nive/userdb/user.py:191
 msgid "Lastname"
 msgstr "Nachname"
 
-#: nive/userdb/user.py:179
+#: nive/userdb/user.py:192
 msgid "Organisation"
 msgstr "Organisation/Firma"
 
-#: nive/userdb/user.py:181
+#: nive/userdb/user.py:194
 msgid "Last login"
 msgstr "Letzter Login"
 
@@ -1695,21 +1988,31 @@ msgstr "Bitte erst eine/n Benutzer/in auswählen!"
 msgid "Delete selected"
 msgstr "Ausgewählte löschen"
 
-#: nive/userdb/useradmin/view.py:118
+#: nive/userdb/useradmin/view.py:68
+#, fuzzy
+msgid "List users"
+msgstr "Liste ist leer"
+
+#: nive/userdb/useradmin/view.py:69
+#, fuzzy
+msgid "Add user"
+msgstr "Unterseite hinzufügen"
+
+#: nive/userdb/useradmin/view.py:124
 #, python-format
 msgid "User not found. (id %(name)s)"
 msgstr "Benutzer/in nicht gefunden. (id %(name)s)"
 
-#: nive/userdb/useradmin/view.py:127
+#: nive/userdb/useradmin/view.py:133
 #, python-format
 msgid "Delete failed: User '%(name)s'"
 msgstr "Löschen fehlgeschlagen: '%(name)s'"
 
-#: nive/userdb/useradmin/view.py:132
+#: nive/userdb/useradmin/view.py:138
 msgid "OK. Users deleted."
 msgstr "Ok. BenutzerGelöscht."
 
-#: nive/userdb/useradmin/view.py:134
+#: nive/userdb/useradmin/view.py:140
 msgid "OK. User deleted."
 msgstr "Ok. BenutzerGelöscht."
 
@@ -1729,47 +2032,82 @@ msgstr "Kontoeinstellungen bearbeiten:"
 msgid "User signup"
 msgstr "Konto erstellen"
 
-#: nive/userdb/userview/view.py:64
-#: nive/userdb/userview/view.py:65
+#: nive/userdb/userview/view.py:66
+#: nive/userdb/userview/view.py:67
 msgid "Initialize"
 msgstr "Initialisieren"
 
-#: nive/userdb/userview/view.py:66
+#: nive/userdb/userview/view.py:68
 msgid "Signup"
 msgstr "Anmelden"
 
-#: nive/userdb/userview/view.py:67
+#: nive/userdb/userview/view.py:69
 msgid "Confirm"
 msgstr "Bestätigen"
 
-#: nive/userdb/userview/view.py:68
+#: nive/userdb/userview/view.py:70
 msgid "Mail password"
 msgstr "Passwort anfordern"
 
-#: nive/userdb/userview/view.py:69
+#: nive/userdb/userview/view.py:71
+#, fuzzy
+msgid "Reset password"
+msgstr "Passwort vergessen"
+
+#: nive/userdb/userview/view.py:72
 msgid "Login"
 msgstr "Einloggen"
 
-#: nive/userdb/userview/view.py:216
+#: nive/userdb/userview/view.py:226
 msgid "Your current user can only be edited on file system level."
 msgstr "Der aktuell eingeloggte Benutzer kann nur im Dateisystem geändert werden."
 
-#: nive/userdb/userview/view.py:222
+#: nive/userdb/userview/view.py:232
 msgid "User not found"
 msgstr "User nicht gefunden"
 
-#: nive/userdb/userview/view.py:226
+#: nive/userdb/userview/view.py:236
 msgid "Your password"
 msgstr "Das Passwort"
 
-#~ msgid "Delete current page and sub pages"
-#~ msgstr "Aktuelle Seite löschen"
+#: nive/userdb/userview/view.py:242
+#, fuzzy
+msgid "Your new password"
+msgstr "Das Passwort"
 
-#~ msgid "Page ID"
-#~ msgstr "Seite ID"
+#~ msgid "Reference"
+#~ msgstr "Referenz"
 
-#~ msgid "by"
-#~ msgstr "von"
+#~ msgid "Entry ID"
+#~ msgstr "Eintrag ID"
+
+#~ msgid "Size and alignment"
+#~ msgstr "Größe und Anordnung"
+
+#~ msgid "Folder"
+#~ msgstr "Ordner"
+
+#~ msgid "The folder is a simple container to store resources."
+#~ msgstr "Der Ordner ist ein einfacher Container um Resourcen zu verwalten."
+
+#~ msgid "Headline"
+#~ msgstr "Überschrift"
+
+#~ msgid "There was a problem with your submission"
+#~ msgstr "Es gibt ein Problem mit der Eingabe."
+
+#~ msgid "Errors have been highlighted below"
+#~ msgstr "Fehler sind im Formular hervorgehoben."
+
+#~ msgid ""
+#~ "<div class='alert alert-error'>Table update failed: ${dbparam} (type: "
+#~ "${name}</div>"
+#~ msgstr ""
+#~ "<div class='alert alert-error'>Table update failed: ${dbparam} (type: "
+#~ "${name}</div>"
+
+#~ msgid "</form>"
+#~ msgstr "</form>"
 
 #~ msgid "Table data sql dump with column name inserts"
 #~ msgstr "Tabellen Daten SQL Dump "
@@ -1796,9 +2134,6 @@ msgstr "Das Passwort"
 
 #~ msgid "Db Columns"
 #~ msgstr "DB Spalten"
-
-#~ msgid "Forgot password"
-#~ msgstr "Passwort vergessen"
 
 #~ msgid "Website"
 #~ msgstr "Webseite"

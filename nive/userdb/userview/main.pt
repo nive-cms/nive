@@ -27,7 +27,7 @@ a {padding:2px 8px 2px 8px;margin-bottom:10px;display:block;background-color:gra
 </style>
 </head>
 
-<body i18n:domain="nive">
+<body>
 <div id="container">
   <div id="main">
   <div id="header">

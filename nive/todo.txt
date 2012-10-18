@@ -3,12 +3,11 @@
 - move datapool2 Group functions
 - move datapool2 Fulltext functions
 - universal and locale date/time handling
-- nive cmsview.configuration sort functions to sort extension
+- nive cmsview.configuration sort and cutcopy to components.extensions
   
-- cms browser tests
+- cms browser application tests
 - queryRestraint tests
 - FieldConf.listItems callback tests
 - json mapping form tests
 - field renderer tests
-- mailresetpass tests 
 - application.StoreSysValue and LoadSysValue tests 

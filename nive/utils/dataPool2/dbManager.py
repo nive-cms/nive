@@ -21,9 +21,11 @@ __doc__ = ""
 
 import os, sys
 import string, time, cPickle, re, types
+from datetime import datetime
 
 from nive.utils.path import DvPath
-from nive.utils.dateTime import DvDateTime
+from nive.utils.utils import ConvertToDateTime
+
 
 MYSQL = 0
 SQLITE3 = 0
@@ -86,7 +88,11 @@ class MySQLManager(object):
     # Options ----------------------------------------------------------------
 
     def ConvertDate(self, date):
-        return DvDateTime(date).GetDBMySql()
+        if not isinstance(date, datetime):
+            date = ConvertToDateTime(date)
+        if not date:
+            return u""
+        return date.strftime(u"%Y-%m-%d %H:%M:%S")
 
 
     def UpdateStructure(self, tableName, structure, modify = None):

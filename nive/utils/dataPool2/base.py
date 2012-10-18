@@ -20,12 +20,12 @@ __doc__ = "Data Pool 2 SQL Base Module"
 
 import weakref
 from time import time
-from time import localtime
+from datetime import datetime
 
+from nive.utils.utils import ConvertToDateTime
 from nive.utils.utils import ConvertListToStr
 from nive.utils.utils import STACKF, DUMP
 from nive.utils.path import DvPath
-from nive.utils.dateTime import DvDateTime
 
 from nive.definitions import ConfigurationError, OperationalError, ProgrammingError, Warning
 
@@ -157,10 +157,11 @@ class Base(object):
         return u"%s"
     
     def GetDBDate(self, date=None):
-        #
         if not date:
-            return DvDateTime(localtime()).GetDBMySql()
-        return DvDateTime(str(date)).GetDBMySql()
+            date = datetime.now()
+        elif not isinstance(date, datetime):
+            date = ConvertToDateTime(date)
+        return date.strftime(u"%Y-%m-%d %H:%M:%S")
 
 
     # SQL queries ---------------------------------------------------------------------
