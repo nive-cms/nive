@@ -2014,12 +2014,14 @@ class Connection(object):
 
     def SetConfig(self, config):
         if isinstance(config, dict):
-            for k in config.keys():
-                setattr(self, k, config[k])
+            for k,v in config.items():
+                if k=="password":
+                    v = str(v)
+                setattr(self, k, v)
         else:
             self.user = config.user
             self.host = config.host
-            self.password = config.password
+            self.password = str(config.password)
             self.port = config.port
             self.dbName = config.dbName
             self.unicode = config.unicode

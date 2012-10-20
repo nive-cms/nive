@@ -946,6 +946,8 @@ class Configuration:
         
         returns list
         """
+        if not self.configuration.groups:
+            return []
         if not visibleOnly:
             return SortConfigurationList(self.configuration.groups, sort)
         c = filter(lambda a: not a.get("hidden"), self.configuration.groups)
