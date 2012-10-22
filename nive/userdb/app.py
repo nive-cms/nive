@@ -101,6 +101,8 @@ class UserDB(ApplicationBase):
             ctx = request.context
             if ctx and ILocalGroups.providedBy(ctx):
                 local = ctx.GetLocalGroups(userid)
+                if not groups:
+                    return local
                 return tuple(list(groups)+list(local))
         return groups
 

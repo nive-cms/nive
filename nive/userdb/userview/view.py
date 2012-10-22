@@ -160,14 +160,14 @@ class UserForm(ObjectForm):
         Form action: user login 
         """
         data = self.GetFormValues(self.request)
-        result, msgs = self.context.Login(data.get("name"), data.get("password"), 0)
-        if result:
-            self.context.app.RememberLogin(self.request, data.get("name"))
+        user, msgs = self.context.Login(data.get("name"), data.get("password"), 0)
+        if user:
+            self.context.app.RememberLogin(self.request, user.data.get("name"))
             if self.view and redirect_success:
                 self.view.Redirect(redirect_success)
                 return
         errors=None
-        return result, self.Render(data, msgs=msgs, errors=errors)
+        return user, self.Render(data, msgs=msgs, errors=errors)
         
 
     def MailPass(self, action, redirect_success):

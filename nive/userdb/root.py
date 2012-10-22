@@ -320,30 +320,28 @@ class root(UserCache, RootBase):
 
     def Login(self, name, password, raiseUnauthorized = 1):
         """
-        returns status and report list
+        returns user/none and report list
         """
         report = []
 
         # session login
         user = self.GetUserByName(name)
-        if not user and self.app.configuration.get("loginByEmail"): 
-            user = self.GetUserByMail(name)
         if not user:
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
             report.append(_(u"Login failed. Please check your username and password."))
-            return False, report
+            return None, report
             
         if not user.Authenticate(password):
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
             report.append(_(u"Login failed. Please check your username and password."))
-            return False, report
+            return None, report
 
         # call user
         user.Login()
         report.append(_(u"Logged in."))
-        return True, report
+        return user, report
 
 
     def Logout(self, name):
@@ -396,7 +394,10 @@ class root(UserCache, RootBase):
     def GetUserByName(self, name, activeOnly=1):
         """
         """
-        return self.LookupUser(name=name, activeOnly=activeOnly)
+        user = self.LookupUser(name=name, activeOnly=activeOnly)
+        if not user and self.app.configuration.get("loginByEmail"): 
+            user = self.GetUserByMail(name, activeOnly)
+        return user
 
 
     def GetUserByID(self, id, activeOnly=1):
@@ -422,7 +423,7 @@ class root(UserCache, RootBase):
     def GetUserGroups(self, name, activeOnly=1):
         """
         """
-        user = self.LookupUser(name=name, activeOnly=activeOnly)
+        user = self.GetUserByName(name, activeOnly=activeOnly)
         if not user:
             return None
         return user.data.groups
