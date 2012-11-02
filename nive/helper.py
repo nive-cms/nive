@@ -193,21 +193,34 @@ def ClassFactory(configuration, reloadClass=False, raiseError=True, base=None):
 
     - configuration.context
     - configuration.extensions [optional]
+    
+    If reloadClass = False the class is cached as configuration._v_class.
     """
+    if not reloadClass:
+        try:
+            return configuration._v_class
+        except:
+            pass
     tag = configuration.context
     if "extensions" in configuration:
         bases = configuration.extensions
     else:
         bases = None
-    c = GetClassRef(tag, reloadClass, raiseError, base)
-    if not c:
+    cls = GetClassRef(tag, reloadClass, raiseError, base)
+    if not cls:
         return None
+    
+    def cacheCls(configuration, cls):
+        configuration.unlock()
+        configuration._v_class = cls
+        configuration.lock()
+    
     if not bases:
-        #return type("_factory_"+c.__name__, (c,), {})
-        return c
-    #raise ConfigurationError, "extensions currently not supported"
+        cacheCls(configuration, cls)
+        return cls
+
     # load extensions
-    b = [c]
+    b = [cls]
     #opt
     for r in bases:
         r = GetClassRef(r, reloadClass, raiseError, base)
@@ -215,9 +228,12 @@ def ClassFactory(configuration, reloadClass=False, raiseError=True, base=None):
             continue
         b.append(r)
     if len(b)==1:
-        return c
+        return cls
+
     # create new class with name configuration.context
-    return type("_factory_"+c.__name__, tuple(b), {})
+    cls = type("_factory_"+cls.__name__, tuple(b), {})
+    cacheCls(configuration, cls)
+    return cls
 
 
 def GetClassRef(tag, reloadClass=False, raiseError=True, base=None):

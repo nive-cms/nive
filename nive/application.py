@@ -118,7 +118,7 @@ class Application(object):
         #self.categories = []
         # development
         self.debug = False
-        self.reloadExtensions = True
+        self.reloadExtensions = False
     
         # internal configuration
         self._defaultRoot = ""

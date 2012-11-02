@@ -1,5 +1,6 @@
 
 Welcome to Nive CMS!
+--------------------
 
 Nive is professional out the box content management system based on python and the webframework
 pyramid. 
@@ -12,7 +13,6 @@ updated and optimized (e.g. nive.utils) and eventually replaced. The public API 
 website will not change.
 
 The alpha series was released under the name 'poolyx'.
-
 
 Installation
 ------------
