@@ -2,7 +2,7 @@
                  parentUrl view.FolderUrl(obj.GetParent());
                  objUrl view.FolderUrl(obj);
                  static view.StaticUrl('nive.cms.cmsview:static/')"
-     id="edit${obj.GetID()}"
+     id="nive-editblock${obj.GetID()}"
      class="pageeditorEditblock pageeditorEditblockElement"
      onClick="peStopEvent(event)" 
      style="display:none"

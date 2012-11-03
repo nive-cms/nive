@@ -1,4 +1,4 @@
-<div class="pageelement peMenublock" id="pe${context.GetID()}" 
+<div class="pageelement peMenublock" id="nive-element${context.GetID()}" 
      tal:define="menu context.data.get('menutype')" i18n:domain="nive">
 <tal:block tal:condition="menu == u'tree'">
   <div id="navigationBox">

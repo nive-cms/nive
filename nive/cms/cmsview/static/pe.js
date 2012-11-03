@@ -29,31 +29,26 @@ function peEnable() {
     //peHideAll();
   }
   $('.pageelement').each( function(index) {
-    if(peEnabled)  $(this).hasClass("peBox") ? $(this).addClass("peBox_ov") : $(this).addClass("pageelement_ov");
+    if(peEnabled)  $(this).hasClass("peBox") ?    $(this).addClass("peBox_ov") :    $(this).addClass("pageelement_ov");
     else           $(this).hasClass("peBox_ov") ? $(this).removeClass("peBox_ov") : $(this).removeClass("pageelement_ov");
-    //alert(this.attr("class"));
   });
 }
 
 function peShowBlock(id) {
-  //if(!peEnabled) return false;
   $('#'+id).show('slow');
 }
 
 function peHideBlock(id) {
-  //if(!peEnabled) return false;
   $('#'+id).hide('slow');
 }
 
 function peLoadToggleBlock(url, id) {
-  //if(!peEnabled) return false;
   ref = $('#'+id);
   if(ref.html()=="") { ref.load(url, function(){ ref.toggle('fast'); $.niveOverlay('#'+id);}); return; }
   ref.toggle('fast');
 }
 
 function peToggleBlock(id) {
-  //if(!peEnabled) return false;
   $('#'+id).toggle('fast');
 }
 
@@ -76,10 +71,19 @@ function peStopEvent(event) {
 
 /* page element functions */
 
+function peClickAndLoadElement(id, path, event) {
+  if(!peEnabled) return false;
+  peStopEvent(event);
+  var eid = "nive-editblock"+id;
+  var eblock = $("#"+eid);
+  if(eblock.html()==undefined) $.get(path+"editblock", function(data) { $("#nive-element"+id).prepend(data); peToggleBlock(eid); $.niveOverlay('#'+eid); }).error(function(jqXHR, textStatus, errorThrown) { alert(errorThrown); });
+  else peToggleBlock(eid);
+}
+
 function peClickElement(id, event) {
   if(!peEnabled) return false;
   peStopEvent(event);
-  peToggleBlock('edit'+id);
+  peToggleBlock('nive-editblock'+id);
 }
 
 function peDblClickElement(id, event) {

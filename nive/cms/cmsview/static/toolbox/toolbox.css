@@ -1,4 +1,4 @@
-#nive_toolbox {
+#nive-toolbox {
   overflow: hidden;
   width: 300px;
   height: auto;
@@ -16,26 +16,26 @@
   padding:0px;
 }
 
-#nive_toolbox .toolbox_widget {
+#nive-toolbox .toolbox_widget {
   margin:0px;
   padding:0px;
   max-height: 400px;
 }
-#nive_toolbox #toolbox_header {
+#nive-toolbox #toolbox_header {
   cursor:pointer;
   padding: 0px 10px 0px 0px;
   margin: 0px;
   height:24px;
   background: url('../images/nive-cms-white-20.png') no-repeat 6px;
 }
-#nive_toolbox #toolbox_header .toggle {
+#nive-toolbox #toolbox_header .toggle {
   float:right;
   cursor:pointer;
   width:16px;
   padding:0px;
   margin: 3px 0px 0px 6px;
 }
-#nive_toolbox #toolbox_header h1 {
+#nive-toolbox #toolbox_header h1 {
   font-family: courier, monospace;
   font-size:13pt;
   font-weight:bold;
@@ -46,7 +46,7 @@
   width: auto;
   text-align: right;
 }
-#nive_toolbox .toolbox_widget .widget_head {
+#nive-toolbox .toolbox_widget .widget_head {
   font-size:9pt;
   font-weight:bold;
   line-height: 1.2em;
@@ -54,28 +54,28 @@
   margin:0px;
   background: url('bg.gif') repeat-x;
 }
-#nive_toolbox .toolbox_widget .widget_content {
+#nive-toolbox .toolbox_widget .widget_content {
   font-size:9pt;
   line-height:1.2em;
   padding:0px;
   margin:0px;
   background-color: #E4E4E4;
 }
-#nive_toolbox a {
+#nive-toolbox a {
   color: #363636;
 }
-#nive_toolbox .toolbox_widget .widget_content a {
+#nive-toolbox .toolbox_widget .widget_content a {
   line-height: 1.2em;
   color: #363636;
   display: block;
   border-bottom: 1px solid #cdcdcd;
   padding: 4px 0px 3px 6px;
 }
-#nive_toolbox .toolbox_widget .widget_content a.right {
+#nive-toolbox .toolbox_widget .widget_content a.right {
   float:right;
   display:inline;
 }
-#nive_toolbox .toolbox_widget p {
+#nive-toolbox .toolbox_widget p {
   font-size:8pt;
   line-height: 1.2em;
   padding:4px 0px 3px 6px;
@@ -84,45 +84,45 @@
 }
 
 /* element list --------------------------------- */
-#nive_toolbox .toolbox_widget .subpages {
+#nive-toolbox .toolbox_widget .subpages {
   padding:0px;
 }
-#nive_toolbox .toolbox_widget .subpages a {
+#nive-toolbox .toolbox_widget .subpages a {
   margin: 0px;
   padding: 0px;
   display: block;
   border: none;
 }
-#nive_toolbox .toolbox_widget .subpages a:hover {
+#nive-toolbox .toolbox_widget .subpages a:hover {
   text-decoration:none;
 }
-#nive_toolbox .toolbox_widget .subpages .element {
+#nive-toolbox .toolbox_widget .subpages .element {
   border-bottom: 1px solid #cdcdcd;
   padding-top: 3px;
   padding-bottom: 3px;
 }
-#nive_toolbox .toolbox_widget .subpages .el_title {
+#nive-toolbox .toolbox_widget .subpages .el_title {
   float: left;
   width: 55%;
   padding-left: 6px;
 }
-#nive_toolbox .toolbox_widget .subpages .el_options {
+#nive-toolbox .toolbox_widget .subpages .el_options {
   float:right;
   width: 40%;
   padding-right: 6px;
 }
-#nive_toolbox .toolbox_widget .subpages .el_options a {
+#nive-toolbox .toolbox_widget .subpages .el_options a {
   margin: 0px;
   width: auto;
   display: inline;
 }
-#nive_toolbox .toolbox_widget .subpages .el_options a img {
+#nive-toolbox .toolbox_widget .subpages .el_options a img {
   padding: 0px;
   margin: 0px;
   width: auto;
   display: inline;
 }
-#nive_toolbox .toolbox_widget .subpages .el_options .block {
+#nive-toolbox .toolbox_widget .subpages .el_options .block {
   float:left;
   width: auto;
   padding-left: 6px;
@@ -130,7 +130,7 @@
   margin: 0px;
   border-right: 1px solid #cdcdcd;
 }
-#nive_toolbox .toolbox_widget .subpages .el_options .block_del {
+#nive-toolbox .toolbox_widget .subpages .el_options .block_del {
   width: auto;
   float:right;
   padding-left: 6px;

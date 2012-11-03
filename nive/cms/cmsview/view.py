@@ -71,6 +71,7 @@ configuration.views = [
     ViewConf(name = "elementListWidget", attr = "elementListWidget", context = IContainer, permission="edit"),
     ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IObject, permission = "add"),
     ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IRoot, permission = "add"),
+    ViewConf(name = "editblock",         attr = "editBlockElement",  context = IObject, permission = "edit"),
     
     # container
     ViewConf(name = "add",       attr = "add",    context = IContainer, renderer = t+"add.pt", permission="add"),
@@ -190,16 +191,13 @@ class Editor(BaseView, CopyView, SortView):
     
     def cmsEditorBlocks(self, obj, elements=None):
         """
-        Javascript for interactive elements 
+        Renders javascript needed to load editblocks of page elements. Editblocks are loaded on click.  
         call with obj = current container / page
         """
         if not obj:
             return u""
-        js = u"""<script>$(document).ready(function(){ %(js)s });</script>"""
-        #attr = u""" $("#pe%(id)s").attr({ondblclick:"peDblClickElement('%(id)s',event)", onclick:"peClickElement('%(id)s',event)"});\n"""
-        attr = u""" $("#pe%(id)s").click(function() { peClickElement('%(id)s',arguments[0] || window.event); });\n"""
-        insert = u""" $("#edit%(id)s").prependTo("#pe%(id)s");\n"""
-        insertPage = u""" $("#edit%(id)s").prependTo("#pe%(id)s");\n"""
+        js = u"""<script>$(document).ready(function(){ \n%(js)s });</script>"""
+        attr = u""" $("#nive-element%(id)s").click(function() { peClickAndLoadElement('%(id)s','%(path)s',arguments[0] || window.event); });\n"""
         newjs = StringIO()
         html = StringIO()
         
@@ -208,16 +206,45 @@ class Editor(BaseView, CopyView, SortView):
         
         for el in elements:
             if el.GetTypeID()=='box':
-                html.write(self.editBlockElement(obj=el))
+                newjs.write(attr % {u"id": unicode(el.GetID()), u"path": self.FolderUrl(el)})
+                for elb in el.GetPageElements():
+                    newjs.write(attr % {u"id": unicode(elb.GetID()), u"path": self.FolderUrl(elb)})
+            else:
+                newjs.write(attr % {u"id": unicode(el.GetID()), u"path": self.FolderUrl(el)})
+        
+        html.write(js % {u"js": newjs.getvalue()})
+        return html.getvalue()
+
+
+    def cmsEditorBlocksPrerender(self, obj, elements=None):
+        """
+        Renders javascript needed to load editblocks of page elements. Editblocks are rendered directly into the page.  
+        call with obj = current container / page
+        """
+        if not obj:
+            return u""
+        js = u"""<script>$(document).ready(function(){ %(js)s });</script>"""
+        #dbl click: attr = u""" $("#nive-element%(id)s").attr({ondblclick:"peDblClickElement('%(id)s',event)", onclick:"peClickElement('%(id)s',event)"});\n"""
+        attr = u""" $("#nive-element%(id)s").click(function() { peClickElement('%(id)s',arguments[0] || window.event); });\n"""
+        insert = u""" $("#nive-editblock%(id)s").prependTo("#nive-element%(id)s");\n"""
+        newjs = StringIO()
+        html = StringIO()
+        
+        if not elements:
+            elements = obj.GetPageElements()
+        
+        for el in elements:
+            if el.GetTypeID()=='box':
+                html.write(self.editBlockElement(obj=el, addResponse=False))
                 newjs.write(insert % {u"id": unicode(el.GetID())})
                 newjs.write(attr % {u"id": unicode(el.GetID())})
                 for elb in el.GetPageElements():
-                    html.write(self.editBlockElement(obj=elb))
+                    html.write(self.editBlockElement(obj=elb, addResponse=False))
                     newjs.write(insert % {u"id": unicode(elb.GetID())})
                     newjs.write(attr % {u"id": unicode(elb.GetID())})
         
             else:
-                html.write(self.editBlockElement(obj=el))
+                html.write(self.editBlockElement(obj=el, addResponse=False))
                 newjs.write(insert % {u"id": unicode(el.GetID())})
                 newjs.write(attr % {u"id": unicode(el.GetID())})
         
@@ -235,14 +262,19 @@ class Editor(BaseView, CopyView, SortView):
         return render("widgets/editblock_page.pt", {u"obj":page, u"view":self}, request=self.request)
 
     
-    def editBlockElement(self, obj=None):
+    def editBlockElement(self, obj=None, addResponse=True):
         """
         Edit bar for elements
         if obj is None current context is used
         """
         if not obj:
             obj=self.context
-        return render("widgets/editblock_element.pt", {u"obj":obj, u"view":self}, request=self.request)
+        data = render("widgets/editblock_element.pt", {u"obj":obj, u"view":self}, request=self.request)
+        if addResponse:
+            r = Response(content_type="text/html", conditional_response=True)
+            r.unicode_body = data
+            return r
+        return data
 
 
     def editBlockColumn(self, page=None, column=None, name=None):

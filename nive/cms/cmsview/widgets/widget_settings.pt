@@ -1,5 +1,6 @@
 <div tal:define="app view.context.app;
-                 static view.StaticUrl('nive.cms.cmsview:static/')"
+                 static view.StaticUrl('nive.cms.cmsview:static/');
+                 portalurl view.FolderUrl(app.portal);"
      class="toolbox_widget"
      i18n:domain="nive">
  <!-- system and settings -->
@@ -17,12 +18,12 @@
 
     <a tal:condition="view.Allowed('manage users', context=app.portal.userdb)"
        tal:on-error="nothing"
-       href="/userdb/usermanagement" class="nivecms" i18n:translate="">User management</a>
+       href="${portalurl}userdb/usermanagement" class="nivecms" i18n:translate="">User management</a>
     <a tal:condition="view.Allowed('administration', context=app)"
        tal:on-error="nothing"
        href="${view.FolderUrl(app)}admin" class="nivecms" i18n:translate="">Administration</a>
-    <a href="/account" class="nivecms" i18n:translate="">My account</a>
+    <a href="${portalurl}account" class="nivecms" i18n:translate="">My account</a>
     <a href="exiteditor" class="nivecms" i18n:translate="">Exit editor</a>
-    <a href="/logout" class="nivecms" i18n:translate="">Log out</a>
+    <a href="${portalurl}logout" class="nivecms" i18n:translate="">Log out</a>
  </div>
 </div>

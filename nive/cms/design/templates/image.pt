@@ -1,5 +1,5 @@
 <div class="pageelement peImage" 
-     id="pe${context.GetID()}"
+     id="nive-element${context.GetID()}"
      tal:define="css context.data.cssClass" i18n:domain="nive">
 
 <tal:block tal:condition="css not in (u'teaser',u'teasers',u'teaserl')">

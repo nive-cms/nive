@@ -18,7 +18,7 @@
 </head>
 
 <body>
-<div class="container" id="container" >
+<div class="container" id="container">
 <a name="top"></a>
 <header>
   <div class="navbar navbar-inverse">
@@ -40,9 +40,8 @@
     </div>
   </div>
 </header>
-<div id="main">
-<tal:block metal:define-slot="editmain">
 
+<div id="main">
   <ul tal:define="bc view.breadcrumbs(1)" 
       tal:condition="bc"
       tal:content="structure bc"
@@ -59,20 +58,14 @@
         tal:replace="structure cmsview.editBlockPage(context)" />  
   </article>
 
-<div class="footer"> </div>
-</tal:block>
+  <div class="footer"> </div>
 </div>
- 
 </div>
 
 <span tal:condition="python:cmsview"
       tal:replace="structure cmsview.cmsToolbox(context)" />
 <span tal:condition="python:cmsview"
       tal:replace="structure cmsview.cmsEditorBlocks(context)" />  
-<span tal:condition="python:cmsview"
-      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'right'))" />  
-<span tal:condition="python:cmsview"
-      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'left'))" />  
 </body>
 </html>
 </tal:block>
