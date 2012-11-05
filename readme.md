@@ -12,6 +12,10 @@ on the website is stable will not change.
 
 The alpha series was released under the name 'poolyx'.
 
+Source code
+-----------
+The source code is hosted on github: https://github.com/nive-cms
+
 Installation
 ------------
 http://cms.nive.co/doc/installation.html
@@ -33,10 +37,9 @@ Third party modules
 -------------------
 Some included modules have their own license:
 
-tinyMCE (nive.components.reform.static.tinymce)
-codemirror (nive.components.reform.static.codemirror)
-bootstrap (nive.cms.design.static.bootstrap)
-jquery / jquery-ui / jquery.form
-iconset (nive.cms.cmsview.static.images) by Mark James http://www.famfamfam.com/ 
-xssescape (nive.utils.xssescape) http://code.activestate.com/recipes/496942-cross-site-scripting-xss-defense/
+- tinyMCE (nive.components.reform.static.tinymce)
+- codemirror (nive.components.reform.static.codemirror)
+- bootstrap (nive.cms.design.static.bootstrap)
+- jquery / jquery-ui / jquery.form
+- iconset (nive.cms.cmsview.static.images) by Mark James http://www.famfamfam.com/ 
 

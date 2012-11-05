@@ -24,7 +24,7 @@ requires = [
 setupkw = dict(
       name='nive',
       version='0.9.5',
-      description='Nive cms',
+      description='Nive cms - out the box content management system for mobile and desktop websites based on webframework pyramid',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
@@ -32,6 +32,8 @@ setupkw = dict(
         "Framework :: Pyramid",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Development Status :: 4 - Beta",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7"
       ],
       author='Arndt Droullier, DV Electric',
       author_email='info@nive.co',
