@@ -427,6 +427,12 @@ class Registration(object):
         if iface not in (IViewModuleConf, IViewConf):
             self.RegisterConfViews(conf)
             
+        # reset cached class value. makes testing easier
+        try:
+            del conf._v_class
+        except:
+            pass
+            
         # register module itself
         conf.unlock()
         if iface == IRootConf:

@@ -211,9 +211,13 @@ def ClassFactory(configuration, reloadClass=False, raiseError=True, base=None):
         return None
     
     def cacheCls(configuration, cls):
-        configuration.unlock()
+        # store type() class
+        lock = configuration.locked
+        if lock:
+            configuration.unlock()
         configuration._v_class = cls
-        configuration.lock()
+        if lock:
+            configuration.lock()
     
     if not bases:
         cacheCls(configuration, cls)

@@ -87,15 +87,20 @@ class ConfigurationTest(unittest.TestCase):
         c=testconf.copy()
         c.context=text
         self.assert_(ClassFactory(c, reloadClass=False, raiseError=False)==text)
+        c=testconf.copy()
         c.context="nive.tests.thelper.textxxxxxx"
         self.assert_(ClassFactory(c, reloadClass=False, raiseError=False)==None)
+        c=testconf.copy()
+        c.context="nive.tests.thelper.textxxxxxx"
         self.assertRaises(ImportError, ClassFactory, c, reloadClass=False, raiseError=True)
 
         c=testconf.copy()
         c.extensions=(text1,text2,text3)
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==6)
+        c=testconf.copy()
         c.extensions=("text66666",text2,"text5555")
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==4)
+        c=testconf.copy()
         c.extensions=("nive.tests.thelper.text1","nive.tests.thelper.text2","nive.tests.thelper.text3")
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==6)
 

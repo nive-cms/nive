@@ -131,10 +131,10 @@ def SetupLocalGroups(app, pyramidConfig):
     def add(confs):
         for c in confs:
             e = c.extensions
+            if e and extension in e:
+                continue
             if e == None:
                 e = []
-            if extension in e:
-                continue
             if isinstance(e, tuple):
                 e = list(e)
             e.append(extension)
@@ -148,6 +148,5 @@ configuration = ModuleConf(
     id = "localGroups",
     name = u"Local Group assignment for objects and roots",
     context = "nive.components.extensions.localgroups",
-    #!disabled
     events = (Conf(event="startRegistration", callback=SetupLocalGroups),),
 )

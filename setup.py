@@ -7,7 +7,7 @@ from setuptools import find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 
 try:
-    README = open(os.path.join(here, 'readme.txt')).read()
+    README = open(os.path.join(here, 'readme.md')).read()
     CHANGES = open(os.path.join(here, 'changes.txt')).read()
 except:
     README = ''
@@ -29,10 +29,13 @@ setupkw = dict(
       classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python",
+        "Framework :: Pyramid",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Development Status :: 4 - Beta",
       ],
       author='Arndt Droullier, DV Electric',
       author_email='info@nive.co',
-      url='http://www.nive.co',
+      url='http://cms.nive.co',
       keywords='cms website publisher pyramid',
       license='GPL 3',
       packages=find_packages(),
