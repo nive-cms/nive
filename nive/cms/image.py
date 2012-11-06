@@ -21,11 +21,24 @@ Image
 -----
 The image element inserts images into the web page.
 
-It uses the thumbnailviewer javascript library for image pop ups. Images uploaded as fullsize
-will be be linked as pop ups.
+Images uploaded as fullsize will be be linked as pop ups.
 
 If the Python Image Library (PIL) is installed automated image conversion on upload is activated.
+::
 
+    ProfileImage = Conf(source="imagefull", dest="image", format="JPEG", 
+                        quality="85", width=360, height=0, extension="jpg", 
+                        condition=CheckDeafult)
+    ProfileTeaser = Conf(source="imagefull", dest="image", format="JPEG", 
+                         quality="85", width=260, height=0, extension="jpg", 
+                         condition=CheckTeaser)
+    ProfileTeaserSmall = Conf(source="imagefull", dest="image", format="JPEG", 
+                              quality="90", width=160, height=0, extension="jpg", 
+                              condition=CheckTeaserSmall)
+    
+    configuration.imageProfiles = [ProfileImage, ProfileTeaser, ProfileTeaserSmall]
+
+The default image settings for conversions. 
 """
 
 from nive.i18n import _

@@ -18,11 +18,11 @@ The source code is hosted on github: https://github.com/nive-cms
 
 Installation
 ------------
-http://cms.nive.co/doc/installation.html
+http://cms.nive.co/doc/html/installation.html
 
 Documentation
 -------------
-http://cma.nive.co/doc/index.html
+http://cms.nive.co/doc/html/index.html
 
 Support, Feedback, Community
 ----------------------------
