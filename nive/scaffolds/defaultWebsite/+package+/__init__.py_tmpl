@@ -1,4 +1,6 @@
 
+import base64
+
 from nive.definitions import DatabaseConf, AppConf, ToolConf, ViewModuleConf
 from nive.portal import Portal
 
@@ -61,8 +63,8 @@ for all configuration options.
 userdb = AppConf("nive.userdb.app",
         title = u"Userdatabase", 
         id = "userdb",
-        userAdmin = (u"my@email.com", u"Admin"),
-        admin = {"name": "{{adminuser}}", "password": "{{adminpass}}", "email": ""},
+        userAdmin = (u"{{adminemail}}", u"Admin"),
+        admin = {"name": "{{adminuser}}", "password": base64.decodestring("{{adminpass}}"), "email": ""},
         dbConfiguration = DatabaseConf(
             fileRoot="{{root}}/filesuserdb",
             # {{comment}} 
@@ -77,7 +79,7 @@ sendMail = ToolConf("nive.components.tools.sendMail",
         "sender":"",
         "user":"",
         "pass_":"",
-        "sendername":"Nive cms",
+        "sendername":"My Website",
         "fromMail":""
     }
 )
@@ -124,11 +126,11 @@ def main(global_config, **settings):
     """
     portal = getRoot(None)
 
-    session_factory = UnencryptedCookieSessionFactoryConfig('asdfhasdfuhklqer')
+    session_factory = UnencryptedCookieSessionFactoryConfig('{{cookiesecret}}')
     
     if hasattr(portal, "userdb"):
         # authorization 
-        authn = AuthTktAuthenticationPolicy(secret='sosecret', callback=portal.userdb.Groupfinder)
+        authn = AuthTktAuthenticationPolicy(secret='{{authsecret}}', callback=portal.userdb.Groupfinder)
         authz = ACLAuthorizationPolicy()
         
         # This function returns a Pyramid WSGI application.

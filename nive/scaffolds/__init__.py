@@ -1,6 +1,8 @@
 import binascii
 import os
 import getpass
+import uuid
+import base64
 
 from pyramid.compat import native_
 
@@ -31,8 +33,10 @@ class DefaultSqliteTemplate(PyramidTemplate):
             print('Passwords do not match. Try again')
             p1, p2 = pprompt()
         
-        vars['adminuser'] = user
-        vars['adminpass'] = p1
+        vars['adminpass'] = base64.encodestring(p1)
+
+        mail = raw_input("Admin email: ")
+        vars['adminemail'] = str(mail)
         
         vars['root'] = raw_input("Root directory for files (default data): ")
         if not vars['root']:
@@ -44,6 +48,9 @@ class DefaultSqliteTemplate(PyramidTemplate):
         vars['dbPackage'] = ''
         
         vars['language'] = raw_input("Locale name. Please choose english-> en or german-> de: ")
+        
+        vars['authsecret'] = str(uuid.uuid4())
+        vars['cookiesecret'] = str(uuid.uuid4())
 
         return PyramidTemplate.pre(self, command, output_dir, vars)
     
@@ -72,8 +79,11 @@ class DefaultMysqlTemplate(PyramidTemplate):
             print('Passwords do not match. Try again')
             p1, p2 = pprompt()
             
-        vars['adminpass'] = p1
+        vars['adminpass'] = base64.encodestring(p1)
         
+        mail = raw_input("Admin email: ")
+        vars['adminemail'] = str(mail)
+
         print "Please enter MySql database settings for the website. Two databases will be used, one for website contents ",
         print "and one to store userdata. Host, port, user and password are used for both databases."
         print ""
@@ -103,7 +113,7 @@ class DefaultMysqlTemplate(PyramidTemplate):
             print('Passwords do not match. Try again')
             p1, p2 = pprompt()
 
-        vars['dbpass'] = p1
+        vars['dbpass'] = base64.encodestring(p1)
         
         vars['language'] = raw_input("Locale name. Please choose english-> en or german-> de: ")
 
@@ -113,14 +123,17 @@ class DefaultMysqlTemplate(PyramidTemplate):
             host="%(dbhost)s",
             port="%(dbport)s",
             user="%(dbuser)s",
-            password="%(dbpass)s" """ % vars
+            password=base64.decodestring("%(dbpass)s") """ % vars
 
         vars['param_user'] = """context="MySql",
             dbName="%(dbusername)s",
             host="%(dbhost)s",
             port="%(dbport)s",
             user="%(dbuser)s",
-            password="%(dbpass)s" """ % vars
+            password=base64.decodestring("%(dbpass)s") """ % vars
         vars['dbPackage'] = 'MySQL-python'
+
+        vars['authsecret'] = str(uuid.uuid4())
+        vars['cookiesecret'] = str(uuid.uuid4())
 
         return PyramidTemplate.pre(self, command, output_dir, vars)
