@@ -37,7 +37,7 @@ from pyramid.httpexceptions import HTTPNotFound
 
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, ConfigurationError
-from nive.definitions import IApplication, IWebsiteRoot, IPage, IRoot, IPageElement, IObject, IViewModuleConf
+from nive.definitions import IWebsite, IWebsiteRoot, IPage, IRoot, IPageElement, IObject, IViewModuleConf
 from nive.views import BaseView
 
     
@@ -53,7 +53,7 @@ configuration = ViewModuleConf(
     permission = "view",
     view = "nive.cms.design.view.Design",
     views = [
-        ViewConf(id="appview",  name = "",     attr = "app",  context = IApplication),
+        ViewConf(id="appview",  name = "",     attr = "app",  context = IWebsite),
         ViewConf(id="search",   name ="search",attr="search", context = IRoot),
         ViewConf(id="su",       name ="su",    attr = "open", context = IRoot),
         ViewConf(id="rootview", name = "",     attr = "view", context = IWebsiteRoot),
