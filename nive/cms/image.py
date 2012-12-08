@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -81,7 +80,7 @@ css = [{"id": u"default", "name": _(u"Simple")},
 configuration.data = [
     FieldConf(id="image",     datatype="file", size=0,     default=u"", name=_(u"Imagefile")),
     FieldConf(id="imagefull", datatype="file", size=0,     default=u"", name=_(u"Imagefile fullsize")),
-    FieldConf(id="textblock", datatype="htext",size=10000, default=u"", name=_(u"Text"), fulltext=1, required=0),
+    FieldConf(id="textblock", datatype="htext",size=100000,default=u"", name=_(u"Text"), fulltext=1, required=0),
     FieldConf(id="cssClass",  datatype="list", size=10,    default=u"", name=_(u"Styling"), listItems=css),
     FieldConf(id="link",      datatype="url",  size=1000,  default=u"", name=_(u"Link"))
 ]

@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -60,7 +59,7 @@ configuration = ObjectConf(
 )
 
 configuration.data = [
-    FieldConf(id="textblock", datatype="htext", size=10000, default=u"", name=_(u"Text"), fulltext=True, description=u""),
+    FieldConf(id="textblock", datatype="htext", size=100000, default=u"", name=_(u"Text"), fulltext=True, description=u""),
 ]
 
 fields = ["textblock", "pool_groups"]

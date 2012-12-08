@@ -41,7 +41,7 @@ class portalTest(unittest.TestCase):
         self.assert_(len(self.portal.GetApps())==2)
         self.assert_(self.portal.GetGroups(sort=u"id", visibleOnly=False))
         self.assert_(self.portal.GetGroups(sort=u"name", visibleOnly=True))
-        self.assert_(self.portal.GetPortal())
+        self.assert_(self.portal.portal)
 
 
     def test_portal2(self):

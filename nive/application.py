@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -270,10 +269,6 @@ class Application(object):
         return self
 
 
-    def GetPortal(self):
-        return self.__parent__
-
-    
     def GetTool(self, toolID, contextObject=None):
         """
         Load tool object. *toolID* must be the tool.id or dotted python name.

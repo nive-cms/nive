@@ -58,7 +58,15 @@
         tal:replace="structure cmsview.editBlockPage(context)" />  
   </article>
 
-  <div class="footer"> </div>
+  <div class="footer"> 
+
+  <tal:block metal:define-slot="right">
+    <span tal:define="column python:context.GetPage().GetColumn(u'right')"
+          tal:condition="python:column"
+          tal:replace="structure view.RenderView(column)"/>
+  </tal:block>
+
+  </div>
 </div>
 </div>
 
@@ -66,6 +74,8 @@
       tal:replace="structure cmsview.cmsToolbox(context)" />
 <span tal:condition="python:cmsview"
       tal:replace="structure cmsview.cmsEditorBlocks(context)" />  
+<span tal:condition="python:cmsview"
+      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'right'))" />  
 </body>
 </html>
 </tal:block>

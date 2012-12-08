@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -405,7 +404,9 @@ class Editor(BaseView, CopyView, SortView):
             wf = u""
             if useworkflow and not p.meta.pool_state:
                 wf = u"""<a href="%(url)sworkflow" class="right" rel="niveOverlay"><img src="%(static)s" title="%(name)s"/></a>""" % {u"static": static, u"url": self.FolderUrl(p), u"name": localizer(_(u"This page is not public."))}
-            blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": p.meta.get(u"title"), u"options": self.editBlockList(obj=p, page=page), u"workflow": wf})
+            title = p.meta.get(u"title")
+            options = self.editBlockList(obj=p, page=page)
+            blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": title, u"options": options, u"workflow": wf})
         if not len(pages):
             blocks.write(localizer(_(u"<p><i>no sub pages</i></p>")))
         return html % {u"blocks": blocks.getvalue()}

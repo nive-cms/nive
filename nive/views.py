@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -423,7 +422,7 @@ class BaseView(object):
         name = authenticated_userid(self.request)    
         if not name:
             return None
-        return self.context.GetApp().GetPortal().userdb.GetRoot().GetUserByName(name)
+        return self.context.app.portal.userdb.GetRoot().GetUserByName(name)
     
     def UserName(self):
         """

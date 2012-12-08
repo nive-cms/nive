@@ -11,3 +11,4 @@
 - json mapping form tests
 - field renderer tests
 - application.StoreSysValue and LoadSysValue tests 
+- helper.DumpJSONConf, LoadJSONConf tests

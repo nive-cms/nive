@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +28,7 @@ from pyramid.path import caller_package
 from nive.definitions import IAppConf, IDatabaseConf, IFieldConf, IRootConf, IObjectConf, IViewModuleConf
 from nive.definitions import IViewConf, IToolConf, IPortalConf, IGroupConf, ICategoryConf, IModuleConf
 from nive.definitions import IWidgetConf, IWfProcessConf, IWfStateConf, IWfTransitionConf, IConf
-
+from nive.definitions import baseConf
 from nive.definitions import implements, ConfigurationError
 from nive.utils.dataPool2.files import File
 from nive.utils.utils import LoadFromFile
@@ -182,6 +181,63 @@ def FormatConfTestFailure(report, fmt="text"):
             v+= str(d[0])+u":  "+str(a)+u"\r\n"
         v+= u"\r\n"
     return "".join(v)
+
+
+class ConfEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, baseConf):
+            values = {}
+            for k in obj:
+                values[k] = obj[k]
+            return values
+        return json.JSONEncoder.default(self, obj)
+
+class ConfDecoder(object):
+    def decode(self, jsonstring):
+        def object_hook(obj):
+            if isinstance(obj, dict):
+                try:
+                    confclass = obj["ccc"]
+                except:
+                    return obj
+                   
+                if not confclass:
+                    raise ConfigurationError, "Configuration class not found (ccc)"
+                conf = ResolveName(confclass, base="nive")(**obj)
+                return conf
+            return obj
+        return json.JSONDecoder(object_hook=object_hook).decode(jsonstring) 
+
+        
+def DumpJSONConf(conf):
+    # dump configuration to json
+    values = {}
+    for k in conf:
+        v = conf[k]
+        if isinstance(v, baseConf):
+            values[k] = DumpJSONConf(v)
+        values[k] = v
+    return json.dumps(values)
+
+def LoadJSONConf(jsondata):
+    # jsondata must be a json string or dictionary
+    # load from json
+    if isinstance(jsondata, basestring):
+        values = json.loads(jsondata)
+    for k,v in values.items():
+        try:
+            v["ccc"]
+        except:
+            continue
+        values[k] = LoadJSONConf(v)
+        
+    confclass = values.get("ccc")
+    if not confclass:
+        raise ConfigurationError, "Configuration class not found (ccc)"
+    conf = ResolveName(confclass, base="nive")(**values)
+    return conf
+
+
 
 
 def ClassFactory(configuration, reloadClass=False, raiseError=True, base=None):

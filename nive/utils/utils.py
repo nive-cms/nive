@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +30,10 @@ from path import DvPath
 
 def ConvertHTMLToText(html, url="", removeReST=True):
     # requires html2text module
-    import html2text
+    try:
+        import html2text
+    except ImportError:
+        return html
     h = html2text.HTML2Text()
     h.ignore_links = True
     if removeReST:
@@ -51,6 +53,8 @@ def ConvertTextToHTML(html):
 def ConvertToDateTime(date):
     if isinstance(date, datetime):
         return date
+    elif isinstance(date, float):
+        return datetime.fromtimestamp(date)
     elif not date:
         return None
     try:

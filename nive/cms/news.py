@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,11 +48,11 @@ css = [{"id": u"simple", "name": _(u"Block")},
        {"id": u"line", "name": _(u"Single line, fold out")}]
 
 configuration.data = [
-    FieldConf(id="image",     datatype="file", size=0, default=u"", name=_(u"Imagefile"), description=u""),
-    FieldConf(id="textblock", datatype="htext", size=10000, default=u"", fulltext=1, name=_(u"Text"), description=u""),
-    FieldConf(id="publish",   datatype="date", size=0, default=u"", required=0, name=_(u"Date"), description=_(u"Used as publish date on the website.")),
-    FieldConf(id="cssClass",  datatype="list", size=10, default=u"", listItems=css, name=_(u"Styling"), description=u""),
-    FieldConf(id="link",      datatype="url", size=1000, default=u"", name=_(u"Link"), description=u"")
+    FieldConf(id="image",     datatype="file",  size=0,      default=u"", name=_(u"Imagefile"), description=u""),
+    FieldConf(id="textblock", datatype="htext", size=100000, default=u"", fulltext=1, name=_(u"Text"), description=u""),
+    FieldConf(id="publish",   datatype="date",  size=0,      default=u"", required=0, name=_(u"Date"), description=_(u"Used as publish date on the website.")),
+    FieldConf(id="cssClass",  datatype="list",  size=10,     default=u"", listItems=css, name=_(u"Styling"), description=u""),
+    FieldConf(id="link",      datatype="url",   size=1000,   default=u"", name=_(u"Link"), description=u"")
 ]
 
 fields = ["title", "textblock", "image", "publish", "link", "cssClass", "pool_groups"]

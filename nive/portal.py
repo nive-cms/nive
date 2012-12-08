@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -158,7 +157,7 @@ class Portal(Events, object):
         log = logging.getLogger("portal")
         log.debug("Portal.Startup with debug=%s", str(debug))
         if pyramidConfig:
-            SetupPortalViews(pyramidConfig)
+            self.SetupPortalViews(pyramidConfig)
             pyramidConfig.add_subscriber(self.StartConnection, iface=NewRequest)
         for c in self.components:
             component = getattr(self, c)
@@ -226,7 +225,8 @@ class Portal(Events, object):
         return SortConfigurationList(l, sort)
 
 
-    def GetPortal(self):
+    @property
+    def portal(self):
         return self
     
 
@@ -248,6 +248,23 @@ class Portal(Events, object):
             pass
                 
 
+    def SetupPortalViews(self, config):
+        # redirects
+        config.add_view(error_view, context=HTTPError)
+        config.add_view(forbidden_view, context=Forbidden)
+        config.add_view(portal_view, name="", context="nive.portal.Portal")
+        config.add_view(robots_view, name="robots.txt", context="nive.portal.Portal")
+        config.add_view(logout_view, name="logout", context="nive.portal.Portal")
+        config.add_view(login_view,  name="login", context="nive.portal.Portal")
+        config.add_view(account_view,name="account", context="nive.portal.Portal")
+        #config.add_view(favicon_view, name=u"favicon.txt", context=u"nive.portal.Portal", view=PortalViews)
+    
+        # translations
+        config.add_translation_dirs('nive:locale/')
+        
+        config.commit()
+
+    
     def Close(self):
         for name in self.components:
             a = getattr(self, name)
@@ -307,22 +324,6 @@ def error_view(context, request):
     return context
 
 
-
-def SetupPortalViews(config):
-    # redirects
-    config.add_view(error_view, context=HTTPError)
-    config.add_view(forbidden_view, context=Forbidden)
-    config.add_view(portal_view, name="", context="nive.portal.Portal")
-    config.add_view(robots_view, name="robots.txt", context="nive.portal.Portal")
-    config.add_view(logout_view, name="logout", context="nive.portal.Portal")
-    config.add_view(login_view,  name="login", context="nive.portal.Portal")
-    config.add_view(account_view,name="account", context="nive.portal.Portal")
-    #config.add_view(favicon_view, name=u"favicon.txt", context=u"nive.portal.Portal", view=PortalViews)
-
-    # translations
-    config.add_translation_dirs('nive:locale/')
-    
-    config.commit()
 
 
 

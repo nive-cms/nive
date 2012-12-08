@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1173,7 +1172,7 @@ class Search:
             elif dyn == "users":
                 return GetUsers(self.app)
             elif dyn == "groups":
-                portal = self.app.GetPortal()
+                portal = self.app.portal
                 if portal==None:
                     portal = self.app
                 return portal.GetGroups(sort="name", visibleOnly=True)
@@ -1203,7 +1202,7 @@ class Search:
             local = fieldconf.settings.get("local")
             loader = self.app
             if not local:
-                portal = self.app.GetPortal()
+                portal = self.app.portal
                 if portal:
                     loader = portal
             values = loader.GetGroups(sort="name", visibleOnly=True)

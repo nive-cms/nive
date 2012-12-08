@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -351,10 +350,11 @@ class Base(object):
             sort = []
             for sortfld in s:
                 sortfld = sortfld.strip(u" ")
+                sortfldvalue = sortfld.split(u" ")[0]
                 if len(sortfld) > 0 and sortfld[0] == u"-":
                     table = u""
                     sortfld = sortfld[1:]
-                elif sortfld in metaStructure or sortfld == u"pool_stag":
+                elif sortfldvalue in metaStructure or sortfldvalue == u"pool_stag":
                     table = u"meta__."
                 elif dataTable != u"":
                     table = u"data__."
@@ -917,6 +917,8 @@ class Base(object):
                 meta = self.ConvertRecToDict(r2[:len(fldsm)], fldsm)
                 data = self.ConvertRecToDict(r2[len(fldsm):], fldsd)
                 e = self._GetPoolEntry(meta[u"id"], pool_dataref=meta[u"pool_dataref"], pool_datatbl=meta[u"pool_datatbl"], preload=u"skip")
+                meta = self.structure.deserialize(self.MetaTable, None, meta)
+                data = self.structure.deserialize(table, None, data)
                 e._UpdateCache(meta = meta, data = data)
                 unsorted.append(e)
         # sort entries

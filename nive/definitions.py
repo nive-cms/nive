@@ -1,6 +1,5 @@
 #----------------------------------------------------------------------
-# Nive cms
-# Copyright (C) 2012  Arndt Droullier, DV Electric, info@dvelectric.com
+# Copyright (C) 2012 Arndt Droullier. All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -272,7 +271,7 @@ class baseConf(object):
     
     def test(self):
         return True
-
+    
     #Provides(IConf)
     def __init__(self, copyFrom=None, **values):
         self._empty = True
@@ -294,7 +293,14 @@ class baseConf(object):
         return not self._empty
     
     def keys(self):
-        return self.__dict__.keys()
+        k = self.__dict__.keys()
+        k.remove("_empty")
+        k.remove("_parent")
+        try:
+            k.remove("locked")
+        except:
+            pass
+        return k
     
     def has_key(self, key):
         if hasattr(self, key):
@@ -337,7 +343,7 @@ class baseConf(object):
         setattr(self, key, value)
         
     def __iter__(self):
-        return iter(self.__dict__.keys())
+        return iter(self.keys())
 
     def __deepcopy__(self, memo):
         data = copy.deepcopy(self.__dict__)
@@ -366,8 +372,7 @@ class baseConf(object):
 
     def unlock(self):
         self.__dict__["locked"] = 0
-
-
+    
 
 class FieldConf(baseConf):
     """
