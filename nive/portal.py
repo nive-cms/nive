@@ -76,7 +76,6 @@ class Portal(Events, object):
         self.components = []
         self.groups = [Conf(id=u"authenticated", name=_(u"Authenticated"), visible=True)]
         self.__acl__ = [(Allow, "group:admin", ALL_PERMISSIONS)]
-        self.portal = self
         
         self.configuration = configuration or PortalConf()
         
