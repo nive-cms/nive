@@ -1,5 +1,5 @@
-<div tal:define="page python:context.GetPage(); 
-                 pageUrl python:view.FolderUrl(page);
+<div tal:define="page context.GetPage(); 
+                 pageUrl view.FolderUrl(page);
                  static view.StaticUrl('nive.cms.cmsview:static/')"
      class="toolbox_widget"
      i18n:domain="nive">

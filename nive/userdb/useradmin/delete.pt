@@ -6,7 +6,7 @@
 <div class="span4 offset4">
 <div class="alert">
   <h2 i18n:translate="">Confirm delete</h2>
-  <tal:block tal:condition="python:not result and len(msgs)">
+  <tal:block tal:condition="not result and len(msgs)">
     <div class="boxError">
       <div tal:repeat="msg msgs"
            tal:content="structure msg"></div>

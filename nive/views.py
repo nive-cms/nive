@@ -286,6 +286,32 @@ class BaseView(object):
     
     # render other elements and objects ---------------------------------------------
     
+    def DefaultTemplateRenderer(self, values, templatename = None):
+        """
+        Renders the default template configured in context.configuration.template 
+        with the given dictionary `values`. Calls `CacheHeader` to set the default 
+        cache headers.
+        
+        Adds the following values if not set ::
+            
+            {u"context": self.context, u"view": self} 
+        
+        Template lookup first searches the current view module and if not found
+        the parent or extended view module. 
+        """
+        if not templatename:
+            templatename = self.context.configuration.template
+            if not templatename:
+                templatename = self.context.configuration.id
+        tmpl = self._LookupTemplate(templatename)
+        if not tmpl:
+            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": templatename, "type":self.context.configuration.id}
+        self.CacheHeader(self.request.response, user=self.User())
+        if not "context" in values: values[u"context"] = self.context
+        if not "view" in values: values[u"view"] = self
+        return render_to_response(tmpl, values, request=self.request)
+            
+
     def RenderView(self, obj, name="", secure=True, raiseUnauthorized=False, codepage="utf-8"):
         """
         Render a view for the object.
@@ -422,7 +448,7 @@ class BaseView(object):
         name = authenticated_userid(self.request)    
         if not name:
             return None
-        return self.context.app.portal.userdb.GetRoot().GetUserByName(name)
+        return self.context.app.portal.userdb.root().GetUserByName(name)
     
     def UserName(self):
         """

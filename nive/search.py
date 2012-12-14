@@ -961,7 +961,7 @@ class Search:
 
     # Codelists representation for entries -----------------------------------------------------------------------------------------
 
-    def GetEntriesAsCodeList(self, pool_type, name_field, parameter= {}, operators = {}, sort = None):
+    def GetEntriesAsCodeList(self, pool_type, name_field, parameter=None, operators=None, sort = None):
         """
         Search the database for entries of type *pool_type* and return matches as codelist ::
         
@@ -972,6 +972,10 @@ class Search:
         
         returns list
         """
+        if parameter==None:
+            parameter = {}
+        if operators==None:
+            operators = {}
         if not sort:
             sort = name_field
         if not parameter.has_key(u"pool_type"):
@@ -980,7 +984,7 @@ class Search:
         return recs
 
 
-    def GetEntriesAsCodeList2(self, name_field, parameter= {}, operators = {}, sort = None):
+    def GetEntriesAsCodeList2(self, name_field, parameter=None, operators=None, sort = None):
         """
         Search the database and return matches as codelist ::
         
@@ -988,13 +992,17 @@ class Search:
         
         returns list
         """
+        if parameter==None:
+            parameter = {}
+        if operators==None:
+            operators = {}
         if not sort:
             sort = name_field
         recs = self.SelectDict(parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], operators=operators, sort = sort)
         return recs
 
 
-    def GetGroupAsCodeList(self, pool_type, name_field, parameter= {}, operators = {}, sort = None):
+    def GetGroupAsCodeList(self, pool_type, name_field, parameter=None, operators=None, sort = None):
         """
         Search the database for entries of type *pool_type* and return matches grouped by unique
         *name_field* values as codelist ::
@@ -1006,6 +1014,10 @@ class Search:
         
         returns list
         """
+        if parameter==None:
+            parameter = {}
+        if operators==None:
+            operators = {}
         if not sort:
             sort = name_field
         if not parameter.has_key(u"pool_type"):
@@ -1014,7 +1026,7 @@ class Search:
         return recs
 
 
-    def GetGroupAsCodeList2(self, name_field, parameter= {}, operators = {}, sort = None):
+    def GetGroupAsCodeList2(self, name_field, parameter=None, operators=None, sort = None):
         """
         Search the database and return matches grouped by unique *name_field* values as codelist ::
         
@@ -1022,6 +1034,10 @@ class Search:
         
         returns list
         """
+        if parameter==None:
+            parameter = {}
+        if operators==None:
+            operators = {}
         if not sort:
             sort = name_field
         recs = self.SelectDict(parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], operators=operators, groupby = name_field, sort = sort)
@@ -1030,18 +1046,23 @@ class Search:
 
     # Name / ID lookup -----------------------------------------------------------
 
-    def FilenameToID(self, filename, unitref=None, parameter={}, firstResultOnly=True, operators={}):
+    def FilenameToID(self, filename, unitref=None, parameter=None, firstResultOnly=True, operators=None):
         """
         Convert url path filename (meta.pool_filename) to id. This function does not lookup
         physical files and their filenames.
 
         returns id
         """
+        if parameter==None:
+            parameter = {}
+        if operators==None:
+            operators = {}
         if unitref != None:
             parameter[u"pool_unitref"] = unitref
         parameter[u"pool_filename"] = filename
         operators[u"pool_filename"] = u"="
         recs = self.Select(parameter=parameter, fields=[u"id",u"pool_type",u"pool_unitref",u"title"], operators=operators)
+        #print recs
         if firstResultOnly:
             if len(recs) == 0:
                 return 0

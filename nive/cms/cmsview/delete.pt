@@ -4,14 +4,14 @@
 
 <h2 i18n:translate="">Confirm delete</h2>
 <div class="block">
-  <tal:block tal:condition="python:not result and len(msgs)">
+  <tal:block tal:condition="not result and len(msgs)">
     <div class="boxError">
       <div tal:repeat="msg msgs"
            tal:content="structure msg"></div>
     </div>
   </tal:block>
 
-  <tal:block tal:condition="python:objToDelete">
+  <tal:block tal:condition="objToDelete">
     <div class="boxASK">
       <b tal:content="objToDelete.GetTitle()"/> (<span tal:content="objToDelete.GetTypeName()" i18n:translate="" />)
       <p>
@@ -30,7 +30,7 @@
     <a href="delete?id=${objToDelete.GetID()}&amp;delete=1" class="button" i18n:translate="">Delete all</a>
   </tal:block>
 
-  <tal:block tal:condition="python:result and not objToDelete">
+  <tal:block tal:condition="result and not objToDelete">
   <script type="text/javascript">
     window.parent.close("${view.PageUrl(view.context)}");
   </script>    

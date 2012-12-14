@@ -1,4 +1,4 @@
-<div tal:define="page python:context.GetPage();"
+<div tal:define="page context.GetPage();"
      class="toolbox_widget"
      i18n:domain="nive">
  <!-- sub pages -->

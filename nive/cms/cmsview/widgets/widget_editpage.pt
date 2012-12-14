@@ -1,6 +1,6 @@
-<div tal:define="page python:context.GetPage(); 
-                 pageUrl python:view.FolderUrl(page);
-                 elementContainer python:context.GetElementContainer();
+<div tal:define="page context.GetPage(); 
+                 pageUrl view.FolderUrl(page);
+                 elementContainer context.GetElementContainer();
                  static view.StaticUrl('nive.cms.cmsview:static/');
                  containerUrl view.FolderUrl(elementContainer)"
      class="toolbox_widget"

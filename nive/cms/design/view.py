@@ -96,39 +96,24 @@ class Design(BaseView):
         t2 = self.context.app.configuration.title
         return t2 + u" - " + t
 
-    # main template ----------------------------------------------------------------------------
+    # routed views -------------------------------------------------------------------------------------
+    
+    def view(self, cmsview = None):
+        values = {u"cmsview": cmsview, u"context": self.context, u"view": self} 
+        return self.DefaultTemplateRenderer(values)
+    
+    def search(self, cmsview = None):
+        values = {u"cmsview": cmsview, u"context": self.context, u"view": self}
+        name = u"search.pt"
+        return self.DefaultTemplateRenderer(values, templatename=name)
+
+   # main template ------------------------------------------------------------
         
     def index_tmpl(self):
         tmpl = self._LookupTemplate(self.viewModule.mainTemplate)
         i = get_renderer(tmpl).implementation()
         return i
-    
-    
-    # views -------------------------------------------------------------------------------------
-    
-    def view(self, cmsview = None):
-        mark = time()
-        vars = {u"cmsview": cmsview, u"context": self.context, u"view": self} 
-        name = self.context.configuration.template
-        if not name:
-            name = self.context.configuration.id
-        tmpl = self._LookupTemplate(name)
-        if not tmpl:
-            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}
-        self.CacheHeader(self.request.response, user=self.User())
-        return render_to_response(tmpl, vars, request=self.request)
-    
-    def search(self, cmsview = None):
-        mark = time()
-        vars = {u"cmsview": cmsview, u"context": self.context, u"view": self}
-        name = u"search.pt"
-        tmpl = self._LookupTemplate(name)
-        if not tmpl:
-            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": name, "type":self.context.configuration.id}
-        self.CacheHeader(self.request.response, user=self.User())
-        return render_to_response(tmpl, vars, request=self.request)
-
-        
+       
     # redirects ----------------------------------------------------
 
     def app(self):
@@ -176,7 +161,8 @@ class Design(BaseView):
             highlight = u""
             if page.id == root.id:
                 highlight = u"active"
-            html.write(u"""<li class="%s"><a href="%s">%s</a></li>""" % (highlight, self.PageUrl(root, usePageLink=1), 
+            html.write(u"""<li class="%s"><a href="%s">%s</a></li>""" % (highlight, 
+                                                                         self.PageUrl(root, usePageLink=1), 
                                                                          root.GetTitle()))
         
         path = page.GetParentIDs()
@@ -190,7 +176,8 @@ class Design(BaseView):
             else:
                 highlight = u""
             # link
-            html.write(u"""<li class="%s"><a href="%s">%s</a></li>""" % (highlight, self.PageUrl(page, usePageLink=not self.IsEditmode()), 
+            html.write(u"""<li class="%s"><a href="%s">%s</a></li>""" % (highlight, 
+                                                                         self.PageUrl(page, usePageLink=not self.IsEditmode()), 
                                                                          page.GetTitle()))
         return html.getvalue()
 
@@ -210,8 +197,10 @@ class Design(BaseView):
             if page.id == root.id:
                 selected = u"current"
                 highlight = u"active"
-            html.write(u"""<li class="%s"><a href="%s" class="%s">%s</a></li>""" % (highlight, self.PageUrl(root, usePageLink=not self.IsEditmode()), 
-                                                                                    selected, root.GetTitle()))
+            html.write(u"""<li class="%s"><a href="%s" class="%s">%s</a></li>""" % (highlight, 
+                                                                                    self.PageUrl(root, usePageLink=not self.IsEditmode()), 
+                                                                                    selected, 
+                                                                                    root.GetTitle()))
         
         path = page.GetParentIDs()
         level = 1
@@ -267,8 +256,10 @@ class Design(BaseView):
                 highlight = u"active"
             
             # link
-            io.write(u"""<li class="%s"><a href="%s" class="%s">%s</a></li>""" % (highlight, self.PageUrl(page, usePageLink=not self.IsEditmode()), 
-                                                                                  selected, page.GetTitle()))
+            io.write(u"""<li class="%s"><a href="%s" class="%s">%s</a></li>""" % (highlight, 
+                                                                                  self.PageUrl(page, usePageLink=not self.IsEditmode()), 
+                                                                                  selected, 
+                                                                                  page.GetTitle()))
             
             if highlight or selected:
                 io = self._navigationLevel(page, level+1, active, path, io, ulclass)
