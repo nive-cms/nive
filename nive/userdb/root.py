@@ -249,7 +249,7 @@ class root(UserCache, RootBase):
         if not obj:
             obj = self.GetUserByName(email)
             if not obj:
-                report.append(_(u"No account found with that email address. Please try again."))
+                report.append(_(u"No matching account found. Please try again."))
                 return False, report
 
         email = obj.data.get("email")

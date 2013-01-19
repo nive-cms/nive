@@ -611,7 +611,7 @@ class Form(Events,ReForm):
         """
         Convert a file upload to the internal File object
         """
-        value = self.GetFormValue(key, method=method)
+        value = self.GetFormValue(key, self.request, method=method)
         # prepare file
         file = self.app.db.GetFileClass()()
         file.filename = value.get('filename','')
@@ -1263,4 +1263,118 @@ class JsonMappingForm(HTMLForm):
                         self.view.Redirect(redirect_success, messages=msgs)
                 result = data
         return result, self.Render(data, msgs=msgs, errors=errors)
+        
+        
+        
+class JsonSequenceForm(HTMLForm):
+    """
+    Maps form fields as sequence to a single dumped json text field
+    the sequence is always stored as list, json data as dictionary. 
+    
+    The form fields/values can be stored multiple times as sequence and
+    the template offers options to add, delete and edit single items.
+    Items in read only mode are not rendered by the form. 
+    
+    Sequence items are referenced by list position starting by 1.
+    ::
+    
+        jsonDataField = the field to merge data to
+                       
+    `Process()` returns the form data as dictionary on success.
+    
+    """
+    jsonDataField = u"data"
+    delKey = u"aa876352"
+    editKey = u"cc397785"
+    
+    actions = [
+        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+    ]
+    editKeyFld = FieldConf(id=editKey, name=u"indexKey", datatype="number", hidden=True, default=u"")
+    
+    def Init(self):
+        self.RegisterEvent("loadFields", "AddKeyFld")
+        
+    def AddKeyFld(self):
+        self._c_fields.append(self.editKeyFld)
+
+
+    def StartObject(self, action, redirect_success, **kw):
+        """
+        Initially load data from configured object json data field. 
+        context = obj
+        
+        returns bool, html
+        """
+        sequence = self.context.data.get(self.jsonDataField)
+        if sequence in (u"", None):
+            sequence = []
+        # process action
+        msgs = []
+        if self.GetFormValue(self.editKey, self.request, "GET"):
+            seqindex = int(self.GetFormValue(self.editKey, self.request, "GET"))
+            if not seqindex or seqindex > len(sequence):
+                data = []
+            else:
+                data = sequence[seqindex-1]
+                data[self.editKey] = seqindex
+        elif self.GetFormValue(self.delKey, self.request, "GET"):
+            seqindex = int(self.GetFormValue(self.delKey, self.request, "GET"))
+            if not seqindex or seqindex > len(sequence):
+                data = []
+            else:
+                del sequence[seqindex-1]
+                self.context.data[self.jsonDataField] = sequence
+                self.context.Commit(self.view.User())
+                self.context.data[self.jsonDataField] = sequence
+                msgs=[_(u"Item deleted!")]
+                data = []
+        else:
+            data = []
+        return data!=None, self.Render(data, msgs=msgs)
+
+
+    def UpdateObj(self, action, redirect_success, **kw):
+        """
+        Process request data and update object.
+        
+        returns bool, html
+        """
+        msgs = []
+        obj=self.context
+        result,data,errors = self.Validate(self.request)
+        if result:
+            user = self.view.User()
+            # merge sequnce list with edited item
+            sequence = self.context.data.get(self.jsonDataField)
+            if sequence in (u"", None):
+                sequence = []
+            try:
+                seqindex = int(data.get(self.editKey))
+            except:
+                seqindex = 0
+            if self.editKey in data:
+                del data[self.editKey]
+            if not seqindex or seqindex > len(sequence):
+                sequence.append(data)
+            else:
+                sequence[seqindex-1] = data
+            result = obj.Update({self.jsonDataField: sequence}, user)
+            if result:
+                obj.data.sequence = sequence
+                #obj.Commit(user)
+                msgs.append(_(u"OK. Data saved."))
+                errors=None
+                data = {}
+                if self.view and redirect_success:
+                    redirect_success = self.view.ResolveUrl(redirect_success, obj)
+                    if self.use_ajax:
+                        self.view.AjaxRelocate(redirect_success, messages=msgs)
+                    else:
+                        self.view.Redirect(redirect_success, messages=msgs)
+                result = data
+        return result, self.Render(data, msgs=msgs, errors=errors)
+        
+        
         
