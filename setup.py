@@ -35,7 +35,7 @@ setupkw = dict(
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7"
       ],
-      author='Arndt Droullier, DV Electric',
+      author='Arndt Droullier, Nive GmbH',
       author_email='info@nive.co',
       url='http://cms.nive.co',
       keywords='cms website publisher pyramid',
