@@ -9,7 +9,7 @@ from nive.events import *
 
 # -----------------------------------------------------------------
 
-class testobj(object, Events):
+class testobj(Events):
     def __init__(self):
         self.called = 0
         self.InitEvents()

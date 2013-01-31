@@ -35,7 +35,9 @@ class baseConfTest(unittest.TestCase):
         self.assert_(c.get("aaaa",3)==3)
         c.aaa=2
         c.ccc="3"
-        self.assert_(len(c.keys())==5)
+        self.assert_(c.get("ccc")=="3")
+        self.assert_(c.get("aaa")==2)
+        self.assert_(c.get("ooo",5)==5)
         
     def test_copy(self):
         c = Conf()
