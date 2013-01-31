@@ -110,7 +110,7 @@ code         HTML / Javascript / CSS
 json         Json 
 file         File 
 timestamp    Timestamp 
-lines        Lines /Log 
+lines        Lines 
 bytesize     Filesize 
 url          URL 
 urllist      URL List 

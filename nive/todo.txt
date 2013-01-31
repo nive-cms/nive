@@ -13,3 +13,4 @@
 - application.StoreSysValue and LoadSysValue tests 
 - helper.DumpJSONConf, LoadJSONConf tests
 - forms.JsonSequenceForm tests
+- forms list controlset tests

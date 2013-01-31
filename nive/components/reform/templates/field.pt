@@ -4,7 +4,7 @@
 
 <div tal:condition="not field.widget.hidden"
     title="${field.description}"
-    id="item-${field.oid}" 
+    id="item-${field.name}" 
     class="${field.error and field.widget.error_class} control-group" 
     i18n:domain="nive">
   <!-- mapping_item -->

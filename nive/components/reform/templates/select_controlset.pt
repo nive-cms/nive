@@ -1,0 +1,11 @@
+<select name="${field.name}"
+        id="${field.oid}"
+        tal:attributes="size field.widget.size"
+        tal:attributes="class field.widget.css_class + ' input-controlset'"
+        data-controlset="${field.widget.controlset_fields(field)}">
+ <option tal:repeat="(value, description) field.widget.values"
+         tal:attributes="selected value == cstruct and 'selected';
+                         class field.widget.css_class"
+         value="${value}"
+         data-controlset="${field.widget.controlset_fields(field, value)}">${description}</option>
+</select>

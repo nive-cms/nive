@@ -654,6 +654,24 @@ class SelectWidget(Widget):
         if pstruct in (null, self.null_value):
             return null
         return pstruct
+    
+    
+    def controlset_fields(self, field, value=None, format='html'):
+        """
+        Returns a list of controlset field ids. If `value` is None all controlled
+        fields will be returned otherwise only the ids linked to this value.
+        """
+        items = self.form.GetField(field.name).listItems(field, None)
+        ids = []
+        for i in items:
+            if value and value!=i.id:
+                continue
+            for v in i.fields:
+                ids.append(v.id)
+        if format=="html":
+            return json.dumps(ids)
+        return ids
+        
 
 class RadioChoiceWidget(SelectWidget):
     """

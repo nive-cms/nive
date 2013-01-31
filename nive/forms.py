@@ -99,8 +99,26 @@ In short forms are explained as follows:
 **Please note:** These form classes are for autogenerating forms. If you need more control over validation
 or rendering use a form library directly. 
 
---------------------------------------------------------------------------
 
+Control sets for Select and Radio fields
+========================================
+Conditional sets can be automatically shown and hidden by setting a list `controlset:True`
+and extending each listitem with a fields list. :: 
+
+      FieldConf(id="flist",   
+                datatype="list",   
+                size=100,  
+                name="flist", 
+                settings={"controlset":True},
+                listItems=[Conf(id="item 1", name="Item 1", 
+                                fields=[FieldConf(id="ftext",datatype="text",size=10,name="ftext")]),
+                           Conf(id="item 2", name="Item 2", 
+                                fields=[FieldConf(id="fnum",datatype="number",size=8,name="fnum")])
+                           ]
+                ),
+
+Example
+=======
 Internally the form uses a structure like in the following manually defined form example ::
 
     fields  = [
@@ -263,6 +281,7 @@ class Form(Events,ReForm):
         #(x) type["form"][subset]
         #(5) fields
         #(6) config.fields
+        #(7) *fields.controlset=True -> field.listItems[].fields
         temp = None
         if subsets and subset in subsets and "fields" in subsets[subset]:
             #(1)
@@ -297,6 +316,17 @@ class Form(Events,ReForm):
                     raise ConfigurationError, "Form field lookup failed: " + f
                 f = fld
             self._c_fields.append(f)
+            # add controlset fields
+            if f.settings.get("controlset"):
+                items = f.listItems
+                if not isinstance(items, (list, tuple)):
+                    items = items(f, self.context)
+                for item in items:
+                    if not item.get("fields"):
+                        continue
+                    for controlf in item.fields:
+                        self._c_fields.append(controlf)
+                    
         
         # action lookup
         #(1) subsets[subset]["actions"]

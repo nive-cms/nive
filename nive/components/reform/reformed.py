@@ -56,6 +56,56 @@ from field import Field
 from nive.helper import File
 
 
+class Lines(object):
+    """ A type representing a list of items stored as text one item per line.
+    Deserializes an iterable to a ``text`` object.
+
+    This type constructor accepts one argument:
+
+    ``allow_empty``
+       Boolean representing whether an empty set input to
+       deserialize will be considered valid.  Default: ``False``.
+       
+    ``lb``
+       Line break character or string. Default `\r\n`.
+       
+    ``remove_empty``
+       Remove empty lines from list.
+    """
+    def __init__(self, allow_empty=False):
+        self.allow_empty = allow_empty
+        self.lb = "\r\n"
+        self.remove_empty = True
+        
+    def serialize(self, node, value):
+        if isinstance(value, (list, tuple)):
+            value = self.lb.join(value)
+        return value
+
+    def deserialize(self, node, value, formstruct=None):
+        if value in (null, None, ""):
+            return null
+
+        if isinstance(value, basestring):
+            value = value.split(self.lb)
+            if self.remove_empty:
+                try:
+                    # remove empty lines
+                    while True:
+                        value.remove(u"")
+                except:
+                    pass
+        elif not isinstance(value, (lsit, tuple)):
+            raise Invalid(
+                node,
+                _('${value} is not iterable', mapping={'value':value})
+                )
+        value =  list(value)
+        if not value and not self.allow_empty:
+            raise Invalid(node, _('Required'))
+        return value
+        
+
 class FileData2(object):
     """
     A type representing file data; used to shuttle data back and forth
@@ -303,6 +353,9 @@ def SchemaFactory(self, form, fields, actions, force=False):
                     v.insert(0,{"id":u"","name":u""})
                 values = [(a["id"],a["name"]) for a in v]
                 kw["widget"] = SelectWidget(values=values, **kwWidget)
+                if field.settings.get("controlset"):
+                    kw["widget"].template = 'select_controlset'
+                    kw["widget"].css_class = ''
             n = SchemaNode(String(), **kw)
             
         elif ftype == "radio":
@@ -326,6 +379,13 @@ def SchemaFactory(self, form, fields, actions, force=False):
                 kw["widget"] = CheckboxChoiceWidget(values=values, **kwWidget)
             n = SchemaNode(List(allow_empty=True), **kw)
 
+        elif ftype == "lines":
+            if not "validator" in kw:
+                kw["validator"] = Length(max=field.get("size",1000000))
+            if not "widget" in kw:
+                kw["widget"] = TextAreaWidget(rows=10, cols=60, **kwWidget)
+            n = SchemaNode(Lines(), **kw)
+            
         elif ftype == "email":
             if not "validator" in kw:
                 kw["validator"] = Email()

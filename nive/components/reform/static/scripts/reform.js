@@ -27,6 +27,7 @@ var reform  = {
         if (!reform_loaded) {
             reform.processCallbacks();
             reform.focusFirstInput();
+            reform.initControlset();
             reform_loaded = true;
       }});
     },
@@ -37,8 +38,7 @@ var reform  = {
             var oid = item[0];
             var callback = item[1];
             callback(oid);
-            }
-            );
+        });
         reform.clearCallbacks();
     },
 
@@ -77,6 +77,34 @@ var reform  = {
         };
     },
 
+    initControlset: function () {
+    	$(".input-controlset").each(function(num, select) {
+    	    // set initial fields visible/invisible
+    	    var values = $(select).data('controlset');
+            for(i=0;i<=values.length;i++) {
+                $('#item-'+values[i]).hide();
+            }
+        });
+    	$(".input-controlset :selected").each(function(num, option) {
+    	    // set initial fields visible/invisible
+    	    var values = $(option).data('controlset');
+            for(i=0;i<=values.length;i++) {
+                $('#item-'+values[i]).show();
+            }
+        });
+        $(".input-controlset").change(function() { 
+    	    // trigger change and set fields visible/invisible
+    	    var values = $(this).data('controlset');
+            for(i=0;i<=values.length;i++) {
+                $('#item-'+values[i]).hide();
+            }
+    	    var values = $('#'+this.id+' :selected').data('controlset');
+            for(i=0;i<=values.length;i++) {
+                $('#item-'+values[i]).show('slow');
+            }
+        });
+    },
+    
     randomString: function (length) {
         var chr='0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
         var chr = chr.split('');
