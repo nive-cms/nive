@@ -257,7 +257,7 @@ class PoolStructure(object):
             
         stdMeta = (field1, field2)
 
-    De-Serialization datatypes ::
+    Deserialization datatypes ::
     
         string, htext, text, list, code, radio, email, password, url -> unicode
         number, float, unit -> number 
@@ -267,6 +267,20 @@ class PoolStructure(object):
         mselection, mcheckboxes, urllist -> string tuple
         unitlist -> number tuple
         json -> python type list, tuple or dict
+
+    Serialization datatypes ::
+    
+        string, htext, text, list, code, radio, email, password, url -> unicode
+        number, float, unit -> number 
+        bool -> 0/1
+        file -> bytes
+        date, datetime, timestamp -> datetime
+        mselection, mcheckboxes, urllist -> json
+        unitlist -> json
+        json -> json
+        
+    If fieldtype (`fieldtypes`) information is not given json data is stored with `_json_`
+    prefix.
 
     """
     MetaTable = u"pool_meta"
@@ -325,10 +339,12 @@ class PoolStructure(object):
     def serialize(self, table, field, value):
         # if field==None and value is a dictionary multiple values are deserialized
         if field==None and isinstance(value, dict):
+            newdict = {}
             for field, v in value.items():
                 try:        t = self.fieldtypes[table][field]
                 except:     t = None
-                value[field] = self._se(v, t)
+                newdict[field] = self._se(v, t)
+            return newdict
         else:
             try:        t = self.fieldtypes[table][field]
             except:     t = None
@@ -339,10 +355,12 @@ class PoolStructure(object):
     def deserialize(self, table, field, value):
         # if field==None and value is a dictionary multiple values are deserialized
         if field==None and isinstance(value, dict):
+            newdict = {}
             for field, v in value.items():
                 try:        t = self.fieldtypes[table][field]
                 except:     t = None
-                value[field] = self._de(v, t)
+                newdict[field] = self._de(v, t)
+            return newdict
         else:
             try:        t = self.fieldtypes[table][field]
             except:     t = None
@@ -356,7 +374,10 @@ class PoolStructure(object):
             if isinstance(value, datetime):
                 return value.strftime("%Y-%m-%d %H:%M:%S")
             elif isinstance(value, (list, tuple)):
-                value = u"\n".join([unicode(v, self.codepage) for v in value])
+                if isinstance(value[0], bytes):
+                    # list of strings:
+                    value = [unicode(v, self.codepage) for v in value]
+                value = u"_json_"+json.dumps(value)
             elif isinstance(value, bytes):
                 value = unicode(value, self.codepage)
             return value
@@ -370,18 +391,18 @@ class PoolStructure(object):
             if isinstance(value, (list, tuple)):
                 if value:
                     value = value[0]
+                else:
+                    value = u""
 
-        elif fieldtype in ("mselection", "mcheckboxes", "list", "urllist", "unitlist"):
+        elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
             # to lines
             if not value:
                 value = u""
             elif isinstance(value, (list, tuple)):
                 if isinstance(value[0], bytes):
                     # list of strings:
-                    value = u"\n".join([unicode(v, self.codepage) for v in value])
-                else:
-                    # other values
-                    value = u"\n".join([unicode(v) for v in value])
+                    value = [unicode(v, self.codepage) for v in value]
+                value = json.dumps(value)
 
         elif fieldtype in ("bool"):
             if isinstance(value, basestring):
@@ -411,6 +432,8 @@ class PoolStructure(object):
     def _de(self, value, fieldtype):
         if not fieldtype:
             # no datatype information set
+            if isinstance(value, basestring) and value.startswith(u"_json_"):
+                value = json.loads(value[len(u"_json_"):])
             if isinstance(value, bytes):
                 value = unicode(value, self.codepage)
             return value
@@ -425,14 +448,19 @@ class PoolStructure(object):
             # unitlist -> to number tuple
             if not value:
                 value = u""
-            elif isinstance(value, basestring):
-                value = tuple(value.split(u"\n"))
-            elif isinstance(value, list):
-                value = tuple(value)
-            elif value == None:
-                value = ()
-            if fieldtype == "unitlist":
-                value = [long(v) for v in value]
+            elif value[0]!="[":
+                # bw 0.9.5b: changed storage format to json. Previous versions used lines 
+                # with \n for entries.
+                if isinstance(value, basestring):
+                    value = tuple(value.split(u"\n"))
+                elif isinstance(value, list):
+                    value = tuple(value)
+                elif value == None:
+                    value = ()
+                if fieldtype == "unitlist":
+                    value = [long(v) for v in value]
+            else:
+                 value = json.loads(value)
             
         elif fieldtype == "json":
             # -> to python type

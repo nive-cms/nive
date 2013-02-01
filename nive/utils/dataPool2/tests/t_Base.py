@@ -45,23 +45,23 @@ ftypes = {}
 ftypes[u"data2"] = {u"fstr":"string" ,u"ftext":"text"}
 
 SystemFlds = (
-{"id": u"id",             "datatype": "number",     "size": 8,     "default": "",     "required": 0,     "readonly": 1, "settings": {}, "sort":  1000, "name": "ID",             "description": ""},
-{"id": u"title",         "datatype": "string",     "size": 255,"default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1100, "name": "Title",            "description": ""},
-{"id": u"pool_type",     "datatype": "list",     "size": 35, "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1200, "name": "Type",              "description": ""},
-{"id": u"pool_category",    "datatype": "list",     "size": 35, "default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1300, "name": "Category",          "description": ""},
-{"id": u"pool_filename",    "datatype": "string",     "size": 255,"default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1400, "name": "Filename",         "description": ""},
-{"id": u"pool_create",    "datatype": "datetime",    "size": 0,    "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1500, "name": "Created",         "description": ""},
-{"id": u"pool_change",    "datatype": "datetime",    "size": 0,     "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1600, "name": "Changed",         "description": ""},
-{"id": u"pool_createdby","datatype": "string",    "size": 35, "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1700, "name": "Created by",     "description": ""},
-{"id": u"pool_changedby","datatype": "string",    "size": 35, "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1800, "name": "Changed by",        "description": ""},
-{"id": u"pool_wfp",        "datatype": "list",        "size": 35, "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1900, "name": "Workflow Process",     "description": ""},
-{"id": u"pool_wfa",        "datatype": "list",        "size": 35, "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  2000, "name": "Workflow Activity",    "description": ""},
-{"id": u"pool_state",    "datatype": "number",    "size": 4,     "default": 1,    "required": 0,     "readonly": 1, "settings": {}, "sort":  2100, "name": "State",             "description": ""},
-{"id": u"pool_sort",        "datatype": "number",    "size": 8,     "default": 0,    "required": 0,     "readonly": 1, "settings": {}, "sort":  2200, "name": "Sort",             "description": ""},
-{"id": u"pool_unitref",    "datatype": "number",     "size": 8,     "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  5000, "name": "Reference",         "description": ""},
-{"id": u"pool_stag",        "datatype": "number",    "size": 4,     "default": 0,    "required": 0,     "readonly": 1, "settings": {}, "sort":  5100, "name": "Select Number",     "description": ""},
-{"id": u"pool_datatbl",    "datatype": "string",    "size": 35, "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  5200, "name": "Data Table Name",    "description": ""},
-{"id": u"pool_dataref",    "datatype": "number",    "size": 8,  "default":  0,    "required": 1,     "readonly": 1, "settings": {}, "sort":  5200, "name": "Data Table Name",    "description": ""},
+{"id": u"id",             "datatype": "number",    "size": 8,   "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1000, "name": "ID",},
+{"id": u"title",          "datatype": "string",    "size": 255, "default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1100, "name": "Title"},
+{"id": u"pool_type",      "datatype": "list",      "size": 35,  "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1200, "name": "Type"},
+{"id": u"pool_category",  "datatype": "list",      "size": 35,  "default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1300, "name": "Category"},
+{"id": u"pool_filename",  "datatype": "string",    "size": 255, "default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1400, "name": "Filename"},
+{"id": u"pool_create",    "datatype": "datetime",  "size": 0,   "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1500, "name": "Created"},
+{"id": u"pool_change",    "datatype": "datetime",  "size": 0,   "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1600, "name": "Changed"},
+{"id": u"pool_createdby", "datatype": "string",    "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1700, "name": "Created by"},
+{"id": u"pool_changedby", "datatype": "string",    "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1800, "name": "Changed by"},
+{"id": u"pool_wfp",       "datatype": "list",      "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1900, "name": "Workflow Process"},
+{"id": u"pool_wfa",       "datatype": "list",      "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  2000, "name": "Workflow Activity"},
+{"id": u"pool_state",     "datatype": "number",    "size": 4,   "default": 1,     "required": 0,     "readonly": 1, "settings": {}, "sort":  2100, "name": "State"},
+{"id": u"pool_sort",      "datatype": "number",    "size": 8,   "default": 0,     "required": 0,     "readonly": 1, "settings": {}, "sort":  2200, "name": "Sort"},
+{"id": u"pool_unitref",   "datatype": "number",    "size": 8,   "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  5000, "name": "Reference"},
+{"id": u"pool_stag",      "datatype": "number",    "size": 4,   "default": 0,     "required": 0,     "readonly": 1, "settings": {}, "sort":  5100, "name": "Select Number"},
+{"id": u"pool_datatbl",   "datatype": "string",    "size": 35,  "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  5200, "name": "Data Table Name"},
+{"id": u"pool_dataref",   "datatype": "number",    "size": 8,   "default":  0,    "required": 1,     "readonly": 1, "settings": {}, "sort":  5200, "name": "Data Table Name"},
 )
 Fulltext = ("id","text","files")
 Files = ("id","filename","path","size","extension","filekey","version")
@@ -70,12 +70,12 @@ Files = ("id","filename","path","size","extension","filekey","version")
 data1_1 = {u"ftext": "this is text!",
              u"fnumber": 123456,
              u"fdate": "2008/06/23 16:55",
-             u"flist": "item 1, item 2, item 3",
-             u"fmselect": "item 5",
+             u"flist": "item 2",
+             u"fmselect": ["item 1", "item 2", "item 3"],
              u"funit": 35,
-             u"funitlist": "34, 35, 36"}
+             u"funitlist": [34, 35, 36]}
 data2_1 = {u"fstr": u"this is sting!",
-             u"ftext": u"this is text!"}
+           u"ftext": u"this is text!"}
 meta1 = {u"title":"title "}
 file1_1 = "File 1 content, text text text text."
 file1_2 = "File 2 content, text text text text."
@@ -221,9 +221,6 @@ class FileTest(unittest.TestCase):
 
 
 
-def __test():
-    unittest.main()
-
 if __name__ == '__main__':
-    __test()
+    unittest.main()
 

@@ -97,26 +97,23 @@ float        Float
 bool         Bool 
 htext        HTML Text 
 text         Text 
-unit         ID Reference 
-unitlist     ID Reference List 
+code         HTML / Javascript / CSS 
+json         Json 
+file         File 
 date         Date 
 datetime     Datetime 
 list         List 
 radio        Radio Selection 
 mselection   Multiple Selection 
 mcheckboxes  Multiple Checkboxes 
-xml          XML 
-code         HTML / Javascript / CSS 
-json         Json 
-file         File 
-timestamp    Timestamp 
 lines        Lines 
-bytesize     Filesize 
+email        E-Mail 
 url          URL 
 urllist      URL List 
-email        E-Mail 
 password     Password 
-percent      Percent 
+unit         ID Reference 
+unitlist     ID Reference List 
+timestamp    Timestamp 
 ===========  ==============================================
 
 
@@ -1360,23 +1357,24 @@ Conf(id="string",      name=_(u"String"),             description=u""),
 Conf(id="number",      name=_(u"Number"),             description=u""),
 Conf(id="float",       name=_(u"Float"),              description=u""),
 Conf(id="bool",        name=_(u"Bool"),               description=u""),
-Conf(id="file",        name=_(u"File"),               description=u""),
 Conf(id="htext",       name=_(u"HTML Text"),          description=u""),
 Conf(id="text",        name=_(u"Text"),               description=u""),
+Conf(id="code",        name=_(u"Code (Html, Javascript, Css)"), description=u""),
+Conf(id="json",        name=_(u"Json"),               description=u""),
+Conf(id="file",        name=_(u"File"),               description=u""),
 Conf(id="date",        name=_(u"Date"),               description=u""),
 Conf(id="datetime",    name=_(u"Datetime"),           description=u""),
 Conf(id="list",        name=_(u"List"),               description=u""),
 Conf(id="radio",       name=_(u"Radio Selection"),    description=u""),
 Conf(id="mselection",  name=_(u"Multiple Selection"), description=u""),
-Conf(id="mcheckboxes", name=_(u"Multiple Checkboxes"), description=u""),
+Conf(id="mcheckboxes", name=_(u"Multiple Checkboxes"),description=u""),
+Conf(id="lines",       name=_(u"Lines"),              description=u""),
+Conf(id="email",       name=_(u"Email"),              description=u""),
 Conf(id="url",         name=_(u"URL"),                description=u""),
 Conf(id="urllist",     name=_(u"URL List"),           description=u""),
-Conf(id="email",       name=_(u"Email"),              description=u""),
 Conf(id="password",    name=_(u"Password"),           description=u""),
 Conf(id="unit",        name=_(u"ID Reference"),       description=u""),
 Conf(id="unitlist",    name=_(u"ID Reference List"),  description=u""),
-Conf(id="code",        name=_(u"Code (Html, Javascript, Css)"), description=u""),
-Conf(id="json",        name=_(u"Json"),               description=u""),
 Conf(id="timestamp",   name=_(u"Timestamp"),          description=u""),
 )
 

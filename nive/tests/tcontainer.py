@@ -14,7 +14,6 @@ class containerTest_db:
     
     def setUp(self):
         self.app = app_db()
-        #emptypool(self.app)
         self.remove=[]
 
     def tearDown(self):
@@ -419,7 +418,6 @@ class groupsrootTest_db:
     
     def setUp(self):
         self.app = app_db(["nive.components.extensions.localgroups"])
-        #emptypool(self.app)
         self.remove=[]
 
     def tearDown(self):

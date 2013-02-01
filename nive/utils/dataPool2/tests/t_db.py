@@ -3,7 +3,7 @@
 import copy
 from time import time
 import unittest
-from types import *
+from types import UnicodeType
 
 from nive.utils.dataPool2.base import *
 from nive.utils.dataPool2.sqlite3Pool import Sqlite3

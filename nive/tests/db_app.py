@@ -143,15 +143,23 @@ def app_db(modules=None):
     root = DvPath(a.dbConfiguration.fileRoot)
     if not root.IsDirectory():
         root.CreateDirectories()
-    """
+    
     try:
         a.Query("select id from pool_meta where id=1")
+        a.Query("select id from data1 where id=1")
+        a.Query("select id from data2 where id=1")
+        a.Query("select id from data3 where id=1")
+        a.Query("select id from pool_files where id=1")
+        a.Query("select id from pool_sys where id=1")
+        a.Query("select id from pool_groups where id=1")
     except:
         a.GetTool("nive.components.tools.dbStructureUpdater")()
-    """
+
     # disable this to update test tables each time the tests are called
-    a.GetTool("nive.components.tools.dbStructureUpdater")()
+    #a.GetTool("nive.components.tools.dbStructureUpdater")()
     a.Startup(None)
+    # this will reset all testdata
+    #emptypool(a)
     return a
 
 def app_nodb():
@@ -169,16 +177,14 @@ def app_nodb():
 
 def emptypool(app):
     db = app.db
-    db.Query(u"delete FROM pool_wflog")
-    db.Query(u"delete FROM pool_wfdata")
-    #db.Query(u"delete FROM pool_security")
     db.Query(u"delete FROM pool_meta")
-    #db.Query(u"delete FROM pool_lroles")
-    db.Query(u"delete FROM pool_fulltext")
     db.Query(u"delete FROM pool_files")
+    db.Query(u"delete FROM pool_fulltext")
+    db.Query(u"delete FROM pool_groups")
     db.Query(u"delete FROM pool_sys")
     db.Query(u"delete FROM data2")
     db.Query(u"delete FROM data1")
+    db.Commit()
     DvDirCleaner(str(db.root)).DeleteFiles(subdirectories = True)
     db.root.CreateDirectories()
 

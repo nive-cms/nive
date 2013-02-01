@@ -52,13 +52,11 @@ def app_nodb():
 
 def emptypool(app):
     db = app.db
-    db.Query(u"delete FROM pool_wflog")
-    db.Query(u"delete FROM pool_wfdata")
-    #db.Query(u"delete FROM pool_security")
     db.Query(u"delete FROM pool_meta")
-    #db.Query(u"delete FROM pool_lroles")
-    db.Query(u"delete FROM pool_fulltext")
     db.Query(u"delete FROM pool_files")
+    db.Query(u"delete FROM pool_fulltext")
+    db.Query(u"delete FROM pool_groups")
+    db.Query(u"delete FROM pool_sys")
     db.Query(u"delete FROM data2")
     db.Query(u"delete FROM data1")
     DvDirCleaner(str(db.root)).DeleteFiles(subdirectories = true)

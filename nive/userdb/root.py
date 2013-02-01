@@ -25,6 +25,7 @@ mailing options.
 import types, base64, random, string
 from time import time
 import uuid
+import json
 
 from nive.definitions import RootConf, Conf, StagUser
 from nive.security import User
@@ -461,24 +462,41 @@ class root(UserCache, RootBase):
         return None
 
 
-    def GetUserInfos(self, userids, fields=["name", "email", "title"], activeOnly=True):
+    def GetUserInfos(self, userids, fields=None, activeOnly=True):
         """
         """
         param = {u"name":userids}
         if activeOnly:
             param[u"pool_state"] = 1
+        if not fields:
+            fields = ["name", "email", "title"]
         users = self.SelectDict(pool_type=u"user", parameter=param, fields=fields, operators={u"name":u"IN"})
         return users
     
     
-    def GetUsersWithGroup(self, group, fields=[u"name"], activeOnly=True):
+    def GetUsersWithGroup(self, group, fields=None, activeOnly=True):
         """
         """
         param = {u"groups":group}
         if activeOnly:
             param[u"pool_state"] = 1
-        users = self.SelectDict(pool_type=u"user", parameter=param, fields=fields)
-        return users
+        operators = {u"groups": "LIKE"}
+        if not fields:
+            fields = [u"name",u"groups"]
+        elif not u"groups" in fields:
+            fields = list(fields)
+            fields.append(u"groups")
+        users = self.SelectDict(pool_type=u"user", parameter=param, fields=fields, operators=operators)
+        # verify groups
+        verified = []
+        for u in users:
+            try:
+                g = json.loads(u["groups"])
+            except:
+                continue
+            if group in g:
+                verified.append(u)
+        return verified
 
 
     def GetUsers(self, **kw):
