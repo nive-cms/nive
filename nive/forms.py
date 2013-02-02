@@ -561,12 +561,14 @@ class Form(Events,ReForm):
 
     # form values --------------------------------------------------------------------------------------------
 
-    def GetFormValue(self, key, request, method=None):
+    def GetFormValue(self, key, request=None, method=None):
         """
         Extract single value from request
         
         returns value
         """
+        if not request:
+            request = self.request
         if not method:
             method = self.method
         try:
@@ -599,7 +601,7 @@ class Form(Events,ReForm):
         return value
 
 
-    def GetFormValues(self, request, method=None):
+    def GetFormValues(self, request=None, method=None):
         """
         Extract all values from request
         
@@ -1403,7 +1405,7 @@ class JsonSequenceForm(HTMLForm):
                         self.view.AjaxRelocate(redirect_success, messages=msgs)
                     else:
                         self.view.Redirect(redirect_success, messages=msgs)
-                result = data
+                result = True
         return result, self.Render(data, msgs=msgs, errors=errors)
         
         

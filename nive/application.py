@@ -846,10 +846,10 @@ class Configuration:
         fields = self.GetAllObjectFlds(typeID)
         if not fields:
             return None
-        for f in fields:
-            if f["id"] == fldID:
-                return f
-        return None
+        o = filter(lambda d: d["id"]==fldID, fields)
+        if not o:
+            return None
+        return o[0]
 
 
     def GetAllObjectFlds(self, typeID):
@@ -872,10 +872,10 @@ class Configuration:
         
         returns configuration or None
         """
-        for fld in self._meta:
-            if fld["id"] == fldID:
-                return fld
-        return None
+        m = filter(lambda d: d["id"]==fldID, self._meta)
+        if not m:
+            return None
+        return m[0]
 
 
     def GetAllMetaFlds(self, ignoreSystem = True):
@@ -895,10 +895,10 @@ class Configuration:
         
         returns string
         """
-        for fld in self._meta:
-            if fld["id"] == fldID:
-                return fld["name"]
-        return ""
+        m = filter(lambda d: d["id"]==fldID, self._meta)
+        if not m:
+            return u""
+        return m[0]["name"]
 
 
     # Categories -------------------------------------------------------------------------------------------------------
@@ -909,10 +909,10 @@ class Configuration:
         
         returns configuration or None
         """
-        for c in self.configuration.categories:
-            if c["id"] == categoryID:
-                return c
-        return None
+        c = filter(lambda d: d["id"]==categoryID, self.configuration.categories)
+        if not c:
+            return None
+        return c[0]
 
 
     def GetAllCategories(self, sort=u"name", visibleOnly=False):
@@ -933,10 +933,10 @@ class Configuration:
         
         returns string
         """
-        for c in self.configuration.categories:
-            if c["id"] == categoryID:
-                return c["name"]
-        return u""
+        c = filter(lambda d: d["id"]==categoryID, self.configuration.categories)
+        if not c:
+            return u""
+        return c[0]["name"]
 
 
     # Groups -------------------------------------------------------------
@@ -961,10 +961,10 @@ class Configuration:
         
         returns string
         """
-        for c in self.configuration.groups:
-            if c["id"] == groupID:
-                return c["name"]
-        return u""
+        g = filter(lambda d: d["id"]==groupID, self.configuration.groups)
+        if not g:
+            return u""
+        return g[0]["name"]
 
 
     # Workflow -------------------------------------------------------------

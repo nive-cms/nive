@@ -125,7 +125,8 @@ class user(ObjectBase):
 
     def GetGroups(self, context=None):
         """
-        groups
+        Returns the users gloabal groups as tuple.
+        Local assignments are not supported, `context` is currently unused.
         """
         return self.groups
 
