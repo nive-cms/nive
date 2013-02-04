@@ -26,7 +26,7 @@ http://cms.nive.co/doc/html/index.html
 
 Support, Feedback, Community
 ----------------------------
-http://cms.nive.co/cms/root/about.html
+http://cms.nive.co/cms/root/community.html
 
 The form module nive.components.reform
 ----------------------------------------
