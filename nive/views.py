@@ -305,7 +305,7 @@ class BaseView(object):
                 templatename = self.context.configuration.id
         tmpl = self._LookupTemplate(templatename)
         if not tmpl:
-            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": templatename, "type":self.context.configuration.id}
+            raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": templatename, "type": self.context.configuration.id}
         self.CacheHeader(self.request.response, user=self.User())
         if not "context" in values: values[u"context"] = self.context
         if not "view" in values: values[u"view"] = self
@@ -324,13 +324,23 @@ class BaseView(object):
         
         returns rendered result
         """
+        # store original context to reset after calling render_view
+        orgctx = self.request.context
+        self.request.context = obj
         if not raiseUnauthorized:
             try:
                 value = render_view(obj, self.request, name, secure)
+                self.request.context = orgctx
             except HTTPForbidden:
+                self.request.context = orgctx
                 return u""
         else:
-            value = render_view(obj, self.request, name, secure)
+            try:
+                value = render_view(obj, self.request, name, secure)
+            except:
+                self.request.context = orgctx
+                raise
+        self.request.context = orgctx
         if not value:
             return u""
         return unicode(value, codepage)
