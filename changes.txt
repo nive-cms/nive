@@ -1,3 +1,11 @@
+0.9.6
+-----
+- bugfixes and smaller updates
+- serialization and deserialization of lists to json
+- added forms.JsonSequenceForm
+- added controlset option for list form fields
+
+
 0.9.5b
 ------
 The first beta release. Finally, all major features are included in this release. 

@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 
-__version__ = "0.9.5b"
+__version__ = "0.9.6"
 __doc__ = """nive"""
 
 
