@@ -974,7 +974,10 @@ class ObjectForm(HTMLForm):
         
         `Process()` returns the form data as result if update succeeds.
 
-        returns form data or false, html
+        Event
+        - success(obj) after data has been successfully committed
+
+        returns form data or false, html or redirects
         """
         msgs = []
         obj=self.context
@@ -985,6 +988,7 @@ class ObjectForm(HTMLForm):
             if result:
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
+                self.Signal("success", obj=obj)
                 errors=None
                 if self.view and redirect_success:
                     redirect_success = self.view.ResolveUrl(redirect_success, obj)
@@ -1005,7 +1009,10 @@ class ObjectForm(HTMLForm):
 
         `Process()` returns the new object as result if create succeeds.
 
-        returns new object or none, html
+        Event
+        - success(obj) after data has been successfully committed
+
+        returns new object or none, html or redirects
         """
         msgs = []
         result,data,errors = self.Validate(self.request)
@@ -1019,6 +1026,7 @@ class ObjectForm(HTMLForm):
             result = self.context.Create(objtype, data, user)
             if result:
                 msgs.append(_(u"OK. Data saved."))
+                self.Signal("success", obj=result)
                 errors=None
                 if self.view and redirect_success:
                     redirect_success = self.view.ResolveUrl(redirect_success, result)
