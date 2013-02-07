@@ -4,7 +4,7 @@
                  static view.StaticUrl('nive.cms.cmsview:static/')"
      id="nive-editblock${obj.GetID()}"
      class="pageeditorEditblock pageeditorEditblockElement"
-     onClick="peStopEvent(event)" 
+     onClick="$.fn.editblocks().stopEvent(event)" 
      style="display:none"
      i18n:domain="nive">
 
@@ -13,7 +13,7 @@
   ${obj.GetTypeName()}
   </div>
   <div class="options_block">
-    <a href="#" onClick="peLoadToggleBlock('${objUrl}elementAddWidget', 'add${obj.GetID()}',event);return false;"
+    <a href="#" onClick="$.fn.editblocks().loadToggleBlock('${objUrl}elementAddWidget', '#add${obj.GetID()}',event);return false;"
        class="nivecms"><img src="${static+'images/element_add.png'}" 
              title="Add a new page element" align="top" i18n:attributes="title" /> </a>
   </div>

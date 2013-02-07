@@ -196,7 +196,7 @@ class Editor(BaseView, CopyView, SortView):
         if not obj:
             return u""
         js = u"""<script>$(document).ready(function(){ \n%(js)s });</script>"""
-        attr = u""" $("#nive-element%(id)s").click(function() { peClickAndLoadElement('%(id)s','%(path)s',arguments[0] || window.event); });\n"""
+        attr = u""" $("#nive-element%(id)s").click(function() { $.fn.editblocks().clickAndLoadElement('%(id)s','%(path)s',arguments[0] || window.event); });\n"""
         newjs = StringIO()
         html = StringIO()
         
@@ -223,8 +223,8 @@ class Editor(BaseView, CopyView, SortView):
         if not obj:
             return u""
         js = u"""<script>$(document).ready(function(){ %(js)s });</script>"""
-        #dbl click: attr = u""" $("#nive-element%(id)s").attr({ondblclick:"peDblClickElement('%(id)s',event)", onclick:"peClickElement('%(id)s',event)"});\n"""
-        attr = u""" $("#nive-element%(id)s").click(function() { peClickElement('%(id)s',arguments[0] || window.event); });\n"""
+        #dbl click: attr = u""" $("#nive-element%(id)s").attr({ondblclick:"$.fn.editblocks().dblClickElement('%(id)s',event)", onclick:"$.fn.editblocks().clickElement('%(id)s',event)"});\n"""
+        attr = u""" $("#nive-element%(id)s").click(function() { $.fn.editblocks().clickElement('%(id)s',arguments[0] || window.event); });\n"""
         insert = u""" $("#nive-editblock%(id)s").prependTo("#nive-element%(id)s");\n"""
         newjs = StringIO()
         html = StringIO()
@@ -331,7 +331,7 @@ class Editor(BaseView, CopyView, SortView):
         if not obj:
             obj=self.context
         html = u"""<div>
-  <h4 onclick="peToggleBlock('elements%(id)s',event)">%(title)s</h4>
+  <h4 onclick="$.fn.editblocks().toggleBlock('#elements%(id)s',event)">%(title)s</h4>
   %(blocks)s
 </div>
         """
@@ -403,7 +403,11 @@ class Editor(BaseView, CopyView, SortView):
         for p in pages:
             wf = u""
             if useworkflow and not p.meta.pool_state:
-                wf = u"""<a href="%(url)sworkflow" class="right" rel="niveOverlay"><img src="%(static)s" title="%(name)s"/></a>""" % {u"static": static, u"url": self.FolderUrl(p), u"name": localizer(_(u"This page is not public."))}
+                wf = u"""<a href="%(url)sworkflow" class="right" rel="niveOverlay"><img src="%(static)s" title="%(name)s"/></a>""" % {
+                                    u"static": static, 
+                                    u"url": self.FolderUrl(p), 
+                                    u"name": localizer(_(u"This page is not public."))
+                                }
             title = p.meta.get(u"title")
             options = self.editBlockList(obj=p, page=page)
             blocks.write(pHtml % {u"url": self.FolderUrl(p), u"title": title, u"options": options, u"workflow": wf})

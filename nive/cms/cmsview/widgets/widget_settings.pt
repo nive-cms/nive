@@ -6,12 +6,12 @@
  <!-- system and settings -->
  <div class="widget_head" i18n:translate="">Settings</div>
  <div class="widget_content">
-    <a id="peMenuEditOn" onclick="peEnable()" style="display:none; cursor:pointer" class="nivecms"
+    <a id="peMenuEditOn" onclick="$.fn.editblocks().enable()" style="display:none; cursor:pointer" class="nivecms"
        ><img tal:attributes="src static+'images/on.png'" 
              title="Enable interactive elements" i18n:attributes="title" /> 
              <span i18n:translate="">Enable interactive elements</span></a>
 
-    <a id="peMenuEditOff" onclick="peEnable()" style="display:none; cursor:pointer" class="nivecms"
+    <a id="peMenuEditOff" onclick="$.fn.editblocks().enable()" style="display:none; cursor:pointer" class="nivecms"
        ><img tal:attributes="src static+'images/off.png'"  
              title="Disable interactive elements" i18n:attributes="title" /> 
              <span i18n:translate="">Disable interactive elements</span></a>
