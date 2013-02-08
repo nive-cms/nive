@@ -565,6 +565,9 @@ class Base(object):
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
+        except:
+            self.Undo()
+            raise
         id = 0
         if idColumn:
             id = self._GetInsertIDValue(cursor)
@@ -620,6 +623,9 @@ class Base(object):
         except self._OperationalError, e:
             # map to nive.utils.dataPool2.base.OperationalError
             raise OperationalError, e
+        except:
+            self.Undo()
+            raise
         if cc:
             cursor.close()
         if autoinsert:
@@ -646,7 +652,11 @@ class Base(object):
         if not cursor:
             cc=True
             cursor = self.connection.cursor()
-        cursor.execute(sql, v)
+        try:
+            cursor.execute(sql, v)
+        except:
+            self.Undo()
+            raise
         if cc:
             cursor.close()
 
@@ -810,7 +820,11 @@ class Base(object):
         sql, values = self.FmtSQLSelect([u"pool_dataref", u"pool_datatbl"], parameter={"id":id}, dataTable=self.MetaTable, singleTable=1)
         if self._debug:
             STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        cursor.execute(sql, values)
+        try:
+            cursor.execute(sql, values)
+        except:
+            self.Undo()
+            raise
         r = cursor.fetchone()
         if not r:
             return 0
@@ -1625,7 +1639,11 @@ class Entry(object):
         cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
-        cursor.execute(sql, values)
+        try:
+            cursor.execute(sql, values)
+        except:
+            self.pool.Undo()
+            raise
         r = cursor.fetchone()
         text = self.pool.DecodeText(text)
         if not r:
@@ -1643,7 +1661,11 @@ class Entry(object):
         cursor = self.pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n", self.pool._debug, self.pool._log, name=self.pool.name)
-        cursor.execute(sql, values)
+        try:
+            cursor.execute(sql, values)
+        except:
+            self.pool.Undo()
+            raise
         r = cursor.fetchone()
         cursor.close()
         if not r:
@@ -1696,6 +1718,9 @@ class Entry(object):
             if self.pool._debug:
                 STACKF(0,str(e)+"\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
             return None
+        except:
+            self.pool.Undo()
+            raise
     
     
     def _SQLSelect(self, flds, cursor = None, table=None):
@@ -1716,7 +1741,11 @@ class Entry(object):
             cursor = pool.GetCursor()
         if pool._debug:
             STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
-        cursor.execute(sql, values)
+        try:
+            cursor.execute(sql, values)
+        except:
+            pool.Undo()
+            raise
         r = cursor.fetchone()
         if c:
             cursor.close()
@@ -1740,7 +1769,11 @@ class Entry(object):
             cursor = pool.GetCursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
-        cursor.execute(sql, values)
+        try:
+            cursor.execute(sql, values)
+        except:
+            pool.Undo()
+            raise
         r = cursor.fetchone()
         if c:
             cursor.close()
