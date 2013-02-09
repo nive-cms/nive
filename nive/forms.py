@@ -59,7 +59,8 @@ Form action callback methods use the following footage: ::
         return result, data
 
 These callback methods are automatically looked up and executed in Process(). Use action.method to
-link a method to a specific form action.
+link a method to a specific form action. Pass `user` as kw argument if the forms view attribute is 
+None. If form.view is set view.User() is used to lookup the current user.
 
 A custom HTMLForm example: ::
 
@@ -983,7 +984,7 @@ class ObjectForm(HTMLForm):
         obj=self.context
         result,data,errors = self.Validate(self.request)
         if result:
-            user = self.view.User()
+            user = kw.get("user") or self.view.User()
             result = obj.Update(data, user)
             if result:
                 #obj.Commit(user)
@@ -1022,7 +1023,7 @@ class ObjectForm(HTMLForm):
             else:
                 objtype = data.get("pool_type")
                 
-            user=self.view.User()
+            user=kw.get("user") or self.view.User()
             result = self.context.Create(objtype, data, user)
             if result:
                 msgs.append(_(u"OK. Data saved."))
@@ -1194,7 +1195,7 @@ class WorkflowForm(HTMLForm):
         if validated:
             wfa = ""
             wft = ""
-            user = self.view.User()
+            user = kw.get("user") or self.view.User()
             if obj.WfAction(action=wfa, transition=wft, user = user):
                 if self.view and redirect_success:
                     if self.use_ajax:
@@ -1289,7 +1290,7 @@ class JsonMappingForm(HTMLForm):
         obj=self.context
         result,data,errors = self.Validate(self.request)
         if result:
-            user = self.view.User()
+            user = kw.get("user") or self.view.User()
             result = obj.Update({self.jsonDataField: data}, user)
             if result:
                 #obj.Commit(user)
@@ -1366,7 +1367,7 @@ class JsonSequenceForm(HTMLForm):
             else:
                 del sequence[seqindex-1]
                 self.context.data[self.jsonDataField] = sequence
-                self.context.Commit(self.view.User())
+                self.context.Commit(kw.get("user") or self.view.User())
                 self.context.data[self.jsonDataField] = sequence
                 msgs=[_(u"Item deleted!")]
                 data = []
@@ -1385,7 +1386,7 @@ class JsonSequenceForm(HTMLForm):
         obj=self.context
         result,data,errors = self.Validate(self.request)
         if result:
-            user = self.view.User()
+            user = kw.get("user") or self.view.User()
             # merge sequnce list with edited item
             sequence = self.context.data.get(self.jsonDataField)
             if sequence in (u"", None):
