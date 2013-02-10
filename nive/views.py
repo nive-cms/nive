@@ -972,6 +972,7 @@ def Redirect(url, request, messages=None):
     return HTTPFound(location=url, headers=headers)
 
 def AuthenticatedUserName(request):
+    # bw 0.9.6. removed in next version.
     return authenticated_userid(request)
 
 def forbidden_view(request):

@@ -1431,9 +1431,9 @@ FulltextTbl: {"identity": None,
 )},
 SystemTbl: {"identity": None,
             "fields": (
-    FieldConf(id="id",     datatype="string",    size=50,    default='',   required=0,   readonly=0, name=_(u"Unique identifier")),
+    FieldConf(id="id",     datatype="string",    size=50,    default='',   required=0,   readonly=0, name=_(u"Key")),
     FieldConf(id="value",  datatype="text",      size=0,     default="",   required=0,   readonly=0, name=_(u"Value")),
-    FieldConf(id="ts",     datatype="number",    size=0,     default="",   required=0,   readonly=0, name=_(u"Timestamp")),
+    FieldConf(id="ts",     datatype="number",    size=8,     default="",   required=0,   readonly=0, name=_(u"Timestamp")),
 )},
 LocalGroupsTbl: {"identity": None,
                 "fields": (

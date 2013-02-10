@@ -14,3 +14,7 @@
 - helper.DumpJSONConf, LoadJSONConf tests
 - forms.JsonSequenceForm tests
 - forms list controlset tests
+
+
+0.9.7:
+- remove views.AuthenticatedUserName, userdb.app.AuthenticatedUserName, userdb.app.AuthenticatedUser

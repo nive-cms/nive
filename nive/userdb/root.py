@@ -417,7 +417,7 @@ class root(UserCache, RootBase):
             return None
         if user[0][2] != email:
             return None
-        return self.LookupUser(name=user[0][1], activeOnly=activeOnly)
+        return self.LookupUser(id=user[0][0], activeOnly=activeOnly)
 
 
     def GetUserGroups(self, name, activeOnly=1):

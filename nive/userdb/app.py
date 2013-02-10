@@ -40,9 +40,10 @@ configuration = AppConf()
 configuration.id = "userdb"
 configuration.title = _(u"Users")
 configuration.context = "nive.userdb.app.UserDB"
-#configuration.systemAdmin = (u"email", u"display name")
-#configuration.admin = {"name": "admin", "password": "adminpass", "email": "admin@domain.com"}
 configuration.loginByEmail = False
+
+# configuration.systemAdmin = (u"email", u"display name")
+# configuration.admin = {"name": "admin", "password": "adminpass", "email": "admin@domain.com"}
 
 configuration.modules = [
     "nive.userdb.root", "nive.userdb.user", 
@@ -74,22 +75,6 @@ class UserDB(ApplicationBase):
     implements(IUserDatabase)
 
 
-    def AuthenticatedUser(self, request):
-        """
-        returns the currently in request authenticated user object or none
-        """
-        name = self.UserName(request)
-        return self.GetRoot().GetUserByName(name)
-
-
-    def AuthenticatedUserName(self, request):
-        """
-        returns the currently in request authenticated user name as logged in
-        """
-        return authenticated_userid(request)    
-
-
-    # pyramid specific -------------------------------------------------------------------
         
     def Groupfinder(self, userid, request):
         """
@@ -124,3 +109,16 @@ class UserDB(ApplicationBase):
             setattr(request.response, "headerlist", [])
         headers = forget(request)
         request.response.headerlist += list(headers)
+
+
+
+
+    def AuthenticatedUser(self, request):
+        # bw 0.9.6. removed in next version.
+        name = self.UserName(request)
+        return self.GetRoot().GetUserByName(name)
+
+    def AuthenticatedUserName(self, request):
+        # bw 0.9.6. removed in next version.
+        return authenticated_userid(request)    
+
