@@ -611,7 +611,7 @@ class BaseView(object):
                 value = request.POST.getall(key)
                 if not value:
                     value = request.GET.getall(key)
-            if isinstance(value, basestring):
+            if isinstance(value, bytes):
                 value = unicode(value, self.context.app.configuration.frontendCodepage)
         except (AttributeError,KeyError):
             if method == "POST":
@@ -622,7 +622,7 @@ class BaseView(object):
                 value = request.POST.get(key)
                 if not value:
                     value = request.GET.get(key)
-            if isinstance(value, basestring):
+            if isinstance(value, bytes):
                 value = unicode(value, self.context.app.configuration.frontendCodepage)
             if value==None:
                 return default
