@@ -270,10 +270,10 @@ class Form(Events,ReForm):
         
         # unconfigured form
         if not subset and not subsets and not config and not self.fields:
-            raise ConfigurationError, "No form fields defined."
+            raise ConfigurationError, "No form fields defined"
         # unknown subset
         if subset and (not subsets or not subset in subsets):
-            raise ConfigurationError, "Unknown subset."
+            raise ConfigurationError, "Unknown form subset"
 
         # field lookup
         #(1) subsets[subset]["fields"]
@@ -295,7 +295,7 @@ class Form(Events,ReForm):
         elif config and self.app:
             temp = list(self.app.GetAllMetaFlds(ignoreSystem = True)) + list(config.data)
         if not temp:
-            raise ConfigurationError, "No form fields defined."
+            raise ConfigurationError, "No form fields defined"
         # lookup field configurations
         self._c_fields = []
         for f in temp:
