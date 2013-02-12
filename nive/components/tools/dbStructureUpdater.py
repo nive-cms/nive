@@ -159,7 +159,7 @@ By default this tool will only create new tables and columns and never delete an
         tableName = MetaTbl
 
         if not db.IsTable(tableName):
-            if not db.CreateTable(tableName, inColumns=meta):
+            if not db.CreateTable(tableName, columns=meta):
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (pool_meta)</div>")))
                 return 0
             db.dbConn.commit()
@@ -184,7 +184,7 @@ By default this tool will only create new tables and columns and never delete an
             fields = table[1]["fields"]
             identity = table[1]["identity"]
             if not db.IsTable(tableName):
-                if not db.CreateTable(tableName, inColumns=fields, inCreateIdentity = bool(identity), primaryKeyName = identity):
+                if not db.CreateTable(tableName, columns=fields, createIdentity = bool(identity), primaryKeyName = identity):
                     self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (${name})</div>",mapping={"name":tableName})))
                     return 0
                 db.dbConn.commit()
@@ -195,7 +195,7 @@ By default this tool will only create new tables and columns and never delete an
                 m = request.get(tableName)
                 if type(m) == type(""):
                     m = [m]
-            if not db.UpdateStructure(tableName, fields, m):
+            if not db.UpdateStructure(tableName, fields, m, createIdentity = bool(identity)):
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (${name})</div>",mapping={"name":tableName})))
                 result = 0
             db.dbConn.commit()

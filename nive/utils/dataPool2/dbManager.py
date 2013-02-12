@@ -94,13 +94,13 @@ class MySQLManager(object):
         return date.strftime(u"%Y-%m-%d %H:%M:%S")
 
 
-    def UpdateStructure(self, tableName, structure, modify = None):
+    def UpdateStructure(self, tableName, structure, modify = None, createIdentity = True):
         """
         modify = None to skip changing existing columns, list of column ids to modify if changed
         """
         # check table exists
         if not self.IsTable(tableName):
-            if not self.CreateTable(tableName, inColumns=structure):
+            if not self.CreateTable(tableName, columns=structure, createIdentity=createIdentity):
                 return False
             # delay until table is created
             time.sleep(0.3)
@@ -119,7 +119,7 @@ class MySQLManager(object):
             options = self.ConvertConfToColumnOptions(col)
 
             # skip id column
-            if name == u"id":
+            if createIdentity and name == u"id":
                 continue
 
             if not self.IsColumn(tableName, name):
@@ -141,6 +141,11 @@ class MySQLManager(object):
                 if not self.CreateColumn(tableName, name, options):
                     return False
 
+        if createIdentity:
+            if not self.IsColumn(tableName, u"id"):
+                if not self.CreateIdentityColumn(tableName, u"id"):
+                    return False
+            
         return True
 
 
@@ -334,17 +339,17 @@ class MySQLManager(object):
         return False
 
 
-    def CreateTable(self, tableName, inColumns = None, inCreateIdentity = True, primaryKeyName="id"):
+    def CreateTable(self, tableName, columns = None, createIdentity = True, primaryKeyName="id"):
         if not self.IsDB():
             return False
         if not tableName or tableName == "":
             return False
         assert(tableName != "user")
         aSql = u""
-        if inCreateIdentity:
+        if createIdentity:
             aSql = u"CREATE TABLE %s(%s INT UNSIGNED AUTO_INCREMENT UNIQUE NOT NULL PRIMARY KEY" % (tableName, primaryKeyName)
-            if inColumns:
-                for c in inColumns:
+            if columns:
+                for c in columns:
                     if c.id == primaryKeyName:
                         continue
                     aSql += ","
@@ -353,11 +358,11 @@ class MySQLManager(object):
             aSql += u" AUTO_INCREMENT = 1 "
         else:
             aSql = u"CREATE TABLE %s" % (tableName)
-            if not inColumns:
+            if not columns:
                 raise ConfigurationError, "No database fields defined."
             aCnt = 0
             aSql += u"("
-            for c in inColumns:
+            for c in columns:
                 if aCnt:
                     aSql += u","
                 aCnt = 1
@@ -703,17 +708,17 @@ class Sqlite3Manager(MySQLManager):
         return False
 
 
-    def CreateTable(self, tableName, inColumns = None, inCreateIdentity = True, primaryKeyName="id"):
+    def CreateTable(self, tableName, columns = None, createIdentity = True, primaryKeyName="id"):
         if not self.IsDB():
             return False
         if not tableName or tableName == "":
             return False
         assert(tableName != "user")
         aSql = u""
-        if inCreateIdentity:
+        if createIdentity:
             aSql = u"CREATE TABLE %s(%s INTEGER PRIMARY KEY AUTOINCREMENT" % (tableName, primaryKeyName)
-            if inColumns:
-                for c in inColumns:
+            if columns:
+                for c in columns:
                     if c.id == primaryKeyName:
                         continue
                     aSql += ","
@@ -721,11 +726,11 @@ class Sqlite3Manager(MySQLManager):
             aSql += u")"
         else:
             aSql = u"CREATE TABLE %s" % (tableName)
-            if not inColumns:
+            if not columns:
                 raise ConfigurationError, "No database fields defined."
             aCnt = 0
             aSql += u"("
-            for c in inColumns:
+            for c in columns:
                 if aCnt:
                     aSql += u","
                 aCnt = 1
