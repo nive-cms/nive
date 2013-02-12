@@ -33,7 +33,7 @@ class DefaultSqliteTemplate(PyramidTemplate):
             print('Passwords do not match. Try again')
             p1, p2 = pprompt()
         
-        vars['adminpass'] = base64.encodestring(p1)
+        vars['adminpass'] = base64.standard_b64encode(p1)
 
         mail = raw_input("Admin email: ")
         vars['adminemail'] = str(mail)
@@ -79,7 +79,7 @@ class DefaultMysqlTemplate(PyramidTemplate):
             print('Passwords do not match. Try again')
             p1, p2 = pprompt()
             
-        vars['adminpass'] = base64.encodestring(p1)
+        vars['adminpass'] = base64.standard_b64encode(p1)
         
         mail = raw_input("Admin email: ")
         vars['adminemail'] = str(mail)
@@ -113,7 +113,7 @@ class DefaultMysqlTemplate(PyramidTemplate):
             print('Passwords do not match. Try again')
             p1, p2 = pprompt()
 
-        vars['dbpass'] = base64.encodestring(p1)
+        vars['dbpass'] = base64.standard_b64encode(p1)
         
         vars['language'] = raw_input("Locale name. Please choose english-> en or german-> de: ")
 
