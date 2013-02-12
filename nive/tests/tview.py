@@ -15,6 +15,7 @@ from pyramid import testing
 def getRequest():
     r = Request({"wsgi.url_scheme":"http", "SERVER_NAME": "testserver.de","SERVER_PORT":80, "REQUEST_METHOD": "GET"})
     r.subpath = ["file1.txt"]
+    r.context = None
     return r
 
 
