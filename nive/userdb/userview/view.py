@@ -96,7 +96,7 @@ class UserForm(ObjectForm):
         self.groups = ""
         self.css_class = "smallform"
 
-    def AddUser(self, action, redirect_success):
+    def AddUser(self, action, redirectSuccess):
         """
         Form action: safely add a user 
         """
@@ -112,13 +112,13 @@ class UserForm(ObjectForm):
                                                 currentUser=self.view.User())
             if result:
                 errors=None
-                if self.view and redirect_success:
-                    self.view.Redirect(redirect_success, messages=msgs)
+                if self.view and redirectSuccess:
+                    self.view.Redirect(redirectSuccess, messages=msgs)
                 return result, self._Msgs(msgs=msgs)
         return result, self.Render(data, msgs=msgs, errors=errors)
         
         
-    def LoadUser(self, action, redirect_success):
+    def LoadUser(self, action, redirectSuccess):
         """
         Initially load data from obj. 
         context = obj
@@ -134,7 +134,7 @@ class UserForm(ObjectForm):
         return data!=None, self.Render(data)
 
 
-    def Update(self, action, redirect_success):
+    def Update(self, action, redirectSuccess):
         """
         Form action: safely update a user 
         """
@@ -148,13 +148,13 @@ class UserForm(ObjectForm):
             if result:
                 msgs.append(_(u"OK"))
                 errors=None
-                if self.view and redirect_success:
-                    self.view.Redirect(redirect_success, messages=msgs)
+                if self.view and redirectSuccess:
+                    self.view.Redirect(redirectSuccess, messages=msgs)
                     return
         return result, self.Render(data, msgs=msgs, errors=errors)
         
     
-    def Login(self, action, redirect_success):
+    def Login(self, action, redirectSuccess):
         """
         Form action: user login 
         """
@@ -162,28 +162,28 @@ class UserForm(ObjectForm):
         user, msgs = self.context.Login(data.get("name"), data.get("password"), 0)
         if user:
             self.context.app.RememberLogin(self.request, user.data.get("name"))
-            if self.view and redirect_success:
-                self.view.Redirect(redirect_success)
+            if self.view and redirectSuccess:
+                self.view.Redirect(redirectSuccess)
                 return
         errors=None
         return user, self.Render(data, msgs=msgs, errors=errors)
         
 
-    def MailPass(self, action, redirect_success):
+    def MailPass(self, action, redirectSuccess):
         """
         """
-        return self.ResetPass(action, redirect_success, createNewPasswd=False)
+        return self.ResetPass(action, redirectSuccess, createNewPasswd=False)
 
 
-    def ResetPass(self, action, redirect_success, createNewPasswd=True):
+    def ResetPass(self, action, redirectSuccess, createNewPasswd=True):
         """
         """
         #result, data, e = self.Validate(self.request)
         data = self.GetFormValues(self.request)
         result, msgs = self.context.MailUserPass(email=data.get("email"), mailtmpl=self.mailpass, createNewPasswd=createNewPasswd, currentUser=self.view.User())
         if result:
-            if self.view and redirect_success:
-                self.view.Redirect(redirect_success, messages=msgs)
+            if self.view and redirectSuccess:
+                self.view.Redirect(redirectSuccess, messages=msgs)
                 return
             data = {}
         errors=None
@@ -258,7 +258,7 @@ class UserView(BaseView):
                     redirect = self.context.app.portal.configuration.loginSuccessUrl
                 except:
                     redirect = self.request.url
-            result, data, action = self.form.Process(redirect_success=redirect)
+            result, data, action = self.form.Process(redirectSuccess=redirect)
             return {u"content": data, u"result": result, u"head": self.form.HTMLHead()}
         return {u"content": u"", u"result": True, u"head": self.form.HTMLHead()}
             

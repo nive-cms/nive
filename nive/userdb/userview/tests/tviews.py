@@ -100,7 +100,7 @@ class tViews(unittest.TestCase):
         self.request.POST = {"name": "testuser", "email": "testuser@domain.net"}
         self.request.GET = {}
 
-        r,v = form.AddUser("action", redirect_success="")
+        r,v = form.AddUser("action", redirectSuccess="")
         self.assert_(r)
 
         form = UserForm(loadFromType="user", context=self.root, request=self.request, view=view, app=self.app)
@@ -108,12 +108,12 @@ class tViews(unittest.TestCase):
         self.request.POST = {"name": "testuser123", "email": "testuser@domain.net", "surname": "12345", "password": "12345", "password-confirm": "12345"}
         self.request.GET = {}
 
-        r,v = form.LoadUser("action", redirect_success="")
+        r,v = form.LoadUser("action", redirectSuccess="")
         self.assert_(r)
-        r,v = form.Update("action", redirect_success="")
+        r,v = form.Update("action", redirectSuccess="")
         self.assert_(r)
         self.request.POST = {"name": "testuser123", "email": "testuser@domain.net", "surname": "12345", "password": "12345"}
-        r,v = form.Update("action", redirect_success="")
+        r,v = form.Update("action", redirectSuccess="")
         self.assertFalse(r)
 
         view = BaseView(context=self.root, request=self.request)
@@ -122,7 +122,7 @@ class tViews(unittest.TestCase):
         self.request.POST = {"name": "testuser", "password": "12345"}
         self.request.GET = {}
 
-        r,v = form.Login("action", redirect_success="")
+        r,v = form.Login("action", redirectSuccess="")
         self.assert_(r)
 
         form = UserForm(loadFromType="user", context=self.root, request=self.request, view=view, app=self.app)
@@ -130,7 +130,7 @@ class tViews(unittest.TestCase):
         self.request.POST = {"email": "testuser@domain.net"}
         self.request.GET = {}
 
-        r,v = form.MailPass("action", redirect_success="")
+        r,v = form.MailPass("action", redirectSuccess="")
         self.assert_(v.find("The email could not be sent"))
         
         

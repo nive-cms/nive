@@ -506,9 +506,9 @@ class Editor(BaseView, CopyView, SortView):
             return {u"content": u"", u"showAddLinks": True, u"result": True, u"head": u""}
         form = ObjectForm(view=self, loadFromType=typeID)
         form.Setup(subset="create", addTypeField=True)
-        form.use_ajax = True
+        #form.use_ajax = True
         head = form.HTMLHead()
-        result, data, action = form.Process(defaultAction="default", redirect_success="page_url")
+        result, data, action = form.Process(defaultAction="default", redirectSuccess="page_url")
         return {u"content": data, u"result": result, u"cmsview": self, u"showAddLinks": False, u"head": head}
 
     
@@ -532,10 +532,12 @@ class Editor(BaseView, CopyView, SortView):
     
     def edit(self):
         form = ObjectForm(view=self, loadFromType=self.context.configuration)
-        form.use_ajax = True
+        #form.use_ajax = True
         form.Setup(subset="edit")
         head = form.HTMLHead()
-        result, data, action = form.Process(defaultAction="defaultEdit", redirect_success="page_url")
+        result, data, action = form.Process(defaultAction="defaultEdit", redirectSuccess="page_url")
+        if action.id==u"edit":
+            return self.SendResponse(data, mime="text/html", raiseException=True)
         return {u"content": data, u"result": result, u"cmsview":self, u"head": head}
 
 

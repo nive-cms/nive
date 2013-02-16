@@ -105,7 +105,7 @@ class ConfigurationForm(HTMLForm):
         Conf(id=u"edit",       method="Update",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
     ]
     
-    def Start(self, action, redirect_success, **kw):
+    def Start(self, action, redirectSuccess, **kw):
         """
         Initially load data from object. 
         context = obj
@@ -123,7 +123,7 @@ class ConfigurationForm(HTMLForm):
         return data!=None, self.Render(data)
 
 
-    def Update(self, action, redirect_success, **kw):
+    def Update(self, action, redirectSuccess, **kw):
         """
         Process request data and update object.
         
@@ -142,12 +142,12 @@ class ConfigurationForm(HTMLForm):
                 msgs.append(_(u"No persistent storage for configurations activated. Nothing saved."))
                 result = False
             errors=None
-            if self.view and redirect_success:
-                redirect_success = self.view.ResolveUrl(redirect_success, obj)
+            if self.view and redirectSuccess:
+                redirectSuccess = self.view.ResolveUrl(redirectSuccess, obj)
                 if self.use_ajax:
-                    self.view.AjaxRelocate(redirect_success, messages=msgs)
+                    self.view.AjaxRelocate(redirectSuccess, messages=msgs)
                 else:
-                    self.view.Redirect(redirect_success, messages=msgs)
+                    self.view.Redirect(redirectSuccess, messages=msgs)
         return result, self.Render(data, msgs=msgs, errors=errors)    
 
 

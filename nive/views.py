@@ -282,6 +282,16 @@ class BaseView(object):
         """
         while self.request.session.pop_flash(slot):
             continue
+        
+    
+    def AddHeader(self, name, value):
+        """
+        Add a additional response header value.
+        """
+        headers = [(name, value)]
+        if hasattr(self.request.response, "headerlist"):
+            headers += list(self.request.response.headerlist)
+        self.request.response.headerlist = headers    
 
     
     # render other elements and objects ---------------------------------------------
