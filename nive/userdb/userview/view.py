@@ -64,7 +64,7 @@ class UserForm(ObjectForm):
         self.actions = [
             Conf(id="default",    method="StartForm", name=_(u"Initialize"),    hidden=True),
             Conf(id="defaultEdit",method="LoadUser",  name=_(u"Initialize"),    hidden=True),
-            Conf(id="create",     method="AddUser",   name=_(u"Signup"),        hidden=False),
+            Conf(id="create",     method="AddUser",   name=_(u"Signup"),        hidden=False, options={"renderSuccess":False}),
             Conf(id="edit",       method="Update",    name=_(u"Confirm"),       hidden=False),
             Conf(id="mailpass",   method="MailPass",  name=_(u"Mail password"), hidden=False),
             Conf(id="resetpass",  method="ResetPass", name=_(u"Reset password"), hidden=False),
@@ -73,19 +73,25 @@ class UserForm(ObjectForm):
     
         self.subsets = {
             "create": {"fields":  ["name", "password", "email", "surname", "lastname"], 
-                       "actions": ["default", "create"]},
+                       "actions": ["create"],
+                       "defaultAction": "default"},
             "create2":{"fields":  ["name", "email"], 
-                       "actions": ["default", "create"]},
+                       "actions": ["create"],
+                       "defaultAction": "default"},
             "edit":   {"fields":  ["email", 
                                    FieldConf(id="password", name=_("Password"), datatype="password", required=False, settings={"update": True}),
                                    "surname", "lastname"], 
-                       "actions": ["defaultEdit", "edit"]},
+                       "actions": ["defaultEdit", "edit"],
+                       "defaultAction": "defaultEdit"},
             "login":  {"fields":  ["name", FieldConf(id="password", name=_("Password"), datatype="password", settings={"single": True})], 
-                       "actions": ["login"]},
+                       "actions": ["login"],
+                       "defaultAction": "default"},
             "mailpass":{"fields": ["email"], 
-                        "actions": ["mailpass"]},
+                        "actions": ["mailpass"],
+                        "defaultAction": "default"},
             "resetpass":{"fields": ["email"], 
-                        "actions": ["resetpass"]},
+                        "actions": ["resetpass"],
+                        "defaultAction": "default"},
         }
 
         self.activate = 1
@@ -96,7 +102,8 @@ class UserForm(ObjectForm):
         self.groups = ""
         self.css_class = "smallform"
 
-    def AddUser(self, action, redirectSuccess):
+
+    def AddUser(self, action, **kw):
         """
         Form action: safely add a user 
         """
@@ -110,15 +117,18 @@ class UserForm(ObjectForm):
                                                 groups=self.groups, 
                                                 notify=self.notify, 
                                                 currentUser=self.view.User())
-            if result:
-                errors=None
-                if self.view and redirectSuccess:
-                    self.view.Redirect(redirectSuccess, messages=msgs)
-                return result, self._Msgs(msgs=msgs)
-        return result, self.Render(data, msgs=msgs, errors=errors)
+
+        return self._FinishFormProcessing(result, data, msgs, errors, **kw)
+        #    if result:
+        #        redirectSuccess = kw.get("redirectSuccess")
+        #        errors=None
+        #        if self.view and redirectSuccess:
+        #            self.view.Redirect(redirectSuccess, messages=msgs)
+        #        return result, self._Msgs(msgs=msgs)
+        #return result, self.Render(data, msgs=msgs, errors=errors)
         
         
-    def LoadUser(self, action, redirectSuccess):
+    def LoadUser(self, action, **kw):
         """
         Initially load data from obj. 
         context = obj
@@ -134,7 +144,7 @@ class UserForm(ObjectForm):
         return data!=None, self.Render(data)
 
 
-    def Update(self, action, redirectSuccess):
+    def Update(self, action, **kw):
         """
         Form action: safely update a user 
         """
@@ -147,17 +157,21 @@ class UserForm(ObjectForm):
             result = user.SecureUpdate(data, self.view.User())
             if result:
                 msgs.append(_(u"OK"))
-                errors=None
-                if self.view and redirectSuccess:
-                    self.view.Redirect(redirectSuccess, messages=msgs)
-                    return
-        return result, self.Render(data, msgs=msgs, errors=errors)
+
+        return self._FinishFormProcessing(result, data, msgs, errors, **kw)
+        #        redirectSuccess = kw.get("redirectSuccess")
+        #        errors=None
+        #        if self.view and redirectSuccess:
+        #            self.view.Redirect(redirectSuccess, messages=msgs)
+        #            return
+        #return result, self.Render(data, msgs=msgs, errors=errors)
         
     
-    def Login(self, action, redirectSuccess):
+    def Login(self, action, **kw):
         """
         Form action: user login 
         """
+        redirectSuccess = kw.get("redirectSuccess")
         data = self.GetFormValues(self.request)
         user, msgs = self.context.Login(data.get("name"), data.get("password"), 0)
         if user:
@@ -169,25 +183,30 @@ class UserForm(ObjectForm):
         return user, self.Render(data, msgs=msgs, errors=errors)
         
 
-    def MailPass(self, action, redirectSuccess):
+    def MailPass(self, action, **kw):
         """
         """
-        return self.ResetPass(action, redirectSuccess, createNewPasswd=False)
+        redirectSuccess = kw.get("redirectSuccess")
+        return self.ResetPass(action, createNewPasswd=False, **kw)
 
 
-    def ResetPass(self, action, redirectSuccess, createNewPasswd=True):
+    def ResetPass(self, action, createNewPasswd=True, **kw):
         """
         """
         #result, data, e = self.Validate(self.request)
         data = self.GetFormValues(self.request)
         result, msgs = self.context.MailUserPass(email=data.get("email"), mailtmpl=self.mailpass, createNewPasswd=createNewPasswd, currentUser=self.view.User())
         if result:
-            if self.view and redirectSuccess:
-                self.view.Redirect(redirectSuccess, messages=msgs)
-                return
             data = {}
-        errors=None
-        return result, self.Render(data, msgs=msgs, errors=errors)
+        return self._FinishFormProcessing(result, data, msgs, None, **kw)
+        #if result:
+        #    redirectSuccess = kw.get("redirectSuccess")
+        #    if self.view and redirectSuccess:
+        #        self.view.Redirect(redirectSuccess, messages=msgs)
+        #        return
+        #    data = {}
+        #errors=None
+        #return result, self.Render(data, msgs=msgs, errors=errors)
 
 
 
@@ -225,7 +244,7 @@ class UserView(BaseView):
             return {u"content": _(u"Your current user can only be edited on file system level."), u"result": False, u"head": self.form.HTMLHead()}
         self.form.Setup(subset="edit")
         try:
-            result, data, action = self.form.Process(defaultAction="defaultEdit")
+            result, data, action = self.form.Process()
             return {u"content": data, u"result": result, u"head": self.form.HTMLHead()}
         except Unauthorized:
             return {u"content": _(u"User not found"), u"result": False, u"head": self.form.HTMLHead()}

@@ -149,7 +149,8 @@ Example: ::
             return jQuery(sender).attr('href');
         },
         fadeInSpeed: 0,
-        fadeOutSpeed: 0
+        fadeOutSpeed: 0,
+        reloadOnClose: false
     }
       
     /********************************** 
@@ -188,7 +189,13 @@ Example: ::
         this.options = $.extend({}, options, params);
         this.close = function (url) {
             jQuery('.' + options.modalClassName + ', .' + options.overlayClassName).fadeOut(_settings.fadeOutSpeed, function () { 
-                      jQuery(this).unbind().remove(); if(!url) location.reload(); else {location.href=url;} });
+                      jQuery(this).unbind().remove(); 
+                      if(!url) {
+                      	if(options.reloadOnClose) location.reload(); 
+                      } else {
+                        location.href=url; 
+                      } 
+                   });
         }
         this.cancel = function () {
             jQuery('.' + options.modalClassName + ', .' + options.overlayClassName).fadeOut(_settings.fadeOutSpeed, function () { 

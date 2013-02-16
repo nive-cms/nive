@@ -80,7 +80,8 @@ class UsermanagementView(AdminBasics):
         form = ObjectForm(loadFromType="user", view=self)
         form.subsets = {
             "create": {"fields":  [name, "password", "email", "groups", "surname", "lastname"], 
-                       "actions": ["default", "create"]}
+                       "actions": ["create"],
+                       "defaultAction": "default"}
         }
         form.Setup(subset="create")
         result, data, action = form.Process(redirectSuccess="obj_url", pool_type="user")
@@ -100,10 +101,11 @@ class UsermanagementView(AdminBasics):
         form.RegisterEvent("loadDataObj", removepasswd)
         form.subsets = {
             "edit":   {"fields":  [pwd, "email", "groups", "surname", "lastname"], 
-                       "actions": ["defaultEdit", "edit"]},
+                       "actions": ["edit"],
+                       "defaultAction": "defaultEdit"},
         }        
         form.Setup(subset="edit")
-        result, data, action = form.Process(defaultAction="defaultEdit")#, redirectSuccess="obj_url")
+        result, data, action = form.Process()#, redirectSuccess="obj_url")
         return {u"content": data, u"result": result, u"head": form.HTMLHead()}
             
     

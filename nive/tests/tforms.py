@@ -267,9 +267,9 @@ class FormTest_db(unittest.TestCase):
 
     def setUp(self):
         self.app = db_app.app_db()
-        request = testing.DummyRequest()
-        request._LOCALE_ = "en"
-        self.config = testing.setUp(request=request)
+        self.request = testing.DummyRequest()
+        self.request._LOCALE_ = "en"
+        self.config = testing.setUp(request=self.request)
         self.remove=[]
     
     def tearDown(self):

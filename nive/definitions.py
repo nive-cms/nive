@@ -255,6 +255,10 @@ class IAdminWidgetConf(Interface):
     in your WidgetConf() to link a new tab to the nive admin header.
     """
 
+class ISort(Interface):
+    pass
+
+
 
 
 class baseConf(object):

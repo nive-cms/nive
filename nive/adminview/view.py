@@ -105,7 +105,7 @@ class ConfigurationForm(HTMLForm):
         Conf(id=u"edit",       method="Update",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
     ]
     
-    def Start(self, action, redirectSuccess, **kw):
+    def Start(self, action, **kw):
         """
         Initially load data from object. 
         context = obj
@@ -123,12 +123,13 @@ class ConfigurationForm(HTMLForm):
         return data!=None, self.Render(data)
 
 
-    def Update(self, action, redirectSuccess, **kw):
+    def Update(self, action, **kw):
         """
         Process request data and update object.
         
         returns bool, html
         """
+        redirectSuccess = kw.get("redirectSuccess")
         msgs = []
         conf=self.context
         result,data,errors = self.Validate(self.request)
@@ -145,7 +146,7 @@ class ConfigurationForm(HTMLForm):
             if self.view and redirectSuccess:
                 redirectSuccess = self.view.ResolveUrl(redirectSuccess, obj)
                 if self.use_ajax:
-                    self.view.AjaxRelocate(redirectSuccess, messages=msgs)
+                    self.view.Relocate(redirectSuccess, messages=msgs)
                 else:
                     self.view.Redirect(redirectSuccess, messages=msgs)
         return result, self.Render(data, msgs=msgs, errors=errors)    

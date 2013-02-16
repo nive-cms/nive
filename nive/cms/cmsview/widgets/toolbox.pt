@@ -7,6 +7,7 @@
     <h1 i18n:translate="">toolbox</h1>
   </div>
   <div id="toolbox_contents">
+    <span tal:replace="structure view.insertMessages()"/>
     <!--IObject-->
     <!--IPage-->
     <span tal:replace="structure view.insertPageWidgets()"/>

@@ -1,9 +1,5 @@
-<script tal:condition="field.view and field.view.Relocated()">
-  var url="${field.view.Relocated()}";
-  if(window!=window.parent) window.parent.close(url);
-  else location.href=url;
-</script>
-<form tal:condition="not field.view or not field.view.Relocated()"
+
+<form 
   id="${field.formid}"
   action="${field.action}"
   method="${field.method}"
@@ -41,14 +37,15 @@
         </tal:block>
     </div>
  
-<script type="text/javascript" tal:condition="0 and field.use_ajax">
+ 
+<script type="text/javascript" tal:condition="field.use_ajax">
 function reform_ajaxify(response, status, xhr, form, oid, mthd) {
   var options = { 
-    //target: '#'+oid,
-    //replaceTarget: true,
-    //success: function(response, status, xhr, form){
-	//  reform_ajaxify(response, status, xhr, form, oid); 
-	//},
+    target: '#'+oid,
+    replaceTarget: true,
+    success: function(response, status, xhr, form){
+	  reform_ajaxify(response, status, xhr, form, oid); 
+	},
     success:  function(responseText, statusText, xhr, $form) { 
       if(xhr.getResponseHeader('X-Relocate')) window.parent.close(xhr.getResponseHeader('X-Relocate'));
       else {

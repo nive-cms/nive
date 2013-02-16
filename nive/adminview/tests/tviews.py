@@ -70,8 +70,8 @@ class tViews(unittest.TestCase):
         self.request.POST = {"name": "testuser", "email": "testuser@domain.net"}
         self.request.GET = {}
 
-        self.assert_(form.Start(None, None))
-        self.assert_(form.Update(None, None))
+        self.assert_(form.Start(None))
+        self.assert_(form.Update(None))
              
 
 

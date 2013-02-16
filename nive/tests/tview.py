@@ -55,7 +55,7 @@ class viewTest(unittest.TestCase):
         self.assert_(view.PageUrl(self.context, usePageLink=1))
         self.assert_(view.ResolveLink(str(self.context.id)))
         #self.assertRaises(HTTPFound, view.Redirect("there", messages=None))
-        #self.assertRaises(HTTPOk, view.AjaxRelocate("here", messages=None))
+        #self.assertRaises(HTTPOk, view.Relocate("here", messages=None))
         
         #files
         view.File()

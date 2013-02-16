@@ -35,7 +35,7 @@ This is an example to be used in object view code: ::
                       loadFromType=self.context.configuration)
     form.Setup(subset="edit") 
     # process and render the form.
-    result, data, action = form.Process(defaultAction="defaultEdit")
+    result, data, action = form.Process()
 
 *view* must be an instance of `nive.views.BaseView`.  
 *data* will contain the rendered HTML whether the is loaded for the first time, validated ok or 
@@ -47,14 +47,14 @@ All you have to do is switch the subset from *edit* to *create*. ::
                       loadFromType=self.context.configuration)
     form.Setup(subset="create")
     # process and render the form.
-    result, data, action = form.Process(defaultAction="default")
+    result, data, action = form.Process()
 
 The configuration is loaded from the object configuration itself so all field settings are 
 dynamically included. In fact the example above works for *any* object type.
 
 Form action callback methods use the following footage: ::
 
-    def Method(self, defaultAction="default", redirectSuccess=None, **kw):
+    def Method(self, action, **kw):
         ...
         return result, data
 
@@ -141,11 +141,14 @@ Internally the form uses a structure like in the following manually defined form
     
     subsets = {
       "create": {"fields":  ["ftext", "fnumber", "fdate"], 
-                {"actions": ["create"]},
+                 "actions": ["create"],
+                 "defaultAction": "default"},
       "create2":{"fields":  ["ftext", "fnumber", "fdate", "flist", "fmselect"], 
-                {"actions": ["create"]},
+                 "actions": ["create"],
+                 "defaultAction": "default"},
       "edit":   {"fields":  ["ftext"], 
-                {"actions": ["defaultEdit", "edit"]},
+                 "actions": ["edit"],
+                 "defaultAction": "defaultEdit"},
     }
     
     form = Form(view=self)
@@ -167,6 +170,7 @@ from types import StringType
 from pyramid.url import static_url
 
 from nive.definitions import Conf, FieldConf, ConfigurationError
+from nive.definitions import ISort
 from nive.events import Events
 
 from nive.components import reform
@@ -186,7 +190,8 @@ class ValidationError(Exception):
 
 """ 
 0.9.7 changed nive.Form:
-- renamed parameter `redirect_success` to `redirectSuccess`
+- renamed parameter `redirect_success` to `redirectSuccess` and pass as **kw argument to functions
+- form action method footage has changed: `def Method(self, action, **kw)`
 
 0.9.4 changed nive.Form:
 - __init__ parameters if view is not None: app, request, context are extracted from view context
@@ -572,6 +577,8 @@ class Form(Events, ReForm):
         """
         if not request:
             request = self.request
+        if isinstance(request, dict):
+            return request.get(key)
         if not method:
             method = self.method
         try:
@@ -670,11 +677,11 @@ class HTMLForm(Form):
     
     # Form actions --------------------------------------------------------------------------------------------
 
-    def Process(self, defaultAction="default", redirectSuccess=None, renderSuccess=False, **kw):
+    def Process(self, **kw):
         """
-        Processes the request and calls the required actions. ::
+        Processes the request and calls the required actions. kw parameter ::
         
-            defaultAction: default action if none found in request
+            defaultAction: default action if none found in request. Can also be configured in subset
             redirectSuccess: default=None. url to redirect on action success 
             renderSuccess: default=False. render the form on action success 
         
@@ -684,16 +691,23 @@ class HTMLForm(Form):
         Action definitions must define a callback method to process the action. 
         The callback takes two parameters: ::
     
-            method(action, redirectSuccess)
+            method(action, **kw)
 
         returns bool, html, dict (result, data, action)
         """
         # bw 0.9.7
         if u"redirect_success" in kw:
             redirectSuccess = kw[u"redirect_success"]
+
+        # find default action
+        defaultAction = None
+        if self.subset:
+            defaultAction = self.subsets[self.subset].get("defaultAction")
+        if not defaultAction:
+            defaultAction = kw.get("defaultAction", "default")
+        
         # find action
         action = None
-        default = None
         formValues = self.GetFormValues(self.request)
         actions = self.GetActions()
         for a in actions:
@@ -720,7 +734,15 @@ class HTMLForm(Form):
             method = getattr(self, action["method"])
         else:
             method = action["method"]
-        result, html = method(action, redirectSuccess, **kw)
+        
+        # lookup and merge keyword parameter for action call
+        methodKws = action.get("options")
+        if methodKws:
+            callKws = methodKws.copy()
+            callKws.update(kw)
+        else:
+            callKws = kw
+        result, html = method(action, **callKws)
         return result, html, action
 
 
@@ -734,7 +756,7 @@ class HTMLForm(Form):
         return action+u"$" in formValues.keys()
 
 
-    def StartForm(self, action, redirectSuccess, **kw):
+    def StartForm(self, action, **kw):
         """
         Default action. Use this function to initially render a form if:
         - startEmpty is True
@@ -743,10 +765,6 @@ class HTMLForm(Form):
 
         returns bool, html
         """
-        # bw 0.9.7
-        if u"redirect_success" in kw:
-            redirectSuccess = kw[u"redirect_success"]
-
         if self.startEmpty:
             data = {}
         elif "defaultData" in kw:
@@ -756,22 +774,18 @@ class HTMLForm(Form):
         return True, self.Render(data)
 
 
-    def StartRequestGET(self, action, redirectSuccess, **kw):
+    def StartRequestGET(self, action, **kw):
         """
         Default action. Initially loads data from request GET values.
         Loads default data for initial from display on object creation.
         
         returns bool, html
         """
-        # bw 0.9.7
-        if u"redirect_success" in kw:
-            redirectSuccess = kw[u"redirect_success"]
-
         data = self.GetFormValues(self.request, method="GET")
         return True, self.Render(data)
 
 
-    def ReturnDataOnSuccess(self, action, redirectSuccess, **kw):
+    def ReturnDataOnSuccess(self, action, **kw):
         """
         Process request data and returns validated data as `result` and rendered
         form as `data`. If validation fails `result` is False. `redirectSuccess`
@@ -781,10 +795,6 @@ class HTMLForm(Form):
 
         returns bool, html
         """
-        # bw 0.9.7
-        if u"redirect_success" in kw:
-            redirectSuccess = kw[u"redirect_success"]
-
         msgs = []
         result,data,errors = self.Validate(self.request)
         if result:
@@ -797,16 +807,13 @@ class HTMLForm(Form):
         return result, self.Render(data, msgs=msgs, errors=errors)
 
     
-    def Cancel(self, action, redirectSuccess, **kw):
+    def Cancel(self, action, **kw):
         """
         Cancel form action
         
         returns bool, string
         """
-        # bw 0.9.7
-        if u"redirect_success" in kw:
-            redirectSuccess = kw[u"redirect_success"]
-
+        redirectSuccess = kw.get("redirectSuccess")
         if self.view and redirectSuccess:
             self.view.Redirect(redirectSuccess)
         return True, ""
@@ -900,6 +907,37 @@ class HTMLForm(Form):
         return (u"\r\n").join(js_tags + css_tags)
     
         
+    def _FinishFormProcessing(self, result, data, msgs, errors, **kw):
+        """
+        Handles the default form processing after the action has been executed
+        based on passed keywords and values:
+        
+        Used kw arguments:
+        - redirectSuccess
+        - renderSuccess
+        
+        """
+        redirectSuccess = kw.get("redirectSuccess")
+        renderSuccess = kw.get("renderSuccess", True)
+        redirectSuccess = self.view.ResolveUrl(redirectSuccess, result)
+
+        if not result:
+            return result, self.Render(data, msgs=msgs, errors=errors)
+    
+        if self.use_ajax:
+            if redirectSuccess:
+                # raises HTTPFound 
+                return result, self.view.Relocate(redirectSuccess, messages=msgs, raiseException=True)
+        
+        elif redirectSuccess:
+            # raises HTTPFound 
+            return result, self.view.Redirect(redirectSuccess, messages=msgs)
+
+        if not renderSuccess:        
+            return result, self._Msgs(msgs=msgs)
+        return result, self.Render(data, msgs=msgs, errors=errors)
+
+
     def _Msgs(self, **values):
         err = values.get("errors")!=None
         msgs = values.get("msgs")
@@ -933,12 +971,12 @@ class ObjectForm(HTMLForm):
         Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, css_class=u"buttonCancel",html=u"", tag=u"")
     ]
     subsets = {
-        "create": {"actions": [u"default",u"create"]},
-        "edit":   {"actions": [u"defaultEdit",u"edit"]}
+        "create": {"actions": [u"create"],  "defaultAction": "default"},
+        "edit":   {"actions": [u"edit"],    "defaultAction": "defaultEdit"}
     }
 
 
-    def Setup(self, subset=None, addTypeField=False):
+    def Setup(self, subset=None, addTypeField=False, addPosField=True):
         """
         Calls Form.Setup() with the addition to automatically add the pool_type field. 
         
@@ -965,9 +1003,15 @@ class ObjectForm(HTMLForm):
             pos += 1
         type_fld = FieldConf(id="pool_type",datatype="string",hidden=1)
         self._c_fields.append(type_fld)
+        if addPosField:
+            # insert at position
+            pepos = self.GetFormValue(u"pepos", method=u"ALL")
+            if pepos:
+                pos_fld = FieldConf(id="pepos",datatype="string",hidden=1)
+                self._c_fields.append(pos_fld)
 
 
-    def StartForm(self, action, redirectSuccess, **kw):
+    def StartForm(self, action, **kw):
         """
         Default action. Called if no action in request or self.actions.default set.
         Loads default data for initial from display on object creation.
@@ -982,10 +1026,14 @@ class ObjectForm(HTMLForm):
             data["pool_type"] = self.loadFromType
         else:
             data["pool_type"] = self.loadFromType.id
+        # insert at position
+        pepos = self.GetFormValue(u"pepos", method=u"ALL")
+        if pepos:
+            data["pepos"] = pepos
         return True, self.Render(data)
 
 
-    def StartObject(self, action, redirectSuccess, **kw):
+    def StartObject(self, action, **kw):
         """
         Initially load data from object. 
         context = obj
@@ -996,7 +1044,7 @@ class ObjectForm(HTMLForm):
         return data!=None, self.Render(data)
 
 
-    def UpdateObj(self, action, redirectSuccess, **kw):
+    def UpdateObj(self, action, **kw):
         """
         Process request data and update object.
         
@@ -1007,6 +1055,7 @@ class ObjectForm(HTMLForm):
 
         returns form data or false, html or redirects
         """
+        redirectSuccess = kw.get("redirectSuccess")
         msgs = []
         obj=self.context
         result,data,errors = self.Validate(self.request)
@@ -1017,18 +1066,12 @@ class ObjectForm(HTMLForm):
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
                 self.Signal("success", obj=obj)
-                errors=None
-                if self.view and redirectSuccess:
-                    redirectSuccess = self.view.ResolveUrl(redirectSuccess, obj)
-                    if self.use_ajax:
-                        self.view.AjaxRelocate(redirectSuccess, messages=msgs)
-                    else:
-                        self.view.Redirect(redirectSuccess, messages=msgs)
                 result = obj
-        return result, self.Render(data, msgs=msgs, errors=errors)
+
+        return self._FinishFormProcessing(result, data, msgs, errors, **kw)
 
 
-    def CreateObj(self, action, redirectSuccess, **kw):
+    def CreateObj(self, action, **kw):
         """
         Process request data and create object as child for current context.
         
@@ -1042,6 +1085,7 @@ class ObjectForm(HTMLForm):
 
         returns new object or none, html or redirects
         """
+        redirectSuccess = kw.get("redirectSuccess")
         msgs = []
         result,data,errors = self.Validate(self.request)
         if result:
@@ -1053,18 +1097,15 @@ class ObjectForm(HTMLForm):
             user=kw.get("user") or self.view.User()
             result = self.context.Create(objtype, data, user)
             if result:
+                # insert at position
+                pepos = self.GetFormValue(u"pepos")
+                if pepos:
+                    if ISort.providedBy(self.context):
+                        self.context.InsertAfter(pepos, result.id, user=user)
                 msgs.append(_(u"OK. Data saved."))
                 self.Signal("success", obj=result)
-                errors=None
-                if self.view and redirectSuccess:
-                    redirectSuccess = self.view.ResolveUrl(redirectSuccess, result)
-                    if self.use_ajax:
-                        self.view.AjaxRelocate(redirectSuccess, messages=msgs)
-                    else:
-                        self.view.Redirect(redirectSuccess, messages=msgs)
-        return result, self.Render(data, msgs=msgs, errors=errors)
 
-
+        return self._FinishFormProcessing(result, data, msgs, errors, **kw)
 
 
 class ToolForm(HTMLForm):
@@ -1191,7 +1232,7 @@ class ToolForm(HTMLForm):
         self.Signal("loadFields")
         
             
-    def RunTool(self, action, redirectSuccess, **kw):
+    def RunTool(self, action, **kw):
         """
         Process request data and run tool. 
 
@@ -1212,24 +1253,22 @@ class WorkflowForm(HTMLForm):
     Requires Form, HTMLForm or TemplateForm
     """
 
-    def CallWf(self, action, redirectSuccess, **kw):
+    def CallWf(self, action, **kw):
         """
         process request data and call workflow transition for object. 
         context = obj
         """
+        redirectSuccess = kw.get("redirectSuccess")
         msgs = []
-        validated,data,errors = self.Validate(self.request)
-        if validated:
+        result,data,errors = self.Validate(self.request)
+        if result:
             wfa = ""
             wft = ""
             user = kw.get("user") or self.view.User()
-            if obj.WfAction(action=wfa, transition=wft, user = user):
-                if self.view and redirectSuccess:
-                    if self.use_ajax:
-                        self.view.AjaxRelocate(redirectSuccess, messages=msgs)
-                    else:
-                        self.view.Redirect(redirectSuccess, messages=msgs)
-        return False, self.Render(data, msgs=msgs, errors=errors)
+            if not obj.WfAction(action=wfa, transition=wft, user = user):
+                result = False
+
+        return self._FinishFormProcessing(result, data, msgs, errors, **kw)
         
 
 
@@ -1296,7 +1335,7 @@ class JsonMappingForm(HTMLForm):
         return result,data
 
 
-    def StartObject(self, action, redirectSuccess, **kw):
+    def StartObject(self, action, **kw):
         """
         Initially load data from configured object json data field. 
         context = obj
@@ -1307,12 +1346,13 @@ class JsonMappingForm(HTMLForm):
         return data!=None, self.Render(data)
 
 
-    def UpdateObj(self, action, redirectSuccess, **kw):
+    def UpdateObj(self, action, **kw):
         """
         Process request data and update object.
         
         returns bool, html
         """
+        redirectSuccess = kw.get("redirectSuccess")
         msgs = []
         obj=self.context
         result,data,errors = self.Validate(self.request)
@@ -1322,15 +1362,9 @@ class JsonMappingForm(HTMLForm):
             if result:
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
-                errors=None
-                if self.view and redirectSuccess:
-                    redirectSuccess = self.view.ResolveUrl(redirectSuccess, obj)
-                    if self.use_ajax:
-                        self.view.AjaxRelocate(redirectSuccess, messages=msgs)
-                    else:
-                        self.view.Redirect(redirectSuccess, messages=msgs)
                 result = data
-        return result, self.Render(data, msgs=msgs, errors=errors)
+
+        return self._FinishFormProcessing(result, data, msgs, errors, **kw)
         
         
         
@@ -1368,7 +1402,7 @@ class JsonSequenceForm(HTMLForm):
         self._c_fields.append(self.editKeyFld)
 
 
-    def StartObject(self, action, redirectSuccess, **kw):
+    def StartObject(self, action, **kw):
         """
         Initially load data from configured object json data field. 
         context = obj
@@ -1403,12 +1437,13 @@ class JsonSequenceForm(HTMLForm):
         return data!=None, self.Render(data, msgs=msgs)
 
 
-    def UpdateObj(self, action, redirectSuccess, **kw):
+    def UpdateObj(self, action, **kw):
         """
         Process request data and update object.
         
         returns bool, html
         """
+        redirectSuccess = kw.get("redirectSuccess")
         msgs = []
         obj=self.context
         result,data,errors = self.Validate(self.request)
@@ -1433,15 +1468,8 @@ class JsonSequenceForm(HTMLForm):
                 obj.data.sequence = sequence
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
-                errors=None
                 data = {}
-                if self.view and redirectSuccess:
-                    redirectSuccess = self.view.ResolveUrl(redirectSuccess, obj)
-                    if self.use_ajax:
-                        self.view.AjaxRelocate(redirectSuccess, messages=msgs)
-                    else:
-                        self.view.Redirect(redirectSuccess, messages=msgs)
-                result = True
+
         return result, self.Render(data, msgs=msgs, errors=errors)
         
         

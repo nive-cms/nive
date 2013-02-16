@@ -136,3 +136,20 @@
   padding-left: 6px;
   padding-right: 0px;
 }
+#nive-toolbox .alert {
+  margin-top:2px;
+  margin-bottom:2px;
+  padding:8px;
+}
+#nive-toolbox .alert ul {
+  list-style: none;
+  margin:0px;
+  padding:0px;
+}
+.alert .close
+{
+  position: relative;
+  top: -2px;
+  right: -6px;
+  line-height: 20px;
+}

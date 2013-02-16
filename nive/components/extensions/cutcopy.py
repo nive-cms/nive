@@ -16,12 +16,11 @@
 #----------------------------------------------------------------------
 
 import string
-from types import StringType, UnicodeType, IntType, LongType
-from nive.utils.utils import ConvertListToStr, ConvertToNumberList
 
-from nive.definitions import StagPage, StagPageElement
 from nive.i18n import _
-
+from nive.utils.utils import ConvertListToStr, ConvertToNumberList
+from nive.definitions import StagPage, StagPageElement
+from nive.components.extensions.sort import ISort
 
 class ObjCopy:
     """
@@ -58,7 +57,7 @@ class ContainerCopy:
         return not hasattr(self, "disablePaste") or not self.disablePaste
 
 
-    def Paste(self, ids, user):
+    def Paste(self, ids, pos, user):
         """
         Paste the copied object with id to this object
         """
@@ -78,14 +77,18 @@ class ContainerCopy:
             newobj = self.Duplicate(obj, user) 
             if not newobj:
                 raise TypeError, "Duplicate failed"
-            new.append(new)
+            if ISort.providedBy(self):
+                self.InsertAfter(pos, newobj.id, user=user)
+            new.append(newobj)
         if not self.app.configuration.autocommit:
             for o in new:
                 o.Commit(user)
+        if result:
+            msgs.append(_(u"OK. Copied and pasted."))
         return result, msgs
     
 
-    def Move(self, ids, user):
+    def Move(self, ids, pos, user):
         """
         Move the object with id to this object
         
@@ -128,6 +131,10 @@ class ContainerCopy:
 
         for o in moved:
             o.Commit(user)
+            if ISort.providedBy(self):
+                self.InsertAfter(pos, o.id, user=user)
+        if result:
+            msgs.append(_(u"OK. Cut and pasted."))
         return result, msgs
     
 
@@ -148,9 +155,9 @@ class CopyView:
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
-        msgs = _(u"OK")
+        msgs = _(u"OK. Cut.")
         ok = True
-        return self.Redirect(url, [ok, msgs])
+        return self.Redirect(url, [msgs])
 
 
     def copy(self):
@@ -163,9 +170,8 @@ class CopyView:
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
-        msgs = _(u"OK")
-        ok = True
-        return self.Redirect(url, [ok, msgs])
+        msgs = _(u"OK. Copied.")
+        return self.Redirect(url, [msgs])
 
 
     def paste(self):
@@ -182,15 +188,14 @@ class CopyView:
 
         pepos = self.GetFormValue(u"pepos")
         result = False
-        msgs = _(u"Method unknown")
+        msgs = [_(u"Method unknown")]
         if action == u"cut":
-            result, msgs = self.context.Move(ids, self.User())
+            result, msgs = self.context.Move(ids, pepos, user=self.User())
             if result and deleteClipboard:
                 cp = self.DeleteCopyInfo()
         elif action == u"copy":
-            result, msgs = self.context.Paste(ids, user=self.User())
-
-        return self.Redirect(url, [result, msgs])
+            result, msgs = self.context.Paste(ids, pepos, user=self.User())
+        return self.Redirect(url, msgs)
     
     
     def SetCopyInfo(self, action, ids, context):
@@ -199,7 +204,7 @@ class CopyView:
         """
         if not ids:
             return u""
-        if type(ids) in (StringType,UnicodeType):
+        if isinstance(ids, basestring):
             ids=ConvertToNumberList(ids)
         cp = ConvertListToStr([action]+ids).replace(u" ",u"")
         self.request.session[self.CopyInfoKey] = cp
@@ -211,7 +216,7 @@ class CopyView:
         get from session or cookie
         """
         cp = self.request.session.get(self.CopyInfoKey,u"")
-        if type(cp) in (StringType,UnicodeType):
+        if isinstance(cp, basestring):
             cp = cp.split(u",")
         if not cp or len(cp)<2:
             return u"", []

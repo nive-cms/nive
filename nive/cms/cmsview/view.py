@@ -25,7 +25,7 @@ except:
     from StringIO import StringIO
     
 from nive.i18n import _, translator
-from nive.definitions import ViewModuleConf, ViewConf, WidgetConf
+from nive.definitions import ViewModuleConf, ViewConf, WidgetConf, FieldConf
 from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot, IToolboxWidgetConf, IEditorWidgetConf
 from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, ICMSRoot, IColumn
 from nive.cms.design import view as design 
@@ -439,6 +439,16 @@ class Editor(BaseView, CopyView, SortView):
         return html.getvalue()
     
     
+    def insertMessages(self):
+        messages = self.request.session.pop_flash("")
+        if not messages:
+            return u""
+        html = u"""<div class="alert"> <a href="#" class="close" data-dismiss="alert">&times;</a> <ul><li>%s</li></ul></div>"""
+        try:
+            return html % (u"</li><li>".join(messages))
+        except:
+            return u""
+        
     def insertPageWidgets(self):
         return self.insertToolboxWidgets(self.context.GetPage())
         
@@ -506,9 +516,9 @@ class Editor(BaseView, CopyView, SortView):
             return {u"content": u"", u"showAddLinks": True, u"result": True, u"head": u""}
         form = ObjectForm(view=self, loadFromType=typeID)
         form.Setup(subset="create", addTypeField=True)
-        #form.use_ajax = True
+        form.use_ajax = True
         head = form.HTMLHead()
-        result, data, action = form.Process(defaultAction="default", redirectSuccess="page_url")
+        result, data, action = form.Process(redirectSuccess="page_url")
         return {u"content": data, u"result": result, u"cmsview": self, u"showAddLinks": False, u"head": head}
 
     
@@ -527,17 +537,20 @@ class Editor(BaseView, CopyView, SortView):
             result[u"objToDelete"] = obj
             return result
         result[u"result"] = self.context.Delete(id, user=self.User(), obj=obj)
+        if result[u"result"]:
+            result[u"msgs"] = [_(u"OK. Deleted.")]
+        self.Relocate("""<script type="text/javascript">window.parent.close("%s");</script>""" % (self.PageUrl()), 
+                      [_(u"OK. Deleted.")], 
+                      raiseException=True)
         return result
     
     
     def edit(self):
         form = ObjectForm(view=self, loadFromType=self.context.configuration)
-        #form.use_ajax = True
+        form.use_ajax = True
         form.Setup(subset="edit")
         head = form.HTMLHead()
-        result, data, action = form.Process(defaultAction="defaultEdit", redirectSuccess="page_url")
-        if action.id==u"edit":
-            return self.SendResponse(data, mime="text/html", raiseException=True)
+        result, data, action = form.Process(redirectSuccess="page_url")
         return {u"content": data, u"result": result, u"cmsview":self, u"head": head}
 
 

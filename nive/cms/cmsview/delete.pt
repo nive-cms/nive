@@ -30,12 +30,6 @@
     <a href="delete?id=${objToDelete.GetID()}&amp;delete=1" class="button" i18n:translate="">Delete all</a>
   </tal:block>
 
-  <tal:block tal:condition="result and not objToDelete">
-  <script type="text/javascript">
-    window.parent.close("${view.PageUrl(view.context)}");
-  </script>    
-  
-  </tal:block>
 </div>
 </tal:block>
 </tal:block>

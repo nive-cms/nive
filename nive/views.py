@@ -41,7 +41,7 @@ from pyramid.exceptions import NotFound
 
 from nive.utils.utils import ConvertToStr, ConvertListToStr, ConvertToDateTime
 from nive.utils.utils import FmtSeconds, FormatBytesForDisplay, CutText, GetMimeTypeExtension
-from nive.definitions import IPage
+from nive.definitions import IPage, IObject
 
 
 
@@ -182,7 +182,9 @@ class BaseView(object):
         - obj_folder_url
         - parent_url
         """
-        if not object:
+        if url==None:
+            return u""
+        if not object or not IObject.providedBy(object):
             object = self.context
         if url == "page_url":
             url = self.PageUrl(object)
@@ -246,7 +248,7 @@ class BaseView(object):
         return Response(content_type=mime, body=data, content_disposition=cd)
         
         
-    def AjaxRelocate(self, url, messages=None, slot="", raiseException=False):
+    def Relocate(self, url, messages=None, slot="", raiseException=False):
         """
         Returns messages and X-Relocate header in response.
         If raiseException is True HTTPOk is raised with empty body.
@@ -261,20 +263,9 @@ class BaseView(object):
         if raiseException:
             raise HTTPOk(headers=headers, body_template="redirect "+url)
         return u""
-    
 
     def Relocated(self):
-        """
-        Search current response headers for X-Relocate header
-        and return it.
-        """
-        if not hasattr(self.request.response, "headerlist"):
-            return u""
-        for h in self.request.response.headerlist:
-            if h[0].lower()== "x-relocate":
-                return h[1]
         return u""
-    
 
     def ResetFlashMessages(self, slot=""):
         """
@@ -742,6 +733,14 @@ class BaseView(object):
             return u"""<div class="mark">%.04f</div>""" % (time() - self.request.environ.get("START_TIME", self._t))
         except:
             return u""
+
+
+    # bw 0.9.7 ----------------------------------------------------------------------------
+    def AjaxRelocate(self, url, messages=None, slot="", raiseException=False):
+        return self.Relocate(url, messages=messages, slot=slot, raiseException=raiseException)
+ 
+
+
 
 
 class FieldRenderer(object):

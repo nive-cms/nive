@@ -17,10 +17,12 @@
 
 import string
 from types import StringType, UnicodeType, IntType, LongType
+
 from nive.utils.utils import ConvertToNumberList
 
 from nive.i18n import _
 from nive.definitions import StagPage, StagPageElement
+from nive.definitions import implements, Interface, IObject, ISort
 
 
 
@@ -31,6 +33,7 @@ class Sort:
     Objects can explicitly be sorted and moved up or down in sequence.
     Sort values are stored in meta.pool_sort.
     """
+    implements(ISort)
 
     def Init(self):
         self.RegisterEvent("beforeCreate", "NewSort")
@@ -90,23 +93,29 @@ class Sort:
         """    update pool_sort values according to list """
         if not objs:
             return False, _(u"List is empty")
-        if type(objs) in (StringType, UnicodeType):
+        if isinstance(objs, basestring):
             objs = ConvertToNumberList(objs)
         ids = []
         for oi in objs:
-            if type(oi) in (StringType, UnicodeType, IntType, LongType):
-                ids.append(int(oi)) 
+            # check if listed objects are objects or ids
+            if not IObject.providedBy(oi):
+                ids.append(int(oi))
         if ids:
+            # load remaining objects by id
             objs2 = self.GetObjsBatch(ids)
         pos = 10
+        processed = []
         for obj in objs:
-            if type(obj) in (StringType, UnicodeType, IntType, LongType):
+            if not IObject.providedBy(obj):
                 for o in objs2:
                     if o.id == int(obj):
                         obj = o
                         break
-            if type(obj) in (StringType, UnicodeType, IntType, LongType):
+            if not IObject.providedBy(obj):
                 continue
+            if obj.id in processed:
+                continue
+            processed.append(obj.id)
             obj.meta.set("pool_sort", pos)
             obj.Commit(user)
             pos += 10
@@ -298,7 +307,7 @@ class SortView:
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
-        return self.Redirect(url, [ok, msgs])
+        return self.Redirect(url, [msgs])
 
 
     def movedown(self):
@@ -312,7 +321,7 @@ class SortView:
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
-        return self.Redirect(url, [ok, msgs])
+        return self.Redirect(url, [msgs])
 
     
     def movetop(self):
@@ -326,7 +335,7 @@ class SortView:
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
-        return self.Redirect(url, [ok, msgs])
+        return self.Redirect(url, [msgs])
     
     
     def movebottom(self):
@@ -340,7 +349,7 @@ class SortView:
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
-        return self.Redirect(url, [ok, msgs])
+        return self.Redirect(url, [msgs])
 
 
 
