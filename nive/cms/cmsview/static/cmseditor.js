@@ -71,6 +71,9 @@ Uses cookies to store settings between page relods.
 		}
 		
 		this.toggleBlock = function(blockid) {
+		  $('.pageeditorEditblockElement').each( function(index) {
+		    if("#"+$(this).attr("id")!=blockid) $(this).hide('fast');
+		  });
 		  $(blockid).toggle('fast');
 		}
 		
@@ -104,7 +107,7 @@ Uses cookies to store settings between page relods.
 		                 $(_settings.elementPrefix+id).prepend(data); 
 		                 $(this).toggleBlock(eid);
 		                 $.niveOverlay(eid); 
-		             }).error(function(jqXHR, textStatus, errorThrown) { alert(errorThrown); });
+		             }).error(function(jqXHR, textStatus, errorThrown) { /*alert("?"); errorThrown*/ });
 		  }
 		  else this.toggleBlock(eid);
 		}
@@ -150,7 +153,8 @@ Example: ::
         },
         fadeInSpeed: 0,
         fadeOutSpeed: 0,
-        reloadOnClose: false
+        reloadOnClose: false,        // reload the parent on close
+        closeOnClickOutside: true    // ask and close if clicked outside overlay
     }
       
     /********************************** 
@@ -236,7 +240,8 @@ Example: ::
                 $modal.fadeIn(_settings.fadeInSpeed);
       
                 $close.click(function () { jQuery.modal().close(); });
-                /*$overlay.click(function () { if(this.blocked && !confirm("Close form?")) return; jQuery.modal().cancel(); }); */
+                if(options.closeOnClickOutside)
+                    $overlay.click(function () { if(!confirm("Close window?")) return; jQuery.modal().cancel(); });
             }
         }
         return this;
@@ -267,7 +272,6 @@ Example: ::
         overlayOpacity: 70,
         id: 'modal',
         content: null,
-        blocked: false,
         modalClassName: 'modal-window',
         imageClassName: 'modal-image',
         closeClassName: 'close-window',
