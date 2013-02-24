@@ -213,6 +213,7 @@ class Form(Events, ReForm):
     fields = None
     actions = None
     subsets = None
+    subset = None
     loadFromType = None
     
     
@@ -888,7 +889,7 @@ class HTMLForm(Form):
         return html
 
     
-    def HTMLHead(self, disableResources=[u"scripts/jquery.min.js"]):
+    def HTMLHead(self, disableResources=[u"scripts/jquery.min.js"], staticRoot=None):
         """
         get necessary includes (js and css) for html header
         """
@@ -896,10 +897,13 @@ class HTMLForm(Form):
         resources = self.get_widget_resources()
         js_resources = resources['js']
         css_resources = resources['css']
-        try: # fail silently and set /reform as static url
-            static = static_url("nive.components.reform:static/", self.request) + u"%s"
-        except:
-            static = u"/reform/%s"
+        if staticRoot:
+            static = staticRoot + u"%s"
+        else:
+            try: # fail silently and set /reform as static url
+                static = static_url("nive.components.reform:static/", self.request) + u"%s"
+            except:
+                static = u"/reform/%s"
         js_links = [static % r for r in filter(lambda v: v not in disableResources, js_resources)]
         css_links = [static % r for r in filter(lambda v: v not in disableResources, css_resources)]
         js_tags = [u'<script src="%s" type="text/javascript"></script>' % link for link in js_links]
@@ -910,7 +914,7 @@ class HTMLForm(Form):
     def _FinishFormProcessing(self, result, data, msgs, errors, **kw):
         """
         Handles the default form processing after the action has been executed
-        based on passed keywords and values:
+        based on passed keywords and result:
         
         Used kw arguments:
         - redirectSuccess
