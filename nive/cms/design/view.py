@@ -32,7 +32,7 @@ try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
-from pyramid.renderers import get_renderer, render_to_response
+from pyramid.renderers import get_renderer, render_to_response, render
 from pyramid.httpexceptions import HTTPNotFound
 
 from nive.i18n import _
@@ -270,5 +270,16 @@ class Design(BaseView):
         if len(pages) and level > 1:
             io.write(u"""</ul></li>\r\n""")
         return io
+
+
+    # linked documentation, first start message 
+    
+    def doc(self, template=u"default.pt"):
+        """
+        renders the doc template
+        """
+        return render(u"nive.cms:doc/"+template, {u"context":self.context, u"view":self, u"request": self.request}, request=self.request)
+
+
 
     

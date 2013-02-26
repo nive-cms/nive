@@ -54,6 +54,7 @@ class tViews(unittest.TestCase):
         self.assert_(v.editdatabase())
         self.assert_(v.editportal())
         self.assert_(v.tools())
+        self.assert_(v.doc())
 
 
     def test_form(self):
@@ -110,6 +111,7 @@ class tTemplates(unittest.TestCase):
         render("nive.adminview:modules.pt", vrender)
         render("nive.adminview:root.pt", vrender)
         render("nive.adminview:views.pt", vrender)
+        render("nive.adminview:help.pt", values)
 
     
 

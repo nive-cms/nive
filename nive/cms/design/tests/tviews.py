@@ -59,6 +59,7 @@ class tDesign(unittest.TestCase):
         view.navigationSub(page=self.page)
         view.breadcrumbs(addHome=0)
         view.breadcrumbs(addHome=1)
+        view.doc()
     
 
     def test_views2(self):

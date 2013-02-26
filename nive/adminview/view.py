@@ -20,7 +20,7 @@ Administration interface module
 Requires `nive.cms.cmsview.view` static definitions for css and js.
 """
 
-from pyramid.renderers import get_renderer
+from pyramid.renderers import get_renderer, render_to_response, render
 
 from nive.i18n import _
 from nive.definitions import ViewConf, ViewModuleConf, FieldConf, WidgetConf, Conf
@@ -54,6 +54,7 @@ configuration.views = [
     ViewConf(name = "tools",    attr = "tools",      renderer = t+"tools.pt"),
     ViewConf(name = "modules",  attr = "view",       renderer = t+"modules.pt"),
     ViewConf(name = "views",    attr = "view",       renderer = t+"views.pt"),
+    ViewConf(name = "help",     attr = "view",       renderer = t+"help.pt", permission="read"),
 ]
 
 configuration.widgets = [
@@ -66,6 +67,8 @@ configuration.widgets = [
                description=_(u"Read only listing of all registered modules and settings.")),
     WidgetConf(name=_(u"Views"),     viewmapper="views",      id="admin.views",    sort=900,   apply=(IApplication,), widgetType=IAdminWidgetConf,
                description=_(u"Read only listing of all registered views grouped by view modules.")),
+    WidgetConf(name=_(u"Help"),      viewmapper="help",       id="admin.help",     sort=5000,  apply=(IApplication,), widgetType=IAdminWidgetConf,
+               description=_(u"Help and documentation.")),
 ]
 
 
@@ -161,6 +164,9 @@ class AdminBasics(BaseView):
     def view(self):
         return {}
 
+    def doc(self, template=u"default.pt"):
+        return render(u"nive.cms:doc/"+template, {u"context":self.context, u"view":self, u"request": self.request}, request=self.request)
+    
     def GetAdminWidgets(self):
         app = self.context.app
         widgets = app.QueryConf(IAdminWidgetConf, app)
