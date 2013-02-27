@@ -17,17 +17,26 @@
 
 __doc__ = """
 Data Pool MySql Module
-
-*Requires python-mysqldb*
+----------------------
+*Requires MySQL-python*. Use 'pip install MySQL-python' to install the package.
 """
 
 
 import string, re, os
 from time import time, localtime
 
-import MySQLdb
-
-
+try:
+    import MySQLdb
+except ImportError:
+    # make tests pass without mysql package
+    class MySQLdb(object):
+        """ """
+        OperationalError = None
+        ProgrammingError = None
+        Warning = None
+        def __init__(self, *kw, **kws):
+            raise ImportError, "Python MySQLdb not available. Try 'pip install MySQL-python' to install the package."
+    
 from nive.utils.utils import STACKF
 
 from nive.utils.dataPool2.base import *
