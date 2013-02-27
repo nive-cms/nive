@@ -2,8 +2,10 @@
 - form action map to view permission
 - move datapool2 Group functions
 - move datapool2 Fulltext functions
-- universal and locale date/time handling
+- universal and locale date/time handling (parsing)
 - nive cmsview.configuration sort and cutcopy to components.extensions
+- cmsview js and css requirements configureable and not in template
+- user id handling
   
 - cms browser application tests
 - queryRestraint tests
