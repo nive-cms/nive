@@ -14,11 +14,13 @@ from nive.security import User
 
 from nive.components.objects.base import ApplicationBase
 
+from nive.tests import __local
+
 # real database test configuration
 # change these to fit your system
 dbconf = DatabaseConf(
-    dbName = "/var/tmp/nive/nive.db", #":memory:"
-    fileRoot = "/var/tmp/nive",
+    dbName = __local.ROOT+"nive.db",
+    fileRoot = __local.ROOT,
     context = "Sqlite3"
 )
 

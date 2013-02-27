@@ -14,10 +14,11 @@ from sqlite3 import OperationalError
 from nive.tests.db_app import app_db
 from t_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
 
+from nive.tests import __local
 
 # configuration ---------------------------------------------------------------------------
 conn = {}
-conn["dbName"] = u"/var/tmp/nive/nive.db"
+conn["dbName"] = __local.ROOT+"nive.db"
 
 def getPool():
     p = Sqlite3(connParam=conn, **conf)

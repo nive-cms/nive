@@ -11,9 +11,11 @@ from nive.security import *
 from nive.portal import Portal
 from nive.cms.app import WebsitePublisher
 
+from nive.tests import __local
+
 dbconf = DatabaseConf(
-    dbName = "/var/tmp/nivecms/cms.db", #":memory:"
-    fileRoot = "/var/tmp/nivecms",
+    dbName = __local.ROOT+"cms.db",
+    fileRoot = __local.ROOT,
     context = "Sqlite3"
 )
 appconf = AppConf("nive.cms.app")

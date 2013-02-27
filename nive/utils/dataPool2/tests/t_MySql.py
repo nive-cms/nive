@@ -19,14 +19,14 @@ from nive.utils.path import DvPath
 from t_db import dbTest
 from t_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
 
-
+from nive.tests import __local
 
 conn = {}
-conn["user"] = u"root"
-conn["password"] = u""
-conn["host"] = u"localhost"
-conn["port"] = u""
-conn["dbName"] = u"ut_nive"
+conn["user"] = __local.USER
+conn["password"] = __local.PASSWORD
+conn["host"] = __local.HOST
+conn["port"] = __local.PORT
+conn["dbName"] = __local.DATABASE
 conn["unicode"] = 1
 conn["timeout"] = 1
 myconn = conn

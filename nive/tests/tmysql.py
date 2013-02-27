@@ -1,3 +1,14 @@
+"""
+Running mysql tests
+-------------------
+Create a database 'ut_nive' and assign all permissions for user 'root@localhost'. 
+File root is '/var/tmp/nive'.
+
+To customize settings change 'dbconfMySql' in this file and 'conn' in 
+nive/utils/dataPool2/tests/t_MySql.py.  
+
+"""
+
 
 import time
 import unittest
@@ -14,6 +25,7 @@ from tnive import appTest_db
 from tcontainer import containerTest_db, groupsrootTest_db
 from tobjects import objTest_db, objToolTest_db, objWfTest_db, groupsTest_db
 
+from nive.tests import __local
 
 # real database test configuration
 # change these to fit your system
@@ -24,11 +36,13 @@ except ImportError:
     ENABLE_MYSQL_TESTS = False
 
 dbconfMySql = DatabaseConf(
-    dbName = "ut_nive",
-    fileRoot = "/var/tmp/nive",
     context = "MySql",
-    host = "localhost",
-    user = "root"
+    dbName = __local.DATABASE,
+    fileRoot = __local.ROOT,
+    host = __local.HOST,
+    user = __local.USER,
+    port = __local.PORT,
+    password = __local.PASSWORD
 )
 
 if not ENABLE_MYSQL_TESTS:

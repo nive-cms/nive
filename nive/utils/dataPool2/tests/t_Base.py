@@ -6,10 +6,11 @@ import unittest
 from nive.utils.dataPool2.base import *
 from nive.utils.dataPool2.structure import *
 
+from nive.tests import __local
 
 conf = {}
-conf["root"] = u"/var/tmp/nive"
-conf["log"] = u"/var/tmp/nive/sqllog.txt"
+conf["root"] = __local.ROOT
+conf["log"] = __local.ROOT+"sqllog.txt"
 conf["codePage"] =    u"utf-8"
 conf["dbCodePage"] = u"utf-8"
 conf["backupVersions"] = 0
