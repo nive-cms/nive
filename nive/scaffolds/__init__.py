@@ -131,7 +131,7 @@ class DefaultMysqlTemplate(PyramidTemplate):
             port="%(dbport)s",
             user="%(dbuser)s",
             password=base64.decodestring("%(dbpass)s") """ % vars
-        vars['dbPackage'] = 'MySQL-python'
+        vars['dbPackage'] = "'MySQL-python'"
 
         vars['authsecret'] = str(uuid.uuid4())
         vars['cookiesecret'] = str(uuid.uuid4())
