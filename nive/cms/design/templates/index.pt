@@ -65,7 +65,7 @@
             tal:condition="column"
             tal:replace="structure view.RenderView(column)"/>
       <!-- inserts column edit bar -->
-      <div tal:condition="python:cmsview"
+      <div tal:condition="cmsview"
            tal:replace="structure cmsview.editBlockColumn(name=u'footer')"  id="nive-column-edit-footer" /> 
     </tal:block>
   </div>
