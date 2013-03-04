@@ -72,7 +72,7 @@ class Lines(object):
     ``remove_empty``
        Remove empty lines from list.
     """
-    def __init__(self, allow_empty=False):
+    def __init__(self, allow_empty=True):
         self.allow_empty = allow_empty
         self.lb = "\r\n"
         self.remove_empty = True
@@ -83,8 +83,10 @@ class Lines(object):
         return value
 
     def deserialize(self, node, value, formstruct=None):
-        if value in (null, None, ""):
+        if value in (null, None):
             return null
+        if value == u"":
+            value = []
 
         if isinstance(value, basestring):
             value = value.split(self.lb)
@@ -95,7 +97,7 @@ class Lines(object):
                         value.remove(u"")
                 except:
                     pass
-        elif not isinstance(value, (lsit, tuple)):
+        elif not isinstance(value, (list, tuple)):
             raise Invalid(
                 node,
                 _('${value} is not iterable', mapping={'value':value})
