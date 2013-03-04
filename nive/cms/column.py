@@ -94,7 +94,7 @@ configuration.data = [
 ]
 
 configuration.forms = {
-        "create": {"fields": [FieldConf(id="title", datatype="hidden", size=10, default=u"", required=1, name=_(u"Column type")),
+        "create": {"fields": [FieldConf(id="title", datatype="string", size=10, default=u"", hidden=1, required=1, name=_(u"Column type")),
                               "showsub", "pool_groups"]},
         "edit":   {"fields": ["showsub", "pool_groups"]}
 }

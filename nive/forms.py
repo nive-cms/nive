@@ -975,7 +975,7 @@ class ObjectForm(HTMLForm):
     Contains actions for object creation and updates.
     """
     actions = [
-        Conf(id=u"default",    method="StartForm",  name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
+        Conf(id=u"default",    method="StartFormRequest",  name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
         Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
         Conf(id=u"defaultEdit",method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
         Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
@@ -1033,6 +1033,30 @@ class ObjectForm(HTMLForm):
             data = {}
         else:
             data = self.LoadDefaultData()
+        if isinstance(self.loadFromType, basestring):
+            data["pool_type"] = self.loadFromType
+        else:
+            data["pool_type"] = self.loadFromType.id
+        # insert at position
+        pepos = self.GetFormValue(u"pepos", method=u"ALL")
+        if pepos:
+            data["pepos"] = pepos
+        return True, self.Render(data)
+
+
+    def StartFormRequest(self, action, **kw):
+        """
+        Default action. Called if no action in request or self.actions.default set.
+        Loads default data from request for initial from display on object creation.
+        
+        returns bool, html
+        """
+        if self.startEmpty:
+            data = {}
+        else:
+            data = self.LoadDefaultData()
+            r, d = self.ExtractSchema(self.GetFormValues(method=u"ALL"), removeNull=True, removeEmpty=True)
+            data.update(d)
         if isinstance(self.loadFromType, basestring):
             data["pool_type"] = self.loadFromType
         else:
