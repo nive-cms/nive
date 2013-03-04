@@ -46,13 +46,14 @@ configuration.loginByEmail = False
 # configuration.admin = {"name": "admin", "password": "adminpass", "email": "admin@domain.com"}
 
 configuration.modules = [
-    "nive.userdb.root", "nive.userdb.user", 
+    "nive.userdb.root", 
+    "nive.userdb.user", 
     # user administration
-    "nive.userdb.useradmin.adminroot", 
+    "nive.userdb.useradmin", 
     # tools
     "nive.components.tools.dbStructureUpdater", 
     # administration and persistence
-    "nive.adminview.view",
+    "nive.adminview",
     #"nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
 

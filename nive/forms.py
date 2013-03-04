@@ -893,7 +893,7 @@ class HTMLForm(Form):
         """
         Get necessary includes (js and css) for html header.
         Jquery and Jquery-ui are included by default in cmsview editor pages. So by default these two
-        will be ignored,
+        will be ignored. 
         """
         self._SetUpSchema()
         resources = self.get_widget_resources()

@@ -82,11 +82,12 @@ configuration.modules = [
     # page, root
     "nive.cms.root", "nive.cms.page", 
     # cms editor
-    "nive.cms.cmsview.cmsroot",
+    "nive.cms.cmsview",
     # design: not included by default
     #"nive.cms.design.view"
     # workflow
-    "nive.cms.workflow.wf.wfProcess", "nive.cms.workflow.view",
+    "nive.cms.workflow",
+    "nive.cms.workflow.wf.wfProcess", 
     #extensions
     "nive.components.extensions.fulltextpage", 
     #"nive.components.extensions.localgroups",
@@ -94,7 +95,7 @@ configuration.modules = [
     "nive.components.tools.dbStructureUpdater", "nive.components.tools.dbSqldataDump", "nive.components.tools.cmsstatistics",
     "nive.components.tools.gcdump",
     # administration and persistence
-    "nive.adminview.view",
+    "nive.adminview",
     "nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
 

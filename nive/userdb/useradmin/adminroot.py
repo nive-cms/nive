@@ -34,8 +34,7 @@ class adminroot(root):
 configuration = RootConf(
 	id = "usermanagement",
 	context = "nive.userdb.useradmin.adminroot.adminroot",
-    views = ["nive.userdb.useradmin.view"],
-	default = False,
+    default = False,
 	subtypes = "*",
 	name = _(u"User listing"),
 	description = ""

@@ -45,6 +45,5 @@ configuration = RootConf(
     default = False,
     subtypes = "*",
     name = _(u"Home"),
-    views = ["nive.cms.cmsview.view", "nive.components.reform.reformed"],
     description = __doc__
 )

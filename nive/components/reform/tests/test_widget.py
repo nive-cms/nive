@@ -1106,13 +1106,13 @@ class TestResourceRegistry(unittest.TestCase):
         reg = self._makeOne()
         reg.registry = {'abc':{'123':{'js':(1,2)}}}
         result = reg([('abc', '123')])
-        self.assertEqual(result, {'js':[1,2], 'css':[]})
+        self.assertEqual(result, {'js':[1,2], 'css':[], 'seq':[]})
 
     def test___call___leaf_isnt_iterable(self):
         reg = self._makeOne()
         reg.registry = {'abc':{'123':{'js':'1', 'css':'2'}}}
         result = reg([('abc', '123')])
-        self.assertEqual(result, {'js':['1'], 'css':['2']})
+        self.assertEqual(result, {'js':['1'], 'css':['2'], 'seq':[]})
 
 class DummyRenderer(object):
     def __init__(self, result=''):
