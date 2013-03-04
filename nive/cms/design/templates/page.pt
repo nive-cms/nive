@@ -1,9 +1,4 @@
 <tal:block metal:use-macro="view.index_tmpl().macros['main']">
-  <tal:block metal:fill-slot="head">
-    <meta name="description" content="${context.data.description}" />
-    <meta name="keywords" content="${context.data.keywords}" />
-  </tal:block>
-
   <tal:block metal:fill-slot="content">
     <div tal:condition="context.data.get('header')" 
          class="page-header"><h3 tal:content="structure context.data.get('header')"></h3></div>

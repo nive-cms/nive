@@ -108,6 +108,10 @@ class PageElementContainer:
 
     # Contained page elements/editor -------------------------------------------------------------
 
+    @property
+    def page(self):
+        return self
+
     def IsEmpty(self):
         """
         Check for empty page with no elements on it
@@ -172,6 +176,10 @@ class PageElement:
     Sets local acl 's based on object.meta.pool_group settings.
     """
     
+    @property
+    def page(self):
+        return self.parent.page
+
     def Init(self):
         groups = self.meta.get("pool_groups")
         if groups:

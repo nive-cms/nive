@@ -1231,7 +1231,7 @@ class ResourceRegistry(object):
         the paths for each resource type to inject CSS and Javascript
         on-demand into the head of dynamic pages that render Deform
         forms.  """
-        result = {'js':[], 'css':[]}
+        result = {'js':[], 'css':[], 'seq':[]}
         for requirement, version in requirements:
             tmp = self.registry.get(requirement)
             if tmp is None:
@@ -1242,7 +1242,7 @@ class ResourceRegistry(object):
                 raise ValueError(
                     'Cannot resolve widget requirement %r (version %r)' % (
                         (requirement, version)))
-            for thing in ('js', 'css'):
+            for thing in ('js', 'css', 'seq'):
                 sources = versioned.get(thing)
                 if sources is None:
                     continue
@@ -1257,55 +1257,55 @@ class ResourceRegistry(object):
 default_resources = {
     'jquery': {
         None:{
-            'js':'scripts/jquery.min.js',
+            'seq':(('jquery.js', 'nive.components.reform:static/scripts/jquery.min.js'),),
             },
         },
     'jqueryui': {
         None:{
-            'js':('scripts/jquery.min.js',
-                  'scripts/jquery-ui-1.8.11.custom.min.js'),
-            'css':'css/ui-lightness/jquery-ui-1.8.11.custom.css',
+            'seq':(('jquery.js', 'nive.components.reform:static/scripts/jquery.min.js'),
+                   ('jquery-ui.js', 'nive.components.reform:static/scripts/jquery-ui-1.8.11.custom.min.js'),
+                   ('jquery-ui.css', 'nive.components.reform:static/css/ui-lightness/jquery-ui-1.8.11.custom.css'))
             },
         },
     'jquery.form': {
         None:{
-            'js':('scripts/jquery.min.js',
-                  'scripts/jquery.form.js'),
+            'seq':(('jquery.js', 'nive.components.reform:static/scripts/jquery.min.js'),
+                   ('jquery.form.js', 'nive.components.reform:static/scripts/jquery.form.js')),
             },
         },
     'jquery.maskedinput': {
         None:{
-            'js':('scripts/jquery.min.js',
-                  'scripts/jquery.maskedinput-1.2.2.min.js'),
+            'seq':(('jquery.js', 'nive.components.reform:static/scripts/jquery.min.js'),
+                   ('jquery.maskedinput.js', 'nive.components.reform:static/scripts/jquery.maskedinput-1.2.2.min.js')),
             },
         },
     'datetimepicker': {
         None:{
-            'js':('scripts/jquery.min.js',
-                  'scripts/jquery-ui-timepicker-addon.js'),
-            'css':'css/jquery-ui-timepicker-addon.css',
+            'seq':(('jquery.js', 'nive.components.reform:static/scripts/jquery.min.js'),
+                   ('jquery-ui-timepicker.js', 'nive.components.reform:static/scripts/jquery-ui-timepicker-addon.js'),
+                   ('jquery-ui-timepicker.css', 'nive.components.reform:static/css/jquery-ui-timepicker-addon.css')),
             },
         },
     'reform': {
         None:{
-            'js':('scripts/jquery.min.js',
-                  'scripts/jquery.form.js',
-                  'scripts/reform.js'),
+            'seq':(('jquery.js', 'nive.components.reform:static/scripts/jquery.min.js'),
+                   ('jquery.form.js', 'nive.components.reform:static/scripts/jquery.form.js'),
+                   ('reform.js', 'nive.components.reform:static/scripts/reform.js')),
             },
         },
     'tinymce': {
         None:{
-            'js':'tinymce/jscripts/tiny_mce/tiny_mce.js',
+            'seq':(('tiny_mce.js', 'nive.components.reform:static/tinymce/jscripts/tiny_mce/tiny_mce.js'),),
             },
         },
     'codemirror': {
         None:{
-            'js':('codemirror/lib/codemirror.js',
-                  'codemirror/mode/xml/xml.js',
-                  'codemirror/mode/javascript/javascript.js',
-                  'codemirror/mode/css/css.js',
-                  'codemirror/mode/htmlmixed/htmlmixed.js'),
-            'css':'codemirror/lib/codemirror.css',
+            'seq':(('codemirror.js', 'nive.components.reform:static/codemirror/lib/codemirror.js'),
+                   ('codemirror-xml.js', 'nive.components.reform:static/codemirror/mode/xml/xml.js'),
+                   ('codemirror-javascript.js', 'nive.components.reform:static/codemirror/mode/javascript/javascript.js'),
+                   ('codemirror-css.js', 'nive.components.reform:static/codemirror/mode/css/css.js'),
+                   ('codemirror-htmlmixed.js', 'nive.components.reform:static/codemirror/mode/htmlmixed/htmlmixed.js'),
+                   ('codemirror.css', 'nive.components.reform:static/codemirror/lib/codemirror.css')),
             },
         },
     }

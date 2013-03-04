@@ -31,6 +31,10 @@ from nive.components.objects.base import PageElementContainerBase
 class column(PageElementContainerBase):
     implements(IColumn)
     
+    @property
+    def page(self):
+        return self.parent
+
     def IsLocal(self, page):
         #
         return self.GetParent().id == page.id
@@ -57,7 +61,7 @@ class column(PageElementContainerBase):
 
     def GetElementContainer(self):
         # returns the current element container
-        return self #.GetParent()
+        return self 
 
     def GetContainer(self):
         # returns the current container
@@ -88,15 +92,9 @@ configuration =  ObjectConf(
 configuration.data = [
     FieldConf(id="showsub", datatype="bool", size=2, default=1, name=_(u"Show on subpages"), description=_(u"If checked the column will be displayed on sub pages until overwritten."))
 ]
-cols = [
-    #{'id': u'', 'name': u''},
-    #{'id': u'left', 'name': _(u'Left column')},
-    #{'id': u'right', 'name': _(u'Right column')},    
-    {'id': u'footer', 'name': _(u'Footer')},
-]
 
 configuration.forms = {
-        "create": {"fields": [FieldConf(id="title", datatype="list", size=10, default=u"", required=1, listItems=cols, name=_(u"Column type"), description=u""),
+        "create": {"fields": [FieldConf(id="title", datatype="hidden", size=10, default=u"", required=1, name=_(u"Column type")),
                               "showsub", "pool_groups"]},
         "edit":   {"fields": ["showsub", "pool_groups"]}
 }

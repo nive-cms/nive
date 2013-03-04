@@ -28,6 +28,10 @@ from nive.components.objects.base import PageElementContainerBase
 
 class box(PageElementContainerBase):
 
+    @property
+    def page(self):
+        return self.parent
+
     def GetResponsiveClass(self, editmode=False):
         """
         Returns the responsive class to be attached to the box.

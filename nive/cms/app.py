@@ -71,7 +71,8 @@ configuration = AppConf(
     id = "website",
     title = u"Nive cms",
     context = "nive.cms.app.WebsitePublisher",
-    workflowEnabled = True
+    workflowEnabled = True,
+    columns=[u"footer"]
 )
 configuration.modules = [
     # objects

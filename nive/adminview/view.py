@@ -255,6 +255,7 @@ class AdminView(AdminBasics):
             FieldConf(id=u"workflowEnabled", datatype="bool",   size=2,    required=0, name=_(u"Enable workflow engine")),
             FieldConf(id=u"fulltextIndex",   datatype="bool",   size=2,    required=0, name=_(u"Enable fulltext index")),
             FieldConf(id=u"frontendCodepage",datatype="string", size=10,   required=1, name=_(u"Codepage used in html frontend")),
+            FieldConf(id=u"columns",         datatype="lines",  size=100,  required=0, name=_(u"Column names"), description=_(u"Column names used in the main template. For multiple columns enter one per line.")),
         )
         form = ConfigurationForm(view=self, context=self.context.configuration, app=self.context)
         form.fields = fields

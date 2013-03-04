@@ -18,6 +18,18 @@
 __doc__ = """
 Nive cms toolbox and editor view layer
 ----------------------------------------
+The view configuration includes a list of assets (javascript and css) needed to render the toolbox
+and editor widgets. These are included in the design/main template in edit mode through `cmsview.Assets()`.
+Asset definitions use a identifier and an asset path like: ::
+
+    ('jquery.js', 'nive.cms.cmsview:static/mods/jquery.min.js'),
+    ('toolbox.css', 'nive.cms.cmsview:static/toolbox/toolbox.css'),
+
+If for example jquery is already included in the main page Assets() can be told to ignore certain
+entries: ::
+
+    cmsview.Assets(ignore=["jquery.js"])  
+
 """
 try:
     from cStringIO import StringIO
@@ -26,8 +38,8 @@ except:
     
 from nive.i18n import _, translator
 from nive.definitions import ViewModuleConf, ViewConf, WidgetConf, FieldConf
-from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot, IToolboxWidgetConf, IEditorWidgetConf
-from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, ICMSRoot, IColumn
+from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot
+from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, IViewModuleConf, ICMSRoot, IColumn
 from nive.cms.design import view as design 
 from nive.utils.utils import SortConfigurationList
 
@@ -43,7 +55,15 @@ configuration = ViewModuleConf(
     permission = "read",
     context = IObject,
     containment = ICMSRoot,  #"nive.cms.cmsview.cmsroot.cmsroot",
-    view = "nive.cms.cmsview.view.Editor"
+    view = "nive.cms.cmsview.view.Editor",
+    assets = [
+        ('jquery.js', 'nive.cms.cmsview:static/mods/jquery.min.js'),
+        ('toolbox.css', 'nive.cms.cmsview:static/toolbox/toolbox.css'),
+        ('overlay.css', 'nive.cms.cmsview:static/overlay/overlay.css'),
+        ('cmseditor.css', 'nive.cms.cmsview:static/cmseditor.css'),
+        ('jquery-ui.js', 'nive.cms.cmsview:static/mods/ui/jquery-ui-1.8.24.custom.min.js'),
+        ('cmseditor.js', 'nive.cms.cmsview:static/cmseditor.js')
+    ]
 )
 # views -----------------------------------------------------------------------------
 # shortcuts
@@ -144,7 +164,38 @@ class Editor(BaseView, CopyView, SortView):
             confs.append(w)
         return SortConfigurationList(confs, u"sort")
         
+    def Assets(self, assets=None, ignore=None):
+        """
+        Renders a list of static ressources as html <script> and <link>.
+        If assets is None the list of assets is looked up in the 'cmsview'-configuration.
+        Asset definitions use a identifier and an asset path like: ::
+        
+            ('jquery.js', 'nive.cms.cmsview:static/mods/jquery.min.js'),
+            ('toolbox.css', 'nive.cms.cmsview:static/toolbox/toolbox.css'),
+        
+        If for example jquery is already included in the main page Assets() can be told to ignore certain
+        entries: ::
+        
+            cmsview.Assets(ignore=["jquery.js"])  
+        
+        """
+        if not assets:
+            app = self.context.app
+            conf = app.QueryConfByName(IViewModuleConf, "cmsview")
+            assets = conf.assets
 
+        if not assets:
+            return u""
+        
+        if ignore==None:
+            ignore = []
+
+        js_links = [self.StaticUrl(r[1]) for r in filter(lambda v: v[0] not in ignore and v[1].endswith(u".js"), assets)]
+        css_links = [self.StaticUrl(r[1]) for r in filter(lambda v: v[0] not in ignore and v[1].endswith(u".css"), assets)]
+        js_tags = [u'<script src="%s" type="text/javascript"></script>' % link for link in js_links]
+        css_tags = [u'<link href="%s" rel="stylesheet" type="text/css" media="all"/>' % link for link in css_links]
+        return (u"\r\n").join(js_tags + css_tags)        
+        
     # macros ------------------------------------------------------------------------ 
 
     def cmsIndex_tmpl(self):
@@ -177,6 +228,23 @@ class Editor(BaseView, CopyView, SortView):
     
     
     # cms editor interface elements -------------------------------------------------
+    
+    def cms(self, obj=None):
+        """
+        Renders required widgets and toolbar
+        
+        Calls
+        - self.cmsToolbox() 
+        - self.cmsEditorBlocks()
+        - self.cmsEditorBlocks() for each column
+        """
+        if not obj:
+            obj=self.context
+        html = [self.cmsToolbox(obj), self.cmsEditorBlocks(obj)]
+        for column in obj.app.configuration.columns:
+            html.append(self.cmsEditorBlocks(obj.page.GetColumn(column)))
+        return u"".join(html)
+
     
     def cmsToolbox(self, obj, elements=None):
         """
@@ -276,7 +344,7 @@ class Editor(BaseView, CopyView, SortView):
         return data
 
 
-    def editBlockColumn(self, page=None, column=None, name=None):
+    def editBlockColumn(self, name=None, page=None, column=None):
         """
         Edit bar for columns
         if column is None current context is used

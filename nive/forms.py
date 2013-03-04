@@ -889,23 +889,30 @@ class HTMLForm(Form):
         return html
 
     
-    def HTMLHead(self, disableResources=[u"scripts/jquery.min.js"], staticRoot=None):
+    def HTMLHead(self, ignore=(u"jquery.js",u"jquery-ui.js")):
         """
-        get necessary includes (js and css) for html header
+        Get necessary includes (js and css) for html header.
+        Jquery and Jquery-ui are included by default in cmsview editor pages. So by default these two
+        will be ignored,
         """
         self._SetUpSchema()
         resources = self.get_widget_resources()
-        js_resources = resources['js']
-        css_resources = resources['css']
-        if staticRoot:
-            static = staticRoot + u"%s"
-        else:
-            try: # fail silently and set /reform as static url
-                static = static_url("nive.components.reform:static/", self.request) + u"%s"
-            except:
-                static = u"/reform/%s"
-        js_links = [static % r for r in filter(lambda v: v not in disableResources, js_resources)]
-        css_links = [static % r for r in filter(lambda v: v not in disableResources, css_resources)]
+        js_resources = resources.get('js')
+        css_resources = resources.get('css')
+        resources = resources.get('seq')
+                
+        # js and css
+        req = self.request
+        js_links = []
+        css_links = []
+        if js_resources:
+            js_links = [static_url(r, req) for r in filter(lambda v: v not in ignore, js_resources)]
+        if css_resources:
+            css_links = [static_url(r, req) for r in filter(lambda v: v not in ignore, css_resources)]
+        # seq
+        if resources:
+            js_links.extend([static_url(r[1], req) for r in filter(lambda v: v[0] not in ignore and v[1].endswith(u".js"), resources)])
+            css_links.extend([static_url(r[1], req) for r in filter(lambda v: v[0] not in ignore and v[1].endswith(u".css"), resources)])
         js_tags = [u'<script src="%s" type="text/javascript"></script>' % link for link in js_links]
         css_tags = [u'<link href="%s" rel="stylesheet" type="text/css" media="all"/>' % link for link in css_links]
         return (u"\r\n").join(js_tags + css_tags)
