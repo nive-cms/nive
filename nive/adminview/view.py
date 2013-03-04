@@ -54,21 +54,18 @@ configuration.views = [
     ViewConf(name = "tools",    attr = "tools",      renderer = t+"tools.pt"),
     ViewConf(name = "modules",  attr = "view",       renderer = t+"modules.pt"),
     ViewConf(name = "views",    attr = "view",       renderer = t+"views.pt"),
-    ViewConf(name = "help",     attr = "view",       renderer = t+"help.pt", permission="read"),
 ]
 
 configuration.widgets = [
-    WidgetConf(name=_(u"Basics"),    viewmapper="basics",     id="admin.basics",   sort=100,   apply=(IApplication,), widgetType=IAdminWidgetConf,
+    WidgetConf(name=_(u"Basics"),    viewmapper="basics",     id="admin.basics",   sort=1000,   apply=(IApplication,), widgetType=IAdminWidgetConf,
                description=u""),
     #WidgetConf(name=_(u"Global"),    viewmapper="portal",     id="admin.portal",   sort=300,   apply=(IApplication,), widgetType=IAdminWidgetConf),
-    WidgetConf(name=_(u"Tools"),     viewmapper="tools",      id="admin.tools",    sort=400,   apply=(IApplication,), widgetType=IAdminWidgetConf,
+    WidgetConf(name=_(u"Tools"),     viewmapper="tools",      id="admin.tools",    sort=5000,   apply=(IApplication,), widgetType=IAdminWidgetConf,
                description=u""),
-    WidgetConf(name=_(u"Modules"),   viewmapper="modules",    id="admin.modules",  sort=800,   apply=(IApplication,), widgetType=IAdminWidgetConf,
+    WidgetConf(name=_(u"Modules"),   viewmapper="modules",    id="admin.modules",  sort=10000,   apply=(IApplication,), widgetType=IAdminWidgetConf,
                description=_(u"Read only listing of all registered modules and settings.")),
-    WidgetConf(name=_(u"Views"),     viewmapper="views",      id="admin.views",    sort=900,   apply=(IApplication,), widgetType=IAdminWidgetConf,
+    WidgetConf(name=_(u"Views"),     viewmapper="views",      id="admin.views",    sort=15000,   apply=(IApplication,), widgetType=IAdminWidgetConf,
                description=_(u"Read only listing of all registered views grouped by view modules.")),
-    WidgetConf(name=_(u"Help"),      viewmapper="help",       id="admin.help",     sort=5000,  apply=(IApplication,), widgetType=IAdminWidgetConf,
-               description=_(u"Help and documentation.")),
 ]
 
 
@@ -164,9 +161,6 @@ class AdminBasics(BaseView):
     def view(self):
         return {}
 
-    def doc(self, template=u"default.pt"):
-        return render(u"nive.cms:doc/"+template, {u"context":self.context, u"view":self, u"request": self.request}, request=self.request)
-    
     def GetAdminWidgets(self):
         app = self.context.app
         widgets = app.QueryConf(IAdminWidgetConf, app)
@@ -255,7 +249,6 @@ class AdminView(AdminBasics):
             FieldConf(id=u"workflowEnabled", datatype="bool",   size=2,    required=0, name=_(u"Enable workflow engine")),
             FieldConf(id=u"fulltextIndex",   datatype="bool",   size=2,    required=0, name=_(u"Enable fulltext index")),
             FieldConf(id=u"frontendCodepage",datatype="string", size=10,   required=1, name=_(u"Codepage used in html frontend")),
-            FieldConf(id=u"columns",         datatype="lines",  size=100,  required=0, name=_(u"Column names"), description=_(u"Column names used in the main template. For multiple columns enter one per line.")),
         )
         form = ConfigurationForm(view=self, context=self.context.configuration, app=self.context)
         form.fields = fields

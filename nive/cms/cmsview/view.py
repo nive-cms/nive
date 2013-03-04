@@ -65,6 +65,7 @@ configuration = ViewModuleConf(
         ('cmseditor.js', 'nive.cms.cmsview:static/cmseditor.js')
     ]
 )
+
 # views -----------------------------------------------------------------------------
 # shortcuts
 t = configuration.templates 
