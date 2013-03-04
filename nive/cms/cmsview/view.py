@@ -348,15 +348,18 @@ class Editor(BaseView, CopyView, SortView):
     def editBlockColumn(self, name=None, page=None, column=None):
         """
         Edit bar for columns
-        if column is None current context is used
+        if column is None the current context is used
         """
+        if not page:
+            page = self.context.page
         if not column:
             column=self.context
             if not IColumn.providedBy(column):
-                column = None
-        if page == None and name == None and column != None:
+                if name:
+                    column = page.LocalColumn(name)
+        if column != None:
             name = column.meta.get("title")
-            page = column.GetPage()
+            page = column.page
         return render("widgets/editblock_column.pt", 
                       {u"column":column, u"page": page, u"name": name, u"view":self}, 
                       request=self.request)
