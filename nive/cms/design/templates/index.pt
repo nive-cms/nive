@@ -60,10 +60,13 @@
 
   <div class="footer"> 
 
-  <tal:block metal:define-slot="right">
-    <span tal:define="column context.GetPage().GetColumn(u'right')"
+  <tal:block metal:define-slot="footer">
+    <span tal:define="column context.GetPage().GetColumn(u'footer')"
           tal:condition="column"
           tal:replace="structure view.RenderView(column)"/>
+    <span tal:condition="python:cmsview"
+          tal:replace="structure cmsview.editBlockColumn(page=context, column=context.GetColumn(u'footer'), name=u'footer')" />  
+
   </tal:block>
 
   </div>
@@ -75,7 +78,7 @@
 <span tal:condition="cmsview"
       tal:replace="structure cmsview.cmsEditorBlocks(context)" />  
 <span tal:condition="cmsview"
-      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'right'))" />  
+      tal:replace="structure cmsview.cmsEditorBlocks(context.GetPage().GetColumn(u'footer'))" />  
 </body>
 </html>
 </tal:block>

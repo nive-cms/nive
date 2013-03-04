@@ -89,9 +89,10 @@ configuration.data = [
     FieldConf(id="showsub", datatype="bool", size=2, default=1, name=_(u"Show on subpages"), description=_(u"If checked the column will be displayed on sub pages until overwritten."))
 ]
 cols = [
-    {'id': u'', 'name': u''},
-    {'id': u'left', 'name': _(u'Left column')},
-    {'id': u'right', 'name': _(u'Right column')},    
+    #{'id': u'', 'name': u''},
+    #{'id': u'left', 'name': _(u'Left column')},
+    #{'id': u'right', 'name': _(u'Right column')},    
+    {'id': u'footer', 'name': _(u'Footer')},
 ]
 
 configuration.forms = {
