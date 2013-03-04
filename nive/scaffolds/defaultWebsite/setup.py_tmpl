@@ -7,11 +7,9 @@ README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
-    'pyramid',
+    'nive',
     'pyramid_debugtoolbar',
     'waitress',
-    'iso8601', 
-    'translationstring', 
     {{dbPackage}}
     ]
 
