@@ -1136,7 +1136,10 @@ class ObjectForm(HTMLForm):
                 pepos = self.GetFormValue(u"pepos")
                 if pepos:
                     if ISort.providedBy(self.context):
-                        self.context.InsertAfter(pepos, result.id, user=user)
+                        if pepos in (u"last", u"first"):
+                            self.context.InsertAtPosition(result.id, pepos, user=user)
+                        else:
+                            self.context.InsertAfter(pepos, result.id, user=user)
                 msgs.append(_(u"OK. Data saved."))
                 self.Signal("success", obj=result)
 
