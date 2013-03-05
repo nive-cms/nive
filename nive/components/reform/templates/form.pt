@@ -53,7 +53,7 @@ function reform_ajaxify(response, status, xhr, form, oid, mthd) {
       }
     },
     error:  function(responseText, statusText, xhr, $form) {
-      $('#'+oid).replaceWith(responseText); 
+      $('#'+oid).replaceWith(responseText.responseText); 
       reform_ajaxify(response, status, xhr, form, oid); 
     }
   };
