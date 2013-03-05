@@ -240,6 +240,26 @@ class PageColumns:
         return None
         
 
+    def GetProxiedColumn(self, name):
+        """
+        Returns the column *name* as object. If no local column is found, parents 
+        searched.  
+        """
+        c = self.LocalColumn(name)
+        if c:
+            return c
+        parent = self.GetParent()
+        while parent:
+            c = parent.LocalColumn(name)
+            if c:
+                c.__parent__ = self
+                return c
+            if parent.GetID() == 0:
+                break
+            parent = parent.GetParent()
+        return None
+        
+
     def HasLocalColumn(self, name):
         """
         Returns if a local column *name* exists. 
