@@ -123,17 +123,17 @@ class Sort:
         
         
     def InsertAtPosition(self, id, position, user, selection=None):
-        """ position = 'first', 'last' or numer """
+        """ position = 'first', 'last' or number """
         if position == u"last":
-            return self.MoveEnd(id)
+            return self.MoveEnd(id, user=user)
         elif position == u"first":
-            return self.MoveStart(id)
+            return self.MoveStart(id, user=user)
         try:
             position = int(position)
         except:
             position = 0
         if position == 0 or position == self.GetID():
-            return self.MoveEnd(id)
+            return self.MoveEnd(id, user=user)
         id=int(id)
         order = []
         objs = self.GetSortElements(selection)
