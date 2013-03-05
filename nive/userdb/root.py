@@ -348,7 +348,7 @@ class root(UserCache, RootBase):
         """
         Logout and delete session data
         """
-        user = self.GetUserByName(name)
+        user = self.GetUser(name)
         if not user:
             return False
         user.Logout()
@@ -391,6 +391,14 @@ class root(UserCache, RootBase):
 
     # User ------------------------------------------------------------------------------------------------------
 
+    def GetUser(self, name, activeOnly=1):
+        """
+        Lookup user by *user_id* as used in session cookies for example
+        """
+        user = self.LookupUser(name=name, activeOnly=activeOnly)
+        return user
+
+
     def GetUserByName(self, name, activeOnly=1):
         """
         """
@@ -423,7 +431,7 @@ class root(UserCache, RootBase):
     def GetUserGroups(self, name, activeOnly=1):
         """
         """
-        user = self.GetUserByName(name, activeOnly=activeOnly)
+        user = self.GetUser(name, activeOnly=activeOnly)
         if not user:
             return None
         return user.data.groups
