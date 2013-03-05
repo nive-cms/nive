@@ -54,6 +54,9 @@ Uses cookies to store settings between page relods.
 		    if(_settings.enabled)  $(this).hasClass("peBox") ?    $(this).addClass("peBox_ov") :    $(this).addClass("pageelement_ov");
 		    else                   $(this).hasClass("peBox_ov") ? $(this).removeClass("peBox_ov") : $(this).removeClass("pageelement_ov");
 		  });
+		  $('.pageeditorEditblock').each( function(index) {
+		    _settings.enabled ? $(this).show() : $(this).hide();
+		  });
 		}
 		
 		this.showBlock = function(blockid) {

@@ -20,6 +20,8 @@
   -moz-user-select: none;
   -o-user-select: none;
   user-select: none;
+  font-size:10pt;
+  line-height:1.2em;
 }
 .pageeditorEditblock:hover {
   border: 1px solid #6e6e6e;
@@ -35,6 +37,8 @@
   display: inline;
   margin: 0px;
   padding: 0px;
+  font-size:9pt;
+  line-height:1.3em;
 }
 .peMenuBlock {
   min-width:490px;
@@ -44,11 +48,14 @@
   background-color: #ffff8e;
   position:relative;
   text-align:center;
-  font-size: 11px;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .peMenu .menuHeader a {
   margin-right: 10px;
   cursor: pointer;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .peMenu img {
   vertical-align: top;
@@ -60,12 +67,21 @@
 }
 .pageeditorEditblock .title {
   cursor:pointer;
+  font-size:10pt;
+  line-height:1.3em;
 }
 .pageeditorEditblock .options_block {
   float:left;
   padding-left: 6px;
   padding-right: 6px;
   border-right: 1px solid #cdcdcd;
+}
+.pageeditorEditblock .options_label {
+  float:left;
+  padding-left: 6px;
+  overflow: hidden;
+  font-size: 9pt;
+  color: #9e9e9e;
 }
 .pageeditorEditblock .options_block_del {
   float:right;
@@ -89,6 +105,9 @@
   padding:4px;
   margin:0px;
   border-bottom: 1px solid #cdcdcd;
+  font-size:9pt;
+  line-height:1.2em;
+  font-weight:bold;
 }
 .addElements a {
   margin: 0px;
@@ -96,6 +115,8 @@
   padding: 5px;
   float:left;
   width:45%;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .addElements a img {
   padding-right: 10px;
@@ -128,11 +149,15 @@
   display: block;
   padding:4px;
   margin:0px;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .listElements a {
   margin: 0px;
   display: block;
   padding: 0px;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .listElements a:hover {
   background-color: #eaeaff;
@@ -146,6 +171,8 @@
   float: left;
   padding-left: 6px;
   width: 190px;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .listElements .el_options {
   float:right;
@@ -156,6 +183,8 @@
   margin: 0px;
   width: auto;
   display: inline;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .listElements .el_options a img {
   padding: 0px;
@@ -181,6 +210,8 @@
 /* interface elements --------------------------------- */
 .boxASK {
  border: 1px solid #999999; background-color: #eeeeca; width: auto; padding: 10px; margin-top: 10px;
+  font-size:9pt;
+  line-height:1.2em;
 }
 .boxElements {
   margin: 30px;

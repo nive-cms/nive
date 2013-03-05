@@ -145,11 +145,13 @@
   list-style: none;
   margin:0px;
   padding:0px;
+  font-size:9pt;
 }
-.alert .close
+#nive-toolbox .alert .close
 {
   position: relative;
   top: -2px;
   right: -6px;
   line-height: 20px;
 }
+

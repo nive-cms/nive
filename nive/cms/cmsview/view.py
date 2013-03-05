@@ -356,10 +356,9 @@ class Editor(BaseView, CopyView, SortView):
             column=self.context
             if not IColumn.providedBy(column):
                 if name:
-                    column = page.LocalColumn(name)
+                    column = page.GetColumn(name)
         if column != None:
             name = column.meta.get("title")
-            page = column.page
         return render("widgets/editblock_column.pt", 
                       {u"column":column, u"page": page, u"name": name, u"view":self}, 
                       request=self.request)

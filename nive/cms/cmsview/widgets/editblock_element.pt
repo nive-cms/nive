@@ -9,7 +9,7 @@
      i18n:domain="nive">
 
   <!-- add edit -->
-  <div class="options_block title" onclick="peHideAll()">
+  <div class="options_block title" onClick="$.fn.editblocks().hideAll()">
   ${obj.GetTypeName()}
   </div>
   <div class="options_block">
