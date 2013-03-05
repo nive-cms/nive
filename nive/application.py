@@ -429,7 +429,8 @@ class Registration(object):
             pass
             
         # register module itself
-        conf.unlock()
+        if hasattr(conf, "unlock"):
+            conf.unlock()
         if iface == IRootConf:
             self.registry.registerUtility(conf, provided=IRootConf, name=conf.id)
             if conf.default or not self._defaultRoot:
