@@ -1,3 +1,11 @@
+0.9.9b
+------
+- bugfixes: sort and ajax response
+- improved column integration
+- css and js assets configureable design.configuration.assets
+- cms editor widgets css updates
+- added sort and cut, copy, paste tests
+
 0.9.8b
 ------
 - editor ui improvements
