@@ -647,6 +647,9 @@ class ContainerFactory:
                 return None
                 #raise Exception, "NotFound"
 
+            if dbEntry.meta["pool_unitref"]!=self.id:
+                raise ContainmentError, "Object is not a child (%s)" % (str(id))
+
         # create object for type
         if not parentObj:
             parentObj = self

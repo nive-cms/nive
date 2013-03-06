@@ -132,7 +132,6 @@ class containerTest_db:
         self.assert_(newO)
         self.remove.append(newO.id)
         
-        r.Delete(o3.GetID(), user=user)
         r.Delete(o1.GetID(), user=user)
         r.Delete(o2.GetID(), user=user)
         self.assertEqual(ccc+5, a.db.GetCountEntries())

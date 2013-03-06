@@ -93,7 +93,7 @@ class objTest_db:
         self.assert_(o1.GetFld(u"ftext")==data1_1[u"ftext"])
         self.assert_(o1.GetFld(u"title")==data1_1[u"title"])
 
-        r.Delete(id, user=user)
+        self.assertRaises(ContainmentError, r.Delete, id, user)
         r.Delete(oo.GetID(), user=user)
         self.assertEqual(ccc, a.db.GetCountEntries())
         a.Close()

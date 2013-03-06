@@ -311,5 +311,9 @@ class AdminView(AdminBasics):
 
         t = app.GetAllToolConfs(contextObject=app)
         return {u"content": data, u"tools": t, u"tool":None}
+    
+    
+    def doc(self):
+        return {}
 
     

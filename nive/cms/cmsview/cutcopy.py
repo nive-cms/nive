@@ -19,8 +19,16 @@ import string
 
 from nive.i18n import _
 from nive.utils.utils import ConvertListToStr, ConvertToNumberList
+
 from nive.definitions import StagPage, StagPageElement
-from nive.components.extensions.sort import ISort
+from nive.definitions import IContainer, ViewConf
+
+from nive.cms.cmsview.sort import ISort
+
+
+
+
+
 
 class ObjCopy:
     """
@@ -139,6 +147,15 @@ class ContainerCopy:
     
 
 
+views = [
+    # cut, copy
+    ViewConf(name = "cut",  attr = "cut",  context = IContainer, permission="edit"),
+    ViewConf(name = "copy", attr = "copy", context = IContainer, permission="edit"),    
+    # paste
+    ViewConf(name = "paste", attr = "paste", context = IContainer, permission = "add")
+]
+
+
 class CopyView:
     """
     View functions for cut, copy and paste
@@ -186,7 +203,7 @@ class CopyView:
             msgs = []
             return self.Redirect(url, msgs)
 
-        pepos = self.GetFormValue(u"pepos")
+        pepos = self.GetFormValue(u"pepos",0)
         result = False
         msgs = [_(u"Method unknown")]
         if action == u"cut":
@@ -237,39 +254,4 @@ class CopyView:
         """
         self.request.session[self.CopyInfoKey] = u""
 
-
-    # widgets ------------------------------------------------------
-    
-    def shortcut_cut(self):
-        if not self.context.CanCopy():
-            return u""
-        static = self.StaticUrl(StaticMod)
-        param = self.FmtURLParam(ids=self.context.GetID())
-        l = u"""<a href="cut?%(param)s"><img src="%(static)simages/cut.png" title="%(title)s" align="top" /> </a>
-        """ % {u"param": p, u"static": static, u"title": _(u"Cut and copy to clipboard")}
-        html = u"""<div class="unit_options_block">%s</div>""" % (l)
-        return html
-
-    def shortcut_copy(self):
-        if not self.context.CanCopy():
-            return u""
-        static = self.StaticUrl(StaticMod)
-        param = self.FmtURLParam(ids=self.context.GetID())
-        l = u"""<a href="copy?%(param)s"><img src="%(static)simages/copy.png" title="%(title)s" align="top" /> </a>
-        """ % {u"param": p, u"static": static, u"title": _(u"Copy to clipboard")}
-        html = u"""<div class="unit_options_block">%s</div>""" % (l)
-        return html
-
-    def shortcut_paste(self):
-        if not self.context.CanPaste():
-            return u""
-        static = self.StaticUrl(StaticMod)
-        l = u"""<a href="paste"><img src="%(static)simages/paste.png" title="%(title)s" align="top" /> </a>
-        """ % {u"param": p, u"static": static, u"title": _(u"Paste clipboard")}
-        html = u"""<div class="unit_options_block">%s</div>""" % (l)
-        return html
-
-    
-    
-    
     

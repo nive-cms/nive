@@ -94,10 +94,10 @@ class ObjectContainerReadOnlyBase(Object, ObjectWorkflow, Container, Events, Con
 
 
 # page elements for subclassing --------------------------------------------
-from nive.components.extensions.cutcopy import ObjCopy, ContainerCopy
-from nive.components.extensions.sort import Sort
 from nive.components.extensions.path import AlternatePath
 from nive.components.extensions.pages import PageContainer, PageElementContainer, PageElement, PageColumns
+from nive.cms.cmsview.sort import Sort
+from nive.cms.cmsview.cutcopy import ObjCopy, ContainerCopy
 
 class PageBase(ContainerCopy, Sort, AlternatePath, PageColumns, PageContainer, PageElementContainer, ObjectContainerBase):
     """

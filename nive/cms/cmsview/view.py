@@ -35,6 +35,10 @@ try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
+
+from pyramid.response import Response
+from pyramid.renderers import get_renderer, render, render_to_response
+
     
 from nive.i18n import _, translator
 from nive.definitions import ViewModuleConf, ViewConf, WidgetConf, FieldConf
@@ -42,6 +46,13 @@ from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, 
 from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, IViewModuleConf, ICMSRoot, IColumn
 from nive.cms.design import view as design 
 from nive.utils.utils import SortConfigurationList
+
+from nive.forms import ObjectForm
+from nive.views import BaseView
+
+from nive.cms.cmsview import cutcopy
+from nive.cms.cmsview import sort
+
 
 
 # view module definition ------------------------------------------------------------------
@@ -69,7 +80,7 @@ configuration = ViewModuleConf(
 # views -----------------------------------------------------------------------------
 # shortcuts
 t = configuration.templates 
-
+# copy and sort extension views are imported from their files and added at the end of the list
 configuration.views = [
     ViewConf(name = "editor",     attr = "editor",  context=IContainer,   permission="view", containment=IApplication),
     ViewConf(name = "exiteditor", attr = "exit",    context=IContainer,   permission="view", containment=IApplication),
@@ -83,10 +94,6 @@ configuration.views = [
     ViewConf(name = "meta", attr = "meta", renderer = t+"meta.pt"),
     ViewConf(name ="delfile",attr= "delfile", permission="delete"),
                 
-    # cut, copy
-    ViewConf(name = "cut",  attr = "cut",  context = IContainer, permission="edit"),
-    ViewConf(name = "copy", attr = "copy", context = IContainer, permission="edit"),
-    
     # widgets
     ViewConf(name = "elementListWidget", attr = "elementListWidget", context = IContainer, permission="edit"),
     ViewConf(name = "elementAddWidget",  attr = "elementAddWidget",  context = IObject, permission = "add"),
@@ -97,24 +104,12 @@ configuration.views = [
     ViewConf(name = "add",       attr = "add",    context = IContainer, renderer = t+"add.pt", permission="add"),
     ViewConf(name = "delete",    attr = "delete", context = IContainer, renderer = t+"delete.pt", permission = "delete"),
     
-    # sort
-    ViewConf(name = "sortpages", attr = "sortpages", context = IPage, renderer = t+"sort.pt", permission="edit"),
-    ViewConf(name = "sortpages", attr = "sortpages", context = IRoot, renderer = t+"sort.pt", permission="edit"),
-    ViewConf(name="sortelements",attr="sortelements",context = IContainer, renderer = t+"sort.pt", permission="edit"),
-    ViewConf(name = "moveup",    attr = "moveup",    context = IContainer, permission="edit"),
-    ViewConf(name = "movedown",  attr = "movedown",  context = IContainer, permission="edit"),
-    ViewConf(name = "movetop",   attr = "movetop",   context = IContainer, permission="edit"),
-    ViewConf(name = "movebottom",attr = "movebottom",context = IContainer, permission="edit"),
-    
-    # paste
-    ViewConf(name = "paste", attr = "paste", context = IContainer, permission = "add"),
-    
     # widgets
     ViewConf(name = "addpageWidget",  attr = "tmpl", renderer = t+"widgets/widget_addpage.pt",    context = IContainer, permission="add"),
     ViewConf(name = "editpageWidget", attr = "tmpl", renderer = t+"widgets/widget_editpage.pt",   context = IContainer, permission="edit"),
     ViewConf(name = "subpagesWidget", attr = "tmpl", renderer = t+"widgets/widget_subpages.pt",   context = IContainer),
     ViewConf(name = "settingsWidget", attr = "tmpl", renderer = t+"widgets/widget_settings.pt",   context = IContainer)
-]
+] + sort.views + cutcopy.views
 
 
 # toolbox and editor widgets ----------------------------------------------------------------------------------
@@ -135,17 +130,8 @@ configuration.widgets = [
         
 # view implementation ------------------------------------------------------------------
         
-from nive.forms import ObjectForm
-from nive.views import BaseView
 
-from nive.components.extensions.sort import SortView
-from nive.components.extensions.cutcopy import CopyView
-
-from pyramid.response import Response
-from pyramid.renderers import get_renderer, render, render_to_response
-
-
-class Editor(BaseView, CopyView, SortView):
+class Editor(BaseView, cutcopy.CopyView, sort.SortView):
 
     def __init__(self, context, request):
         BaseView.__init__(self, context, request)

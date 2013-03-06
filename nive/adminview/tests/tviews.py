@@ -26,6 +26,7 @@ class tViews(unittest.TestCase):
         self.portal.Register(self.app, "nive")
         self.app.Register(view.configuration)
         self.app.Register(view.dbAdminConfiguration)
+        self.app.Register("nive.cms.cmsview")
         self.app.Startup(self.config)
         self.request.context = self.app
     
@@ -54,7 +55,7 @@ class tViews(unittest.TestCase):
         self.assert_(v.editdatabase())
         self.assert_(v.editportal())
         self.assert_(v.tools())
-        self.assert_(v.doc())
+        v.doc()
 
 
     def test_form(self):
@@ -88,7 +89,7 @@ class tTemplates(unittest.TestCase):
         self.portal.Register(self.app, "nive")
         self.app.Register(view.configuration)
         self.app.Register(view.dbAdminConfiguration)
-        self.app.Register("nive.cms.cmsview.view")
+        self.app.Register("nive.cms.cmsview")
         self.app.Startup(self.config)
         self.request.context = self.app
 

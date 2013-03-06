@@ -24,6 +24,8 @@ from nive.i18n import _
 from nive.definitions import StagPage, StagPageElement
 from nive.definitions import implements, Interface, IObject, ISort
 
+from nive.definitions import ViewModuleConf, ViewConf, WidgetConf, FieldConf
+from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot
 
 
 class Sort:
@@ -41,11 +43,10 @@ class Sort:
 
     def NewSort(self, data, type, **kw):
         """    """
-        request = kw.get("request")
         insertAfterID = None
-        if request:
-            #!!!
-            insertAfterID = self.GetFormValue(u"pepos", request=request)
+        #request = kw.get("request")
+        #if request:
+        #    insertAfterID = self.GetFormValue(u"pepos", request=request)
         if not insertAfterID:
             s = self.GetMaxSort()+10
             data["pool_sort"] = s
@@ -67,7 +68,7 @@ class Sort:
     def GetSortElements(self, selection=None):
         """ returns the contents as sorted list """
         if selection=="pages":
-            return self.GetPages()
+            return self.GetPages(public=0)
         if selection=="elements":
             return self.GetPageElements()
         return self.GetObjs()
@@ -147,28 +148,28 @@ class Sort:
         return ok, msgs
 
 
-    def InsertBefore(self, id, newID, user, selection=None):
-        """ insert newID after unitID """
-        id=int(id)
+    def InsertBefore(self, id, position, user, selection=None):
+        """ insert id before position element id """
+        position = int(position)
         order = []
         objs = self.GetSortElements(selection)
         for obj in objs:
-            if id == obj.id:
-                order.append(newID)
+            if position == obj.id:
+                order.append(id)
             order.append(obj)
         ok, msgs = self.UpdateSort(order, user=user)
         return ok, msgs
 
 
-    def InsertAfter(self, id, newID, user, selection=None):
-        """ insert newID after unitID """
-        id=int(id)
+    def InsertAfter(self, id, position, user, selection=None):
+        """ insert id after position element id """
+        position=int(position)
         order = []
         objs = self.GetSortElements(selection)
         for obj in objs:
             order.append(obj)
-            if id == obj.id:
-                order.append(newID)
+            if position == obj.id:
+                order.append(id)
         ok, msgs = self.UpdateSort(order, user=user)
         return ok, msgs
 
@@ -243,6 +244,17 @@ class Sort:
         ok, msgs = self.UpdateSort(order, user=user)
         return ok, msgs
 
+
+views = [
+    # sort
+    ViewConf(name = "sortpages", attr = "sortpages", context = IPage, renderer = "sort.pt", permission="edit"),
+    ViewConf(name = "sortpages", attr = "sortpages", context = IRoot, renderer = "sort.pt", permission="edit"),
+    ViewConf(name="sortelements",attr="sortelements",context = IContainer, renderer = "sort.pt", permission="edit"),
+    ViewConf(name = "moveup",    attr = "moveup",    context = IContainer, permission="edit"),
+    ViewConf(name = "movedown",  attr = "movedown",  context = IContainer, permission="edit"),
+    ViewConf(name = "movetop",   attr = "movetop",   context = IContainer, permission="edit"),
+    ViewConf(name = "movebottom",attr = "movebottom",context = IContainer, permission="edit"),
+]    
 
 
 class SortView:
