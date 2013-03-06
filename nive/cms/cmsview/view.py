@@ -65,7 +65,7 @@ configuration = ViewModuleConf(
     templates = "nive.cms.cmsview:",
     permission = "read",
     context = IObject,
-    containment = ICMSRoot,  #"nive.cms.cmsview.cmsroot.cmsroot",
+    containment = ICMSRoot,  
     view = "nive.cms.cmsview.view.Editor",
     assets = [
         ('jquery.js', 'nive.cms.cmsview:static/mods/jquery.min.js'),
@@ -78,9 +78,9 @@ configuration = ViewModuleConf(
 )
 
 # views -----------------------------------------------------------------------------
-# shortcuts
-t = configuration.templates 
 # copy and sort extension views are imported from their files and added at the end of the list
+
+t = configuration.templates 
 configuration.views = [
     ViewConf(name = "editor",     attr = "editor",  context=IContainer,   permission="view", containment=IApplication),
     ViewConf(name = "exiteditor", attr = "exit",    context=IContainer,   permission="view", containment=IApplication),

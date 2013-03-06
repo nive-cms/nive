@@ -57,7 +57,7 @@ configuration.data = [
     FieldConf(id="media", datatype="file", size=0, default=u"", name=_(u"Mediafile"), description=u""),
     FieldConf(id="mediaalt", datatype="file", size=0, default=u"", 
               name=_(u"Alternative format"), description=_(u"To support all browsers you need to provide two different file formats.")),
-    FieldConf(id="player", datatype="list", size=10, listItems=player, default=u"", name=_(u"Text"), description=u""),
+    FieldConf(id="player", datatype="list", size=10, listItems=player, default=u"", name=_(u"Player"), description=u""),
     FieldConf(id="textblock", datatype="htext", size=10000, default=u"", fulltext=1, name=_(u"Text"), description=u"")
 ]
 

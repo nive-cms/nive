@@ -247,9 +247,9 @@ class Sort:
 
 views = [
     # sort
-    ViewConf(name = "sortpages", attr = "sortpages", context = IPage, renderer = "sort.pt", permission="edit"),
-    ViewConf(name = "sortpages", attr = "sortpages", context = IRoot, renderer = "sort.pt", permission="edit"),
-    ViewConf(name="sortelements",attr="sortelements",context = IContainer, renderer = "sort.pt", permission="edit"),
+    ViewConf(name = "sortpages", attr = "sortpages", context = IPage, renderer = "nive.cms.cmsview:sort.pt", permission="edit"),
+    ViewConf(name = "sortpages", attr = "sortpages", context = IRoot, renderer = "nive.cms.cmsview:sort.pt", permission="edit"),
+    ViewConf(name="sortelements",attr="sortelements",context = IContainer, renderer = "nive.cms.cmsview:sort.pt", permission="edit"),
     ViewConf(name = "moveup",    attr = "moveup",    context = IContainer, permission="edit"),
     ViewConf(name = "movedown",  attr = "movedown",  context = IContainer, permission="edit"),
     ViewConf(name = "movetop",   attr = "movetop",   context = IContainer, permission="edit"),
