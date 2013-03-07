@@ -86,7 +86,7 @@ class ContainerCopy:
             if not newobj:
                 raise TypeError, "Duplicate failed"
             if ISort.providedBy(self):
-                self.InsertAfter(pos, newobj.id, user=user)
+                self.InsertAfter(newobj.id, pos, user=user)
             new.append(newobj)
         if not self.app.configuration.autocommit:
             for o in new:
@@ -140,7 +140,7 @@ class ContainerCopy:
         for o in moved:
             o.Commit(user)
             if ISort.providedBy(self):
-                self.InsertAfter(pos, o.id, user=user)
+                self.InsertAfter(o.id, pos, user=user)
         if result:
             msgs.append(_(u"OK. Cut and pasted."))
         return result, msgs

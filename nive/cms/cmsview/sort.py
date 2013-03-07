@@ -37,28 +37,6 @@ class Sort:
     """
     implements(ISort)
 
-    def Init(self):
-        self.RegisterEvent("beforeCreate", "NewSort")
-
-
-    def NewSort(self, data, type, **kw):
-        """    """
-        insertAfterID = None
-        #request = kw.get("request")
-        #if request:
-        #    insertAfterID = self.GetFormValue(u"pepos", request=request)
-        if not insertAfterID:
-            s = self.GetMaxSort()+10
-            data["pool_sort"] = s
-            return
-        o = self.GetObj(insertAfterID)
-        if not o:
-            s = self.GetMaxSort()+10
-        else:
-            s = o.meta["pool_sort"] + 1
-        data["pool_sort"] = s
-        return
-
 
     def GetSort(self):
         """ default sort field for subobjects """
@@ -129,34 +107,29 @@ class Sort:
             return self.MoveEnd(id, user=user)
         elif position == u"first":
             return self.MoveStart(id, user=user)
-        try:
-            position = int(position)
-        except:
-            position = 0
-        if position == 0 or position == self.GetID():
-            return self.MoveEnd(id, user=user)
-        id=int(id)
-        order = []
-        objs = self.GetSortElements(selection)
-        pos = 0
-        for obj in objs:
-            if position == pos:
-                order.append(id)
-            order.append(obj)
-            pos += 1
-        ok, msgs = self.UpdateSort(order, user=user)
-        return ok, msgs
+        return self.InsertAfter(id, position, user, selection=selection)
 
 
     def InsertBefore(self, id, position, user, selection=None):
         """ insert id before position element id """
-        position = int(position)
+        position=int(position)
         order = []
         objs = self.GetSortElements(selection)
-        for obj in objs:
-            if position == obj.id:
+        oid = id if not IObject.providedBy(id) else id.id 
+        # if id already included in container, remove it
+        delpos = -1
+        # make sure id is added even if position does not exist
+        added = False
+        for current in objs:
+            if position == current.id:
                 order.append(id)
-            order.append(obj)
+            order.append(current)
+            if current.id == oid:
+                delpos = len(order)-1
+        if delpos > -1:
+            del order[delpos]
+        if not added:
+            order.insert(0, id)
         ok, msgs = self.UpdateSort(order, user=user)
         return ok, msgs
 
@@ -166,10 +139,21 @@ class Sort:
         position=int(position)
         order = []
         objs = self.GetSortElements(selection)
-        for obj in objs:
-            order.append(obj)
-            if position == obj.id:
+        oid = id if not IObject.providedBy(id) else id.id 
+        # if id already included in container, remove it
+        delpos = -1
+        # make sure id is added even if position does not exist
+        added = False
+        for current in objs:
+            order.append(current)
+            if current.id == oid:
+                delpos = len(order)-1
+            if position == current.id:
                 order.append(id)
+        if delpos > -1:
+            del order[delpos]
+        if not added:
+            order.append(id)
         ok, msgs = self.UpdateSort(order, user=user)
         return ok, msgs
 

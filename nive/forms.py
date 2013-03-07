@@ -973,6 +973,8 @@ class HTMLForm(Form):
 class ObjectForm(HTMLForm):
     """
     Contains actions for object creation and updates.
+    
+    Supports sort form parameter *pepos*.
     """
     actions = [
         Conf(id=u"default",    method="StartFormRequest",  name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
@@ -987,7 +989,7 @@ class ObjectForm(HTMLForm):
     }
 
 
-    def Setup(self, subset=None, addTypeField=False, addPosField=True):
+    def Setup(self, subset=None, addTypeField=False): #, addPosField=True
         """
         Calls Form.Setup() with the addition to automatically add the pool_type field. 
         
@@ -1014,8 +1016,9 @@ class ObjectForm(HTMLForm):
             pos += 1
         type_fld = FieldConf(id="pool_type",datatype="string",hidden=1)
         self._c_fields.append(type_fld)
-        if addPosField:
-            # insert at position
+        # insert at position
+        if ISort.providedBy(self.context):
+            #if addPosField:
             pepos = self.GetFormValue(u"pepos", method=u"ALL")
             if pepos:
                 pos_fld = FieldConf(id="pepos",datatype="string",hidden=1)
@@ -1038,9 +1041,10 @@ class ObjectForm(HTMLForm):
         else:
             data["pool_type"] = self.loadFromType.id
         # insert at position
-        pepos = self.GetFormValue(u"pepos", method=u"ALL")
-        if pepos:
-            data["pepos"] = pepos
+        if ISort.providedBy(self.context):
+            pepos = self.GetFormValue(u"pepos", method=u"ALL")
+            if pepos:
+                data["pepos"] = pepos
         return True, self.Render(data)
 
 
@@ -1062,9 +1066,10 @@ class ObjectForm(HTMLForm):
         else:
             data["pool_type"] = self.loadFromType.id
         # insert at position
-        pepos = self.GetFormValue(u"pepos", method=u"ALL")
-        if pepos:
-            data["pepos"] = pepos
+        if ISort.providedBy(self.context):
+            pepos = self.GetFormValue(u"pepos", method=u"ALL")
+            if pepos:
+                data["pepos"] = pepos
         return True, self.Render(data)
 
 
@@ -1132,14 +1137,11 @@ class ObjectForm(HTMLForm):
             user=kw.get("user") or self.view.User()
             result = self.context.Create(objtype, data, user)
             if result:
-                # insert at position
-                pepos = self.GetFormValue(u"pepos")
-                if pepos:
-                    if ISort.providedBy(self.context):
-                        if pepos in (u"last", u"first"):
-                            self.context.InsertAtPosition(result.id, pepos, user=user)
-                        else:
-                            self.context.InsertAfter(pepos, result.id, user=user)
+                if ISort.providedBy(self.context):
+                    # insert at position
+                    pepos = self.GetFormValue(u"pepos")
+                    if pepos:
+                        self.context.InsertAtPosition(result, pepos, user=user)
                 msgs.append(_(u"OK. Data saved."))
                 self.Signal("success", obj=result)
 
