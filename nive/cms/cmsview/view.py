@@ -44,8 +44,8 @@ from nive.i18n import _, translator
 from nive.definitions import ViewModuleConf, ViewConf, WidgetConf, FieldConf
 from nive.definitions import IContainer, IApplication, IPortal, IPage, IObject, IRoot
 from nive.definitions import IToolboxWidgetConf, IEditorWidgetConf, IViewModuleConf, ICMSRoot, IColumn
-from nive.cms.design import view as design 
 from nive.utils.utils import SortConfigurationList
+from nive.helper import ResolveName
 
 from nive.forms import ObjectForm
 from nive.views import BaseView
@@ -59,7 +59,7 @@ from nive.cms.cmsview import sort
 
 #@nive_module
 configuration = ViewModuleConf(
-    id = "cmsview",
+    id = "editor",
     name = u"CMS Editor",
     static = "nive.cms.cmsview:static",
     templates = "nive.cms.cmsview:",
@@ -68,13 +68,16 @@ configuration = ViewModuleConf(
     containment = ICMSRoot,  
     view = "nive.cms.cmsview.view.Editor",
     assets = [
+        # jquery and jquery-ui
         ('jquery.js', 'nive.cms.cmsview:static/mods/jquery.min.js'),
+        ('jquery-ui.js', 'nive.cms.cmsview:static/mods/ui/jquery-ui-1.8.24.custom.min.js'),
+        # nive specific
+        ('cmseditor.js', 'nive.cms.cmsview:static/cmseditor.js'),
         ('toolbox.css', 'nive.cms.cmsview:static/toolbox/toolbox.css'),
         ('overlay.css', 'nive.cms.cmsview:static/overlay/overlay.css'),
         ('cmseditor.css', 'nive.cms.cmsview:static/cmseditor.css'),
-        ('jquery-ui.js', 'nive.cms.cmsview:static/mods/ui/jquery-ui-1.8.24.custom.min.js'),
-        ('cmseditor.js', 'nive.cms.cmsview:static/cmseditor.js')
-    ]
+    ],
+    description=__doc__
 )
 
 # views -----------------------------------------------------------------------------
@@ -82,17 +85,17 @@ configuration = ViewModuleConf(
 
 t = configuration.templates 
 configuration.views = [
-    ViewConf(name = "editor",     attr = "editor",  context=IContainer,   permission="view", containment=IApplication),
-    ViewConf(name = "exiteditor", attr = "exit",    context=IContainer,   permission="view", containment=IApplication),
-    ViewConf(name = "exiteditor", attr = "exitapp", context=IApplication, permission="view", containment=IPortal),
+    ViewConf(name="editor",     attr="editor",  context=IContainer,   permission="view", containment=IApplication),
+    ViewConf(name="exiteditor", attr="exit",    context=IContainer,   permission="view", containment=IApplication),
+    ViewConf(name="exiteditor", attr="exitapp", context=IApplication, permission="view", containment=IPortal),
     
-    ViewConf(id="rootview", name = "",     attr = "view", context = ICMSRoot, containment=IApplication),
-    ViewConf(id="objview",  name = "",     attr = "view", context = IPage),
+    #ViewConf(id="rootview", name = "",     attr = "view", context = ICMSRoot, containment=IApplication),
+    #ViewConf(id="objview",  name = "",     attr = "view", context = IPage),
     
     # object
-    ViewConf(name = "edit", attr = "edit", renderer = t+"edit.pt", permission="edit"),
-    ViewConf(name = "meta", attr = "meta", renderer = t+"meta.pt"),
-    ViewConf(name ="delfile",attr= "delfile", permission="delete"),
+    ViewConf(name="edit", attr="edit", renderer=t+"edit.pt", permission="edit"),
+    ViewConf(name="meta", attr="meta", renderer=t+"meta.pt"),
+    ViewConf(name="delfile", attr="delfile", permission="delete"),
                 
     # widgets
     ViewConf(name = "elementListWidget", attr = "elementListWidget", context = IContainer, permission="edit"),
@@ -168,7 +171,9 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
         """
         if not assets:
             app = self.context.app
-            conf = app.QueryConfByName(IViewModuleConf, "cmsview")
+            conf = app.QueryConfByName(IViewModuleConf, "editor")
+            if not conf:
+                return u""
             assets = conf.assets
 
         if not assets:
@@ -558,13 +563,32 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
 
     # template rendering -----------------------------------------------------------------------
     
-    def view(self):
-        #if self..Allowed(u"edit", self.context):
-        #    vars["cmsview"] = cmsview.CMS(self.context, self.request)
-        d = design.Design(self.context, self.request)
-        html = d.view(self)
-        self.NoCache(self.request.response, user=self.User())
-        return html
+    @property
+    def editor(self):
+        return self
+    
+    @property
+    def design(self):
+        """
+        Tries to load the editor view class. If none is registered the function 
+        will simply return None. Otherwise the editor view class instance with 
+        context and request set.
+        """
+        if hasattr(self, "_c_design"):
+            return self._c_design
+        module = self.context.app.QueryConfByName(IViewModuleConf, "design")
+        if not module:
+            return None
+        cls =  ResolveName(module.view)
+        design = cls(self.context, self.request)
+        self._c_design = design
+        return design
+        
+    
+    #def view(self):
+    #    html = self.design.view()
+    #    self.NoCache(self.request.response, user=self.User())
+    #    return html
     
     
     def add(self):

@@ -37,9 +37,10 @@ from pyramid.httpexceptions import HTTPNotFound
 
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, ConfigurationError
-from nive.definitions import IWebsite, IWebsiteRoot, IPage, IRoot, IPageElement, IObject, IViewModuleConf
+from nive.definitions import IWebsite, IWebsiteRoot, IRoot, ICMSRoot, IPage, IPageElement, IObject
+from nive.definitions import IViewModuleConf
 from nive.views import BaseView
-
+from nive.helper import ResolveName
     
 # view module definition ------------------------------------------------------------------
 
@@ -53,18 +54,19 @@ configuration = ViewModuleConf(
     permission = "view",
     view = "nive.cms.design.view.Design",
     views = [
-        ViewConf(id="appview",  name = "",     attr = "app",  context = IWebsite),
-        ViewConf(id="search",   name ="search",attr="search", context = IRoot),
-        ViewConf(id="su",       name ="su",    attr = "open", context = IRoot),
-        ViewConf(id="rootview", name = "",     attr = "view", context = IWebsiteRoot),
-        ViewConf(id="objview",  name = "",     attr = "view", context = IPage,        containment = IWebsiteRoot),
-        ViewConf(id="objview",  name = "",     attr = "view", context = IPageElement),
-        ViewConf(id="objfile",  name = "file", attr = "file", context = IObject),
-    ]
+        ViewConf(id="appview",  name="",      attr="app",   context=IWebsite),
+        ViewConf(id="search",   name="search",attr="search",context=IRoot),
+        ViewConf(id="su",       name="su",    attr="open",  context=IRoot),
+        ViewConf(id="rootview", name="",      attr="view",  context=IWebsiteRoot),
+        ViewConf(id="objview",  name="",      attr="view",  context=IPage,        containment=IWebsiteRoot),
+        ViewConf(id="objview",  name="",      attr="view",  context=IPageElement),
+        ViewConf(id="objfile",  name="file",  attr="file",  context=IObject),
+        # restricted permmissions if called in editor
+        ViewConf(id="rootview", name="",      attr="view",  context=ICMSRoot, containment=IWebsite),
+        ViewConf(id="objview",  name="",      attr="view",  context=IPage,    containment=ICMSRoot),
+    ],
+    description=__doc__
 )
-
-
-
 
 
 class Design(BaseView):
@@ -75,6 +77,7 @@ class Design(BaseView):
     def __init__(self, context, request):
         self.context = context
         self.request = request
+        # the viewModule is used for template/template directory lookup 
         self.viewModule = context.app.QueryConfByName(IViewModuleConf, "design")
         if not self.viewModule:
             raise ConfigurationError, "'design' view module configuration not found"
@@ -83,30 +86,39 @@ class Design(BaseView):
         self._t = time()
         self.fileExpires = 3600
         
-    def IsEditmode(self):
-        try:
-            return self.request.editmode
-        except:
-            return False
+    @property
+    def editor(self):
+        """
+        Tries to load the editor view class. If none is registered the function 
+        will simply return None. Otherwise the editor view class instance with 
+        context and request set.
+        """
+        if hasattr(self, "_c_editor"):
+            return self._c_editor
+        # restrict editor to roots with ICMSRoot Interface. Otherwise the editor views
+        # will not be found 
+        root = self.context.root()
+        if not ICMSRoot.providedBy(root):
+            return None
+        module = self.context.app.QueryConfByName(IViewModuleConf, "editor")
+        if not module:
+            return None
+        cls =  ResolveName(module.view)
+        editor = cls(self.context, self.request)
+        self._c_editor = editor
+        return editor
         
-    def HtmlTitle(self):
-        t = self.request.environ.get(u"htmltitle")
-        if not t:
-            t = self.context.GetTitle()
-        t2 = self.context.app.configuration.title
-        return t2 + u" - " + t
-
     # routed views -------------------------------------------------------------------------------------
     
-    def view(self, cmsview = None):
+    def view(self):
         # redirect if page is linked
         if IPage.providedBy(self) and self.context.IsLinked():
             return self.Redirect(self.context.data["pagelink"]) 
-        values = {u"cmsview": cmsview, u"context": self.context, u"view": self} 
+        values = {u"cmsview": self.editor, u"context": self.context, u"view": self} 
         return self.DefaultTemplateRenderer(values)
     
-    def search(self, cmsview = None):
-        values = {u"cmsview": cmsview, u"context": self.context, u"view": self}
+    def search(self):
+        values = {u"cmsview": self.editor, u"context": self.context, u"view": self}
         name = u"search.pt"
         return self.DefaultTemplateRenderer(values, templatename=name)
 
@@ -281,5 +293,24 @@ class Design(BaseView):
         return render(u"nive.cms:doc/"+template, {u"context":self.context, u"view":self, u"request": self.request}, request=self.request)
 
 
+    def IsEditmode(self):
+        try:
+            return self.request.editmode
+        except:
+            return False
+        
+    def HtmlTitle(self):
+        t = self.request.environ.get(u"htmltitle")
+        if not t:
+            t = self.context.GetTitle()
+        t2 = self.context.app.configuration.title
+        return t2 + u" - " + t
 
+
+    # bw 0.9.9
+    @property
+    def cmsview(self):
+        return self.editor
+
+    
     
