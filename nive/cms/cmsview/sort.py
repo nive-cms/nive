@@ -162,10 +162,10 @@ class Sort:
         """ move one position up in container """
         objs = self.GetSortElements(selection)
         order = []
-        id=int(id)
+        oid = id if not IObject.providedBy(id) else id.id 
         pos = 0
         for obj in objs:
-            if obj.id == id:
+            if obj.id == oid:
                 if len(order)==0:
                     return True, []
                 order.insert(len(order)-1, obj)
@@ -180,10 +180,10 @@ class Sort:
         """ move one position down in container """
         objs = self.GetSortElements(selection)
         order = []
-        id=int(id)
+        oid = id if not IObject.providedBy(id) else id.id 
         insertID = None
         for obj in objs:
-            if obj.id == id:
+            if obj.id == oid:
                 insertID = obj
             else:
                 order.append(obj)
@@ -199,10 +199,10 @@ class Sort:
     def MoveStart(self, id, user, selection=None):
         """ move to top in container """
         objs = self.GetSortElements(selection)
-        id=int(id)
+        oid = id if not IObject.providedBy(id) else id.id 
         order = [id]
         for obj in objs:
-            if id == obj.id:
+            if oid == obj.id:
                 order[1:].insert(0, obj)
             else:
                 order.append(obj)
@@ -213,11 +213,11 @@ class Sort:
     def MoveEnd(self, id, user, selection=None):
         """ move to bottom in container """
         objs = self.GetSortElements(selection)
-        id=int(id)
+        oid = id if not IObject.providedBy(id) else id.id 
         lastObj = None
         order = []
         for obj in objs:
-            if id == obj.id:
+            if oid == obj.id:
                 lastObj = obj
             else:
                 order.append(obj)
