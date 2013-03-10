@@ -757,6 +757,26 @@ class HTMLForm(Form):
         return action+u"$" in formValues.keys()
 
 
+    def RemoveActionsFromRequest(self):
+        """
+        Removes all actions from the request. If called before processing the form
+        the default action will be used and the form never processed.
+        """
+        actions = self.GetActions()
+        formValues = self.GetFormValues(self.request)
+        for a in actions:
+            if a["id"]+u"$" in formValues.keys():
+                action = a
+                try:
+                    del self.request.POST[a["id"]+u"$"]
+                except:
+                    pass
+                try:
+                    del self.request.GET[a["id"]+u"$"]
+                except:
+                    pass
+            
+
     def StartForm(self, action, **kw):
         """
         Default action. Use this function to initially render a form if:
