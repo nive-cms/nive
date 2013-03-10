@@ -24,6 +24,7 @@ See :py:mod:`nive.components.objects.base` for subclassing containers.
 
 from time import time
 
+from nive.definitions import Conf
 from nive.definitions import StagContainer, StagPageElement, MetaTbl
 from nive.definitions import IContainer, ICache, IObject, IConf 
 from nive.definitions import ContainmentError, ConfigurationError
@@ -755,8 +756,8 @@ class Root(object):
         self.configuration = rootDef
         self.queryRestraints = {}, {}
 
-        self.meta = {"pool_type": rootDef["id"], "title": rootDef["name"], "pool_state": 1, "pool_filename": path, "pool_wfa": u""}
-        self.data = {}
+        self.meta = Conf(**{"pool_type": rootDef["id"], "title": rootDef["name"], "pool_state": 1, "pool_filename": path, "pool_wfa": u""})
+        self.data = Conf(**{})
         self.Signal("init")
 
 
