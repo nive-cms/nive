@@ -30,6 +30,7 @@
   width: auto;
   position:relative;
   display:block;
+  margin-bottom:20px;
 }
 .pageeditorEditblock a {
   background: none;
