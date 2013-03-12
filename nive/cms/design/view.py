@@ -87,7 +87,7 @@ class Design(BaseView):
         self.fileExpires = 3600
         
     @property
-    def editor(self):
+    def editorview(self):
         """
         Tries to load the editor view class. If none is registered the function 
         will simply return None. Otherwise the editor view class instance with 
@@ -114,11 +114,11 @@ class Design(BaseView):
         # redirect if page is linked
         if IPage.providedBy(self) and self.context.IsLinked():
             return self.Redirect(self.context.data["pagelink"]) 
-        values = {u"cmsview": self.editor, u"context": self.context, u"view": self} 
+        values = {u"cmsview": self.editorview, u"context": self.context, u"view": self} 
         return self.DefaultTemplateRenderer(values)
     
     def search(self):
-        values = {u"cmsview": self.editor, u"context": self.context, u"view": self}
+        values = {u"cmsview": self.editorview, u"context": self.context, u"view": self}
         name = u"search.pt"
         return self.DefaultTemplateRenderer(values, templatename=name)
 
@@ -156,7 +156,7 @@ class Design(BaseView):
         parents.reverse()
         if not addHome:
             parents = parents[1:]
-        if len(parents)==0:
+        if len(parents)==0 and not addHome:
             return u""
         html = StringIO()
         for page in parents:
@@ -310,7 +310,7 @@ class Design(BaseView):
     # bw 0.9.9
     @property
     def cmsview(self):
-        return self.editor
+        return self.editorview
 
     
     

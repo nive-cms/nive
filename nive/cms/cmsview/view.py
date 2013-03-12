@@ -564,11 +564,11 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
     # template rendering -----------------------------------------------------------------------
     
     @property
-    def editor(self):
+    def editorview(self):
         return self
     
     @property
-    def design(self):
+    def designview(self):
         """
         Tries to load the editor view class. If none is registered the function 
         will simply return None. Otherwise the editor view class instance with 
@@ -584,12 +584,6 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
         self._c_design = design
         return design
         
-    
-    #def view(self):
-    #    html = self.design.view()
-    #    self.NoCache(self.request.response, user=self.User())
-    #    return html
-    
     
     def add(self):
         typeID = self.GetFormValue("pool_type")

@@ -197,7 +197,9 @@ def SetupFulltext(app, pyramidConfig):
             if isinstance(e, tuple):
                 e = list(e)
             e.append(extension)
-            c.extensions = tuple(e) 
+            c.unlock()
+            c.extensions = tuple(e)
+            c.lock()
     
     add(app.GetAllRootConfs())
     add(app.GetAllObjectConfs())
