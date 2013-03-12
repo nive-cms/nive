@@ -50,10 +50,6 @@ class tdbSort(unittest.TestCase):
         user = User(u"test")
         request = {"pepos": 0}
         
-        data = {}
-        root.NewSort(data, "page", request=request)
-        self.assert_(data["pool_sort"])
-
         self.assert_(root.GetSort())
         
         self.assert_(root.GetSortElements(selection=None))

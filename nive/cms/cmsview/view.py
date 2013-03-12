@@ -85,7 +85,7 @@ configuration = ViewModuleConf(
 
 t = configuration.templates 
 configuration.views = [
-    ViewConf(name="editor",     attr="editor",  context=IContainer,   permission="view", containment=IApplication),
+    ViewConf(name="editor",     attr="editor",  context=IContainer,   permission="read", containment=IApplication),
     ViewConf(name="exiteditor", attr="exit",    context=IContainer,   permission="view", containment=IApplication),
     ViewConf(name="exiteditor", attr="exitapp", context=IApplication, permission="view", containment=IPortal),
     

@@ -62,11 +62,6 @@ class tCMS(unittest.TestCase):
         # macros
         view.cmsIndex_tmpl()
 
-        # page view
-        r=view.view()
-        self.assertEqual(r.status_int, 200)
-        self.assertGreater(r.content_length, 2000)
-        
         # edit forms
         view.context = self.page
         view.edit()
