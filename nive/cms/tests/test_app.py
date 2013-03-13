@@ -3,9 +3,8 @@
 import time
 import unittest
 
-from nive.definitions import *
-from nive.security import *
 from nive.workflow import WorkflowNotAllowed
+from nive.security import Allow, Deny, Authenticated, Everyone
 
 from nive.cms.tests.db_app import *
 
@@ -97,9 +96,16 @@ class ObjectTest(unittest.TestCase):
         user.groups.append("group:editor")
         # add to root
         p = create_page(r, user=user)
-        r = p
         self.assert_(p)
         self.remove.append(p.id)
+        
+        self.assert_(p.IsLinked()==u"")
+        self.assert_(p.IsPage())
+        p.meta["pool_groups"] = ["authenticated","another"]
+        p.Init()
+        self.assert_((Allow, Authenticated, "view") in p.__acl__)
+
+        r = p
         b0 = create_menublock(r, user=user)
         self.assert_(b0)
         b1 = create_box(r, user=user)

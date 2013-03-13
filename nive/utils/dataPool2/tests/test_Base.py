@@ -215,8 +215,8 @@ class FileTest(unittest.TestCase):
         from pkg_resources import resource_filename
         root = resource_filename('nive.utils.dataPool2', 'tests/')
         file = File("aaa")
-        file.fromPath(root+"t_db.py")
-        self.assert_(file.filename=="t_db.py")
+        file.fromPath(root+"test_db.py")
+        self.assert_(file.filename=="test_db.py")
         self.assert_(file.extension=="py")
         
 
