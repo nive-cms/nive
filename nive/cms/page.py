@@ -97,7 +97,7 @@ configuration.data = [
               name=_(u"Enter page filename manually"), description=_(u"By default page URL-names are generated automatically by the title. Use this option to change the default behaviour.")),
 ]
 
-fields = ["title", "header", "description", "keywords", "navHidden", "pagelink", 
+fields = ["title", "header", "description", "navHidden", "pagelink", 
           "customfilename", "pool_filename", "pool_groups"]
 configuration.forms = {"create": {"fields":fields}, "edit": {"fields":fields}}
 

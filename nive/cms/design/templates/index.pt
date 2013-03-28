@@ -6,7 +6,6 @@
 <meta name="robots" content="noimageindex" />
 <meta name="generator" content="nive cms" />
 <meta name="description" content="${context.data.get(u'description',u'')}" />
-<meta name="keywords" content="${context.data.get(u'keywords',u'')}" />
 
 <link tal:attributes="href view.StaticUrl('bootstrap/css/bootstrap.min.css')" rel="stylesheet" type="text/css" media="all" />
 <link tal:attributes="href view.StaticUrl('styles.css')" rel="stylesheet" type="text/css" media="all" />
