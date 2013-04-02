@@ -513,6 +513,9 @@ class dbTest:
         c.execute(sql1, values1)
         c.execute(sql2, values2)
         c.execute(sql3, values3)
+        
+        self.pool.SelectFields(u"data1", fields=(u"id",), idValues=[0], idColumn=u"id")
+        self.pool.SelectFields(u"pool_meta", fields=(u"id",u"title",u"pool_type"), idValues=[1,2,3,4,5], idColumn=u"pool_unitref")
 
 
     def test_insertdelete(self):

@@ -530,6 +530,48 @@ class Base(object):
         return u"%s"
     
 
+    def SelectFields(self, table, fields, idValues, cursor = None, idColumn = None):
+        """
+        Select row with multiple fields in the table.
+        Set `idColumn` to the column name of the unique id column
+        
+        table: table name
+        fields: list of field names to be returned
+        idValues: list of matching id values to be returned
+        idColumn: default 'id'. id column name
+
+        returns matching records 
+        """
+        dataList = []
+        phdata = []
+        ph = self.GetPlaceholder()
+        key = idColumn or u"id"
+        for value in idValues:
+            phdata.append(ph)
+            dataList.append(value)
+
+        sql = u"SELECT %s FROM %s WHERE %s IN (%s)" % (u",".join(fields), table, key, u",".join(phdata))
+
+        if self._debug:
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
+
+        cc = 0
+        if not cursor:
+            cc = 1
+            cursor = self.connection.cursor()
+        try:
+            cursor.execute(sql, dataList)
+            result = cursor.fetchall()
+        except self._Warning:
+            pass
+        except self._OperationalError, e:
+            # map to nive.utils.dataPool2.base.OperationalError
+            raise OperationalError, e
+        if cc:
+            cursor.close()
+        return result
+
+    
     def InsertFields(self, table, data, cursor = None, idColumn = None):
         """
         Insert row with multiple fields in the table.
