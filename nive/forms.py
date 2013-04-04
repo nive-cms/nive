@@ -1410,6 +1410,9 @@ class JsonMappingForm(HTMLForm):
         """
         Process request data and update object.
         
+        Event
+        - success(data) after data has been successfully committed
+
         returns bool, html
         """
         redirectSuccess = kw.get("redirectSuccess")
@@ -1423,6 +1426,7 @@ class JsonMappingForm(HTMLForm):
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
                 result = data
+                self.Signal("success", data=data)
 
         return self._FinishFormProcessing(result, data, msgs, errors, **kw)
         
@@ -1501,6 +1505,9 @@ class JsonSequenceForm(HTMLForm):
         """
         Process request data and update object.
         
+        Event
+        - success(data) after data has been successfully committed
+
         returns bool, html
         """
         redirectSuccess = kw.get("redirectSuccess")
@@ -1529,6 +1536,7 @@ class JsonSequenceForm(HTMLForm):
                 #obj.Commit(user)
                 msgs.append(_(u"OK. Data saved."))
                 data = {}
+                self.Signal("success", data=sequence)
 
         return result, self.Render(data, msgs=msgs, errors=errors)
         
