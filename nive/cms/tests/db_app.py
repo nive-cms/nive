@@ -49,7 +49,7 @@ def app_nodb():
     a.Register(DatabaseConf())
     p = Portal()
     p.Register(a)
-    a.Startup(None)
+    #a.Startup(None)
     return a
 
 def emptypool(app):

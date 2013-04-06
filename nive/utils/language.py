@@ -3,7 +3,7 @@ from copy import deepcopy
 import language_data 
 
 
-class LanguageExtension:
+class LanguageExtension(object):
     """    
     empty = {}
     empty["code"] = ""
@@ -39,7 +39,7 @@ class LanguageExtension:
 
 import country_data 
 
-class CountryExtension:
+class CountryExtension(object):
     """    
     empty = {}
     empty["code"] = ""
@@ -52,7 +52,14 @@ class CountryExtension:
         return country_data.GetCountries()
         
 
-    def GetCountry(self, code):
+    def GetConf(self, code):
         """
         """
         return country_data.GetConf(code)
+
+
+    def GetName(self, code):
+        """
+        """
+        return country_data.GetConf(code).get("name")
+

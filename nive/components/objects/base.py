@@ -146,7 +146,7 @@ class PageElementBase(ObjCopy, PageElement, ObjectBase):
     implements(IPageElement)
 
 
-class PageElementFileBase(ObjCopy, PageElement, ObjectBase): #, AlternatePath
+class PageElementFileBase(ObjCopy, PageElement, ObjectBase):
     """
     *Page element with file download support*
     

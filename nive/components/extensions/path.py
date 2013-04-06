@@ -16,21 +16,27 @@
 #----------------------------------------------------------------------
 
 import string
-from types import StringType, UnicodeType, IntType, LongType
+import unicodedata
+import re
 
 from nive.definitions import StagPage, StagPageElement
 
         
-class AlternatePath:
+class AlternatePath(object):
     """
     Enables readable url path names instead of ids for object traversal.
     Names are stored as meta.pool_filename and generated from
     title by default. Automatic generation can be disabled by setting
-    *meta.customfilename* to False for each object 
+    *meta.customfilename* to False for each object.
+    
+    Extensions like *.html* are not stored. Path matching works independent 
+    from extensions.
     """
+    maxlength = 50
     
     def Init(self):
         if self.id == 0:
+            # skip roots
             return
         self.RegisterEvent("commit", "TitleToFilename")
         self._SetName()
@@ -43,13 +49,24 @@ class AlternatePath:
         customfilename = self.data.get("customfilename",False)
         if customfilename:
             return
-        filename = self.EscapeFilename(self.meta["title"], self.meta["pool_filename"])
+        # create url compatible filename from title
+        filename = self.EscapeFilename(self.meta["title"])
+        # make unique filename
+        if filename == self.meta["pool_filename"]:
+            # no change
+            return
+        filename = self.UniqueFilename(filename)
         if filename:
+            # update
             self.meta["pool_filename"] = filename
             self._SetName()
+            return 
+        # reset filename
+        self.meta["pool_filename"] = u""
+        self._SetName()
         
         
-    def UniqueFilename(self, name):    
+    def UniqueFilename(self, name):
         """
         Converts name to valid path/url
         """
@@ -66,71 +83,37 @@ class AlternatePath:
         return name
 
 
-    def EscapeFilename(self, path, currentPath):
+    def EscapeFilename(self, path):
         """
         Converts name to valid path/url
+        
+        Path length between *self.maxlength-20* and *self.maxlength* chars. Tries to cut longer names at spaces.      
+        (based on django's slugify)
         """
-        path = path.lower()
-        path = path.encode("iso-8859-1")
-        path = path.replace(".","_")
-        if path == currentPath:
-            return None
-        plen = 50
-        if len(path) <= 55:
-            plen = 55
-        p = ""
-        for c in path[:plen]:
-            o = ord(c)
-            if c == ".":
-                p+="."
-                continue    
-            # space
-            if c == " ":
-                p += "_"
-                continue
-            
-            # umlaute
-            if o in (196, 228):
-                p += "ae"
-                continue
-            if o in (214, 246):
-                p += "oe"
-                continue
-            if o in (220, 252):
-                p += "ue"
-                continue
-            if o == 223:
-                p += "ss"
-                continue
-            
-            # ascii
-            if o == 95 or 47 < o < 58 or 96 < o < 123:
-                p += chr(o)
+        if not isinstance(path, unicode):
+            path = unicode(path, self.app.configuration.frontendCodepage)
+        path = unicodedata.normalize(u'NFKD', path).encode(u'ascii', 'ignore')
+        path = unicode(re.sub(u'[^\w\s-]', u'', path).strip().lower())
+        path = unicode(re.sub(u'[-\s]+', u'_', path))
         
-        if p[-1] == "_":
-            p = p[:-1]
-        
-        while len(p) and p[0] == "_":
-            p = p[1:]
-        
-        p = self.StrAscii(p)
-
-        if path.find(".")!=-1 and len(path) > 55:
-            ext = path.split(".")
-            if len(ext) >= 2:
-                p = p + "." + ext[-1]
-        
-        p = unicode(p)
-        return self.UniqueFilename(p)
+        # cut long filenames
+        cutlen = 20
+        if len(path) <= self.maxlength:
+            return path
+        # cut at '_' 
+        pos = path[self.maxlength-cutlen:].find(u"_")
+        if pos > cutlen:
+            # no '_' found. cut at maxlength.
+            return path[:self.maxlength]
+        return path[:self.maxlength-cutlen+pos]
 
     
-    def StrAscii(self, s):
-        return filter(lambda x: x in string.ascii_lowercase+"0123456789_.", s.lower())
-
-
     # system functions -----------------------------------------------------------------
     
     def __getitem__(self, id):
+        """
+        traversal lookup supporting pool_filename and id 
+        """
         if id == u"file":
             raise KeyError, id
         id = id.split(u".")

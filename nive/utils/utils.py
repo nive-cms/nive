@@ -524,6 +524,9 @@ def ConvertDictToStr(values, sep = u"\n"):
     return sep.join(s)
 
 
+def StrAscii(s):
+    return filter(lambda x: x in string.ascii_lowercase+"0123456789_.", s.lower())
+
 
 # Logging --------------------------------------------------------------------------
 

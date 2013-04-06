@@ -253,7 +253,7 @@ gre["special_chars"] = u"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγ�
 # grc ---------------------------------------------------
 grc = deepcopy(empty)
 grc["code"] = u"grc"
-grc["code2"] = u""
+grc["code2"] = u"gr"
 grc["name"] = u"ἡ Ἑλληνικὴ γλῶσσα"
 grc["articles_used"] = 3
 grc["articles"] = {"m": "o", "f": "η", "n": "το"}
@@ -638,7 +638,7 @@ def GetConf(langcode):
         return globals().get(langcode)
     if len(langcode)==2:
         for l in languages:
-            c = globals().get(l["code"])
+            c = globals().get(l)
             if c["code2"] == langcode:
                 return c
     return empty

@@ -272,12 +272,12 @@ def GetCountries():
     """
     if len(_cl) == 0:
         for c in countries:
-            _cl.append({"id": c[0], "name": c[3]})
+            _cl.append({"id": c[1], "name": c[3]})
     return _cl
 
 
 def _GetDict(c):
-    d = {"code": c[0], "code2": c[1], "numeric": c[2], "name": c[3]}
+    d = {"code": c[1], "code2": c[0], "numeric": c[2], "name": c[3]}
     if len(c) > 4:
         d["name2"] = c[4]
     return d
