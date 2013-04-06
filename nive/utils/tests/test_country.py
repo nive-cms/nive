@@ -32,6 +32,7 @@ class Country_data(unittest.TestCase):
     def test_get(self):
         self.assert_(country_data.GetConf(u"DEU").get(u"code2")==u"DE")
         self.assert_(country_data.GetConf(u"DE").get(u"code")==u"DEU")
+        self.assert_(country_data.GetConf(u"XX").get(u"code2")==None)
                         
         
 

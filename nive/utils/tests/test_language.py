@@ -21,7 +21,8 @@ class Langugage_data(unittest.TestCase):
             self.assert_(conf.get("code"), lang)
             self.assert_(conf.get("code2"), lang)
             self.assert_(conf.get("name"), lang)
-                        
+        conf = language_data.GetConf("xxx")
+        self.assert_(conf.get("code")==u"")
         
     def test_codes(self):
         for conf in language_data.GetLanguages():

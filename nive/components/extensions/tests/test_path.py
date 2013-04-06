@@ -28,6 +28,9 @@ class Path(unittest.TestCase):
         fn = p.EscapeFilename(u"this is a filename")
         self.assert_(fn ==    u"this_is_a_filename", fn)
         
+        fn = p.EscapeFilename("this is a filename")
+        self.assert_(fn ==    u"this_is_a_filename", fn)
+        
         fn = p.EscapeFilename(u"this is a filename")
         self.assert_(fn ==    u"this_is_a_filename", fn)
         
@@ -97,10 +100,25 @@ class tdbPath(unittest.TestCase):
         self.assert_(page3.meta.pool_filename!=page2.meta.pool_filename)
                 
         self.assert_(self.page0[filename].id==self.page.id)
+        self.assert_(self.page0[filename+u".html"].id==self.page.id)
         self.assert_(self.page0[page2.meta.pool_filename].id==page2.id)
         self.assert_(self.page0[page3.meta.pool_filename].id==page3.id)
+        self.assert_(self.page0[str(self.page.id)].id==self.page.id)
+
+        self.assertRaises(KeyError, self.page0.__getitem__, u"nofilename")
+        self.assertRaises(KeyError, self.page0.__getitem__, u"9999999999")
+        self.assertRaises(KeyError, self.page0.__getitem__, filename+u".html.html")
 
         
-        
+    def test_disabled(self):
+        user = User(u"test")
+        self.page.data["customfilename"] = True
+        self.page.Commit(user=user)
+        self.page.meta["pool_filename"] = u"custom"
+        self.page.Commit(user=user)
+        self.assert_(self.page.meta.pool_filename==u"custom")
+        self.page.meta["title"] = u"new title"
+        self.page.Commit(user=user)
+        self.assert_(self.page.meta.pool_filename==u"custom")
         
         

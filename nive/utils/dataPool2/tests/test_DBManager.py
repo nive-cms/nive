@@ -47,7 +47,7 @@ class Sqlite3Test(unittest.TestCase):
         p.Delete()
         pass
 
-    def testConnect(self):
+    def test_Connect(self):
         db = Sqlite3Manager()
         self.assert_(db.Connect(dbpath))
         self.assert_(db.IsDB())
@@ -55,7 +55,7 @@ class Sqlite3Test(unittest.TestCase):
         self.assert_(not db.IsDB())
         
 
-    def testCreateTable(self):
+    def test_CreateTable(self):
         try:
             self.db.DeleteTable(tablename)
         except:
@@ -74,13 +74,13 @@ class Sqlite3Test(unittest.TestCase):
         self.assertFalse(self.db.IsTable(tablename2))
 
 
-    def testCreateColumns(self):
+    def test_CreateColumns(self):
         self._createtbl()
         self._createcols()
         self._deltable()
 
 
-    def testCreateColumns2(self):
+    def test_CreateColumns2(self):
         self._createtbl()
         self._createcols()
         #self.db.Close()
@@ -90,7 +90,7 @@ class Sqlite3Test(unittest.TestCase):
         self._deltable()
 
 
-    def testCreateColumnsStructure(self):
+    def test_CreateColumnsStructure(self):
         for f in SystemFlds:
             self.assert_(self.db.ConvertConfToColumnOptions(f))
         self._createtbl()

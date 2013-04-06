@@ -25,7 +25,7 @@ class ContainerCache(unittest.TestCase):
         pass
     
     
-    def test1(self):
+    def test_1(self):
         obj = testobj()
         obj2 = testobj()
         
@@ -37,7 +37,7 @@ class ContainerCache(unittest.TestCase):
         self.assert_(obj.GetFromCache(id="cid")==None)
 
 
-    def test2(self):
+    def test_2(self):
         obj = testobj()
         obj.cacheTypes = ["object"]
         obj2 = testobj()
@@ -52,7 +52,7 @@ class ContainerCache(unittest.TestCase):
         self.assert_(obj.GetFromCache(id="cid")==None)
         
         
-    def test3(self):
+    def test_3(self):
         obj = testobj()
         obj.cacheTypes = ["object"]
         obj2 = testobj()

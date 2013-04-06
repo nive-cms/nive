@@ -131,9 +131,9 @@ class AlternatePath(object):
             if not id:
                 raise KeyError, id
         o = self.GetObj(id)
-        if o:
-            return o
-        raise KeyError, id
+        if not o:
+            raise KeyError, id
+        return o
 
     def _SetName(self):
         self.__name__ = self.meta["pool_filename"]

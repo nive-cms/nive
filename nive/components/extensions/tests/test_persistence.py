@@ -20,11 +20,11 @@ class Persistence(unittest.TestCase):
         pass
     
     
-    def test1(self):
+    def test_1(self):
         p = PersistentConf(self.app, self.app.configuration)
         
         
-    def test2(self):
+    def test_2(self):
         LoadStoredConfValues(self.app, None)
         
         
@@ -46,7 +46,7 @@ class tdbPersistence(unittest.TestCase):
         self.assert_(False, "Configuration Error")
         
         
-    def test2(self):
+    def test_2(self):
         storage = self.app.Factory(IModuleConf, "persistence")
         self.assert_(storage)
         LoadStoredConfValues(self.app, None)
