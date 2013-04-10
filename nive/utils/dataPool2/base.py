@@ -165,7 +165,7 @@ class Base(object):
 
     # SQL queries ---------------------------------------------------------------------
 
-    def FmtSQLSelect(self, flds, parameter={}, dataTable = u"", start = 0, max = 0, **kw):
+    def FmtSQLSelect(self, flds, parameter=None, dataTable = u"", start = 0, max = 0, **kw):
         """
         Create a select statement based on pool_structure and given parameters.
         
@@ -244,6 +244,8 @@ class Base(object):
         connection = self.connection
 
         where = []
+        if parameter==None:
+            parameter={}
         for key in parameter.keys():
             value = parameter[key]
             paramname = key
