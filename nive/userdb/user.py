@@ -42,8 +42,8 @@ class user(ObjectBase):
 
     def Init(self):
         self.groups = tuple(self.data.get("groups",()))
-        self.RegisterEvent("commit", "HashPassword")
-        self.RegisterEvent("commit", "OnCommit")
+        self.ListenEvent("commit", "HashPassword")
+        self.ListenEvent("commit", "OnCommit")
 
 
     def HashPassword(self):

@@ -44,7 +44,7 @@ class file(PageElementFileBase):
     
      
     def Init(self):
-        self.RegisterEvent("commit", "OnCommit")
+        self.ListenEvent("commit", "OnCommit")
 
 
     def OnCommit(self):

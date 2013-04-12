@@ -31,19 +31,19 @@ class EventTest(unittest.TestCase):
         self.called = kw.get("data")
 
     def test_events1(self):
-        self.obj.RegisterEvent("test", "event_testLocal")
+        self.obj.ListenEvent("test", "event_testLocal")
         self.obj.Signal("test", data=12345)
         self.assert_(self.obj.called==12345)
-        self.obj.RemoveEvent("test", "event_testLocal")
+        self.obj.RemoveListener("test", "event_testLocal")
         self.obj.Signal("test", data=67890)
         self.assert_(self.obj.called==12345)
 
     def test_eventobj(self):
         self.called = 0
-        self.obj.RegisterEvent("callme", self.event_test)
+        self.obj.ListenEvent("callme", self.event_test)
         self.obj.callme()
         self.assert_(self.called==1)
-        self.obj.RemoveEvent("callme", self.event_test)
+        self.obj.RemoveListener("callme", self.event_test)
         self.called=0
         self.obj.callme()
         self.assert_(self.called==0)

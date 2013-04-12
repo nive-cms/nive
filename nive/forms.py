@@ -1460,7 +1460,7 @@ class JsonSequenceForm(HTMLForm):
     editKeyFld = FieldConf(id=editKey, name=u"indexKey", datatype="number", hidden=True, default=u"")
     
     def Init(self):
-        self.RegisterEvent("loadFields", "AddKeyFld")
+        self.ListenEvent("loadFields", "AddKeyFld")
         
     def AddKeyFld(self):
         self._c_fields.append(self.editKeyFld)

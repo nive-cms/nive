@@ -40,7 +40,7 @@ class PageFulltext(object):
     implements(IFulltext)
 
     def Init(self):
-        self.RegisterEvent("commit", "UpdateFulltext")
+        self.ListenEvent("commit", "UpdateFulltext")
         
 
     # Fulltext ------------------------------------------

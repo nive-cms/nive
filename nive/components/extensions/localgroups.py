@@ -34,7 +34,7 @@ class LocalGroups(object):
     
     def Init(self):
         self._localRoles = {}
-        self.RegisterEvent("create", "AddOwner")
+        self.ListenEvent("create", "AddOwner")
         self._secid = self.id or self.idhash
         
     

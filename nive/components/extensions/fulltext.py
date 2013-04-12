@@ -26,7 +26,7 @@ class ObjectFulltext:
     """
     
     def Init(self):
-        self.RegisterEvent("commit", "UpdateFulltext")
+        self.ListenEvent("commit", "UpdateFulltext")
         
 
     # Fulltext ------------------------------------------

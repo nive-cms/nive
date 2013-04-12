@@ -98,7 +98,7 @@ class UsermanagementView(AdminBasics):
                 del data["password"]
             except:
                 pass
-        form.RegisterEvent("loadDataObj", removepasswd)
+        form.ListenEvent("loadDataObj", removepasswd)
         form.subsets = {
             "edit":   {"fields":  [pwd, "email", "groups", "surname", "lastname"], 
                        "actions": ["edit"],

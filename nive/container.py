@@ -435,8 +435,8 @@ class ContainerEdit:
         
         Events
         
-        - delete() called on object to be deleted
-        - afterDelete(id=id) called on container after object has been deleted
+        - delete(user=user) called on object to be deleted
+        - afterDelete(id=id, user=user) called on container after object has been deleted
 
         Workflow action
 
@@ -456,7 +456,7 @@ class ContainerEdit:
             raise WorkflowNotAllowed, "Workflow: Not allowed (remove)"
         if not obj.WfAllow("delete", user=user):
             raise WorkflowNotAllowed, "Workflow: Not allowed (delete)"
-        obj.Signal("delete")
+        obj.Signal("delete", user=user)
         if hasattr(obj, "_RecursiveDelete"):
             obj._RecursiveDelete(user)
 
@@ -466,7 +466,7 @@ class ContainerEdit:
         if app.configuration.autocommit:
             self.db.Commit()
         self.WfAction("remove", user=user)
-        self.Signal("afterDelete", id=id)
+        self.Signal("afterDelete", id=id, user=user)
 
         return True
 

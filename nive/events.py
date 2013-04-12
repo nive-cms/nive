@@ -38,7 +38,7 @@ updated, add this function to your objects class: ::
     class myObject:
     
         def Init(self):
-            self.RegisterEvent("update", "Edit")
+            self.ListenEvent("update", "Edit")
         
     
         def Edit(self, data):
@@ -63,7 +63,7 @@ import weakref
 
 class Events(object):
     
-    def RegisterEvent(self, signal, function):
+    def ListenEvent(self, signal, function):
         """
         Register a function for an event. 
         
@@ -77,7 +77,7 @@ class Events(object):
             self._eventdispatch[signal].append(function)
 
 
-    def RemoveEvent(self, signal, function):
+    def RemoveListener(self, signal, function):
         """
         Remove the function from an event.
 
@@ -91,7 +91,7 @@ class Events(object):
             self._eventdispatch[signal].remove(function)
         except:
             pass
-
+    
 
     def Signal(self, signal, raiseExcp=True, **kw):
         """
@@ -135,3 +135,14 @@ class Events(object):
             f = cls.__dict__.get("Init")
             if f != None:
                 f(self)
+
+
+
+    # bw 0.9.9. renamed functions
+    def RegisterEvent(self, signal, function):
+        return self.ListenEvent(signal, function)
+
+    def RemoveEvent(self, signal, function):
+        return self.RemoveListener(signal, function)
+
+

@@ -38,7 +38,7 @@ class AlternatePath(object):
         if self.id == 0:
             # skip roots
             return
-        self.RegisterEvent("commit", "TitleToFilename")
+        self.ListenEvent("commit", "TitleToFilename")
         self._SetName()
 
     

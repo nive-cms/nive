@@ -245,7 +245,7 @@ class containerTest_db:
         def callback(**kw):
             kw["parameter"]["id"] = 456
             kw["operators"]["id"] = "LIKE"
-        r.RegisterEvent("loadRestraints", callback)
+        r.ListenEvent("loadRestraints", callback)
         p,o=r.ObjQueryRestraints(self)
         self.assert_(p=={"id":456})
         self.assert_(o=={"id":"LIKE"})
