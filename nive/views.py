@@ -64,16 +64,6 @@ class BaseView(object):
         self.fileExpires = 3600
 
 
-    # main document ---------------------------------------------------------
-
-    def index_tmpl(self, path=None):
-        if path:
-            return get_renderer(path).implementation()
-        if not self.viewModule or not self.viewModule.mainTemplate:
-            return None
-        return get_renderer(self.viewModule.mainTemplate).implementation()
-    
-
     # url handling ----------------------------------------------------------------
 
     def Url(self, resource=None):
@@ -217,21 +207,6 @@ class BaseView(object):
             return link
 
 
-    def Redirect(self, url, messages=None, slot=""):
-        """
-        Redirect to the given URL. Messages are stored in session and can be accessed
-        by calling ``request.session.pop_flash()``. Messages are added by calling
-        ``request.session.flash(m, slot)``.
-        """
-        if messages:
-            for m in messages:
-                self.request.session.flash(m, slot)
-        headers = None
-        if hasattr(self.request.response, "headerlist"):
-            headers = self.request.response.headerlist
-        raise HTTPFound(location=url, headers=headers)
-    
-
     def SendResponse(self, data, mime="text/html", raiseException=False, filename=None):
         """
         Creates a response with data as body. If ``raiseException`` is true the function
@@ -248,6 +223,21 @@ class BaseView(object):
         return Response(content_type=mime, body=data, content_disposition=cd)
         
         
+    def Redirect(self, url, messages=None, slot=""):
+        """
+        Redirect to the given URL. Messages are stored in session and can be accessed
+        by calling ``request.session.pop_flash()``. Messages are added by calling
+        ``request.session.flash(m, slot)``.
+        """
+        if messages:
+            for m in messages:
+                self.request.session.flash(m, slot)
+        headers = None
+        if hasattr(self.request.response, "headerlist"):
+            headers = self.request.response.headerlist
+        raise HTTPFound(location=url, headers=headers)
+    
+
     def Relocate(self, url, messages=None, slot="", raiseException=False):
         """
         Returns messages and X-Relocate header in response.
@@ -287,6 +277,14 @@ class BaseView(object):
     
     # render other elements and objects ---------------------------------------------
     
+    def index_tmpl(self, path=None):
+        if path:
+            return get_renderer(path).implementation()
+        if not self.viewModule or not self.viewModule.mainTemplate:
+            return None
+        return get_renderer(self.viewModule.mainTemplate).implementation()
+    
+
     def DefaultTemplateRenderer(self, values, templatename = None):
         """
         Renders the default template configured in context.configuration.template 
@@ -347,12 +345,14 @@ class BaseView(object):
         return unicode(value, codepage)
 
     
-    def IsPage(self, object):
+    def IsPage(self, object=None):
         """
         Check if object is a page.
         
         returns bool
         """
+        if not object:
+            return IPage.providedBy(self.context)
         return IPage.providedBy(object)
     
     def tmpl(self):
@@ -483,6 +483,8 @@ class BaseView(object):
         Check if current user is in one of the groups.
         """
         user = self.User()
+        if not user:
+            return False
         return user.InGroups(groups)
     
 
@@ -669,18 +671,6 @@ class BaseView(object):
                 values = request
         return values    
     
-    def ExtractAppKeys(self, **kw):
-        param = kw
-        keys = kw.keys()
-        # extract request properties
-        for k in self.appRequestKeys:
-            if not k in keys:
-                value = self.GetFormValue(k)
-                if value:
-                    param[k] = value
-        return param
-
-    
     def FmtURLParam(self, **kw):
         """
         Format all kw items as url parameter. 
@@ -688,7 +678,7 @@ class BaseView(object):
         returns string
         """
         url = []
-        params = self.ExtractAppKeys(**kw)
+        params = kw
         #opt
         for p in params.keys():
             if len(url):
@@ -704,7 +694,7 @@ class BaseView(object):
         returns string 
         """
         form = []
-        params = self.ExtractAppKeys(**kw)
+        params = kw
         for p in params.keys():
             value = ConvertToStr(params[p])
             form.append(u"<input type='hidden' name='%s' value='%s' />" % (p, value))

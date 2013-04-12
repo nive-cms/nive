@@ -277,9 +277,9 @@ class ContainerEdit:
             
         Events
         
-        - beforeAdd(data=data, type=type, kw) called for the container
+        - beforeAdd(data=data, type=type, user=user, kw) called for the container
         - create(user=user, kw) called for the new object
-        - afterAdd(obj=obj, kw) called for the container after object has been committed
+        - afterAdd(obj=obj, user=user, kw) called for the container after object has been committed
         
         Workflow actions
         
@@ -298,7 +298,7 @@ class ContainerEdit:
         if not self.WfAllow("add", user=user):
             raise WorkflowNotAllowed, "Not allowed in current workflow state (add)"
 
-        self.Signal("beforeAdd", data=data, type=type, **kw)
+        self.Signal("beforeAdd", data=data, type=type, user=user, **kw)
         db = app.db
         dbEntry = None
         try:
@@ -318,7 +318,7 @@ class ContainerEdit:
             #    pass
             db.Undo()
             raise 
-        self.Signal("afterAdd", obj=obj, **kw)
+        self.Signal("afterAdd", obj=obj, user=user, **kw)
         return obj
 
 
@@ -334,9 +334,9 @@ class ContainerEdit:
             
         Events
         
-        - beforeAdd(data=data, type=type, kw) called for the container
+        - beforeAdd(data=data, type=type, user=user, kw) called for the container
         - duplicate(kw) called for the new object
-        - afterAdd(obj=obj, kw) called for the container after obj has been committed
+        - afterAdd(obj=obj, user=user, kw) called for the container after obj has been committed
 
         Workflow action
 
@@ -354,7 +354,7 @@ class ContainerEdit:
         if not self.WfAllow("add", user=user):
             raise WorkflowNotAllowed, "Workflow: Not allowed (add)"
 
-        self.Signal("beforeAdd", data=updateValues, type=type, **kw)
+        self.Signal("beforeAdd", data=updateValues, type=type, user=user, **kw)
         newDataEntry = None
         try:
             newDataEntry = obj.dbEntry.Duplicate()
@@ -393,7 +393,7 @@ class ContainerEdit:
              self._DeleteObj(newobj)
              raise 
          
-        self.Signal("afterAdd", obj=newobj, **kw)
+        self.Signal("afterAdd", obj=newobj, user=user, **kw)
         return newobj
     
         

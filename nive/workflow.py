@@ -260,12 +260,12 @@ class WfTransitionConf(baseConf):
             report.append((ConfigurationError, " WfTransitionConf.tostate is empty", self))
         for c in self.conditions:
             if isinstance(c, basestring):
-                o=ResolveName(c)
+                o=TryResolveName(c)
                 if not o:
                     report.append((ConfigurationError, " WfTransitionConf.conditions not found: "+c, self))
         for c in self.execute:
             if isinstance(c, basestring):
-                o=ResolveName(c)
+                o=TryResolveName(c)
                 if not o:
                     report.append((ConfigurationError, " WfTransitionConf.execute not found: "+c, self))
         return report
@@ -371,8 +371,7 @@ class Process(object):
             transition = ptrans[0]
 
         # execute transition
-        if not transition.Execute(context, user):
-            return False
+        transition.Execute(context, user)
 
         # set next state
         transition.Finish(action, context, user)
@@ -412,6 +411,7 @@ class Process(object):
                 elif t.id == transition:
                     trans.append(t)
         return trans
+
 
 
     # Object information ---------------------------------------------------------------
@@ -543,8 +543,6 @@ class Transition(object):
             for c in self.conditions:
                 if isinstance(c, basestring):
                     c = ResolveName(c)
-                if not c:
-                    continue
                 if not c(transition=self, context=context, user=user, values=self.values):
                     return False
         # roles

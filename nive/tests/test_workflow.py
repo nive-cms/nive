@@ -14,6 +14,8 @@ def wftestfunction(transition, context, user, values):
     context.testvalue = "huh"
 
 def wfcallbackfunction(transition, context, user, values):
+    return True
+def wfcallbackfunction0(transition, context, user, values):
     return False
 
 
@@ -42,6 +44,7 @@ t1 = WfTransitionConf(
     tostate = "edit",
     roles = ("Authenticated",),
     actions = ("create",),
+    conditions = (wfcallbackfunction,),
 )
 t2 = WfTransitionConf(
     id = "edit",
@@ -50,6 +53,7 @@ t2 = WfTransitionConf(
     tostate = "edit",
     roles = ("Authenticated",),
     actions = ("edit",),
+    conditions = (wfcallbackfunction,),
 )
 t3 = WfTransitionConf(
     id = "commit",
@@ -67,7 +71,52 @@ t4 = WfTransitionConf(
     tostate = "end",
     roles = (),
     actions = ("error",),
-    conditions = (wfcallbackfunction,)
+    conditions = (wfcallbackfunction0,),
+    execute = (wftestfunction,)
+)
+t5 = WfTransitionConf(
+    id = "multiple1",
+    name = "M 1",
+    fromstate = "start",
+    tostate = "edit",
+    roles = ("Authenticated",),
+    actions = ("multiple",),
+)
+t6 = WfTransitionConf(
+    id = "multiple2",
+    name = "M 2",
+    fromstate = "start",
+    tostate = "end",
+    roles = ("Authenticated",),
+    actions = ("multiple",),
+)
+
+tx1 = WfTransitionConf(
+    id = "error",
+    name = "Error",
+    fromstate = "edit",
+    tostate = "end",
+    roles = "*",
+    actions = ("error",),
+    conditions = ("nive.tests.test_workflow.wfcallbackfunction",wfcallbackfunction,wfcallbackfunction0),
+    execute = (wftestfunction,)
+)
+tx2 = WfTransitionConf(
+    id = "error",
+    name = "Error",
+    fromstate = "edit",
+    tostate = "end",
+    roles = "*",
+    actions = ("error",),
+)
+tx3 = WfTransitionConf(
+    id = "error",
+    name = "Error",
+    fromstate = "edit",
+    tostate = "end",
+    roles = (),
+    actions = ("error",),
+    execute = (wftestfunction,)
 )
 
 
@@ -75,7 +124,7 @@ wf1 = WfProcessConf(
     id = "wf1",
     name = "Workflow 1",
     states = [s1,s2,s3],
-    transitions = [t1,t2,t3,t4],
+    transitions = [t1,t2,t3,t4,t5,t6],
     apply=(IObject,)
 )
 wf2 = WfProcessConf(
@@ -145,6 +194,11 @@ class WfTest(unittest.TestCase):
 
     def test_proc2(self):
         self.assert_(self.wf.Allow("create", self.obj, self.user1, transition=None))
+        a = self.obj.meta.pool_wfa
+        self.obj.meta.pool_wfa = "aaaaa"
+        self.assertFalse(self.wf.Allow("create", self.obj, self.user1, transition=None))
+        self.obj.meta.pool_wfa = a
+        self.assertFalse(self.wf.Allow("ohno", self.obj, self.user1, transition=None))
         self.assert_(self.wf.Action("create", self.obj, self.user1, transition=None))
         try:
             self.wf.Action("commit", self.obj, self.user1, transition=None)
@@ -167,17 +221,26 @@ class WfTest(unittest.TestCase):
         self.wf.Action("commit", self.obj, self.user2, transition="commit")
 
     
-    def test_proc3(self):
+    def test_multiple(self):
+        self.assert_(self.wf.Action("multiple", self.obj, self.user1, transition=None))
+
+    
+    def test_wfstates(self):
         self.assert_(self.wf.GetObjState(self.obj).id=="start")
+        self.assert_(self.wf.GetObjState(None).id=="start")
+        self.assertFalse(self.wf.GetState("ohno"))
+        self.assertFalse(self.wf._LoadStates(None))
+        self.assertRaises(ConfigurationError, self.wf._LoadStates, [s1,t1])
+        
 
-
-    def test_transition(self):
+    def test_wftransition(self):
         self.assert_(self.wf.Action("create", self.obj, self.user1, transition=None))
         self.assert_(self.obj.testvalue=="")
         self.assert_(self.wf.Action("commit", self.obj, self.user2, transition=None))
         self.assert_(self.obj.testvalue=="huh")
         self.assert_(self.wf.Action("edit", self.obj, self.user2, transition=None))
         
+        self.assertFalse(self.wf.GetTransition("ohno"))
         self.assertFalse(self.wf.GetTransition("commit").IsInteractive())
         self.assertFalse(self.wf.GetTransition("commit").GetInteractiveFunctions())
         try:
@@ -185,6 +248,9 @@ class WfTest(unittest.TestCase):
             self.assert_(False, "WorkflowNotAllowed not raised")
         except WorkflowNotAllowed:
             pass
+
+        self.assertFalse(self.wf._LoadTransitions(None))
+        self.assertRaises(ConfigurationError, self.wf._LoadTransitions, [s1,t1])
 
 
     def test_include_app(self):
@@ -194,6 +260,38 @@ class WfTest(unittest.TestCase):
         self.assert_(a.GetWorkflowConf(wf1.id, self.obj)[0].id==wf1.id)
         self.assert_(a.GetWorkflowConf(wf2.id)[0].id==wf2.id)
 
+
+class TransisiotnTest(unittest.TestCase):
+
+    def setUp(self):
+        self.wf = Process(wf1, TApp())
+        self.obj = TestO()
+        self.user1 = TestU1()
+        self.user2 = TestU2()
+    
+    def tearDown(self):
+        pass
+    
+    def test_calls1(self):
+        trans = Transition("t", tx1, self.wf)
+        trans.Allow(self.obj, self.user1)
+        trans.IsInteractive()
+        trans.GetInteractiveFunctions()
+        trans.Execute(self.obj, self.user1, {"a":1})
+
+    def test_calls2(self):
+        trans = Transition("t", tx2, self.wf)
+        trans.Allow(self.obj, self.user1)
+        trans.IsInteractive()
+        trans.GetInteractiveFunctions()
+        trans.Execute(self.obj, None)
+        
+    def test_calls3(self):
+        trans = Transition("t", tx3, self.wf)
+        trans.Allow(self.obj, None)
+        trans.IsInteractive()
+        trans.GetInteractiveFunctions()
+        trans.Execute(self.obj, self.user2)
 
 
 class ConfTest(unittest.TestCase):
@@ -226,6 +324,21 @@ class ConfTest(unittest.TestCase):
         )
         self.assert_(len(testconf.test())==0)
 
+    def test_err1(self):
+        testconf = WfProcessConf(
+            id = "",
+            context = "ohno",
+            name = "Aadd",
+            description = "",
+            states = [WfTransitionConf()],
+            transitions = [WfStateConf()]
+        )
+        self.assert_(len(testconf.test())==4)
+        self.assert_(str(testconf))
+        testconf(self)
+
+
+
     def test_obj2(self):
         testconf = WfTransitionConf(
             id = "ddaa",
@@ -240,6 +353,23 @@ class ConfTest(unittest.TestCase):
         )
         self.assert_(len(testconf.test())==0)
 
+    def test_err2(self):
+        testconf = WfTransitionConf(
+            id = "",
+            context = "ohno",
+            name = "Ddaa",
+            description = "",
+            fromstate = "",
+            tostate = "",
+            roles = ["master","slave"],
+            actions = ["go"],
+            execute = ["ohno"],
+            conditions = ["ohno"]
+        )
+        self.assert_(len(testconf.test())==6)
+        self.assert_(str(testconf))
+
+
     def test_obj3(self):
         testconf = WfStateConf(
             id = "qqqq",
@@ -249,6 +379,16 @@ class ConfTest(unittest.TestCase):
         )
         self.assert_(len(testconf.test())==0)
 
+    def test_err3(self):
+        testconf = WfStateConf(
+            id = "",
+            context = "ohno",
+            name = "Qqqq",
+            description = "",
+            actions = ["stay"]
+        )
+        self.assert_(len(testconf.test())==2)
+        self.assert_(str(testconf))
 
 
 
