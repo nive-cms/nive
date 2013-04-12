@@ -218,7 +218,7 @@ class PageColumns:
     """
     
     def Init(self):
-        self.ListenEvent("beforeCreate", "_CheckColumn")
+        self.ListenEvent("beforeAdd", "_CheckColumn")
 
     
     def GetColumn(self, name):

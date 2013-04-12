@@ -102,9 +102,10 @@ class ContainerCopy:
         
         Events
         
-        - beforeCreate(data=obj.meta, type=type)
+        - beforeAdd(data=obj.meta, type=type)
         - afterDelete(id=obj.id)
         - moved()
+        - afterAdd(obj=obj)
         """
         root = self.root()
         oldParent=None
@@ -127,7 +128,7 @@ class ContainerCopy:
             if not self.IsTypeAllowed(type, user):
                 raise TypeError, "Object cannot be added here"
 
-            self.Signal("beforeCreate", data=obj.meta, type=type)
+            self.Signal("beforeAdd", data=obj.meta, type=type)
             if not oldParent or oldParent.id != obj.GetParent().id:
                 oldParent = obj.GetParent()
             obj.__parent__ = self
@@ -141,6 +142,7 @@ class ContainerCopy:
             o.Commit(user)
             if ISort.providedBy(self):
                 self.InsertAfter(o.id, pos, user=user)
+            self.Signal("afterAdd", obj=o)
         if result:
             msgs.append(_(u"OK. Cut and pasted."))
         return result, msgs
