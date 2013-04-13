@@ -275,7 +275,7 @@ class FileManager:
         """
         return File
 
-    def SetRoot(self, root):
+    def InitFileStorage(self, root):
         """
         Set the local root path for files
         """

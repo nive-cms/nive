@@ -107,7 +107,6 @@ class Base(object):
         self._conn = None
         self.name = u""        # used for logging
 
-        self.SetRoot(root)
         if not structure:
             self.structure = self._GetDefaultPoolStructure()(pool=self)
         else:
@@ -118,6 +117,7 @@ class Base(object):
             self._conn = self.CreateConnection(connParam)
             if not self.name:
                 self.name = connParam.get("dbName",u"")
+        self.InitFileStorage(root)
         
 
     def Close(self):
@@ -1232,7 +1232,7 @@ class Base(object):
 
     # Configuration ---------------------------------------------------------------------
 
-    def SetRoot(self, root):
+    def InitFileStorage(self, root):
         """
         Set the local root path for files
         """
@@ -2088,10 +2088,12 @@ class Connection(object):
         new.password = self.password
         new.port = self.port
         new.dbName = self.dbName
+        new.configuration=self.configuration.copy()
         return new
 
 
     def SetConfig(self, config):
+        self.configuration=config
         if isinstance(config, dict):
             for k,v in config.items():
                 if k=="password":

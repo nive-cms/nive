@@ -28,7 +28,7 @@ def getPool():
 
 countdb = 1
 
-class dbTest:
+class dbTest(object):
 
     def tearDown(self):
         self.pool.Close()

@@ -135,11 +135,13 @@ class Sqlite3ConnSingle(Connection):
         """ Duplicates the current connection and returns a new unconnected connection """
         new = Sqlite3Conn(None, False)
         new.dbName = self.dbName
+        new.configuration=self.configuration.copy()
         return new
 
 
     def SetConfig(self, config):
         """ """
+        self.configuration=config
         self.dbName = config.get("dbName")
 
 
