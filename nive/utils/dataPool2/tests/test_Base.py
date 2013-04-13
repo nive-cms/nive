@@ -51,14 +51,14 @@ SystemFlds = (
 {"id": u"pool_type",      "datatype": "list",      "size": 35,  "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1200, "name": "Type"},
 {"id": u"pool_category",  "datatype": "list",      "size": 35,  "default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1300, "name": "Category"},
 {"id": u"pool_filename",  "datatype": "string",    "size": 255, "default": "",    "required": 0,     "readonly": 0, "settings": {}, "sort":  1400, "name": "Filename"},
-{"id": u"pool_create",    "datatype": "datetime",  "size": 0,   "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1500, "name": "Created"},
+{"id": u"pool_create",    "datatype": "date",      "size": 0,   "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1500, "name": "Created"},
 {"id": u"pool_change",    "datatype": "datetime",  "size": 0,   "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  1600, "name": "Changed"},
 {"id": u"pool_createdby", "datatype": "string",    "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1700, "name": "Created by"},
 {"id": u"pool_changedby", "datatype": "string",    "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1800, "name": "Changed by"},
 {"id": u"pool_wfp",       "datatype": "list",      "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  1900, "name": "Workflow Process"},
 {"id": u"pool_wfa",       "datatype": "list",      "size": 35,  "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  2000, "name": "Workflow Activity"},
 {"id": u"pool_state",     "datatype": "number",    "size": 4,   "default": 1,     "required": 0,     "readonly": 1, "settings": {}, "sort":  2100, "name": "State"},
-{"id": u"pool_sort",      "datatype": "number",    "size": 8,   "default": 0,     "required": 0,     "readonly": 1, "settings": {}, "sort":  2200, "name": "Sort"},
+{"id": u"pool_sort",      "datatype": "float",     "size": 8,   "default": 0.0,   "required": 0,     "readonly": 1, "settings": {}, "sort":  2200, "name": "Sort"},
 {"id": u"pool_unitref",   "datatype": "number",    "size": 8,   "default": "",    "required": 0,     "readonly": 1, "settings": {}, "sort":  5000, "name": "Reference"},
 {"id": u"pool_stag",      "datatype": "number",    "size": 4,   "default": 0,     "required": 0,     "readonly": 1, "settings": {}, "sort":  5100, "name": "Select Number"},
 {"id": u"pool_datatbl",   "datatype": "string",    "size": 35,  "default": "",    "required": 1,     "readonly": 1, "settings": {}, "sort":  5200, "name": "Data Table Name"},
@@ -67,6 +67,7 @@ SystemFlds = (
 Fulltext = ("id","text","files")
 Files = ("id","filename","path","size","extension","filekey","version")
 
+    
 # test data ----------------------------------------------------------------------
 data1_1 = {u"ftext": "this is text!",
              u"fnumber": 123456,
@@ -81,21 +82,6 @@ meta1 = {u"title":"title "}
 file1_1 = "File 1 content, text text text text."
 file1_2 = "File 2 content, text text text text."
 
-
-class StructureTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_set(self):
-        self.structure = PoolStructure(structure=struct, fieldtypes=ftypes)
-        self.assert_(self.structure.get(u"pool_meta"))
-        self.assert_(len(self.structure.get(u"pool_meta")) == len(struct[u"pool_meta"]))
-        self.assert_(len(self.structure.get(u"data1"))==len(struct[u"data1"]))
-        self.assert_(len(self.structure.get(u"data2"))==len(struct[u"data2"]))
 
 
 
@@ -184,41 +170,6 @@ class BaseTest(unittest.TestCase):
 
 
 
-
-class FileTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_file1(self):
-        file = File("aaa")
-        file.update({"filename":"qqqq.png", "size": 123, "extension": "png"})
-        self.assert_(file.filename=="qqqq.png")
-        self.assert_(file.size==123)
-        self.assert_(file.extension=="png")
-
-    def test_file2(self):
-        file = File("aaa", filename="qqqq.png", size=123, extension="png")
-        self.assert_(file.filename=="qqqq.png")
-        self.assert_(file.size==123)
-        self.assert_(file.extension=="png")
-
-    def test_file3(self):
-        file = File("aaa", filename="import.zip", tempfile=True)
-        self.assert_(file.filename=="import.zip")
-        self.assert_(file.extension=="zip")
-        self.assertRaises(IOError, file.read)
-
-        from pkg_resources import resource_filename
-        root = resource_filename('nive.utils.dataPool2', 'tests/')
-        file = File("aaa")
-        file.fromPath(root+"test_db.py")
-        self.assert_(file.filename=="test_db.py")
-        self.assert_(file.extension=="py")
-        
 
 
 

@@ -81,12 +81,6 @@ class File(object):
             self.extension = fileExtension[1:6]
     
 
-    def isTempFile(self):
-        return self.tempfile
-    
-    def abspath(self):
-        return self.fileentry()._Path(self)
-
     def fromPath(self, path):
         """
         Set temp file and load file values from file path
@@ -101,6 +95,8 @@ class File(object):
         self.tempfile = True
         self.file = open(path, "rb")
 
+
+    # file class file functions ---------------------------------------
 
     def read(self, size=-1):
         # 1) read temp file
@@ -137,12 +133,101 @@ class File(object):
         if self.file:
             self.file.close()
 
+    def isTempFile(self):
+        return self.tempfile
+    
+    def abspath(self):
+        if not self.fileentry:
+            return None
+        return self.fileentry()._Path(self)
+
+    def commitTemp(self, fileentry):
+        """
+        This functions writes the file to the pool directory. If the file is not marked
+        as tempfile, nothing is written.
+        
+        Files are processed in the following order:
+        - a temp path is created
+        - the file is written to this path
+        - the original file is renamed to be deleted on success and stored as `file.deleteOnSuccess`
+        - the tempfile is renamed to the original path
+        - the original file can be removed by calling `Cleanup()`
+        
+        fileentry is the database entry the file is stored for.
+        """
+        if not self.isTempFile():
+            # nothing to write -> return
+            return True
+        
+        maxFileSize = fileentry.maxFileSize
+        if self.size and self.size > maxFileSize:
+            raise IOError, "File too big"
+
+        # create temp path for current
+        backupPath = None
+        originalPath = DvPath(fileentry._Path(self))
+        
+        newPath = DvPath(fileentry._CreatePath(self.filekey, self.filename))
+        tempPath = DvPath(str(newPath))
+        tempPath.SetName(u"_temp_" + unicode(uuid.uuid4()))
+        tempPath.SetExtension(newPath.GetExtension())
+
+        if tempPath.Exists():
+            tempPath.Delete()
+        tempPath.CreateDirectories()
+        size = 0
+        try:
+            out = open(tempPath.GetStr(), "wb")
+            data = self.read(10000)
+            while data:
+                size += len(data)
+                if maxFileSize and size > maxFileSize:
+                    raise IOError, "File too big"
+                out.write(data)
+                data = self.read(10000)
+            out.close()
+            #file.close()
+        except Exception, e:
+            try:    self.file.close()
+            except: pass
+            try:    out.close()
+            except: pass
+            # reset old file
+            tempPath.Delete()
+            raise Exception, e
+
+        # store path for cleanup on success
+        if str(originalPath) and originalPath.Exists():
+            backupPath = DvPath(str(originalPath))
+            backupPath.SetName("_del_" + unicode(uuid.uuid4()))
+            backupPath.SetExtension(originalPath.GetExtension())
+            if originalPath.Exists() and not originalPath.Rename(backupPath):
+                tempPath.Delete()
+                raise IOError, "Rename file failed"
+            self.deleteOnSuccess = str(backupPath)
+
+        try:
+            # rename temp path
+            os.renames(str(tempPath), str(newPath))
+            # update meta properties
+            self.path = fileentry._RelativePath(str(newPath))
+            self.size = size
+            return True
+        except:
+            tempPath.Delete()
+            if backupPath:
+                backupPath.Rename(originalPath)
+            raise
+
+    
+    # file class dictionary support ---------------------------------------
 
     def __iter__(self):
         return iter(self.__dict__.keys())
     
     def __getitem__(self, key):
         return getattr(self, key)
+    
     
     def get(self, key, default=None):
         try:
@@ -153,6 +238,8 @@ class File(object):
     def update(self, data):
         for k in data.keys():
             setattr(self, k, data[k])
+
+
 
 
 
@@ -308,6 +395,7 @@ class FileEntry:
     is stored with a key (a field name like and other data field) and loaded and stored using
     the `File` container class. The file entry has no restrictions on the number of files.
     """
+    maxFileSize=500*1000*1024
 
     def Files(self, parameter=None, cursor=None, loadFileData=False):
         """
@@ -318,7 +406,11 @@ class FileEntry:
             parameter = {}
         parameter[u"id"] = self.id
         operators={u"filekey":u"=", "filename": u"="}
-        sql, values = self.pool.FmtSQLSelect(self.pool.FileTableFields, parameter, dataTable=self.pool.FileTable, operators=operators, singleTable=1)
+        sql, values = self.pool.FmtSQLSelect(self.pool.FileTableFields, 
+                                             parameter, 
+                                             dataTable=self.pool.FileTable, 
+                                             operators=operators, 
+                                             singleTable=1)
         recs = self.pool.Query(sql, values)
         if len(recs) == 0:
             return []
@@ -400,100 +492,8 @@ class FileEntry:
             fileid = file.fileid
         
         # update file records
-        self._Write(file)
+        file.commitTemp(self)
         self._UpdateMeta(file, cursor=cursor)
-        return True
-
-
-    def _Write(self, file, abortSize=0):
-        """
-        This functions writes the file to the pool directory. If the file is not marked
-        as tempfile, nothing is written.
-        
-        Files are processed in the following order:
-        - a temp path is created
-        - the file is written to this path
-        - the original file is renamed to be deleted on success and stored as `file.deleteOnSuccess`
-        - the tempfile is renamed to the original path
-        - the original file can be removed by calling `Cleanup()`
-        """
-        if not file.isTempFile():
-            # nothing to write -> return
-            return True
-        
-        # create temp path for current
-        backupPath = None
-        originalPath = DvPath(self._Path(file))
-        
-        newPath = DvPath(self._CreatePath(file.filekey, file.filename))
-        tempPath = DvPath(str(newPath))
-        tempPath.SetName(u"_temp_" + unicode(uuid.uuid4()))
-        tempPath.SetExtension(newPath.GetExtension())
-
-        if tempPath.Exists():
-            tempPath.Delete()
-        tempPath.CreateDirectories()
-        size = 0
-        try:
-            out = open(tempPath.GetStr(), "wb")
-            data = file.read(10000)
-            while data:
-                size += len(data)
-                if abortSize and size > abortSize:
-                    raise IOError, "File too big"
-                out.write(data)
-                data = file.read(10000)
-            out.close()
-            #file.close()
-        except Exception, e:
-            try:    file.file.close()
-            except: pass
-            try:    out.close()
-            except: pass
-            # reset old file
-            tempPath.Delete()
-            raise Exception, e
-
-        # store path for cleanup on success
-        if str(originalPath) and originalPath.Exists():
-            backupPath = DvPath(str(originalPath))
-            backupPath.SetName("_del_" + unicode(uuid.uuid4()))
-            backupPath.SetExtension(originalPath.GetExtension())
-            if originalPath.Exists() and not originalPath.Rename(backupPath):
-                tempPath.Delete()
-                raise IOError, "Rename file failed"
-            file.deleteOnSuccess = str(backupPath)
-
-        try:
-            # rename temp path
-            os.renames(str(tempPath), str(newPath))
-            # update meta properties
-            file.path = self._RelativePath(str(newPath))
-            file.size = size
-            return True
-        except:
-            tempPath.Delete()
-            if backupPath:
-                backupPath.Rename(originalPath)
-            raise
-
-
-    def _UpdateMeta(self, file, cursor):
-        """
-        store file meta information in database table
-        """
-        data = {
-            "filename": file.filename,
-            "path": file.path,
-            "filekey": file.filekey,
-            "extension": file.extension,
-            "size": file.size
-        }
-        if file.fileid:
-            file.fileid = self.pool.UpdateFields(self.pool.FileTable, file.fileid, data, cursor=cursor, idColumn=u"fileid")
-        else:
-            data["id"] = self.id
-            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, idColumn=u"fileid")
         return True
 
 
@@ -599,6 +599,25 @@ class FileEntry:
 
 
     # internal --------------------------------------------------------------------
+
+    def _UpdateMeta(self, file, cursor):
+        """
+        store file meta information in database table
+        """
+        data = {
+            "filename": file.filename,
+            "path": file.path,
+            "filekey": file.filekey,
+            "extension": file.extension,
+            "size": file.size
+        }
+        if file.fileid:
+            file.fileid = self.pool.UpdateFields(self.pool.FileTable, file.fileid, data, cursor=cursor, idColumn=u"fileid")
+        else:
+            data["id"] = self.id
+            data, file.fileid = self.pool.InsertFields(self.pool.FileTable, data, cursor=cursor, idColumn=u"fileid")
+        return True
+
 
     def _Path(self, file, absolute = True):
         """

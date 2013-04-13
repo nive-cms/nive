@@ -231,8 +231,6 @@ class FileWrapper(Wrapper):
 
 #  Pool Structure ---------------------------------------------------------------------------
 
-StdMetaFlds = (u"id", u"pool_dataref", u"pool_datatbl")
-
 
 class PoolStructure(object):
     """
@@ -285,13 +283,13 @@ class PoolStructure(object):
     """
     MetaTable = u"pool_meta"
     
-    def __init__(self, structure=None, fieldtypes=None, stdMeta=None, **kw):
+    def __init__(self, structure=None, fieldtypes=None, stdMeta=None, codepage="utf-8", **kw):
         #
         self.stdMeta = ()
         self.structure = {}
         self.fieldtypes = {}
         if structure:
-            self.Init(structure, fieldtypes, stdMeta, **kw)
+            self.Init(structure, fieldtypes, stdMeta, codepage, **kw)
         
 
     def Init(self, structure, fieldtypes=None, stdMeta=None, codepage="utf-8", **kw):
@@ -312,11 +310,7 @@ class PoolStructure(object):
             self.fieldtypes = fieldtypes
         
         if stdMeta:
-            m = list(stdMeta)
-            for f in StdMetaFlds:
-                if not f in m:
-                    m.append(f)
-            self.stdMeta = tuple(m)
+            self.stdMeta = tuple(stdMeta)
 
 
     def IsEmpty(self):
@@ -382,12 +376,27 @@ class PoolStructure(object):
                 value = unicode(value, self.codepage)
             return value
         
-        if fieldtype in ("date", "datetime", "timestamp"):
+        if isinstance(fieldtype, dict):
+            fieldtype = fieldtype[u"datatype"]
+            
+        if fieldtype == "number":
+            if isinstance(value, basestring):
+                value = long(value)
+            elif isinstance(value, float):
+                value = long(value)
+        
+        elif fieldtype == "float":
+            if isinstance(value, basestring):
+                value = float(value)
+            elif isinstance(value, (int,long)):
+                value = float(value)
+        
+        elif fieldtype in ("date", "datetime", "timestamp"):
             if not isinstance(value, unicode):
                 value = unicode(value)
         
-        elif fieldtype in ("list",):
-            # to lines
+        elif fieldtype in ("list","radio"):
+            # to single item string
             if isinstance(value, (list, tuple)):
                 if value:
                     value = value[0]
@@ -395,10 +404,12 @@ class PoolStructure(object):
                     value = u""
 
         elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
-            # to lines
+            # to json formatted list
             if not value:
                 value = u""
-            elif isinstance(value, (list, tuple)):
+            elif isinstance(value, basestring):
+                value = [value]
+            if isinstance(value, (list, tuple)):
                 if isinstance(value[0], bytes):
                     # list of strings:
                     value = [unicode(v, self.codepage) for v in value]
@@ -438,6 +449,9 @@ class PoolStructure(object):
                 value = unicode(value, self.codepage)
             return value
 
+        if isinstance(fieldtype, dict):
+            fieldtype = fieldtype[u"datatype"]
+
         if fieldtype in ("date", "datetime", "timestamp"):
             # -> to datatime
             if isinstance(value, basestring):
@@ -452,11 +466,12 @@ class PoolStructure(object):
                 # bw 0.9.5b: changed storage format to json. Previous versions used lines 
                 # with \n for entries.
                 if isinstance(value, basestring):
-                    value = tuple(value.split(u"\n"))
+                    if value.startswith(u"_json_"):
+                        value = json.loads(value[len(u"_json_"):])
+                    else:
+                        value = tuple(value.split(u"\n"))
                 elif isinstance(value, list):
                     value = tuple(value)
-                elif value == None:
-                    value = ()
                 if fieldtype == "unitlist":
                     value = [long(v) for v in value]
             else:
