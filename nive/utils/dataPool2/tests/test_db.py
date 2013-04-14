@@ -12,7 +12,7 @@ from nive.utils.path import DvPath
 from sqlite3 import OperationalError
 
 from nive.tests.db_app import app_db
-from t_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
+from test_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
 
 from nive.tests import __local
 
@@ -208,10 +208,6 @@ class dbTest(object):
         self.assert_(e)
 
         self.assertItemsEqual(e.FileKeys(), [u"file1",u"file2"])
-
-        self.assert_(e.FileExists(e.GetFile(u"file1")))
-        self.assert_(e.FileExists(e.GetFile(u"file2")))
-        self.assert_(e.FileExists(e.GetFile(u"file_xxx"))==False)
 
         self.assert_(e.GetFile(u"file1").filename==u"file1.txt")
         self.assert_(e.GetFile(u"file2").filename==u"file2.txt")

@@ -26,7 +26,7 @@ mMod = ModuleConf(id="mod", context=mApp)
 
 
 mApp2 = AppConf(id="app2", 
-                context="nive.tests.tnive.testapp",
+                context="nive.tests.test_nive.testapp",
                 modules=[mObject,mRoot,mTool,mViewm,mView,mMod], 
                 groups=[GroupConf(id="g1",name="G1")], 
                 categories=[CategoryConf(id="c1",name="C1")])

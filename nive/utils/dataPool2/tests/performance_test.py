@@ -2,13 +2,13 @@
 
 import copy
 
-import t_MySql
+import test_MySql
 try:
     from nive.utils.dataPool2.mySqlPool import *
 except:
     pass
 
-import t_db
+import test_db
 from nive.utils.dataPool2.sqlite3Pool import *
 
 
@@ -31,46 +31,46 @@ def print_(*kw):
 
 def getConnection():
     if mode == "mysql":
-        c = MySqlConn(t_MySql.conn, 0)
+        c = MySqlConn(test_MySql.conn, 0)
         print_( "MySQL        -")
     elif mode == "mysqlinno":
-        c = t_MySql.conn
+        c = test_MySql.conn
         c["dbName"] = u"ut_dataPool2inno"
         c = MySqlConn(c, 0)
         print_( "MySQL InnoDB -")
     else:
-        c = Sqlite3Conn(t_db.conn, 0)
+        c = Sqlite3Conn(test_db.conn, 0)
         print_( "Sqlite 3     -")
     return c
 
 def getPool():
     if mode == "mysql":
-        pool = MySql(t_MySql.conf)
-        pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
-        pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
-        pool.CreateConnection(t_MySql.conn)
+        pool = MySql(test_MySql.conf)
+        pool.SetStdMeta(copy.copy(test_MySql.stdMeta))
+        pool.GetPoolStructureObj().SetStructure(test_MySql.struct)
+        pool.CreateConnection(test_MySql.conn)
         print_( "MySQL        -")
     elif mode == "mysqlinno":
-        pool = MySql(t_MySql.conf)
-        pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
-        pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
-        c = t_MySql.conn
+        pool = MySql(test_MySql.conf)
+        pool.SetStdMeta(copy.copy(test_MySql.stdMeta))
+        pool.GetPoolStructureObj().SetStructure(test_MySql.struct)
+        c = test_MySql.conn
         c["dbName"] = u"ut_dataPool2inno"
         pool.CreateConnection(c)
         print_( "MySQL InnoDB -")
     else:
-        pool = Sqlite3(t_db.conf)
-        pool.SetStdMeta(copy.copy(t_db.stdMeta))
-        pool.GetPoolStructureObj().SetStructure(t_db.struct)
-        pool.CreateConnection(t_db.conn)
+        pool = Sqlite3(test_db.conf)
+        pool.SetStdMeta(copy.copy(test_db.stdMeta))
+        pool.GetPoolStructureObj().SetStructure(test_db.struct)
+        pool.CreateConnection(test_db.conn)
         print_( "Sqlite 3     -")
     return pool
 
 def empty():
     #if mode == "mysql":
-    #    t_MySql.emptypool()
+    #    test_MySql.emptypool()
     #elif mode == "mysqlinno":
-    #    t_MySql.emptypool()
+    #    test_MySql.emptypool()
     #else:
     #    t_db.emptypool()
     pass
@@ -112,7 +112,7 @@ def createsql(n):
     print_( "Create SQL: ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+        sql, values = pool.FmtSQLSelect(list(test_MySql.stdMeta)+list(test_MySql.struct[u"data1"]),
             {u"pool_type": u"data1", u"ftext": u"", u"fnumber": 3},
             sort = u"title, id, fnumber",
             ascending = 0,
@@ -133,7 +133,7 @@ def sqlquery1(n, start):
     print_( "SQL Query data+meta (join no index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+        sql, values = pool.FmtSQLSelect(list(test_MySql.stdMeta)+list(test_MySql.struct[u"data1"]),
             {u"pool_type": u"data1", u"ftext": u"123", u"fnumber": i+start},
             sort = u"title, id, fnumber",
             ascending = 0,
@@ -155,7 +155,7 @@ def sqlquery2(n, start):
     print_( "SQL Query data+meta=id (join index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta)+list(t_MySql.struct[u"data1"]),
+        sql, values = pool.FmtSQLSelect(list(test_MySql.stdMeta)+list(test_MySql.struct[u"data1"]),
             {u"id": i+start},
             sort = u"title",
             ascending = 0,
@@ -177,7 +177,7 @@ def sqlquery3(n, start):
     print_( "SQL Query meta=id (index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta),
+        sql, values = pool.FmtSQLSelect(list(test_MySql.stdMeta),
             {u"id": start+i},
             sort = u"id",
             ascending = 0,
@@ -200,7 +200,7 @@ def sqlquery4(n, start):
     print_( "SQL Query meta=id+pool_type=data1 (index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta),
+        sql, values = pool.FmtSQLSelect(list(test_MySql.stdMeta),
             {u"id": start+i, u"pool_type": u"data1"},
             sort = u"id",
             ascending = 0,
@@ -223,7 +223,7 @@ def sqlquery5(n, start):
     print_( "SQL Query meta=id+pool_type=data1+data.funit (join index): ")
     t = time.time()
     for i in range(0,n):
-        sql, values = pool.FmtSQLSelect(list(t_MySql.stdMeta),
+        sql, values = pool.FmtSQLSelect(list(test_MySql.stdMeta),
             {u"id": start+i, u"pool_type": u"data1", u"funit": 35},
             sort = u"id",
             ascending = 0,
@@ -305,8 +305,8 @@ def createentries3(n):
     for i in range(0,n):
         e=pool.CreateEntry(u"data1")
         if i==0:  id = e.GetID()
-        e.data.update(t_MySql.data1_1)
-        e.meta.update(t_MySql.meta1)
+        e.data.update(test_MySql.data1_1)
+        e.meta.update(test_MySql.meta1)
         e.Commit()
     t2 = time.time()
 
@@ -323,9 +323,9 @@ def createentries4(n):
     for i in range(0,n):
         e=pool.CreateEntry("data1")
         if i==0:  id = e.GetID()
-        e.data.update(t_MySql.data1_1)
-        e.meta.update(t_MySql.meta1)
-        e.CommitFile(u"file1", {"file":t_MySql.file1_1, "filename": "file1.txt"})
+        e.data.update(test_MySql.data1_1)
+        e.meta.update(test_MySql.meta1)
+        e.CommitFile(u"file1", {"file":test_MySql.file1_1, "filename": "file1.txt"})
         e.Commit()
     t2 = time.time()
 

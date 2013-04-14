@@ -3,7 +3,7 @@
 import copy, time
 import unittest
 
-from nive.tests.tmysql import ENABLE_MYSQL_TESTS, myapp
+from nive.tests.test_mysql import ENABLE_MYSQL_TESTS, myapp
 
 class utc:
     pass
@@ -16,8 +16,8 @@ if ENABLE_MYSQL_TESTS:
 from nive.utils.dataPool2.base import *
 from nive.utils.path import DvPath
 
-from t_db import dbTest
-from t_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
+from test_db import dbTest
+from test_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_1, data2_1, meta1, file1_1, file1_2
 
 from nive.tests import __local
 

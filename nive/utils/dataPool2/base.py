@@ -875,14 +875,11 @@ class Base(object):
         dataref = r[0]
         datatbl = r[1]
 
+        self.DeleteFiles(id, cursor, version)
         tables = (self.MetaTable, self.FulltextTable, self.GroupsTable)
         for table in tables:
             self.DeleteRecords(table, parameter={"id":id})
-
         self.DeleteRecords(datatbl, parameter={"id":dataref})
-
-        # delete files
-        self._DeleteFiles(id, cursor, version)
 
         cursor.close()
         return 1
@@ -1271,7 +1268,7 @@ class Base(object):
     
     # internal subclassing
     
-    def _DeleteFiles(self, id, cursor, version):
+    def DeleteFiles(self, id, cursor, version):
         pass
 
     def _GetDefaultPoolStructure(self):
@@ -2168,7 +2165,8 @@ class ConnectionThreadLocal(Connection):
 
 class NotFound(Exception):
     """ raised if entry not found """
-    pass
+class FileNotFound(Exception):
+    """ raised if physical file not found """
 
 class ConnectionError(Exception):
     """    No connection """

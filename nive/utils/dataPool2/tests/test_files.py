@@ -9,6 +9,15 @@ from nive.utils.dataPool2.files import File
 
 class fileentrytest(object):
     test=1
+    
+    @property
+    def root(self):
+        return resource_filename('nive.utils.dataPool2', 'tests/')
+    
+    @property
+    def pool(self):
+        return self
+    
     def _Path(self, file):
         root = resource_filename('nive.utils.dataPool2', 'tests/')
         return root+"test_files.py"
@@ -94,19 +103,16 @@ class FileTest(unittest.TestCase):
         self.assert_(file.read(5)=="01234")
         self.assert_(file.read(5)=="56789")
         self.assert_(file.read(5)=="")
-
-        file = File(filekey="aaa",
-                    file=None
-                    )
-        file.fileentry=fileentrytest
-        self.assert_(file.read(5))
-        self.assert_(file.read(5))
-        self.assert_(file.read(5))
-        self.assert_(file.tell()==15)
+        self.assert_(file.tell()==10)
         file.seek(0)
         self.assert_(file.tell()==0)
+
+        file = File(filekey="aaa",
+                    file=None,
+                    fileentry=fileentrytest()
+                    )
+        self.assertRaises(IOError, file.read)
         file.close()
-        self.assertRaises(ValueError, file.read)
         self.assertFalse(file.isTempFile())
 
 
@@ -122,6 +128,7 @@ class FileTest(unittest.TestCase):
                     file=None
                     )
         file.fileentry=fileentrytest
+        file.path = root+"test_db.py"
         self.assert_(file.abspath().startswith(root))
         
         file = File("aaa", filename="qqqq.png", size=10)

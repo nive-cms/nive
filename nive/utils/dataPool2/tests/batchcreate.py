@@ -2,30 +2,30 @@
 
 import copy
 
-import t_MySql
+import test_MySql
 try:
     from nive.utils.dataPool2.mySqlPool import *
 except:
     pass
 
-import t_db
+import test_db
 from nive.utils.dataPool2.sqlite3Pool import *
 
 
 def create_mysql(n):
-    pool = MySql(t_MySql.conf)
-    pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
-    pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
-    pool.CreateConnection(t_MySql.conn)
+    pool = MySql(test_MySql.conf)
+    pool.SetStdMeta(copy.copy(test_MySql.stdMeta))
+    pool.GetPoolStructureObj().SetStructure(test_MySql.struct)
+    pool.CreateConnection(test_MySql.conn)
 
     print "Create", n, "entries (data+meta+file): ",
     t = time.time()
     for i in range(0,n):
         e=pool.CreateEntry(u"data1")
         if i==0:  id = e.GetID()
-        e.data.update(t_MySql.data1_1)
-        e.meta.update(t_MySql.meta1)
-        e.CommitFile(u"file1", {"file":t_db.file1_1, "filename":"file1.txt"})
+        e.data.update(test_MySql.data1_1)
+        e.meta.update(test_MySql.meta1)
+        e.CommitFile(u"file1", {"file":test_db.file1_1, "filename":"file1.txt"})
         #e.Commit()
     t2 = time.time()
 
@@ -36,19 +36,19 @@ def create_mysql(n):
 
 
 def create_sqlite3(n):
-    pool = Sqlite3(t_db.conf)
-    pool.SetStdMeta(copy.copy(t_db.stdMeta))
-    pool.GetPoolStructureObj().SetStructure(t_db.struct)
-    pool.CreateConnection(t_db.conn)
+    pool = Sqlite3(test_db.conf)
+    pool.SetStdMeta(copy.copy(test_db.stdMeta))
+    pool.GetPoolStructureObj().SetStructure(test_db.struct)
+    pool.CreateConnection(test_db.conn)
 
     print "Create", n, "entries (data+meta+file): ",
     t = time.time()
     for i in range(0,n):
         e=pool.CreateEntry(u"data1")
         if i==0:  id = e.GetID()
-        e.data.update(t_db.data1_1)
-        e.meta.update(t_db.meta1)
-        e.CommitFile(u"file1", {"file":t_db.file1_1, "filename":"file1.txt"})
+        e.data.update(test_db.data1_1)
+        e.meta.update(test_db.meta1)
+        e.CommitFile(u"file1", {"file":test_db.file1_1, "filename":"file1.txt"})
         e.Commit()
     t2 = time.time()
 

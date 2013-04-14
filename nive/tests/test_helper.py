@@ -22,7 +22,7 @@ testconf = ObjectConf(
     id = "text",
     name = "Text",
     dbparam = "texts",
-    context = "nive.tests.thelper.text",
+    context = "nive.tests.test_helper.text",
     selectTag = 1,
     description = ""
 )
@@ -50,19 +50,19 @@ class ConfigurationTest(unittest.TestCase):
     
 
     def test_resolve1(self, **kw):
-        self.assert_(ResolveName("nive.tests.thelper.text", base=None))
-        self.assert_(ResolveName(".thelper.text", base="nive.tests"))
+        self.assert_(ResolveName("nive.tests.test_helper.text", base=None))
+        self.assert_(ResolveName(".test_helper.text", base="nive.tests"))
         self.assert_(ResolveName("nive.components.tools.dbStructureUpdater", base=None))
         self.assert_(ResolveName(".dbStructureUpdater.dbStructureUpdater", base="nive.components.tools"))
         
     def test_resolve2(self, **kw):
         i,c = ResolveConfiguration(testconf, base=None)
         self.assert_(c)
-        i,c = ResolveConfiguration("nive.tests.thelper.testconf", base=None)
+        i,c = ResolveConfiguration("nive.tests.test_helper.testconf", base=None)
         self.assert_(c)
-        i,c = ResolveConfiguration(".thelper.testconf", base="nive.tests")
+        i,c = ResolveConfiguration(".test_helper.testconf", base="nive.tests")
         self.assert_(c)
-        i,c = ResolveConfiguration("nive.tests.thelper", base=None)
+        i,c = ResolveConfiguration("nive.tests.test_helper", base=None)
         self.assert_(c)
 
     def test_load(self, **kw):
@@ -78,8 +78,8 @@ class ConfigurationTest(unittest.TestCase):
     def test_classref(self):
         #self.assert_(GetClassRef(testconf.context, reloadClass=False, raiseError=False)==text)
         self.assert_(GetClassRef(text, reloadClass=False, raiseError=False)==text)
-        self.assert_(GetClassRef("nive.tests.thelper.textxxxxxx", reloadClass=False, raiseError=False)==None)
-        self.assertRaises(ImportError, GetClassRef, "nive.tests.thelper.textxxxxxx", reloadClass=False, raiseError=True)
+        self.assert_(GetClassRef("nive.tests.test_helper.textxxxxxx", reloadClass=False, raiseError=False)==None)
+        self.assertRaises(ImportError, GetClassRef, "nive.tests.test_helper.textxxxxxx", reloadClass=False, raiseError=True)
         
 
     def test_factory(self):
@@ -88,10 +88,10 @@ class ConfigurationTest(unittest.TestCase):
         c.context=text
         self.assert_(ClassFactory(c, reloadClass=False, raiseError=False)==text)
         c=testconf.copy()
-        c.context="nive.tests.thelper.textxxxxxx"
+        c.context="nive.tests.test_helper.textxxxxxx"
         self.assert_(ClassFactory(c, reloadClass=False, raiseError=False)==None)
         c=testconf.copy()
-        c.context="nive.tests.thelper.textxxxxxx"
+        c.context="nive.tests.test_helper.textxxxxxx"
         self.assertRaises(ImportError, ClassFactory, c, reloadClass=False, raiseError=True)
 
         c=testconf.copy()
@@ -101,7 +101,7 @@ class ConfigurationTest(unittest.TestCase):
         c.extensions=("text66666",text2,"text5555")
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==4)
         c=testconf.copy()
-        c.extensions=("nive.tests.thelper.text1","nive.tests.thelper.text2","nive.tests.thelper.text3")
+        c.extensions=("nive.tests.test_helper.text1","nive.tests.test_helper.text2","nive.tests.test_helper.text3")
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==6)
 
 

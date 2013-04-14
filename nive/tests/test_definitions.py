@@ -126,11 +126,11 @@ class ConfTest(unittest.TestCase):
             id = "test",
             title = "Test",
             description = "",
-            context = "nive.tests.tdefinitions.ConfTest",
+            context = "nive.tests.test_definitions.ConfTest",
             fulltextIndex = False,
         )
         self.assert_(testconf.id=="test")
-        self.assert_(testconf.context=="nive.tests.tdefinitions.ConfTest")
+        self.assert_(testconf.context=="nive.tests.test_definitions.ConfTest")
         self.assert_(len(testconf.test())==0)
         self.assert_(len(testconf.uid()))
         str(testconf) # may be empty
@@ -159,7 +159,7 @@ class ConfTest(unittest.TestCase):
             id = "text",
             name = "Text",
             dbparam = "texts",
-            context = "nive.tests.thelper.text",
+            context = "nive.tests.test_helper.text",
             selectTag = 1,
             description = ""
         )
@@ -175,7 +175,7 @@ class ConfTest(unittest.TestCase):
         testconf = RootConf(
             id = "root",
             name = "Root",
-            context = "nive.tests.tdefinitions.ConfTest",
+            context = "nive.tests.test_definitions.ConfTest",
             default = True
         )
         self.assert_(testconf.id=="root")
@@ -191,12 +191,12 @@ class ConfTest(unittest.TestCase):
             id = u"viewing",
             name = u"Oh",
             static = "here:static",
-            containment = "nive.tests.tdefinitions.ConfTest",
+            containment = "nive.tests.test_definitions.ConfTest",
             widgets = (WidgetConf(apply=(IObject,),viewmapper="test",widgetType=IWidgetConf,id="test"),),
         )
         self.assert_(testconf.id=="viewing")
         self.assert_(testconf.name=="Oh")
-        self.assert_(testconf.containment=="nive.tests.tdefinitions.ConfTest")
+        self.assert_(testconf.containment=="nive.tests.test_definitions.ConfTest")
         self.assert_(len(testconf.test())==0)
         self.assert_(len(testconf.uid()))
         str(testconf) # may be empty
@@ -206,13 +206,13 @@ class ConfTest(unittest.TestCase):
         testconf = ViewConf(
             attr = "test_obj6",
             name = "",
-            context = "nive.tests.tdefinitions.SystemTest",
-            view = "nive.tests.tdefinitions.ConfTest",
+            context = "nive.tests.test_definitions.SystemTest",
+            view = "nive.tests.test_definitions.ConfTest",
             renderer = None
         )
         self.assert_(testconf.attr=="test_obj6")
         self.assert_(testconf.name=="")
-        self.assert_(testconf.view=="nive.tests.tdefinitions.ConfTest")
+        self.assert_(testconf.view=="nive.tests.test_definitions.ConfTest")
         self.assert_(len(testconf.test())==0)
         self.assert_(len(testconf.uid()))
         str(testconf) # may be empty
@@ -222,11 +222,11 @@ class ConfTest(unittest.TestCase):
         testconf = ToolConf(
             id = u"tool",
             name = u"Tool",
-            context = "nive.tests.tdefinitions.ConfTest",
+            context = "nive.tests.test_definitions.ConfTest",
         )
         self.assert_(testconf.id=="tool")
         self.assert_(testconf.name=="Tool")
-        self.assert_(testconf.context=="nive.tests.tdefinitions.ConfTest")
+        self.assert_(testconf.context=="nive.tests.test_definitions.ConfTest")
         self.assert_(len(testconf.test())==0)
         self.assert_(len(testconf.uid()))
         str(testconf) # may be empty
@@ -236,7 +236,7 @@ class ConfTest(unittest.TestCase):
         testconf = ModuleConf(
             id = "module",
             name = "Module",
-            context = "nive.tests.tdefinitions.ConfTest",
+            context = "nive.tests.test_definitions.ConfTest",
             events = None,
             description = ""
         )

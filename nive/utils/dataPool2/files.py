@@ -110,7 +110,7 @@ class File(object):
         # 2) read blob file
         if not self.file:
             # read all
-            file = open(self.fileentry()._Path(self))
+            file = open(self._Path())
             if size < 1 or size == None:
                 data = file.read()
                 file.close()
@@ -136,10 +136,19 @@ class File(object):
     def isTempFile(self):
         return self.tempfile
     
+    def exists(self):
+        """
+        check if the file physically exists
+        """
+        if not self.path:
+            return True
+        path = DvPath(self._Path())
+        return path.Exists()
+
     def abspath(self):
         if not self.fileentry:
             return None
-        return self.fileentry()._Path(self)
+        return self._Path()
 
     def commitTemp(self, fileentry):
         """
@@ -158,6 +167,8 @@ class File(object):
         if not self.isTempFile():
             # nothing to write -> return
             return True
+        if not self.fileentry:
+            self.fileentry = weakref.ref(fileentry)
         
         maxFileSize = fileentry.maxFileSize
         if self.size and self.size > maxFileSize:
@@ -165,9 +176,9 @@ class File(object):
 
         # create temp path for current
         backupPath = None
-        originalPath = DvPath(fileentry._Path(self))
+        originalPath = DvPath(self._Path())
         
-        newPath = DvPath(fileentry._CreatePath(self.filekey, self.filename))
+        newPath = DvPath(self._CreatePath(self.filekey, self.filename))
         tempPath = DvPath(str(newPath))
         tempPath.SetName(u"_temp_" + unicode(uuid.uuid4()))
         tempPath.SetExtension(newPath.GetExtension())
@@ -219,6 +230,18 @@ class File(object):
                 backupPath.Rename(originalPath)
             raise
 
+    def delete(self):
+        if not self.path:
+            return True
+        originalPath = DvPath(self._Path())
+        if not originalPath.IsFile():
+            #not a file
+            return True
+        if originalPath.Exists() and not self.fileentry().pool._MoveToTrashcan(originalPath, self.fileentry().id):
+            #Delete failed!
+            return False
+        return True
+
     
     # file class dictionary support ---------------------------------------
 
@@ -238,6 +261,39 @@ class File(object):
     def update(self, data):
         for k in data.keys():
             setattr(self, k, data[k])
+
+
+    # path management ---------------------------------------
+
+    def _Path(self, absolute = True):
+        """
+        Get the physical path of the file. Checks the database.
+        """
+        if self.tempfile or not self.path:
+            return u""
+        root = str(self.fileentry().pool.root)
+        if absolute and self.path[:len(root)] != root:
+            path = DvPath(root)
+            path.AppendSeperator()
+            path.Append(self.path)
+        else:
+            path = DvPath(self.path)
+        return path.GetStr()
+
+
+    def _CreatePath(self, key, filename):
+        """
+        Create the physical path of the file
+        """
+        root = str(self.fileentry().pool.root)
+        aP = DvPath(root)
+        aP.AppendSeperator()
+        aP.AppendDirectory(self.fileentry().pool._GetDirectory(self.fileentry().id))
+        aP.AppendSeperator()
+
+        aP.SetName(u"%06d_%s_" % (self.fileentry().id, key))
+        aP.SetExtension(DvPath(filename).GetExtension())
+        return aP.GetStr()
 
 
 
@@ -287,8 +343,6 @@ class FileManager:
         self.root.CreateDirectoriesExcp()
 
 
-    # Searching --------------------------------------------------------------
-
     def SearchFilename(self, filename):
         """
         search for filename
@@ -310,57 +364,30 @@ class FileManager:
         return f2
 
 
-    # Internal --------------------------------------------------------------
-
-    def _GetSystemPath(self, file, path="", absolute = True, includeTemp = True):
-        """
-        Constructs the physical path of the file.
-        """
-        if file and file.tempfile:
-            return u""
-        elif file:
-            if not file.path:
-                return u""
-            if absolute and file.path[:len(str(self.root))] != str(self.root):
-                path = DvPath(str(self.root))
-                path.AppendSeperator()
-                path.Append(file.path)
-            else:
-                path = DvPath(file.path)
-            return path.GetStr()
-        elif path:
-            p = DvPath()
-            if absolute and path[:len(str(self.root))] != str(self.root):
-                p = DvPath(str(self.root))
-                p.AppendSeperator()
-                p.Append(path)
-                return p.GetStr()
-            return path
-        return u""
-
-
-    def _DeleteFiles(self, id, cursor=None, version=None):
+    def DeleteFiles(self, id, cursor=None, version=None):
         """
         Delete the file with the prop description
         """
         files = self.SearchFiles({u"id":id}, sort=u"id")
+        if not files:
+            return True
+        entry = self.GetEntry(id, version=version)
         for f in files:
-            if f["path"]:
-                originalPath = DvPath(self._GetSystemPath(None, path=f["path"]))
-                if originalPath.Exists() and not self._MoveToTrashcan(originalPath, id):
-                    pass
+            file = self.GetFileClass()(filedict=f,fileentry=entry)
+            file.delete()
         if len(files):
             sql = u"delete from %s where id = %d" % (self.FileTable, id)
             self.Query(sql, cursor=cursor, getResult=False)
         return True
 
 
+    # Internal --------------------------------------------------------------
+
     def _GetDirectory(self, id):
         """
         construct directory path without root
         """
         return (u"%06d" % (id))[self.DirectoryCnt:-2] + u"00/" + (u"%06d" % (id))[self.DirectoryCnt+2:]
-        #return ("%06d" % (id))[self.DirectoryCnt:-2] + "00"
 
 
     def _MoveToTrashcan(self, path, id):
@@ -427,14 +454,8 @@ class FileEntry:
         return all existing file keys as list
         """
         sql = u"select filekey from %s where id = %d group by filekey" % (self.pool.FileTable, self.id)
-
-        aList = self.pool.Query(sql)
-        if len(aList) == 0:
-            return []
-        l = []
-        for i in aList:
-            l.append(i[0])
-        return l
+        keys = self.pool.Query(sql)
+        return [i[0] for i in keys]
 
 
     def GetFile(self, key, fileid=None, loadFileData=False):
@@ -442,17 +463,16 @@ class FileEntry:
         return the meta file informations from db or None if no
         matching record found
         """
-        if not key or key == u"":
+        if not key:
             return None
         if fileid!=None:
             parameter = {u"fileid":fileid}
         else:
             parameter = {u"filekey": key}
         files = self.Files(parameter, loadFileData=loadFileData)
-        if len(files)==0:
+        if not files:
             return None
-        file = files[0]
-        return file
+        return files[0]
 
 
     # Store File --------------------------------------------------------------------
@@ -515,33 +535,7 @@ class FileEntry:
     
     # Options --------------------------------------------------------------------
 
-    def FileExists(self, file):
-        """
-        check if the file physically exists
-        """
-        if not file:
-            return False
-        if not file.path:
-            return True
-        path = DvPath(self._Path(file))
-        return path.Exists()
-            
-
-    def CopyFile(self, file, newPath):
-        """
-        Returns the physical path of the file or copies it to newpath if set
-        """
-        if not newPath:
-            return False
-        path = DvPath(self._Path(file))
-        try:
-            return path.Copy(newPath)
-        except Exception, e:
-            pass
-        return False
-
-
-    def DuplicateFiles(self, newEntry, replaceExisting = True):
+    def DuplicateFiles(self, newEntry):
         """
         Copy the file
         If filekey = "" all files are copied
@@ -549,12 +543,10 @@ class FileEntry:
         files = self.Files()
         result = True
         for file in files:
-            if not self.FileExists(file):
+            if not file.exists():
                 result = False
                 continue
-            if newEntry.FileExists(file) and not replaceExisting:
-                continue
-            newFile = self.pool.GetFileClass()(file=file, filename=file.filename, size=file.size, tempfile=True)
+            newFile = self.pool.GetFileClass()(file=file, filename=file.filename, size=file.size, tempfile=True, fileentry=newEntry)
             try:
                 newEntry.CommitFile(file.filekey, newFile)
             except:
@@ -570,17 +562,9 @@ class FileEntry:
         self.files.set(key, None)
         file = self.GetFile(key)
         if not file:
-            # not found
             return False
-        if file.path:
-            originalPath = DvPath(self._Path(file))
-            if not originalPath.IsFile():
-                #not a file
-                return False
-            if originalPath.Exists() and not self.pool._MoveToTrashcan(originalPath, self.id):
-                #Delete failed!
-                return False
-        
+        if not file.delete():
+            return False
         sql = u"delete from %s where fileid = %d" % (self.pool.FileTable, file.fileid)
         self.pool.Query(sql, getResult=False)
         return True
@@ -619,17 +603,6 @@ class FileEntry:
         return True
 
 
-    def _Path(self, file, absolute = True):
-        """
-        Get the physical path of the file. Checks the database.
-        """
-        if isinstance(file, basestring):
-            file = self.GetFile(file)
-        if not file:
-            return u""
-        return self.pool._GetSystemPath(file, absolute)
-
-
     def _LookupFileID(self, file, cursor=None):
         """
         lookup unique fileid for file
@@ -640,34 +613,6 @@ class FileEntry:
         return f[0]["fileid"]
          
          
-    def _FmtFilename(self, key):
-        """
-        Constructs the key for the file. Used as filename.
-        """
-        aID = u"%06d" % (self.id)
-        return u"%s_%s_" % (aID, key)
-
-
-    def _CreatePath(self, key, filename):
-        """
-        Create the physical path of the file
-        """
-        aExtension = DvPath(filename).GetExtension()
-
-        aP = DvPath()
-        aP.SetStr(str(self.pool.root))
-        aP.AppendSeperator()
-        aP.AppendDirectory(self._GetDirectory())
-        aP.AppendSeperator()
-
-        aP.SetName(self._FmtFilename(key))
-        aP.SetExtension(aExtension)
-        return aP.GetStr()
-
-
-    def _GetDirectory(self):
-        return self.pool._GetDirectory(self.id)
-
     def _GetTrashcanDirectory(self):
         return self.pool._GetTrashcanDirectory(self.id)
 

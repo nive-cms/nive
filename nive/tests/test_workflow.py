@@ -348,8 +348,8 @@ class ConfTest(unittest.TestCase):
             tostate = "there",
             roles = ["master","slave"],
             actions = ["go"],
-            execute = ["nive.tests.tworkflow.wftestfunction"],
-            conditions = ["nive.tests.tworkflow.wftestfunction"]
+            execute = ["nive.tests.test_workflow.wftestfunction"],
+            conditions = ["nive.tests.test_workflow.wftestfunction"]
         )
         self.assert_(len(testconf.test())==0)
 

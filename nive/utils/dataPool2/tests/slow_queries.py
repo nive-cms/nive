@@ -2,7 +2,7 @@
 
 import copy
 
-import t_MySql
+import test_MySql
 try:
     from nive.utils.dataPool2.mySqlPool import *
 except:
@@ -11,10 +11,10 @@ except:
 
 
 def sqlquery4(n):
-    pool = MySql(t_MySql.conf)
-    pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
-    pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
-    pool.CreateConnection(t_MySql.conn)
+    pool = MySql(test_MySql.conf)
+    pool.SetStdMeta(copy.copy(test_MySql.stdMeta))
+    pool.GetPoolStructureObj().SetStructure(test_MySql.struct)
+    pool.CreateConnection(test_MySql.conn)
 
     print "SQL Query filename (text index) result=all, sort=filename, operator=like: ",
     t = time.time()
@@ -27,10 +27,10 @@ def sqlquery4(n):
     print
 
 def sqlquery5(n):
-    pool = MySql(t_MySql.conf)
-    pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
-    pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
-    pool.CreateConnection(t_MySql.conn)
+    pool = MySql(test_MySql.conf)
+    pool.SetStdMeta(copy.copy(test_MySql.stdMeta))
+    pool.GetPoolStructureObj().SetStructure(test_MySql.struct)
+    pool.CreateConnection(test_MySql.conn)
 
     print "SQL Query filename (text index), result=all, sort=id, operator==: ",
     t = time.time()
@@ -43,10 +43,10 @@ def sqlquery5(n):
     print
 
 def sqlquery6(n):
-    pool = MySql(t_MySql.conf)
-    pool.SetStdMeta(copy.copy(t_MySql.stdMeta))
-    pool.GetPoolStructureObj().SetStructure(t_MySql.struct)
-    pool.CreateConnection(t_MySql.conn)
+    pool = MySql(test_MySql.conf)
+    pool.SetStdMeta(copy.copy(test_MySql.stdMeta))
+    pool.GetPoolStructureObj().SetStructure(test_MySql.struct)
+    pool.CreateConnection(test_MySql.conn)
 
     print "SQL Query filename (text index) no result: ",
     t = time.time()

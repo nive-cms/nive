@@ -6,7 +6,7 @@ from nive.portal import Portal
 from nive.definitions import ConfigurationError
 from nive.helper import Event
 from nive.definitions import OperationalError
-from tnive import testapp, mApp2, mApp
+from test_nive import testapp, mApp2, mApp
 
     
 
@@ -23,8 +23,8 @@ class portalTest(unittest.TestCase):
     def test_register(self):
         self.portal.Register(mApp)
         self.portal.Register(self.app, "another")
-        self.portal.Register("nive.tests.tnive.mApp2")
-        self.assertRaises(ImportError, self.portal.Register, "nive.tests.tnive.mApp56875854")
+        self.portal.Register("nive.tests.test_nive.mApp2")
+        self.assertRaises(ImportError, self.portal.Register, "nive.tests.test_nive.mApp56875854")
         self.assertRaises(ConfigurationError, self.portal.Register, time)
 
 

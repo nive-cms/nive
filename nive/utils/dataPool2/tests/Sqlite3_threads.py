@@ -10,7 +10,7 @@ from nive.utils.path import DvPath
 
 from sqlite3 import OperationalError
 
-from t_db import dbTest
+from test_db import dbTest
 
 class Sqlite3ConnMultithreading(dbTest):
     """
