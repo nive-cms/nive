@@ -192,7 +192,7 @@ class Portal(Events, object):
         uid = authenticated_userid(event.request)
         event.request.environ["REMOTE_USER"] = uid
         event.request.environ["START_TIME"] = time.time()
-        self.Signal("start", event)
+        self.Signal("start", event=event)
         #event.request.add_finished_callback(self.FinishConnection)
 
 
