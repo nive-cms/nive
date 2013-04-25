@@ -44,7 +44,8 @@ class dbView(BaseView):
         ``view.RenderView(tool)``
         """
         tool = self.context
-        values = {}
+        values = self.GetFormValues(method="POST")
+        values["request"] = self.request
         result = tool.Run(**values)
         data = tool.stream
         if not isinstance(data, basestring):
@@ -79,7 +80,7 @@ class dbStructureUpdater(Tool):
         importSecurity = 0
         showSystem = values.get("showSystem")
         modify = values.get("modify")
-        request = values.get("request", {})
+        request = values["original"]
         
         try:
             localizer = get_localizer(get_current_request())
@@ -143,7 +144,7 @@ By default this tool will only create new tables and columns and never delete an
             m = None
             if modify:
                 m = request.get(aT["dbparam"])
-                if type(m) == type(""):
+                if isinstance(m, basestring):
                     m = [m]
             if not db.UpdateStructure(aT["dbparam"], fmt, m):
                 self.stream.write(u"")
@@ -168,7 +169,7 @@ By default this tool will only create new tables and columns and never delete an
         m = None
         if modify:
             m = request.get(tableName)
-            if type(m) == type(""):
+            if isinstance(m, basestring):
                 m = [m]
         if not db.UpdateStructure(tableName, meta, m):
             self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table update failed (pool_meta)</div>")))
@@ -193,7 +194,7 @@ By default this tool will only create new tables and columns and never delete an
             m = None
             if modify:
                 m = request.get(tableName)
-                if type(m) == type(""):
+                if isinstance(m, basestring):
                     m = [m]
             if not db.UpdateStructure(tableName, fields, m, createIdentity = bool(identity)):
                 self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Table creation failed (${name})</div>",mapping={"name":tableName})))
