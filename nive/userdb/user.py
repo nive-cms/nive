@@ -181,14 +181,14 @@ configuration = ObjectConf(
 
 configuration.data = (
     FieldConf(id="name",     datatype="string",      size= 30, default=u"", required=1, name=_(u"User ID"), description=u""),
-    FieldConf(id="password", datatype="password",    size= 30, default=u"", required=1, name=_(u"Password"), description=u""),
+    FieldConf(id="password", datatype="password",    size=100, default=u"", required=1, name=_(u"Password"), description=u""),
     FieldConf(id="email",    datatype="email",       size=255, default=u"", required=1, name=_(u"Email"), description=u""),
     FieldConf(id="groups",   datatype="mcheckboxes", size=255, default=u"", name=_(u"Groups"), settings={"codelist":"groups"}, description=u""),
     
     FieldConf(id="notify",   datatype="bool",        size= 4,  default=True, name=_(u"Activate email notifications"), description=u""),
     
-    FieldConf(id="surname",  datatype="string",      size= 30, default=u"", name=_(u"Surname"), description=u""),
-    FieldConf(id="lastname", datatype="string",      size= 30, default=u"", name=_(u"Lastname"), description=u""),
+    FieldConf(id="surname",  datatype="string",      size=100, default=u"", name=_(u"Surname"), description=u""),
+    FieldConf(id="lastname", datatype="string",      size=100, default=u"", name=_(u"Lastname"), description=u""),
     FieldConf(id="organisation", datatype="string",  size=255, default=u"", name=_(u"Organisation"), description=u""),
     
     FieldConf(id="lastlogin", datatype="datetime", size=0, readonly=True, default=u"", name=_(u"Last login"), description=u""),
