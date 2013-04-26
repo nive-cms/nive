@@ -219,7 +219,7 @@ class ObjectTest(unittest.TestCase):
         #file
         b3 = create_file(r, user=user)
         b3.GetDownloadTitle()
-        b3.OnCommit()
+        b3.FilenameToTitle()
         #menublock
         b0 = create_menublock(r, user=user)
         b0.GetMenuPages()

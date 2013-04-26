@@ -180,10 +180,9 @@ class ImageProcessor(object):
 
     def Init(self):
         if PILloaded:
-            self.ListenEvent("commit", "OnCommit")
+            self.ListenEvent("commit", "ProcessImages")
 
-
-    def OnCommit(self):
+    def ProcessImages(self):
         images = []
         keys = self.files.keys()
         for p in self.configuration.imageProfiles:
