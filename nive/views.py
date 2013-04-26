@@ -41,6 +41,7 @@ from pyramid.exceptions import NotFound
 
 from nive.utils.utils import ConvertToStr, ConvertListToStr, ConvertToDateTime
 from nive.utils.utils import FmtSeconds, FormatBytesForDisplay, CutText, GetMimeTypeExtension
+from nive import FileNotFound
 from nive.definitions import IPage, IObject
 
 
@@ -397,7 +398,10 @@ class BaseView(object):
         if path:
             r.app_iter = FileIterable(path)
         else:
-            r.body = file.read()
+            try:
+                r.body = file.read()
+            except FileNotFound:
+                raise NotFound
         r.content_length = file.size
         r.last_modified = last_mod
         r.etag = '%s-%s' % (last_mod, hash(file.path))

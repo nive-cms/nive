@@ -44,10 +44,9 @@ class file(PageElementFileBase):
     
      
     def Init(self):
-        self.ListenEvent("commit", "OnCommit")
+        self.ListenEvent("commit", "FilenameToTitle")
 
-
-    def OnCommit(self):
+    def FilenameToTitle(self):
         if self.files.get("file") and not self.meta["title"]:
             self.meta["title"] = self.files.get("file")["filename"]
         
