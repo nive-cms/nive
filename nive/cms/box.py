@@ -81,6 +81,7 @@ configuration =  ObjectConf(
     template = "box.pt",
     selectTag = StagPageElement,
     container = True,
+    icon = "nive.cms.cmsview:static/images/types/box.png",
     description = _(u"A box is a container to group elements on a page. It can be used as an" 
                     u"advanced styling element for web pages. The box itself only stores a title and styling selector.")
 )

@@ -53,6 +53,7 @@ configuration = ObjectConf(
     context = "nive.cms.menublock.menublock",
     template = "menublock.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/menublock.png",
     description = _(u"Element to render navigation trees and linked table of contents. The menublock can be used as main navigation for the web page.")
 )
 

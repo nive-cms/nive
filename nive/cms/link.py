@@ -41,6 +41,7 @@ configuration = ObjectConf(
     context = "nive.cms.link.link",
     template = "link.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/link.png",
     description = _(u"With the link element you can add internal or external links into the web page.")
 )
 

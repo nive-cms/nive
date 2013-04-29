@@ -42,6 +42,7 @@ configuration = ObjectConf(
     context = "nive.cms.code.code",
     template = "code.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/code.png",
     description = _(u"Text element to add code snippets to web pages. Supports Javascript, HTML and CSS.")
 )
 

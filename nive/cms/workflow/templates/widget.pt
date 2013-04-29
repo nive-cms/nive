@@ -12,6 +12,7 @@
             src="${view.StaticUrl('nive.cms.workflow:static/'+transition.id+'.png')}" 
             title="${transition.name}" align="top" i18n:attributes="title"/> <span i18n:translate="">${transition.name}</span></a>
 
-   <a href="${pageUrl}workflow" class="nivecms" rel="niveOverlay" 
-   	      ><span i18n:translate="">Open workflow page</span></a> </div>
+   <a href="${pageUrl}workflow" 
+      class="nivecms" rel="niveOverlay"><img tal:attributes="src view.StaticUrl('nive.cms.cmsview:static/images/jumpto.png')"  
+             title alt /> <span i18n:translate="">Open workflow page</span></a> </div>
 </div>

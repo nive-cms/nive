@@ -134,6 +134,9 @@ class ImageProcessor(object):
         
     def _Convert(self, profile):
         source = self.files.get(profile.source)
+        if not source.tempfile:
+            # convert only if tempfile
+            return False, ()
         if not source:
             return False, [_(u"Image not found: ") + profile.source]
         p = DvPath()
@@ -145,7 +148,11 @@ class ImageProcessor(object):
             source.file.seek(0)
         except:
             pass
-        iObj = Image.open(source)
+        try:
+            iObj = Image.open(source)
+        except IOError:
+            # no file to be converted
+            return False, ()
         iObj = iObj.convert("RGB")
         
         # resize

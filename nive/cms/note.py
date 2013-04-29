@@ -49,6 +49,7 @@ configuration = ObjectConf(
     context = "nive.cms.note.note",
     template = "note.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/note.png",
     description = _(u"Simple text note for authors. The note is only visible to cms authors and not published.")
 )
 

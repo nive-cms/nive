@@ -96,7 +96,7 @@ class Sort:
                 continue
             processed.append(obj.id)
             obj.meta.set("pool_sort", pos)
-            obj.Commit(user)
+            obj.CommitInternal(user)
             pos += 10
         return True, _(u"OK")
         
