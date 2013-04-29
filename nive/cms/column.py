@@ -37,7 +37,7 @@ class column(PageElementContainerBase):
 
     def IsLocal(self, page):
         #
-        return self.GetParent().id == page.id
+        return self.meta.pool_unitref == page.id
     
     def GetName(self):
         #

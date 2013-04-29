@@ -431,7 +431,7 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
                 title = u"<img src='%s%s.png' align='top'/> %s" % (static, el.GetTypeID(), t)
                 blocks.write(elHtml % {u"title": title, u"options": self.editBlockList(obj=el, showCCP=True)})
         if not len(elements):
-            blocks.write(localizer(_(u"<i>empty</i>")))
+            blocks.write(localizer(_(u"<p><i>empty</i></p>")))
         data = html % {u"blocks": blocks.getvalue(), u"id": str(obj.GetID()), u"title": localizer(_(u"Page elements"))}
         if addResponse:
             r = Response(content_type="text/html", conditional_response=True)
