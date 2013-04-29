@@ -141,6 +141,10 @@ class ImageProcessor(object):
         p.SetExtension(profile.extension)
         destPath = str(p)
         
+        try:
+            source.file.seek(0)
+        except:
+            pass
         iObj = Image.open(source)
         iObj = iObj.convert("RGB")
         
