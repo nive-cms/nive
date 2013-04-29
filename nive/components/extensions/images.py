@@ -134,7 +134,7 @@ class ImageProcessor(object):
         
     def _Convert(self, profile):
         source = self.files.get(profile.source)
-        if not source.tempfile:
+        if not source or not source.tempfile:
             # convert only if tempfile
             return False, ()
         if not source:
