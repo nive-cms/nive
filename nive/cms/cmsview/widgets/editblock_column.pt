@@ -12,10 +12,9 @@
        ><img tal:attributes="src static+'types/column_add.png'" 
              title="Add a local column to this page" align="top" i18n:attributes="title" /> </a>
   </div>
-  <div tal:condition="not column" 
-       class="options_label"><span i18n:translate="">Column:</span> ${name}</div>
+  <div class="options_label"><span i18n:translate="">Column:</span> ${name}</div>
 </tal:block>
-<tal:block tal:condition="column">
+<tal:block tal:condition="column and column.IsLocal(page)">
   <div class="options_block">
     <a href="#" onClick="$.fn.editblocks().loadToggleBlock('${columnUrl}elementAddWidget', '#add${column.GetID()}',event); return false;"
        class="nivecms"><img src="${static}element_add.png" title="Add a new page element" align="top" i18n:attributes="title" /></a>
