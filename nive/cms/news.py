@@ -39,6 +39,7 @@ configuration = ObjectConf(
     context = "nive.cms.news.news",
     template = "news.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/news.png",
     description = _(u"Simple news item with title, text, image, publish date and link.")
 )
 

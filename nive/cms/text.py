@@ -55,6 +55,7 @@ configuration = ObjectConf(
     context = "nive.cms.text.text",
     template = "text.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/text.png",
     description = _(u"Text element for the web page. Can be used to add headers, preformatted text and paragraphs to the web page. ")
 )
 

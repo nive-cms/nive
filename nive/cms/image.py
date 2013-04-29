@@ -67,6 +67,7 @@ configuration = ObjectConf(
     context = "nive.cms.image.image",
     template = "image.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/image.png",
     description = _(u"The image element inserts images into the web page.")
 )
 

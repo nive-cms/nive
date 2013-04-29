@@ -68,7 +68,7 @@ configuration.data = [
 ]
 configuration.mimetype = "text/html"
 configuration.views = [
-    ViewConf(name="", view=dbView, attr="view", permission="system")
+    ViewConf(name="", view=dbView, attr="view", permission="system", context="nive.components.tools.dbStructureUpdater.dbStructureUpdater")
 ]
 
 class dbStructureUpdater(Tool):

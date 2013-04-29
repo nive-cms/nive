@@ -40,6 +40,7 @@ configuration = ObjectConf(
     context = "nive.cms.spacer.spacer",
     template = "spacer.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/spacer.png",
     description = _(u"Styling element to add line breaks and vertical space between elements.")
 )
 

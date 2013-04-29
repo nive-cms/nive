@@ -30,6 +30,7 @@
   width: auto;
   position:relative;
   display:block;
+  margin-top:4px;
   margin-bottom:20px;
 }
 .pageeditorEditblock a {

@@ -85,6 +85,7 @@ configuration =  ObjectConf(
     hidden = True,
     selectTag = StagPageElement,
     container = True,
+    icon = "nive.cms.cmsview:static/images/types/column.png",
     description = _(u"A column is a container to group elements on a page. Columns are not added like"
                     u"normal page elements but have to be defined manually in the main template. A column can"
                     u"be inherited through a hierarchy of pages.")

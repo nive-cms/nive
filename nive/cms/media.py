@@ -46,6 +46,7 @@ configuration = ObjectConf(
     context = "nive.cms.media.media",
     template = "media.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/media.png",
     description = _(u"Element to insert audio or video files into the web page. Uses HTML 5 media" 
                     u"and audio tags and the browser's default player.")
 )

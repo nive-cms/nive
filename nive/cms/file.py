@@ -61,6 +61,7 @@ configuration = ObjectConf(
     context = "nive.cms.file.file",
     template = "file.pt",
     selectTag = StagPageElement,
+    icon = "nive.cms.cmsview:static/images/types/file.png",
     description = _(u"The file element provides a simple file download with title and optional description.")
 )
 
