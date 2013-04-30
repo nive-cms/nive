@@ -485,8 +485,8 @@ class FileEntry:
         """
         Commit multiple files in a row
         """
-        for key, file in files.items():
-            self.CommitFile(key, file, cursor=cursor)
+        for key in files:
+            files[key] = self.CommitFile(key, files[key], cursor=cursor)
 
 
     def CommitFile(self, key, file, cursor=None):
