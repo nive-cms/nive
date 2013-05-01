@@ -44,7 +44,6 @@ form input.password        { display:block; }
 .peImage .teasers { margin-bottom: 20px; }
 
 .peNews { clear:both; }
-.peNews p { padding-bottom: 0px; margin-bottom: 0px; }
 .peNews .header img { display: block; margin-right: 10px; float: left; margin-bottom: 10px; }
 .peNews .teaser img { display: block; width: 220px; margin-right: 20px; float: left; margin-bottom: 10px; }
 .peNews .teaser_s img { display: block; width: 100px; margin-right: 10px; float: left; margin-bottom: 10px; }
