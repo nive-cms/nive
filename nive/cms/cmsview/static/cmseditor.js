@@ -156,7 +156,7 @@ Example: ::
         },
         fadeInSpeed: 0,
         fadeOutSpeed: 0,
-        reloadOnClose: false,        // reload the parent on close
+        reloadOnClose: true,         // reload the parent on close
         closeOnClickOutside: true    // ask and close if clicked outside overlay
     }
       

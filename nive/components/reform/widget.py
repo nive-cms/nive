@@ -640,7 +640,7 @@ class SelectWidget(Widget):
 
     """
     template = 'select'
-    null_value = ''
+    null_value = None
     values = ()
     size = None
 
