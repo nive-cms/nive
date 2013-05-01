@@ -298,8 +298,15 @@ class SortView:
         redirect to request.url
         parameter: id, url in request
         """
-        id = self.GetFormValue(u"id")
-        ok, msgs = self.context.MoveUp(id, user= self.User())#, selection="elements")
+        try:
+            id = int(self.GetFormValue(u"id"))
+        except:
+            id = 0
+        if not id:
+            ok = False
+            msgs = _(u"Not found")
+        else:
+            ok, msgs = self.context.MoveUp(id, user=self.User())#, selection="elements")
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
@@ -312,8 +319,15 @@ class SortView:
         redirect to request.url
         parameter: id, url in request
         """
-        id = self.GetFormValue(u"id")
-        ok, msgs = self.context.MoveDown(id, user=self.User())#, selection="elements")
+        try:
+            id = int(self.GetFormValue(u"id"))
+        except:
+            id = 0
+        if not id:
+            ok = False
+            msgs = _(u"Not found")
+        else:
+            ok, msgs = self.context.MoveDown(id, user=self.User())#, selection="elements")
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
@@ -326,8 +340,15 @@ class SortView:
         redirect to request.url
         parameter: id, url in request
         """
-        id = self.GetFormValue(u"id")
-        ok, msgs = self.context.MoveStart(id, user=self.User())#, selection="elements")
+        try:
+            id = int(self.GetFormValue(u"id"))
+        except:
+            id = 0
+        if not id:
+            ok = False
+            msgs = _(u"Not found")
+        else:
+            ok, msgs = self.context.MoveStart(id, user=self.User())#, selection="elements")
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
@@ -340,8 +361,15 @@ class SortView:
         redirect to request.url
         parameter: id, url in request
         """
-        id = self.GetFormValue(u"id")
-        ok, msgs = self.context.MoveEnd(id, user=self.User())#, selection="elements")
+        try:
+            id = int(self.GetFormValue(u"id"))
+        except:
+            id = 0
+        if not id:
+            ok = False
+            msgs = _(u"Not found")
+        else:
+            ok, msgs = self.context.MoveEnd(id, user=self.User())#, selection="elements")
         url = self.GetFormValue(u"url")
         if not url:
             url = self.PageUrl(self.context)
