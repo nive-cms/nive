@@ -675,6 +675,7 @@ class HTMLForm(Form):
     # html styling
     formid = u"upload"
     css_class = u"form form-horizontal"
+    actionPostfix = u"$"
     
     # Form actions --------------------------------------------------------------------------------------------
 
@@ -712,7 +713,7 @@ class HTMLForm(Form):
         formValues = self.GetFormValues(self.request)
         actions = self.GetActions()
         for a in actions:
-            if a["id"]+u"$" in formValues.keys():
+            if a["id"]+self.actionPostfix in formValues.keys():
                 action = a
                 break
 
@@ -754,7 +755,7 @@ class HTMLForm(Form):
         returns bool
         """
         formValues = self.GetFormValues(self.request)
-        return action+u"$" in formValues.keys()
+        return action+self.actionPostfix in formValues.keys()
 
 
     def RemoveActionsFromRequest(self):
@@ -765,14 +766,14 @@ class HTMLForm(Form):
         actions = self.GetActions()
         formValues = self.GetFormValues(self.request)
         for a in actions:
-            if a["id"]+u"$" in formValues.keys():
+            if a["id"]+self.actionPostfix in formValues.keys():
                 action = a
                 try:
-                    del self.request.POST[a["id"]+u"$"]
+                    del self.request.POST[a["id"]+self.actionPostfix]
                 except:
                     pass
                 try:
-                    del self.request.GET[a["id"]+u"$"]
+                    del self.request.GET[a["id"]+self.actionPostfix]
                 except:
                     pass
             

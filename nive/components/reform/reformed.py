@@ -425,7 +425,7 @@ def SchemaFactory(self, form, fields, actions, force=False):
     for action in actions:
         if action.get("hidden"):
             continue
-        buttons.append(Button(name=u"%s$"%(action.get("id")), title=action.get("name"), action=action, cls=action.get("cls", "btn submit")))
+        buttons.append(Button(name=u"%s%s"%(action.get("id"), self.actionPostfix), title=action.get("name"), action=action, cls=action.get("cls", "btn submit")))
     form.buttons = buttons
 
     return form
