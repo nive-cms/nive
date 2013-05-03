@@ -216,25 +216,31 @@ def DumpJSONConf(conf):
         v = conf[k]
         if isinstance(v, baseConf):
             values[k] = DumpJSONConf(v)
-        values[k] = v
+        else:
+            values[k] = v
     return json.dumps(values)
 
-def LoadJSONConf(jsondata):
+def LoadJSONConf(jsondata, default=None):
     # jsondata must be a json string or dictionary
     # load from json
+    # default: the default configuration class to be used if the json values do not
+    # specify the class as `ccc`
     if isinstance(jsondata, basestring):
-        values = json.loads(jsondata)
-    for k,v in values.items():
         try:
-            v["ccc"]
+            jsondata = json.loads(jsondata)
         except:
-            continue
-        values[k] = LoadJSONConf(v)
+            return jsondata
+    if not isinstance(jsondata, dict):
+        return jsondata
+    for k,v in jsondata.items():
+        jsondata[k] = LoadJSONConf(v, default=default)
         
-    confclass = values.get("ccc")
+    confclass = jsondata.get("ccc")
     if not confclass:
-        raise ConfigurationError, "Configuration class not found (ccc)"
-    conf = ResolveName(confclass, base="nive")(**values)
+        if not default:
+            raise ConfigurationError, "Configuration class not found (ccc)"
+        return default(**jsondata)
+    conf = ResolveName(confclass, base="nive")(**jsondata)
     return conf
 
 
