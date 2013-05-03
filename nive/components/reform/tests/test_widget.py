@@ -414,7 +414,7 @@ class TestRadioChoiceWidget(unittest.TestCase):
         widget.serialize(field, null)
         self.assertEqual(renderer.template, widget.template)
         self.assertEqual(renderer.kw['field'], field)
-        self.assertEqual(renderer.kw['cstruct'], '')
+        self.assertEqual(renderer.kw['cstruct'], widget.null_value)
 
     def test_serialize_null_alternate_null_value(self):
         from nive.components.reform.schema import null
@@ -466,7 +466,7 @@ class TestSelectWidget(unittest.TestCase):
         widget.serialize(field, null)
         self.assertEqual(renderer.template, widget.template)
         self.assertEqual(renderer.kw['field'], field)
-        self.assertEqual(renderer.kw['cstruct'], '')
+        self.assertEqual(renderer.kw['cstruct'], widget.null_value)
 
     def test_serialize_None(self):
         renderer = DummyRenderer()
@@ -476,7 +476,7 @@ class TestSelectWidget(unittest.TestCase):
         widget.serialize(field, None)
         self.assertEqual(renderer.template, widget.template)
         self.assertEqual(renderer.kw['field'], field)
-        self.assertEqual(renderer.kw['cstruct'], '')
+        self.assertEqual(renderer.kw['cstruct'], widget.null_value)
 
     def test_serialize_null_alternate_null_value(self):
         from nive.components.reform.schema import null
@@ -512,7 +512,7 @@ class TestSelectWidget(unittest.TestCase):
         from nive.components.reform.schema import null
         widget = self._makeOne()
         field = DummyField()
-        result = widget.deserialize(field, '')
+        result = widget.deserialize(field, widget.null_value)
         self.assertEqual(result, null)
 
     def test_deserialize_other(self):

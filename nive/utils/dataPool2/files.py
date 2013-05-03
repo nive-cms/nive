@@ -518,7 +518,7 @@ class FileEntry:
         # update file records
         file.commitTemp(self)
         self._UpdateMeta(file, cursor=cursor)
-        return True
+        return file
 
 
     def Cleanup(self, files):
