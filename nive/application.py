@@ -607,7 +607,7 @@ class Registration(object):
                                 name=view.name,
                                 view=view.view or viewmod.view,
                                 context=view.context or viewmod.context,
-                                renderer=view.renderer,
+                                renderer=view.renderer or viewmod.renderer,
                                 permission=view.permission or viewmod.permission,
                                 containment=view.containment or viewmod.containment,
                                 custom_predicates=view.custom_predicates or viewmod.custom_predicates or (self.AppViewPredicate,),
