@@ -841,6 +841,7 @@ class ViewModuleConf(baseConf):
 
         context      : default value for ViewModuleConf.views. 
         view         : default value for ViewModuleConf.views. 
+        renderer     : default value for ViewModuleConf.views. 
         containment  : default value for ViewModuleConf.views. 
         permission   : default value for ViewModuleConf.views. 
         templates    : default value for ViewModuleConf.views, if renderers are used.
@@ -867,6 +868,7 @@ class ViewModuleConf(baseConf):
         self.context = None
         self.view = None
         self.containment = None    
+        self.renderer = None    
         self.permission = None
         self.custom_predicates = None
         self.templates = ""
