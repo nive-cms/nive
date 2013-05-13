@@ -54,13 +54,13 @@ class PageFulltext(object):
         if IPage.providedBy(self):
             # get text from contained elements
             text = [self.GetTexts()]
-            for e in self.GetPageElements(addBoxContents=1, skipColumns=0):
+            for e in self.GetPageElements(addBoxContents=1, addColumnContents=1):
                 text.append(e.GetTexts())
             self.dbEntry.WriteFulltext(self.FormatFulltext(text))
         elif IPage.providedBy(self) or IRoot.providedBy(self):
             # get text from contained elements
             text = []
-            for e in self.GetPageElements(addBoxContents=1, skipColumns=0):
+            for e in self.GetPageElements(addBoxContents=1, addColumnContents=1):
                 text.append(e.GetTexts())
             #!fulltext storage root
             #self.dbEntry.WriteFulltext(self.FormatFulltext(text))
