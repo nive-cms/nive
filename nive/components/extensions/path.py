@@ -48,6 +48,7 @@ class AlternatePath(object):
         """
         customfilename = self.data.get("customfilename",False)
         if customfilename:
+            self._SetName()
             return
         # create url compatible filename from title
         filename = self.EscapeFilename(self.meta["title"])
