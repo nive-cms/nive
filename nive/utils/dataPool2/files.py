@@ -20,9 +20,10 @@ import os
 import uuid
 from StringIO import StringIO
 
+from zope.interface import implements
+
 from nive.utils.path import DvPath
-
-
+from nive.definitions import IFileStorage
 
 # FileManager Constants ---------------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ class File(object):
     
     Pass a dictionry to set all attributes as filemeta
     """
+    implements(IFileStorage)
 
     def __init__(self, 
                  filekey="", 
@@ -303,7 +305,7 @@ class File(object):
 
 
 
-class FileManager:
+class FileManager(object):
     """
     Data Pool File Manager class for SQL Database with version support.
 
@@ -418,7 +420,7 @@ class FileManager:
 
 
 
-class FileEntry:
+class FileEntry(object):
     """
     Data pool entry extension to handle physical files. 
     
