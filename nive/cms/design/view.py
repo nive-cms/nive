@@ -37,7 +37,7 @@ from pyramid.httpexceptions import HTTPNotFound
 
 from nive.i18n import _
 from nive.definitions import ViewModuleConf, ViewConf, ConfigurationError
-from nive.definitions import IWebsite, IWebsiteRoot, IRoot, ICMSRoot, IPage, IPageElement, IObject
+from nive.definitions import IWebsite, IWebsiteRoot, IRoot, ICMSRoot, IPage, IPageElement, IObject, IFile
 from nive.definitions import IViewModuleConf
 from nive.views import BaseView
 from nive.helper import ResolveName
@@ -60,7 +60,7 @@ configuration = ViewModuleConf(
         ViewConf(id="rootview", name="",      attr="view",  context=IWebsiteRoot),
         ViewConf(id="objview",  name="",      attr="view",  context=IPage,        containment=IWebsiteRoot),
         ViewConf(id="objview",  name="",      attr="view",  context=IPageElement),
-        ViewConf(id="objfile",  name="file",  attr="file",  context=IObject),
+        ViewConf(id="objfile",  name="file",  attr="file",  context=IFile),
         # restricted permmissions if called in editor
         ViewConf(id="rootview", name="",      attr="view",  context=ICMSRoot, containment=IWebsite),
         ViewConf(id="objview",  name="",      attr="view",  context=IPage,    containment=ICMSRoot),

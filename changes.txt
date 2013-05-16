@@ -1,3 +1,12 @@
+0.9.10b
+------
+- maintenance and bugfixes
+- added IFileStorage interface for file classes used to read and store file data
+- renamed cms.pages.skipColumn parameter to addColumnContents
+- extended definitions.ViewModuleConf with renderer attribute as default for views
+- HTMLForm action button postfix changed to class var actionPostfix
+- nive.container: added afterAdd event, renamed beforeCreate -> beforeAdd
+
 0.9.9b
 ------
 - bugfixes: sort and ajax response

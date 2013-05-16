@@ -111,9 +111,9 @@ class PageBase(ContainerCopy, Sort, AlternatePath, PageColumns, PageContainer, P
     - supports paste of elements and pages
     - contained pages and elements are sortable 
     
-    Interfaces: ``IPage, IPageContainer, IContainer, IObject``
+    Interfaces: ``IPage, IPageContainer, IPageElementContainer, IContainer, IObject``
     """
-    implements(IPage, IPageContainer)
+    implements(IPage, IPageContainer, IPageElementContainer)
 
 
 class PageRootBase(ContainerCopy, Sort, AlternatePath, PageColumns, PageContainer, PageElementContainer, RootBase):
@@ -127,9 +127,9 @@ class PageRootBase(ContainerCopy, Sort, AlternatePath, PageColumns, PageContaine
     - supports paste of elements and pages
     - contained pages and elements are sortable 
     
-    Interfaces: ``IPageContainer, IContainer, IRoot``
+    Interfaces: ``IPageContainer, IPageElementContainer, IContainer, IRoot``
     """
-    implements(IPageContainer)
+    implements(IPageContainer, IPageElementContainer)
 
 
 class PageElementBase(ObjCopy, PageElement, ObjectBase):

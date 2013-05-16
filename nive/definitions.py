@@ -216,7 +216,10 @@ class ICategoryConf(Interface):
 class IWorkflowConf(Interface):
     pass
 
-class IFormWorker(Interface):
+class IFileStorage(Interface):
+    """
+    Used for file storage classes on object level.
+    """
     pass
     
 # workflow

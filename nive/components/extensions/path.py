@@ -48,6 +48,7 @@ class AlternatePath(object):
         """
         customfilename = self.data.get("customfilename",False)
         if customfilename:
+            self._SetName()
             return
         # create url compatible filename from title
         filename = self.EscapeFilename(self.meta["title"])
@@ -112,7 +113,9 @@ class AlternatePath(object):
     
     def __getitem__(self, id):
         """
-        traversal lookup supporting pool_filename and id 
+        Traversal lookup based on object.pool_filename and object.id. Trailing extensions 
+        are ignored.
+        `file` is a reserved name and used in the current object to map file downloads. 
         """
         if id == u"file":
             raise KeyError, id

@@ -79,9 +79,9 @@ class PageContainer:
         if not fields:
             fields = [u"title", u"header", u"description", u"keywords",
                       u"navMenu", u"navHidden",
-                      u"pool_state", u"pool_wfa", u"pool_unitref", u"pool_stag"]
+                      u"pool_state", u"pool_wfa", u"pool_unitref", u"pool_stag", u"pool_filename"]
         parameter, operators = {},{}
-        parameter[u"pool_stag"] = (StagPage, StagPageElement-1)
+        parameter[u"pool_stag"] = (StagPage, StagPage+9)
         operators[u"pool_stag"] = u"BETWEEN"
         parameter[u"pool_unitref"] = self.id
         if public==1:
@@ -99,6 +99,26 @@ class PageContainer:
         pages = root.SelectDict(pool_type=u"page", parameter=parameter, fields=fields, operators=operators, sort=sort, dontAddType=True)
         return pages
 
+
+    def GetElementsList(self, fields=None):
+        """
+        Returns sub pages as objects based on parameters. ::
+        
+            fields = fields names included in result
+            
+        returns object list
+        """
+        if not fields:
+            fields = [u"id", u"type", u"pool_filename", u"pool_unitref", u"pool_stag"]
+        parameter, operators = {},{}
+        parameter[u"pool_stag"] = (StagPageElement, StagPageElement+9)
+        operators[u"pool_stag"] = u"BETWEEN"
+        parameter[u"pool_unitref"] = self.id
+        sort = self.GetSort()
+        root = self.root()
+        parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
+        pages = root.SelectDict(pool_type=u"page", parameter=parameter, fields=fields, operators=operators, sort=sort, dontAddType=True)
+        return pages
 
 
 class PageElementContainer:
@@ -121,7 +141,7 @@ class PageElementContainer:
         return len(self.GetPageElements()) == 0
 
 
-    def GetPageElements(self, addBoxContents=0, skipColumns=1, **kw):
+    def GetPageElements(self, addBoxContents=0, addColumnContents=0, **kw):
         """
         List all contained elements. ::
         
@@ -131,19 +151,24 @@ class PageElementContainer:
             
         returns a list of elements
         """
+        # b.w. 0.9.9
+        if kw.get("skipColumns")!=None:
+            addColumnContents = not bool(kw.get("skipColumns"))
         parameter, operators = {},{}
         parameter[u"pool_stag"] = StagPageElement
-        if skipColumns:
+        if not addColumnContents:
             parameter[u"pool_type"] = u"column"
             operators[u"pool_type"] = u"!="
         elements = self.GetObjs(parameter = parameter, operators = operators, **kw)
-        if not addBoxContents:
+        if not addBoxContents and not addColumnContents:
             return elements
         elements2 = []
         for e in elements:
             t = e.GetTypeID()
-            if t == "box":
-                elements2 += e.GetPageElements(addBoxContents)
+            if addBoxContents and t == "box":
+                elements2 += e.GetPageElements(addBoxContents, addColumnContents, **kw)
+            elif addColumnContents and t == "column":
+                elements2 += e.GetPageElements(addBoxContents, addColumnContents, **kw)
         return elements + elements2
 
 
