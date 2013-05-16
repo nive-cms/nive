@@ -23,7 +23,7 @@ requires = [
 
 setupkw = dict(
       name='nive',
-      version='0.9.9',
+      version='0.9.10',
       description='Nive cms - out of the box content management system for mobile and desktop websites based on the webframework pyramid',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
