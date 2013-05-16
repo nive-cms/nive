@@ -111,13 +111,15 @@ class Base(object):
             self.structure = self._GetDefaultPoolStructure()(pool=self)
         else:
             self.structure = structure
+        
+        # create directories, if not available
+        self.InitFileStorage(root)
         if connection:
             self._conn = connection
         elif connParam:
             self._conn = self.CreateConnection(connParam)
             if not self.name:
                 self.name = connParam.get("dbName",u"")
-        self.InitFileStorage(root)
         
 
     def Close(self):
