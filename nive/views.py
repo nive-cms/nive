@@ -146,7 +146,7 @@ class BaseView(object):
             page = self.context
         link = page.data.get("pagelink")
         if usePageLink and link:
-            return link
+            return self.ResolveUrl(link, resource)
         if hasattr(page, "extension"):
             return u"%s.%s" % (resource_url(page, self.request)[:-1], page.extension)
         return resource_url(page, self.request)
