@@ -113,7 +113,7 @@ class Base(object):
             self.structure = structure
         
         # create directories, if not available
-        self.InitFileStorage(root)
+        self.InitFileStorage(root, connParam)
         if connection:
             self._conn = connection
         elif connParam:
@@ -1231,7 +1231,7 @@ class Base(object):
 
     # Configuration ---------------------------------------------------------------------
 
-    def InitFileStorage(self, root):
+    def InitFileStorage(self, root, connectionParam):
         """
         Set the local root path for files
         """
