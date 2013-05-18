@@ -337,7 +337,7 @@ class FileManager(object):
         """
         return File
 
-    def InitFileStorage(self, root):
+    def InitFileStorage(self, root, connectionParam):
         """
         Set the local root path for files
         """
