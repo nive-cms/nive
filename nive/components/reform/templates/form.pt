@@ -1,8 +1,7 @@
 
-<ul tal:condition="field.messages|None"> 
-  <li tal:repeat="msg field.messages"
-      class="alert">${msg}</li>
-</ul>
+<div tal:condition="field.messages|None" class="alert"> 
+  <div tal:repeat="msg field.messages">${msg}</div>
+</div>
 
 <form 
   id="${field.formid}"
