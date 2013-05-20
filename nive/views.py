@@ -429,7 +429,7 @@ class BaseView(object):
         returns response
         """
         response.cache_control = u"no-cache"
-        response.etag = '%s-%s-%s' % (response.last_modified, response.content_length, str(self.context.id))
+        response.etag = '%s-%s' % (response.content_length, str(self.context.id))
         return response
 
     def Modified(self, response, user=None):
