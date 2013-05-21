@@ -1,10 +1,13 @@
 
 /* pageeditor --------------------------------------------- */
-.pageelement_ov:hover {
-  background-color: #ffff8e;
-}
+.pageelement_ov:hover,
 .peBox_ov:hover {
-  background-color: #8effff;
+  outline-width: thin;
+  outline-style: dotted;
+  outline-color: #333333;
+  outline-offset: -2px;
+  /*change this to use a different background color insted of a border */
+  /*background-color: #ffff8e; */
 }
 .pageeditorEditblock {
   width: auto;
@@ -19,6 +22,8 @@
   user-select: none;
   font-size:10pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .pageeditorEditblock:hover {
   border: 1px solid #6e6e6e;
@@ -43,6 +48,8 @@
   padding: 0px;
   font-size:9pt;
   line-height:1.3em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .peMenuBlock {
   min-width:490px;
@@ -60,6 +67,8 @@
   cursor: pointer;
   font-size:9pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .peMenu img {
   vertical-align: top;
@@ -73,6 +82,8 @@
   cursor:pointer;
   font-size:10pt;
   line-height:1.3em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .pageeditorEditblock .options_block {
   float:left;
@@ -112,6 +123,8 @@
   font-size:9pt;
   line-height:1.2em;
   font-weight:bold;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .addElements a {
   margin: 0px;
@@ -121,6 +134,8 @@
   width:45%;
   font-size:9pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .addElements a img {
   padding-right: 10px;
@@ -148,6 +163,8 @@
   text-align:left;
   z-index:8650;
   margin-bottom: 20px;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .listElements h4 {
   display: block;
@@ -155,6 +172,8 @@
   margin:0px;
   font-size:9pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .listElements a {
   margin: 0px;
@@ -162,6 +181,8 @@
   padding: 0px;
   font-size:9pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .listElements a:hover {
   background-color: #eaeaff;
@@ -178,6 +199,20 @@
   font-size:9pt;
   line-height:1.2em;
 }
+.listElements .el_title h1,
+.listElements .el_title h2,
+.listElements .el_title h3,
+.listElements .el_title h4,
+.listElements .el_title h5,
+.listElements .el_title h6,
+ {
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
+  display: inline;
+  font-size: 1em;
+  line-height:1.3em;
+  font-weight: normal;
+}
 .listElements .el_options {
   float:right;
   width: 190px;
@@ -189,6 +224,8 @@
   display: inline;
   font-size:9pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .listElements .el_options a img {
   padding: 0px;
@@ -216,6 +253,8 @@
  border: 1px solid #999999; background-color: #eeeeca; width: auto; padding: 10px; margin-top: 10px;
   font-size:9pt;
   line-height:1.2em;
+  font-family: Verdana, Arial, sans-serif;
+  color: black;
 }
 .boxElements {
   margin: 30px;
