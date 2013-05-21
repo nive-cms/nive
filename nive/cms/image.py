@@ -22,7 +22,8 @@ The image element inserts images into the web page.
 
 Images uploaded as fullsize will be be linked as pop ups.
 
-If the Python Image Library (PIL) is installed automated image conversion on upload is activated.
+If the Python Image Library (PIL) is installed automated image conversion on upload can be
+activated by adding `nive.components.extensions.images.ImageProcessor` to configuration.extensions.
 ::
 
     ProfileImage = Conf(source="imagefull", dest="image", format="JPEG", 
@@ -44,9 +45,9 @@ from nive.i18n import _
 from nive.definitions import StagPageElement, ObjectConf, FieldConf, Conf
 from nive.components.objects.base import PageElementFileBase
 
-from nive.components.extensions.images import ImageProcessor, PILloaded
+from nive.components.extensions.images import PILloaded
 
-class image(PageElementFileBase, ImageProcessor):
+class image(PageElementFileBase):
     
     def Span(self):
         # css class span for the css selection
@@ -67,6 +68,7 @@ configuration = ObjectConf(
     context = "nive.cms.image.image",
     template = "image.pt",
     selectTag = StagPageElement,
+    extensions = [],
     icon = "nive.cms.cmsview:static/images/types/image.png",
     description = _(u"The image element inserts images into the web page.")
 )
@@ -86,7 +88,7 @@ configuration.data = [
     FieldConf(id="link",      datatype="url",  size=1000,  default=u"", name=_(u"Link"))
 ]
 
-if PILloaded:
+if PILloaded and "nive.components.extensions.images.ImageProcessor" in configuration.extensions:
     fields = ["title", "imagefull", "textblock", "cssClass", "link", "pool_groups"]
 else:
     fields = ["title", "image", "imagefull", "textblock", "cssClass", "link", "pool_groups"]
@@ -105,8 +107,8 @@ def CheckTeaser(imageObject):
 def CheckTeaserSmall(imageObject):
     return imageObject.data.cssClass == u'teasers'
 
-ProfileImage = Conf(source="imagefull", dest="image", format="JPEG", quality="85", width=360, height=0, extension="jpg", condition=CheckDeafult)
-ProfileTeaser = Conf(source="imagefull", dest="image", format="JPEG", quality="85", width=260, height=0, extension="jpg", condition=CheckTeaser)
+ProfileImage = Conf(source="imagefull", dest="image", format="JPEG", quality="90", width=360, height=0, extension="jpg", condition=CheckDeafult)
+ProfileTeaser = Conf(source="imagefull", dest="image", format="JPEG", quality="90", width=260, height=0, extension="jpg", condition=CheckTeaser)
 ProfileTeaserSmall = Conf(source="imagefull", dest="image", format="JPEG", quality="90", width=160, height=0, extension="jpg", condition=CheckTeaserSmall)
 
 configuration.imageProfiles = [ProfileImage, ProfileTeaser, ProfileTeaserSmall]

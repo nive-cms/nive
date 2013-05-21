@@ -999,9 +999,9 @@ class ObjectForm(HTMLForm):
     """
     actions = [
         Conf(id=u"default",    method="StartFormRequest",  name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
-        Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"create",     method="CreateObj",  name=u"Create",     hidden=False, css_class=u"btn btn-primary",  html=u"", tag=u""),
         Conf(id=u"defaultEdit",method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn btn-primary",  html=u"", tag=u""),
         Conf(id=u"cancel",     method="Cancel",     name=u"Cancel",     hidden=False, css_class=u"buttonCancel",html=u"", tag=u"")
     ]
     subsets = {
@@ -1350,7 +1350,7 @@ class JsonMappingForm(HTMLForm):
 
     actions = [
         Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn-primary",  html=u"", tag=u""),
     ]
 
     def Validate(self, data, removeNull=True):
@@ -1456,7 +1456,7 @@ class JsonSequenceForm(HTMLForm):
     
     actions = [
         Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"formButton btn-primary",  html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn-primary",  html=u"", tag=u""),
     ]
     editKeyFld = FieldConf(id=editKey, name=u"indexKey", datatype="number", hidden=True, default=u"")
     

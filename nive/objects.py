@@ -508,7 +508,7 @@ class ObjectEdit:
 
     def CommitInternal(self, user):
         """
-        Commit changes made to data, meta and files attributes without calling wf or events
+        Commit changes made to data, meta and files attributes without calling wf 
         
         Event: 
         - commit()

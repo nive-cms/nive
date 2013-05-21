@@ -490,14 +490,16 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
             return u""
         html = StringIO()
         for page in parents:
+            title = page.GetTitle() or page.GetTypeName()
             if not link:
-                html.write(u"""<span>%s</span> &gt; """ % (page.GetTitle()))
+                html.write(u"""<span>%s</span> &gt; """ % (title))
             else:
-                html.write(u"""<a href="%s" class="nivecms">%s</a> &gt; """ % (self.PageUrl(page), page.GetTitle()))
+                html.write(u"""<a href="%s" class="nivecms">%s</a> &gt; """ % (self.PageUrl(page), title))
+        title = base.GetTitle() or base.GetTypeName()
         if not link:
-            html.write(u"""<span>%s</span>""" % (base.GetTitle()))
+            html.write(u"""<span>%s</span>""" % (title))
         else:
-            html.write(u"""<a href="%s" class="nivecms">%s</a>""" % (self.PageUrl(base), base.GetTitle()))
+            html.write(u"""<a href="%s" class="nivecms">%s</a>""" % (self.PageUrl(base), title))
         return html.getvalue()
     
     

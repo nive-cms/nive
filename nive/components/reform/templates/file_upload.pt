@@ -6,7 +6,7 @@
         ${cstruct.get('filename')}
     </a>
     (${field.widget.form.view.FmtBytes(cstruct.get('size'))})
-    <script i18n:translate="">var msg_file_upload='Delete file. Are you certain?';</script>
+    <script i18n:translate="">var msg_file_upload='Delete file. Are you sure?';</script>
     <a onclick="confirm(msg_file_upload) ? $('#filelink_${field.name}').load('delfile?fid=${field.name}'):a=1" 
        href="#" class="filedelete btn" i18n:translate="">Delete this file</a>
   </p>
