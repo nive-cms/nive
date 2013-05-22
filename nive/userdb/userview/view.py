@@ -265,10 +265,6 @@ class UserView(BaseView):
         self.form.Setup(subset="login")
         user = self.UserName()
         if not user:
-            try:
-                self.request.formurl = self.request.loginformurl
-            except:
-                pass
             self.form.startEmpty = True
             #self.form.renderOneColumn = True
             redirect = self.GetFormValue(u"redirect")
