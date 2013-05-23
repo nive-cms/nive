@@ -1349,8 +1349,8 @@ class JsonMappingForm(HTMLForm):
     mergeContext = True
 
     actions = [
-        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn-primary",  html=u"", tag=u""),
+        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",                 html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn btn-primary",  html=u"", tag=u""),
     ]
 
     def Validate(self, data, removeNull=True):
@@ -1455,8 +1455,8 @@ class JsonSequenceForm(HTMLForm):
     editKey = u"cc397785"
     
     actions = [
-        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",            html=u"", tag=u""),
-        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn-primary",  html=u"", tag=u""),
+        Conf(id=u"default",    method="StartObject",name=u"Initialize", hidden=True,  css_class=u"",                 html=u"", tag=u""),
+        Conf(id=u"edit",       method="UpdateObj",  name=u"Save",       hidden=False, css_class=u"btn btn-primary",  html=u"", tag=u""),
     ]
     editKeyFld = FieldConf(id=editKey, name=u"indexKey", datatype="number", hidden=True, default=u"")
     
