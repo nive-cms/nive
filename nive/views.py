@@ -793,7 +793,7 @@ class FieldRenderer(object):
             if fieldConf.settings.get("relation") == u"userid":
                 # load user name from database
                 udb = context.app.portal.userdb.root()
-                user = udb.GetUserByName(data, activeOnly=0)
+                user = udb.GetUser(data, activeOnly=0)
                 if user:
                     data = user.GetTitle()
 
