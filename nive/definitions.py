@@ -1405,8 +1405,8 @@ FieldConf(id="pool_category",  datatype="list",      size=35,    default=u"",   
 FieldConf(id="pool_filename",  datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Filename")),
 FieldConf(id="pool_create",    datatype="datetime",  size=100,   default=u"",   required=0,   readonly=1, name=_(u"Created")),
 FieldConf(id="pool_change",    datatype="datetime",  size=100,   default=u"",   required=0,   readonly=1, name=_(u"Changed")),
-FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by")),
-FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by")),
+FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by"), settings={u"relation":"userid"}),
+FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by"), settings={u"relation":"userid"}),
 )
 ReadonlySystemFlds = ("id", "pool_type", "pool_datatbl", "pool_unitref", "pool_dataref")
 
