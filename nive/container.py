@@ -23,6 +23,7 @@ See :py:mod:`nive.components.objects.base` for subclassing containers.
 """
 
 from time import time
+from datetime import datetime
 
 from nive.definitions import Conf
 from nive.definitions import StagContainer, StagPageElement, MetaTbl
@@ -762,8 +763,13 @@ class Root(object):
         self.configuration = rootDef
         self.queryRestraints = {}, {}
 
-        self.meta = Conf(**{"pool_type": rootDef["id"], "title": rootDef["name"], "pool_state": 1, "pool_filename": path, "pool_wfa": u""})
-        self.data = Conf(**{})
+        self.meta = Conf(pool_type=rootDef["id"], 
+                         title=rootDef["name"], 
+                         pool_state=1, 
+                         pool_filename=path, 
+                         pool_wfa=u"",
+                         pool_change=datetime.now()) # set change time to now by default
+        self.data = Conf()
         self.Signal("init")
 
 
