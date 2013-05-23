@@ -530,8 +530,7 @@ class BaseView(object):
             if url2.find(u".jpg")!=-1 or url2.find(u".jpeg")!=-1 or url2.find(u".png")!=-1 or url2.find(u".gif")!=-1:
                 return u"""<img src="%s" />""" % (url)
             return u"""<a href="%s">download</a>""" % (url)
-        listItems = self.context.root().LoadListItems(fld, obj=self.context, pool_type=self.context.GetTypeID())
-        return FieldRenderer(self.context).Render(fld, data, listItems = listItems)
+        return FieldRenderer(self.context).Render(fld, data, context=self.context)
     
     def HtmlTitle(self):
         t = self.request.environ.get(u"htmltitle")
@@ -744,11 +743,13 @@ class FieldRenderer(object):
         self.context = context
         self.skipRender = skip
         
-    def Render(self, fieldConf, value, useDefault = False, listItems = {}, **kw):
+    def Render(self, fieldConf, value, useDefault=False, listItems=None, context=None, **kw):
         """
         fieldConf = FieldConf of field to be rendered
         value = the value to be rendered
         useDefault = use default values from fieldConf if not found in value
+        listItems = used for list lookup key -> name
+        context = context object the field is rendered for. Required if listItems=None.
         
         **kw:
         static = static root path for images
@@ -761,6 +762,12 @@ class FieldRenderer(object):
         if fieldConf.id in self.skipRender:
             return data
 
+        def loadListItems(fld, context):
+            if not context:
+                return []
+            pool_type = context.GetTypeID() 
+            return context.root().LoadListItems(fld, obj=context, pool_type=pool_type)
+        
         # format for output
         fType = fieldConf["datatype"]
 
@@ -778,9 +785,20 @@ class FieldRenderer(object):
         
         if fType == "bool":
             if data:
-                data = u"Yes"
+                data = _(u"Yes")
             else:
-                data = u"No"
+                data = _(u"No")
+
+        elif fType == "string":
+            if fieldConf.settings.get("relation") == u"userid":
+                # load user name from database
+                udb = context.app.portal.userdb.root()
+                user = udb.GetUserByName(data, activeOnly=0)
+                if user:
+                    data = user.GetTitle()
+
+        elif fType == "text":
+            data = data.replace(u"\r\n", u"\r\n<br />")
 
         elif fType == "date":
             if not isinstance(data, datetime):
@@ -818,13 +836,11 @@ class FieldRenderer(object):
             return str(data)
 
         elif fType == "list" or fType == "radio":
-            options = listItems
+            options = listItems or loadListItems(fieldConf, context)
             if not options:
                 options = fieldConf.get("listItems")
                 if hasattr(options, "__call__"):
                     options = options(fieldConf, self.context)
-                elif options == None:
-                    options = self.context.root().LoadListItems(fieldConf, obj=self.context)
 
             for item in options:
                 if item["id"] == data:
@@ -833,13 +849,12 @@ class FieldRenderer(object):
                 
         elif fType == "mselection" or fType == "mcheckboxes":
             values = []
-            options = listItems
+            options = listItems or loadListItems(fieldConf, context)
             if not options:
                 options = fieldConf.get("listItems")
                 if hasattr(options, "__call__"):
                     options = options(fieldConf, self.context)
-                elif options == None:
-                    options = self.context.root().LoadListItems(fieldConf, obj=self.context)
+
             if isinstance(data, basestring):
                 data = tuple(value.split(u"\n"))
             for ref in data:
@@ -851,9 +866,6 @@ class FieldRenderer(object):
                     values.append(ref)
                 
             data = u", ".join(values)
-
-        elif fType == "text":
-            data = data.replace(u"\r\n", u"\r\n<br />")
 
         elif fType == "url":
             if render:
