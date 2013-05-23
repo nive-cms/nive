@@ -24,7 +24,7 @@ data rendering, url generation, http headers and user lookup.
 
 
 import os
-from time import time
+import time
 from datetime import datetime
 from email.utils import formatdate
 
@@ -61,7 +61,7 @@ class BaseView(object):
         self.request = request
         self.viewModule = None
         self.appRequestKeys = []
-        self._t = time()
+        self._t = time.time()
         self.fileExpires = 3600
 
 
@@ -439,12 +439,14 @@ class BaseView(object):
         returns response
         """
         if user:
-            response.last_modified = formatdate(timeval=None, localtime=False, usegmt=True)
+            response.last_modified = formatdate(timeval=None, localtime=True, usegmt=True)
         else:
             if self.context.meta.get("pool_change"):
                 t = ConvertToDateTime(self.context.meta.get("pool_change")).timetuple()
-            t = None
-            response.last_modified = formatdate(timeval=t, localtime=False, usegmt=True)
+                t = time.mktime(t)
+            else:
+                t = None
+            response.last_modified = formatdate(timeval=t, localtime=True, usegmt=True)
         response.etag = '%s-%s-%s' % (response.last_modified, response.content_length, str(self.context.id))
         return response
 
@@ -719,11 +721,11 @@ class BaseView(object):
 
 
     def mark(self):
-        return time() - self._t
+        return time.time() - self._t
 
     def mark2(self):
         try:
-            return u"""<div class="mark">%.04f</div>""" % (time() - self.request.environ.get("START_TIME", self._t))
+            return u"""<div class="mark">%.04f</div>""" % (time.time() - self.request.environ.get("START_TIME", self._t))
         except:
             return u""
 
