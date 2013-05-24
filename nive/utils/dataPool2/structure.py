@@ -16,6 +16,7 @@
 #----------------------------------------------------------------------
 
 import json
+import time
 from datetime import datetime
 
 from nive.utils.utils import ConvertToDateTime
@@ -388,11 +389,11 @@ class PoolStructure(object):
         elif fieldtype == "float":
             if isinstance(value, basestring):
                 value = float(value)
-            elif isinstance(value, (int,long)):
-                value = float(value)
-        
+
         elif fieldtype in ("date", "datetime", "timestamp"):
-            if not isinstance(value, unicode):
+            if isinstance(value, (float,int,long)):
+                value = datetime.fromtimestamp(value)
+            elif not isinstance(value, unicode):
                 value = unicode(value)
         
         elif fieldtype in ("list","radio"):
@@ -456,6 +457,8 @@ class PoolStructure(object):
             # -> to datatime
             if isinstance(value, basestring):
                 value = ConvertToDateTime(value)
+            elif isinstance(value, (float,int,long)):
+                value = datetime.fromtimestamp(value)
                     
         elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
             # -> to string tuple

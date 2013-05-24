@@ -39,6 +39,7 @@ from pyramid.i18n import get_localizer
 from pyramid.httpexceptions import HTTPNotFound, HTTPFound, HTTPOk, HTTPForbidden
 from pyramid.exceptions import NotFound
 
+from nive.i18n import _
 from nive.utils.utils import ConvertToStr, ConvertListToStr, ConvertToDateTime
 from nive.utils.utils import FmtSeconds, FormatBytesForDisplay, CutText, GetMimeTypeExtension
 from nive import FileNotFound
