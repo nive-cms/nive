@@ -110,6 +110,7 @@ class UserDB(ApplicationBase):
             setattr(request.response, "headerlist", [])
         headers = forget(request)
         request.response.headerlist += list(headers)
+        #request.authenticate
 
 
 
