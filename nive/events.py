@@ -99,7 +99,7 @@ class Events(object):
         """
         if signal==u"init":
             self.InitEvents()
-            return
+            #return
         if not self._eventdispatch.has_key(signal):
             return
         if raiseExcp:

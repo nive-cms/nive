@@ -665,7 +665,9 @@ class ContainerFactory:
         if not configuration:
             type = dbEntry.GetMetaField("pool_type")
             if not type:
-                raise ConfigurationError, "Type not found (%s)" % (str(type))
+                # broken entry 
+                #raise ConfigurationError, "Empty type"
+                return None
             configuration = app.GetObjectConf(type)
             if not configuration:
                 raise ConfigurationError, "Type not found (%s)" % (str(type))
