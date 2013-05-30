@@ -400,8 +400,8 @@ class Form(Events, ReForm):
         """
         self._SetUpSchema()
         error = None
-        self.Signal("validate", data=data)
         try:
+            self.Signal("validate", data=data)
             data = self.validate(data)
         except ValidationFailure, e:
             return False, e.cstruct, e
@@ -1432,7 +1432,7 @@ class JsonMappingForm(HTMLForm):
         return self._FinishFormProcessing(result, data, msgs, errors, **kw)
         
         
-        
+
 class JsonSequenceForm(HTMLForm):
     """
     Maps form fields as sequence to a single dumped json text field
@@ -1451,6 +1451,7 @@ class JsonSequenceForm(HTMLForm):
     
     """
     jsonDataField = u"data"
+    jsonUniqueID = u"name"
     delKey = u"aa876352"
     editKey = u"cc397785"
     
@@ -1513,11 +1514,10 @@ class JsonSequenceForm(HTMLForm):
         """
         redirectSuccess = kw.get("redirectSuccess")
         msgs = []
-        obj=self.context
         result,data,errors = self.Validate(self.request)
         if result:
             user = kw.get("user") or self.view.User()
-            # merge sequnce list with edited item
+            # merge sequence list with edited item
             sequence = self.context.data.get(self.jsonDataField)
             if sequence in (u"", None):
                 sequence = []
@@ -1528,18 +1528,25 @@ class JsonSequenceForm(HTMLForm):
             if self.editKey in data:
                 del data[self.editKey]
             if not seqindex or seqindex > len(sequence):
-                sequence.append(data)
+                append = 1
+                # replace existing key
+                if self.jsonUniqueID:
+                    for item in sequence:
+                        if item[self.jsonUniqueID] == data[self.jsonUniqueID]:
+                            item.update(data)
+                            append=0
+                            break
+                if append:
+                    sequence.append(data)
             else:
                 sequence[seqindex-1] = data
-            result = obj.Update({self.jsonDataField: sequence}, user)
-            if result:
-                obj.data.sequence = sequence
-                #obj.Commit(user)
-                msgs.append(_(u"OK. Data saved."))
-                data = {}
-                self.Signal("success", data=sequence)
+            self.context.data[self.jsonDataField] = sequence
+            self.context.Commit(user)
+            self.context.data[self.jsonDataField] = sequence
+            msgs.append(_(u"OK. Data saved."))
+            self.Signal("success", data=sequence)
+            data = {}
 
         return result, self.Render(data, msgs=msgs, errors=errors)
-        
         
         
