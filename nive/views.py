@@ -232,8 +232,11 @@ class BaseView(object):
         ``request.session.flash(m, slot)``.
         """
         if messages:
-            for m in messages:
-                self.request.session.flash(m, slot)
+            if isinstance(messages, basestring):
+                self.request.session.flash(messages, slot)
+            else:
+                for m in messages:
+                    self.request.session.flash(m, slot)
         headers = None
         if hasattr(self.request.response, "headerlist"):
             headers = self.request.response.headerlist
@@ -246,8 +249,11 @@ class BaseView(object):
         If raiseException is True HTTPOk is raised with empty body.
         """
         if messages:
-            for m in messages:
-                self.request.session.flash(m, slot)
+            if isinstance(messages, basestring):
+                self.request.session.flash(messages, slot)
+            else:
+                for m in messages:
+                    self.request.session.flash(m, slot)
         headers = [('X-Relocate', str(url))]
         if hasattr(self.request.response, "headerlist"):
             headers += list(self.request.response.headerlist)
@@ -518,9 +524,11 @@ class BaseView(object):
         If data is None the current context is used.
         
         returns string
-        """        
+        """
         if isinstance(fld, basestring):
             fld = self.context.GetFieldConf(fld)
+        if not fld:
+            return _(u"<em>Unknown field</em>")
         if data == None:
             data = self.context.data.get(fld['id'], self.context.meta.get(fld['id']))
         if fld['datatype']=='file':
