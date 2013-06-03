@@ -322,8 +322,8 @@ class baseConf(object):
         return self._parent
             
     def get(self, key, default=None):
-        if hasattr(self, key):
-            return getattr(self, key)
+        if key in self.__dict__:
+            return self.__dict__[key]
         return default
 
     def __getattr__(self, key):
