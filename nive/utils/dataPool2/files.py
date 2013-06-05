@@ -135,6 +135,12 @@ class File(object):
         if self.file:
             self.file.close()
 
+    def iterator(self):
+        path = self.abspath()
+        if path:
+            return FileIterable(path)
+        return None
+    
     def isTempFile(self):
         return self.tempfile
     
@@ -627,3 +633,53 @@ class FileEntry(object):
         p = p.replace(u"\\", u"/")
         return p
 
+
+
+# file download iterators --------------------------------------------------------
+
+class FileIterable(object):
+    def __init__(self, file, start=None, stop=None):
+        """
+        'file' may be either a filename or a open and readable/seekable file object
+        """
+        self.file = file
+        self.start = start
+        self.stop = stop
+
+    def __iter__(self):
+        return FileIterator(self.file, self.start, self.stop)
+    
+    def app_iter_range(self, start, stop):
+        return self.__class__(self.file, start, stop)
+
+
+class FileIterator(object):
+    chunk_size = 4096*20
+
+    def __init__(self, file, start, stop):
+        if isinstance(file, basestring):
+            self.fileobj = open(file, 'rb')
+        else:
+            self.fileobj = file
+        if start:
+            self.fileobj.seek(start)
+        if stop is not None:
+            self.length = stop - start
+        else:
+            self.length = None
+    
+    def __iter__(self):
+        return self
+    
+    def next(self):
+        if self.length is not None and self.length <= 0:
+            raise StopIteration
+        chunk = self.fileobj.read(self.chunk_size)
+        if not chunk:
+            raise StopIteration
+        if self.length is not None:
+            self.length -= len(chunk)
+            if self.length < 0:
+                # Chop off the extra:
+                chunk = chunk[:self.length]
+        return chunk
