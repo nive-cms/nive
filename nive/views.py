@@ -801,10 +801,13 @@ class FieldRenderer(object):
         elif fType == "string":
             if fieldConf.settings.get("relation") == u"userid":
                 # load user name from database
-                udb = context.app.portal.userdb.root()
-                user = udb.GetUser(data, activeOnly=0)
-                if user:
-                    data = user.GetTitle()
+                try:
+                    udb = context.app.portal.userdb.root()
+                    user = udb.GetUser(data, activeOnly=0)
+                    if user:
+                        data = user.GetTitle()
+                except AttributeError:
+                    pass
 
         elif fType == "text":
             data = data.replace(u"\r\n", u"\r\n<br />")
@@ -851,10 +854,11 @@ class FieldRenderer(object):
                 if hasattr(options, "__call__"):
                     options = options(fieldConf, self.context)
 
-            for item in options:
-                if item["id"] == data:
-                    data = item["name"]
-                    break
+            if options:
+                for item in options:
+                    if item["id"] == data:
+                        data = item["name"]
+                        break
                 
         elif fType == "mselection" or fType == "mcheckboxes":
             values = []
