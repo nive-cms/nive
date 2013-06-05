@@ -262,7 +262,8 @@ class PoolStructure(object):
         number, float, unit -> number 
         bool -> 0/1
         file -> bytes
-        date, datetime, timestamp -> datetime
+        timestamp -> float
+        date, datetime -> datetime
         mselection, mcheckboxes, urllist -> string tuple
         unitlist -> number tuple
         json -> python type list, tuple or dict
@@ -273,7 +274,8 @@ class PoolStructure(object):
         number, float, unit -> number 
         bool -> 0/1
         file -> bytes
-        date, datetime, timestamp -> datetime
+        timestamp -> float
+        date, datetime -> datetime
         mselection, mcheckboxes, urllist -> json
         unitlist -> json
         json -> json
@@ -334,7 +336,7 @@ class PoolStructure(object):
     
     
     def serialize(self, table, field, value):
-        # if field==None and value is a dictionary multiple values are deserialized
+        # if field==None and value is a dictionary multiple values are serialized
         if field==None and isinstance(value, dict):
             newdict = {}
             for field, v in value.items():
@@ -396,10 +398,14 @@ class PoolStructure(object):
             if isinstance(value, basestring):
                 value = float(value)
 
-        elif fieldtype in ("date", "datetime", "timestamp"):
+        elif fieldtype in ("date", "datetime"):
             if isinstance(value, (float,int,long)):
-                value = datetime.fromtimestamp(value)
+                value = unicode(datetime.fromtimestamp(value))
             elif not isinstance(value, unicode):
+                value = unicode(value)
+        
+        elif fieldtype == "timestamp":
+            if not isinstance(value, basestring):
                 value = unicode(value)
         
         elif fieldtype in ("list","radio"):
@@ -463,12 +469,16 @@ class PoolStructure(object):
         if fieldtype in self.deserializeCallbacks:
             return self.deserializeCallbacks[fieldtype](value, field)
 
-        if fieldtype in ("date", "datetime", "timestamp"):
+        if fieldtype in ("date", "datetime"):
             # -> to datatime
             if isinstance(value, basestring):
                 value = ConvertToDateTime(value)
             elif isinstance(value, (float,int,long)):
                 value = datetime.fromtimestamp(value)
+                    
+        elif fieldtype == "timestamp":
+            if isinstance(value, basestring):
+                value = float(value)
                     
         elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
             # -> to string tuple

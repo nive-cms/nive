@@ -92,7 +92,7 @@ class StructureTest(unittest.TestCase):
         self.assert_(len(structure.keys())==3)
         
         
-        
+
         
 class ConversionTest(unittest.TestCase):
 
@@ -203,4 +203,53 @@ class ConversionTest(unittest.TestCase):
         
     def test_ds_json(self):
         self.assert_(self.structure.deserialize(u"data2", u"fjson", json.dumps(["aaa","bbb"]))[0]=="aaa")
+
+
+
+def seCallback(value, field):
+    return value.swapcase()
+
+def deCallback(value, field):
+    return value.capitalize()
+
+
+
+class CallbackTest(unittest.TestCase):
+
+    def setUp(self):
+        self.structure = PoolStructure(structure=test_Base.struct, 
+                                       fieldtypes=ftypes, 
+                                       stdMeta=[u"id",u"pool_type"])
+        self.structure.serializeCallbacks = {"string": seCallback}
+        self.structure.deserializeCallbacks = {"string": deCallback}
+
+
+    def tearDown(self):
+        pass
+
+
+    def test_serialize_callback(self):
+        self.assert_(self.structure.serialize(u"pool_meta", u"title", u"somevalue")==u"SOMEVALUE")
+        self.assert_(self.structure.deserialize(u"pool_meta", u"title", u"somevalue")==u"Somevalue")
+
+        
+    def test_se_mselection(self):
+        v = {u"id":u"123", u"pool_sort":u"123.12", u"pool_wfa":["value"], u"somevalue": "test"}
+        values = self.structure.serialize(u"pool_meta", None, v)
+        self.assert_(values[u"id"]==123)
+        self.assert_(values[u"pool_sort"]==123.12)
+        self.assert_(values[u"pool_wfa"]==u"value")        
+
+    def test_se_number(self):
+        self.assert_(self.structure.serialize(u"pool_meta", u"id", 123)==123)
+        self.assert_(self.structure.serialize(u"pool_meta", u"id", u"123")==123)
+        self.assert_(self.structure.serialize(u"pool_meta", u"id", "123")==123)
+        self.assert_(self.structure.serialize(u"pool_meta", u"id", 123.12)==123)
+
+    def test_se_float(self):
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", 123)==123.0)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", u"123.12")==123.12)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", "123.0")==123.0)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", 123.12)==123.12)
+
         
