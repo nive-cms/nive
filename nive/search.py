@@ -101,12 +101,12 @@ class Search:
         Fast and simple sql query. 
         
         If *pool_type* is not set the query will apply to the meta layer only. In this case you can
-        only include pool_meta.fields in *fields*. 
+        only include pool_meta.fields in *fields*. To use a single table pass *dataTable* as keyword.
         
         If *pool_type* is set you can use meta and data *fields*. The query is restricted to a single 
         type.
         
-        Supported keywords: ``groupby, logicalOperator, condition, dontAddType``
+        Supported keywords: ``groupby, logicalOperator, condition, dontAddType, dataTable``
         
         The following example selects all children of the current object ::
             

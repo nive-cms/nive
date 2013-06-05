@@ -393,7 +393,7 @@ class BaseView(object):
         """
         Creates the response and sends the file back. Uses the FileIterator.
         
-        #!date formmat
+        #!date format
         """
         if not file:
             return HTTPNotFound()
@@ -401,9 +401,9 @@ class BaseView(object):
         if not last_mod:
             last_mod = self.context.meta.pool_change
         r = Response(content_type=str(GetMimeTypeExtension(file.extension)), conditional_response=True)
-        path = file.abspath()
-        if path:
-            r.app_iter = FileIterable(path)
+        iterator = file.iterator()
+        if iterator:
+            r.app_iter = iterator
         else:
             try:
                 r.body = file.read()
@@ -801,10 +801,13 @@ class FieldRenderer(object):
         elif fType == "string":
             if fieldConf.settings.get("relation") == u"userid":
                 # load user name from database
-                udb = context.app.portal.userdb.root()
-                user = udb.GetUser(data, activeOnly=0)
-                if user:
-                    data = user.GetTitle()
+                try:
+                    udb = context.app.portal.userdb.root()
+                    user = udb.GetUser(data, activeOnly=0)
+                    if user:
+                        data = user.GetTitle()
+                except AttributeError:
+                    pass
 
         elif fType == "text":
             data = data.replace(u"\r\n", u"\r\n<br />")
@@ -851,10 +854,11 @@ class FieldRenderer(object):
                 if hasattr(options, "__call__"):
                     options = options(fieldConf, self.context)
 
-            for item in options:
-                if item["id"] == data:
-                    data = item["name"]
-                    break
+            if options:
+                for item in options:
+                    if item["id"] == data:
+                        data = item["name"]
+                        break
                 
         elif fType == "mselection" or fType == "mcheckboxes":
             values = []
@@ -940,51 +944,6 @@ class Mail(object):
         mail = render(self.tmpl, kws)
         return mail
 
-
-
-# file download iterators --------------------------------------------------------
-
-class FileIterable(object):
-    def __init__(self, filename, start=None, stop=None):
-        self.filename = filename
-        self.start = start
-        self.stop = stop
-
-    def __iter__(self):
-        return FileIterator(self.filename, self.start, self.stop)
-    
-    def app_iter_range(self, start, stop):
-        return self.__class__(self.filename, start, stop)
-
-
-class FileIterator(object):
-    chunk_size = 4096*20
-
-    def __init__(self, filename, start, stop):
-        self.filename = filename
-        self.fileobj = open(self.filename, 'rb')
-        if start:
-            self.fileobj.seek(start)
-        if stop is not None:
-            self.length = stop - start
-        else:
-            self.length = None
-    
-    def __iter__(self):
-        return self
-    
-    def next(self):
-        if self.length is not None and self.length <= 0:
-            raise StopIteration
-        chunk = self.fileobj.read(self.chunk_size)
-        if not chunk:
-            raise StopIteration
-        if self.length is not None:
-            self.length -= len(chunk)
-            if self.length < 0:
-                # Chop off the extra:
-                chunk = chunk[:self.length]
-        return chunk
 
 # Configuration -------------------------------------------------
 """

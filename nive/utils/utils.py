@@ -220,6 +220,7 @@ def GetMimeTypeExtension(extension):
     elif extension == u"xls":        return u"application/vnd.ms-excel"
     elif extension == u"ppt":        return u"application/vnd.ms-powerpoint"
     elif extension == u"mpp":        return u"application/vnd.ms-project"
+    elif extension == u"gz":         return u"application/gz"
     elif extension == u"rtf":        return u"text/rtf"
     elif extension == u"dat":        return u"application/octet-stream"
     elif extension == u"flv":        return u"video/flv"

@@ -262,7 +262,8 @@ class PoolStructure(object):
         number, float, unit -> number 
         bool -> 0/1
         file -> bytes
-        date, datetime, timestamp -> datetime
+        timestamp -> float
+        date, datetime -> datetime
         mselection, mcheckboxes, urllist -> string tuple
         unitlist -> number tuple
         json -> python type list, tuple or dict
@@ -273,7 +274,8 @@ class PoolStructure(object):
         number, float, unit -> number 
         bool -> 0/1
         file -> bytes
-        date, datetime, timestamp -> datetime
+        timestamp -> float
+        date, datetime -> datetime
         mselection, mcheckboxes, urllist -> json
         unitlist -> json
         json -> json
@@ -289,6 +291,8 @@ class PoolStructure(object):
         self.stdMeta = ()
         self.structure = {}
         self.fieldtypes = {}
+        self.serializeCallbacks = {}
+        self.deserializeCallbacks = {}
         if structure:
             self.Init(structure, fieldtypes, stdMeta, codepage, **kw)
         
@@ -332,18 +336,18 @@ class PoolStructure(object):
     
     
     def serialize(self, table, field, value):
-        # if field==None and value is a dictionary multiple values are deserialized
+        # if field==None and value is a dictionary multiple values are serialized
         if field==None and isinstance(value, dict):
             newdict = {}
             for field, v in value.items():
                 try:        t = self.fieldtypes[table][field]
                 except:     t = None
-                newdict[field] = self._se(v, t)
+                newdict[field] = self._se(v, t, field)
             return newdict
         else:
             try:        t = self.fieldtypes[table][field]
             except:     t = None
-            value = self._se(value, t)
+            value = self._se(value, t, field)
         return value
         
 
@@ -354,16 +358,16 @@ class PoolStructure(object):
             for field, v in value.items():
                 try:        t = self.fieldtypes[table][field]
                 except:     t = None
-                newdict[field] = self._de(v, t)
+                newdict[field] = self._de(v, t, field)
             return newdict
         else:
             try:        t = self.fieldtypes[table][field]
             except:     t = None
-            value = self._de(value, t)
+            value = self._de(value, t, field)
         return value
 
 
-    def _se(self, value, fieldtype):
+    def _se(self, value, fieldtype, field):
         if not fieldtype:
             # no datatype information set
             if isinstance(value, datetime):
@@ -380,6 +384,10 @@ class PoolStructure(object):
         if isinstance(fieldtype, dict):
             fieldtype = fieldtype[u"datatype"]
             
+        # call serialize callback function
+        if fieldtype in self.serializeCallbacks:
+            return self.serializeCallbacks[fieldtype](value, field)
+            
         if fieldtype == "number":
             if isinstance(value, basestring):
                 value = long(value)
@@ -390,10 +398,14 @@ class PoolStructure(object):
             if isinstance(value, basestring):
                 value = float(value)
 
-        elif fieldtype in ("date", "datetime", "timestamp"):
+        elif fieldtype in ("date", "datetime"):
             if isinstance(value, (float,int,long)):
-                value = datetime.fromtimestamp(value)
+                value = unicode(datetime.fromtimestamp(value))
             elif not isinstance(value, unicode):
+                value = unicode(value)
+        
+        elif fieldtype == "timestamp":
+            if not isinstance(value, basestring):
                 value = unicode(value)
         
         elif fieldtype in ("list","radio"):
@@ -441,7 +453,7 @@ class PoolStructure(object):
         return value
 
 
-    def _de(self, value, fieldtype):
+    def _de(self, value, fieldtype, field):
         if not fieldtype:
             # no datatype information set
             if isinstance(value, basestring) and value.startswith(u"_json_"):
@@ -453,12 +465,20 @@ class PoolStructure(object):
         if isinstance(fieldtype, dict):
             fieldtype = fieldtype[u"datatype"]
 
-        if fieldtype in ("date", "datetime", "timestamp"):
+        # call serialize callback function
+        if fieldtype in self.deserializeCallbacks:
+            return self.deserializeCallbacks[fieldtype](value, field)
+
+        if fieldtype in ("date", "datetime"):
             # -> to datatime
             if isinstance(value, basestring):
                 value = ConvertToDateTime(value)
             elif isinstance(value, (float,int,long)):
                 value = datetime.fromtimestamp(value)
+                    
+        elif fieldtype == "timestamp":
+            if isinstance(value, basestring):
+                value = float(value)
                     
         elif fieldtype in ("mselection", "mcheckboxes", "urllist", "unitlist"):
             # -> to string tuple

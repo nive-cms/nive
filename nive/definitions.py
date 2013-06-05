@@ -1385,6 +1385,7 @@ Conf(id="password",    name=_(u"Password"),           description=u""),
 Conf(id="unit",        name=_(u"ID Reference"),       description=u""),
 Conf(id="unitlist",    name=_(u"ID Reference List"),  description=u""),
 Conf(id="timestamp",   name=_(u"Timestamp"),          description=u""),
+Conf(id="binary",      name=_(u"Binary"),             description=u""),   # not supported as database field yet
 )
 
 

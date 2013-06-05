@@ -496,9 +496,10 @@ class ObjectEdit:
         # delete system fields
         system = ReadonlySystemFlds
         #opt
-        for f in system:
-            if meta.has_key(f):
-                del meta[f]
+        if meta:
+            for f in system:
+                if f in meta:
+                    del meta[f]
         # store data
         self.meta.update(meta)
         self.data.update(data)
