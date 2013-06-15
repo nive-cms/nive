@@ -39,108 +39,7 @@ class Unauthorized(Exception):
     """
 
 
-import thread
-
-class UserCache(object):
-    """
-    User caching support. Caches users including data as attributes. 
-    
-    Options: ::
-
-        useCache = enable or disable caching
-        cacheTypes = a list of pool_types to be cached. not matching types are not cached
-        expires = objs are reloaded or purged after this many seconds. 0 = never expires 
-    """
-    useCache = True
-    cacheTypes = (u"user",)
-    expires = 0 
-
-    def Cache(self, obj, id):
-        """
-        """
-        if not self.useCache:
-            return 
-        try:
-            t = obj.GetTypeID()
-            if self.cacheTypes and not t in self.cacheTypes:
-                return
-        except:
-            if self.cacheTypes:
-                return 
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            setattr(self, self._Cachename(id), (obj, time()))
-            if lock.locked():
-                lock.release()
-        except:
-            if lock and lock.locked():
-                lock.release()
-
-    def GetFromCache(self, id):
-        """
-        returns the cached object
-        """
-        if not self.useCache:
-            return None
-        n = self._Cachename(id)
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            if hasattr(self, n):
-                o = getattr(self, n)
-                if lock.locked():
-                    lock.release()
-                return o[0]
-        except:
-            if lock and lock.locked():
-                lock.release()
-        return None
-
-    def GetAllFromCache(self):
-        """
-        returns all cached objects
-        """
-        objs = []
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            for v in self.__dict__.keys():
-                if v[:5] == "__c__":
-                    objs.append(getattr(self, v)[0])
-            if lock.locked():
-                lock.release()
-        except:
-            if lock and lock.locked():
-                lock.release()
-        return objs
-
-    def RemoveCache(self, id):
-        """
-        """
-        if not self.useCache:
-            return 
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            try:
-                delattr(self, self._Cachename(id))
-            except:
-                pass
-            if lock.locked():
-                lock.release()
-        except:
-            if lock and lock.locked():
-                lock.release()
-
-    def _Cachename(self, id):
-        return "__c__" + str(hash(str(id)))
-
-
-
-
-
-class root(UserCache, RootBase):
+class root(RootBase):
     """
     """
     
@@ -287,11 +186,6 @@ class root(UserCache, RootBase):
         return True, report
 
 
-    def GenerateID(self, length=20, repl="-"):
-        # generates a id
-        return str(uuid.uuid4()).replace(repl,"")[:length]
-        
-
     def DeleteUser(self, name):
         """
         returns status and report list
@@ -307,7 +201,7 @@ class root(UserCache, RootBase):
             report.append(_(u"Invalid username."))
             return False, report
 
-        self.RemoveCache(name)
+        #self.RemoveCache(name)
         if not self.Delete(user.GetID(), obj=user, user=user):
             report.append(_(u"Sorry. An error occured."))
             return False, report
@@ -357,6 +251,11 @@ class root(UserCache, RootBase):
 
     # Password, activationID ------------------------------------------------------------------------------------------------------
 
+    def GenerateID(self, length=20, repl="-"):
+        # generates a id
+        return str(uuid.uuid4()).replace(repl,"")[:length]
+        
+
     def GeneratePassword(self, mincount=5, maxcount=5):
         # generates a password
         vowels = u"aeiou0123456789#*"
@@ -374,19 +273,6 @@ class root(UserCache, RootBase):
                 password=password + vowel
 
         return password
-
-
-    def Encrypt(self, string):
-        try:
-            return base64.encodestring(string)
-        except:
-            return string
-
-    def Decrypt(self, string):
-        try:
-            return base64.decodestring(string)
-        except:
-            return string
 
 
     # User ------------------------------------------------------------------------------------------------------
@@ -428,15 +314,6 @@ class root(UserCache, RootBase):
         return self.LookupUser(id=user[0][0], activeOnly=activeOnly)
 
 
-    def GetUserGroups(self, name, activeOnly=1):
-        """
-        """
-        user = self.GetUser(name, activeOnly=activeOnly)
-        if not user:
-            return None
-        return user.data.groups
-
-
     def LookupUser(self, name=None, id=None, activeOnly=1, reloadFromDB=0):
         """
         """
@@ -446,9 +323,9 @@ class root(UserCache, RootBase):
                 return None
             return user
         elif name:
-            user = self.GetFromCache(name)
-            if user:
-                return user
+            #user = self.GetFromCache(name)
+            #if user:
+            #    return user
             # load admin user from configuration
             try:
                 app = self.app
@@ -465,7 +342,7 @@ class root(UserCache, RootBase):
                 user = self.GetObj(id)
                 if not user or (activeOnly and not user.meta.get("pool_state")==1):
                     return None
-                self.Cache(user, name)
+                #self.Cache(user, name)
                 return user
         return None
 
@@ -510,8 +387,32 @@ class root(UserCache, RootBase):
     def GetUsers(self, **kw):
         """
         """
-        users = self.SearchType(u"user", {u"pool_state":1}, [u"id",u"title",u"name",u"groups",u"lastlogin"])
-        return users
+        return self.SearchType(u"user", {u"pool_state":1}, [u"id",u"title",u"name",u"groups",u"lastlogin"])
+
+
+    # to be removed ------------------------------------------------------
+    def GetUserGroups(self, name, activeOnly=1):
+        """
+        """
+        user = self.GetUser(name, activeOnly=activeOnly)
+        if not user:
+            return None
+        return user.data.groups
+
+
+    def Encrypt(self, string):
+        try:
+            return base64.encodestring(string)
+        except:
+            return string
+
+    def Decrypt(self, string):
+        try:
+            return base64.decodestring(string)
+        except:
+            return string
+
+
 
 
 # Root definition ------------------------------------------------------------------
@@ -546,24 +447,15 @@ class adminuser(object):
 
     def Authenticate(self, password):
         return password == self.data["password"]
-
     
     def Login(self):
-        """
-        events: login()
-        """
-        self.AddToCache()
+        """ """
 
     def Logout(self):
-        """
-        events: logout()
-        """
-        self.RemoveFromCache()
+        """ """
 
     def GetGroups(self, context=None):
-        """
-        groups
-        """
+        """ """
         return self.groups
 
     def InGroups(self, groups):
@@ -577,16 +469,6 @@ class adminuser(object):
                 return True
         return False
     
-    # System ------------------------------------------------
-
-    def AddToCache(self):
-        pass
-        #self.GetParent().Cache(self, self.id)
-
-    def RemoveFromCache(self):
-        pass
-        #self.GetParent().RemoveCache(self.id)
-
 
 
 from nive.components.reform.schema import Invalid

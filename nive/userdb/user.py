@@ -78,6 +78,12 @@ class user(ObjectBase):
         self.RemoveFromCache()
 
 
+    def OnCommit(self):
+        title = self.TitleFromName(self.data["surname"], self.data["lastname"], self.data["name"])
+        self.meta["title"] = title
+        self.RemoveFromCache()
+
+
     def SecureUpdate(self, data, user):
         """
         Update existing user data.
@@ -142,7 +148,7 @@ class user(ObjectBase):
                 return True
         return False
     
-    # System ------------------------------------------------
+
 
     def TitleFromName(self, surname, lastname, name):
         title = surname + u" " + lastname
@@ -151,17 +157,11 @@ class user(ObjectBase):
         return title
 
 
-    def OnCommit(self):
-        title = self.TitleFromName(self.data["surname"], self.data["lastname"], self.data["name"])
-        self.meta["title"] = title
-        self.RemoveFromCache()
-
-
     def AddToCache(self):
-        self.GetParent().Cache(self, self.id)
-
+        pass
+       
     def RemoveFromCache(self):
-        self.GetParent().RemoveCache(self.id)
+        pass
 
 
 
