@@ -38,7 +38,7 @@ class user(ObjectBase):
     implements(IUser)
     
     def __str__(self):
-        return self.data.get("name",str(self.id))
+        return str(self.identity)
     
     @property
     def identity(self):
