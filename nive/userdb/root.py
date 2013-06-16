@@ -38,10 +38,19 @@ class Unauthorized(Exception):
     failed login
     """
 
+class UserFound(Exception):
+    """
+    Can be used in *getuser* listeners to break user lookup and
+    pass a session user to LookupUser. The second argument is the session
+    user 
+    """
 
 class root(RootBase):
     """
     """
+    
+    # field used as unique user identity in sessions and acache
+    identityField = u"id"
     
     # User account handling ------------------------------------------------------------------------------------------------------
 
@@ -68,9 +77,16 @@ class root(RootBase):
             return None, report
 
         # check user with name exists
-        if self.LookupUser(name=name, activeOnly=0):
+        user = self.GetUserByName(name, activeOnly=0)
+        if user:
             report.append(_(u"Username '${name}' already in use. Please choose a different name.", mapping={u"name":name}))
             return None, report
+        email = data.get("email")
+        if email and self.app.configuration.get("loginByEmail"):
+            user = self.GetUserByEmail(email, activeOnly=0)
+            if user:
+                report.append(_(u"Email '${name}' already in use. ", mapping={'name':email}))
+                return None, report
         
         if generatePW:
             pw = self.GeneratePassword()
@@ -186,30 +202,6 @@ class root(RootBase):
         return True, report
 
 
-    def DeleteUser(self, name):
-        """
-        returns status and report list
-        """
-        report = []
-        # check email exists
-        if name == "" or not name:
-            report.append(_(u"Invalid username."))
-            return False, report
-
-        user = self.LookupUser(name=name, activeOnly=0)
-        if not user:
-            report.append(_(u"Invalid username."))
-            return False, report
-
-        #self.RemoveCache(name)
-        if not self.Delete(user.GetID(), obj=user, user=user):
-            report.append(_(u"Sorry. An error occured."))
-            return False, report
-
-        report.append(_(u"User deleted."))
-        return True, report
-
-
     # Login/logout and user sessions ------------------------------------------------------------------------------------------------------
 
     def Login(self, name, password, raiseUnauthorized = 1):
@@ -220,6 +212,8 @@ class root(RootBase):
 
         # session login
         user = self.GetUserByName(name)
+        if not user and self.app.configuration.get("loginByEmail"):
+            user = self.GetUserByEmail(name)
         if not user:
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
@@ -238,11 +232,11 @@ class root(RootBase):
         return user, report
 
 
-    def Logout(self, name):
+    def Logout(self, ident):
         """
         Logout and delete session data
         """
-        user = self.GetUser(name)
+        user = self.GetUser(ident)
         if not user:
             return False
         user.Logout()
@@ -277,74 +271,69 @@ class root(RootBase):
 
     # User ------------------------------------------------------------------------------------------------------
 
-    def GetUser(self, name, activeOnly=1):
+    def GetUser(self, ident, activeOnly=1):
         """
-        Lookup user by *user_id* as used in session cookies for example
+        Lookup user by *user identity* as used in session cookies for example
+        
+        event: getuser(ident, activeOnly)
         """
-        user = self.LookupUser(name=name, activeOnly=activeOnly)
-        return user
+        try:
+            self.Signal("getuser", ident=ident, activeOnly=activeOnly)
+        except UserFound, user:
+            return user
+        return self.LookupUser(ident=ident, activeOnly=activeOnly)
 
 
     def GetUserByName(self, name, activeOnly=1):
         """
         """
-        user = self.LookupUser(name=name, activeOnly=activeOnly)
-        if not user and self.app.configuration.get("loginByEmail"): 
-            user = self.GetUserByMail(name, activeOnly)
-        return user
-
-
-    def GetUserByID(self, id, activeOnly=1):
-        """
-        """
-        user = self.GetObj(id)
-        if not user or (activeOnly and not user.meta.get("pool_state")==1):
-            return None
-        return user
+        return self.LookupUser(name=name, activeOnly=activeOnly)
 
 
     def GetUserByMail(self, email, activeOnly=1):
         """
         """
-        user = self.Select(pool_type=u"user", parameter={u"email":email}, fields=[u"id",u"name",u"email"], max=2, operators={u"email":u"="})
-        if len(user) != 1:
-            return None
-        if user[0][2] != email:
-            return None
-        return self.LookupUser(id=user[0][0], activeOnly=activeOnly)
+        return self.LookupUser(email=email, activeOnly=activeOnly)
 
 
-    def LookupUser(self, name=None, id=None, activeOnly=1, reloadFromDB=0):
+    def GetUserByID(self, id, activeOnly=1):
         """
         """
-        if id:
-            user = self.GetObj(id)
-            if not user or (activeOnly and not user.meta.get("pool_state")==1):
-                return None
-            return user
-        elif name:
-            #user = self.GetFromCache(name)
-            #if user:
-            #    return user
-            # load admin user from configuration
-            try:
-                app = self.app
-                if app.configuration.admin["name"] == name:
-                    return adminuser(app.configuration.admin)
-            except:
-                pass
-            
-            user =  self.Select(pool_type=u"user", parameter={u"name":name}, fields=[u"id"], max=2, operators={u"name":u"="})
-            if len(user)==0:
+        return self.LookupUser(id=id, activeOnly=activeOnly)
+
+
+    def LookupUser(self, id=None, ident=None, name=None, email=None, activeOnly=1, reloadFromDB=0):
+        """
+        """
+        if not id:
+            # lookup id for name, email or ident
+            param = {}
+            if activeOnly:
+                param[u"pool_state"] = 1
+            if name:
+                param[u"name"] = name
+            elif email:
+                param[u"email"] = email
+            elif ident:
+                if not self.identityField:
+                    raise ValueError, "custom user identity unused"
+                param[self.identityField] = ident
+                
+            user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+            if len(user)!=1:
                 return None
             id = user[0][0]
-            if id:
-                user = self.GetObj(id)
-                if not user or (activeOnly and not user.meta.get("pool_state")==1):
-                    return None
-                #self.Cache(user, name)
-                return user
-        return None
+            
+        user = self.GetObj(id)
+        if not user or (activeOnly and not user.meta.get("pool_state")==1):
+            return None
+        return user
+     
+
+    def GetUsers(self, **kw):
+        """
+        """
+        return self.SearchType(u"user", {u"pool_state":1}, [u"id",u"title",u"name",u"groups",u"lastlogin"])
 
 
     def GetUserInfos(self, userids, fields=None, activeOnly=True):
@@ -384,12 +373,6 @@ class root(RootBase):
         return verified
 
 
-    def GetUsers(self, **kw):
-        """
-        """
-        return self.SearchType(u"user", {u"pool_state":1}, [u"id",u"title",u"name",u"groups",u"lastlogin"])
-
-
     # to be removed ------------------------------------------------------
     def GetUserGroups(self, name, activeOnly=1):
         """
@@ -398,6 +381,29 @@ class root(RootBase):
         if not user:
             return None
         return user.data.groups
+
+    def DeleteUser(self, name):
+        """
+        returns status and report list
+        """
+        report = []
+        # check email exists
+        if name == "" or not name:
+            report.append(_(u"Invalid username."))
+            return False, report
+
+        user = self.LookupUser(name=name, activeOnly=0)
+        if not user:
+            report.append(_(u"Invalid username."))
+            return False, report
+
+        if not self.Delete(user.GetID(), obj=user, user=user):
+            report.append(_(u"Sorry. An error occured."))
+            return False, report
+
+        report.append(_(u"User deleted."))
+        return True, report
+
 
 
     def Encrypt(self, string):
@@ -489,6 +495,17 @@ def UsernameValidator(node, value):
             return
         err = _(u"Username '${name}' already in use. Please choose a different name.", mapping={'name':value})
         raise Invalid(node, err)
+    if not r.app.configuration.get("loginByEmail"):
+        return
+    # check if name is ussed as email
+    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"name":u"="})
+    if u:
+        # check if its the current user
+        ctx = node.widget.form.context
+        if len(u)==1 and ctx.id == u[0][0]:
+            return
+        err = _(u"Username '${name}' already in use. Please choose a different name.", mapping={'name':value})
+        raise Invalid(node, err)
 
 def EmailValidator(node, value):
     """ 
@@ -499,7 +516,18 @@ def EmailValidator(node, value):
     Email()(node, value)
     # lookup email in database
     r = node.widget.form.context.root()
-    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"email":u"="})
+    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id"], max=2, operators={u"email":u"="})
+    if u:
+        # check if its the current user
+        ctx = node.widget.form.context
+        if len(u)==1 and ctx.id == u[0][0]:
+            return
+        err = _(u"Email '${name}' already in use. Please use the login form if you already have a account.", mapping={'name':value})
+        raise Invalid(node, err)
+    if not r.app.configuration.get("loginByEmail"):
+        return
+    # check if email is ussed as name
+    u = r.Select(pool_type=u"user", parameter={u"name": value}, fields=[u"id"], max=2, operators={u"name":u"="})
     if u:
         # check if its the current user
         ctx = node.widget.form.context

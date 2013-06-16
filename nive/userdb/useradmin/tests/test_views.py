@@ -125,13 +125,15 @@ class tViews(unittest.TestCase):
         self.request.POST["edit$"] = "edit"
         r = v.edit()
         self.assertFalse(r["result"])
-        self.assert_(self.root.GetUserByName("testuser").data.email != "test")
+        user = self.root.GetUserByName("testuser")
+        self.assert_(user.data.email != "test")
         
         self.request.POST = {"name":"testuser", "email":"test@bbb.com", "groups":("group:admin",)}
         self.request.POST["edit$"] = "edit"
         r = v.edit()
         self.assert_(r["result"])
-        self.assert_(self.root.GetUserByName("testuser").data.email == "test@bbb.com")
+        user = self.root.GetUserByName("testuser")
+        self.assert_(user.data.email == "test@bbb.com")
         
         self.root.DeleteUser("testuser")
 

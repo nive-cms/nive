@@ -3,7 +3,7 @@
 import time
 import unittest
 
-from nive.userdb.root import adminuser, UserCache
+from nive.userdb.root import adminuser
 from db_app import *
 
 class ObjectTest(unittest.TestCase):
@@ -52,8 +52,6 @@ class ObjectTest(unittest.TestCase):
         self.assert_(root.GetUserByName("user2", activeOnly=1))
         self.assert_(root.GetUserByID(o.id, activeOnly=0))
         self.assert_(root.GetUserByMail("user2@aaa.ccc", activeOnly=1))
-        ggg = root.GetUserGroups("user2", activeOnly=1)
-        self.assert_("group:author" in ggg, ggg)
         
         self.assert_(root.LookupUser(name="user1", id=None, activeOnly=1, reloadFromDB=1))
         self.assertFalse(root.LookupUser(name="user3", id=None, activeOnly=1, reloadFromDB=1))
@@ -73,6 +71,7 @@ class ObjectTest(unittest.TestCase):
     def test_login(self):
         a=self.app
         root=a.root()
+        root.identityField=u"name"
         user = User("test")
         # root
         root.DeleteUser("user1")
@@ -137,10 +136,6 @@ class ObjectTest(unittest.TestCase):
     
         self.assert_(o.TitleFromName("surname", "lastname", "name")=="surname lastname")
         self.assert_(o.TitleFromName("", "", "name")=="name")
-        o.AddToCache()
-        self.assert_(root.GetFromCache(id=o.id))
-        o.RemoveFromCache()
-        self.assertFalse(root.GetFromCache(id=o.id))
 
         root.DeleteUser("user1")
 
@@ -159,11 +154,9 @@ class AdminuserTest(unittest.TestCase):
         self.assert_(u.GetGroups()==("group:admin",))
         self.assert_(u.InGroups("group:admin"))
         self.assertFalse(u.InGroups("group:traa"))
-        u.AddToCache()
-        u.RemoveFromCache()        
         
         
-class CacheTest(unittest.TestCase):
+class CacheTest: ###disabled(unittest.TestCase):
         
     def setUp(self):
         self.app = app()
@@ -201,7 +194,7 @@ class CacheTest(unittest.TestCase):
         cache.Cache(obj, 2)
         cache.Cache(obj, 3)
         self.assert_(len(cache.GetAllFromCache())==3)
-        
+
         
 if __name__ == '__main__':
     unittest.main()
