@@ -145,24 +145,28 @@ class SessionUserCache(object):
 class RootListener(object):
     
     def Init(self):
-        self.Listen("getuser", self.LookupCache)
-        pass
+        self.ListenEvent("getuser", self.LookupCache)
+        self.ListenEvent("loaduser", self.AddToCache)
     
     def LookupCache(self, ident=None, activeOnly=None):
         user = self.app.usercache.Get(ident)
         if user:
-            raise UserFound, user
+            raise UserFound, UserFound(user)
+
+    def AddToCache(self, user=None):
+        user.AddToCache()
         
         
 class UserListener(object):
 
     def Init(self):
-        self.Listen("commit", self.InvalidateCache)
-        self.Listen("logout", self.InvalidateCache)
-        self.Listen("login", self.AddToCache)
+        self.ListenEvent("commit", self.InvalidateCache)
+        self.ListenEvent("logout", self.InvalidateCache)
+        self.ListenEvent("login", self.AddToCache)
     
-    def AddToCache(self):
+    def AddToCache(self, lastlogin=None):
         sessionuser = self.SessionUserFactory(self.identity, self)
+        sessionuser.lastlogin=lastlogin
         self.app.usercache.Add(sessionuser, self.identity)
         
     def InvalidateCache(self):
@@ -237,9 +241,9 @@ def SetupRootAndUser(app, pyramidConfig):
             c.extensions = tuple(e)
             c.lock()
     
-    rootextension = "nive.userdb.sessionuser.RootListener"
+    rootextension = "nive.components.extensions.sessionuser.RootListener"
     add(app.GetAllRootConfs(), rootextension)
-    userextension = "nive.userdb.sessionuser.UserListener"
+    userextension = "nive.components.extensions.sessionuser.UserListener"
     add([app.GetObjectConf("user",skipRoot=True)], userextension)
     # add usercache to app
     app.usercache = SessionUserCache()

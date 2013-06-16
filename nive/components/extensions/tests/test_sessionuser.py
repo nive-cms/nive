@@ -4,8 +4,10 @@ import unittest
 
 from nive.userdb.tests import db_app
 
-from nive.definitions import Conf
+from nive.definitions import Conf, AppConf
 from nive.components.extensions.sessionuser import *
+from nive.portal import Portal
+from nive.userdb.app import UserDB
 
 
 class testobj(object):
@@ -152,6 +154,17 @@ class AppTest(unittest.TestCase):
 
     def test_app(self):
         
-        app = db_app.app(["nive.components.extensions.sessionuser"])
+        appconf = AppConf("nive.userdb.app")
+        appconf.modules.append("nive.userdb.userview.view")
+        appconf.modules.append("nive.components.tools.sendMail")
+        appconf.modules.append("nive.components.extensions.sessionuser")
+        
+        app = UserDB(appconf)
+        app.dbConfiguration=db_app.dbconf
+        p = Portal()
+        p.Register(app)
+        app.Startup(None)
         
         self.assert_(app.usercache)
+        
+        self.assert_(app.root())

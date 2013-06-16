@@ -56,13 +56,13 @@ class user(ObjectBase):
     
     def Login(self):
         """
-        events: login()
+        events: login(lastlogin)
         """
         lastlogin = self.data.get("lastlogin")
         date = datetime.now()
         self.data.set("lastlogin", date)
-        self.Signal("login")
         self.Commit(self)
+        self.Signal("login", lastlogin=lastlogin)
 
 
     def Logout(self):
@@ -123,6 +123,8 @@ class user(ObjectBase):
     def AddGroup(self, group, user):
         """
         add user to this group
+        
+        event: securityCahnged()
         """
         if group in self.groups:
             return True

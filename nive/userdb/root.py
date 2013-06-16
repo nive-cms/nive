@@ -44,6 +44,8 @@ class UserFound(Exception):
     pass a session user to LookupUser. The second argument is the session
     user 
     """
+    def __init__(self, user):
+        self.user = user
 
 class root(RootBase):
     """
@@ -275,14 +277,18 @@ class root(RootBase):
         """
         Lookup user by *user identity* as used in session cookies for example
         
-        event: getuser(ident, activeOnly)
+        events: 
+        - getuser(ident, activeOnly)
+        - loaduser(user)
         """
         try:
             self.Signal("getuser", ident=ident, activeOnly=activeOnly)
         except UserFound, user:
-            return user
-        return self.LookupUser(ident=ident, activeOnly=activeOnly)
-
+            return user.user
+        user = self.LookupUser(ident=ident, activeOnly=activeOnly)
+        self.Signal("loaduser", user=user)
+        return user
+    
 
     def GetUserByName(self, name, activeOnly=1):
         """

@@ -19,11 +19,10 @@ dbconf = DatabaseConf(
 )
 
 
-def app(extmodules=[]):
+def app(extmodules=None):
     appconf = AppConf("nive.userdb.app")
     appconf.modules.append("nive.userdb.userview.view")
     appconf.modules.append("nive.components.tools.sendMail")
-    appconf.modules.extend(extmodules)
     
     a = UserDB(appconf)
     a.dbConfiguration=dbconf
@@ -47,7 +46,8 @@ def app_nodb():
     appconf = AppConf("nive.userdb.app")
     appconf.modules.append("nive.userdb.userview.view")
     appconf.modules.append("nive.components.tools.sendMail")
-    a = WebsitePublisher(appconf)
+    
+    a = UserDB(appconf)
     a.dbConfiguration=DatabaseConf()
     p = Portal()
     p.Register(a)
