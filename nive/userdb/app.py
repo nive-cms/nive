@@ -48,6 +48,8 @@ configuration.loginByEmail = False
 configuration.modules = [
     "nive.userdb.root", 
     "nive.userdb.user", 
+    # session user cache
+    "nive.components.extensions.sessionuser",
     # user administration
     "nive.userdb.useradmin", 
     # tools

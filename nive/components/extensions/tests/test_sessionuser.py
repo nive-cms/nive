@@ -33,9 +33,9 @@ class CacheTest(unittest.TestCase):
         pass
     
     def test_caching(self):
-        user1 = SessionUser("user1", Conf())
-        user2 = SessionUser("user2", Conf())
-        user3 = SessionUser("user3", Conf())
+        user1 = SessionUser("user1", 1, Conf())
+        user2 = SessionUser("user2", 2, Conf())
+        user3 = SessionUser("user3", 3, Conf())
         
         self.assertFalse(self.cache.Get("user1"))
         self.assertFalse(self.cache.GetAll())
@@ -93,7 +93,7 @@ class ListenerTest(unittest.TestCase):
         r.app.usercache = SessionUserCache()
         user = r.LookupCache(ident="user1", activeOnly=None)
         self.assertFalse(user)
-        r.app.usercache.Add(SessionUser("user1", Conf()), "user1")
+        r.app.usercache.Add(SessionUser("user1", 1, Conf()), "user1")
         self.assertRaises(UserFound, r.LookupCache, ident="user1", activeOnly=None)
         
     def test_user(self):
@@ -102,6 +102,7 @@ class ListenerTest(unittest.TestCase):
         u.app.usercache = SessionUserCache()
         u.identity = "user1"
         u.data = Conf()
+        u.id = 1
         sessionuser = u.SessionUserFactory("user1", u)
         self.assert_(sessionuser)
         u.AddToCache()
@@ -117,7 +118,7 @@ class SessionuserTest(unittest.TestCase):
                   "lastname": "User", 
                   "groups": ("here", "there"), 
                   "lastlogin": time.time()}
-        self.user = SessionUser("user1", Conf(**values))
+        self.user = SessionUser("user1", 1, Conf(**values))
         pass
     
     def tearDown(self):
@@ -155,9 +156,7 @@ class AppTest(unittest.TestCase):
     def test_app(self):
         
         appconf = AppConf("nive.userdb.app")
-        appconf.modules.append("nive.userdb.userview.view")
-        appconf.modules.append("nive.components.tools.sendMail")
-        appconf.modules.append("nive.components.extensions.sessionuser")
+        #appconf.modules.append("nive.components.extensions.sessionuser")
         
         app = UserDB(appconf)
         app.dbConfiguration=db_app.dbconf

@@ -177,9 +177,16 @@ class UserListener(object):
         data = {}
         for f in fields:
             data[f] = user.data.get(f)
-        su = SessionUser(ident, Conf(**data))
+        su = SessionUser(ident, user.id, Conf(**data))
         return su
-    
+
+
+def NewConnListener(context=None, event=None):
+    uid = event.request.environ["REMOTE_USER"]
+    user = context.userdb.usercache.Get(uid)
+    if user:
+        event.request.authenticated_user = user
+
 
 class SessionUser(object):
     """
@@ -197,7 +204,8 @@ class SessionUser(object):
     """
     implements(ISessionUser)    
     
-    def __init__(self, ident, data):
+    def __init__(self, ident, id, data):
+        self.id = id
         self.ident = ident
         self.data = data
         self.lastlogin = data.get(u"lastlogin")
@@ -247,6 +255,9 @@ def SetupRootAndUser(app, pyramidConfig):
     add([app.GetObjectConf("user",skipRoot=True)], userextension)
     # add usercache to app
     app.usercache = SessionUserCache()
+    # add new conn listener
+    app.portal.ListenEvent("start", NewConnListener)
+
 
 
 configuration = ModuleConf(

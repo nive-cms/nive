@@ -27,7 +27,7 @@ from time import time
 import uuid
 import json
 
-from nive.definitions import RootConf, Conf, StagUser
+from nive.definitions import RootConf, Conf, StagUser, IUser
 from nive.security import User
 from nive.components.objects.base import RootBase
 from nive.i18n import _
@@ -241,7 +241,10 @@ class root(RootBase):
         user = self.GetUser(ident)
         if not user:
             return False
-        user.Logout()
+        if not IUser.providedBy(user):
+            user = self.LookupUser(id=user.id)
+        if user:
+            user.Logout()
         return True
 
 
@@ -286,7 +289,8 @@ class root(RootBase):
         except UserFound, user:
             return user.user
         user = self.LookupUser(ident=ident, activeOnly=activeOnly)
-        self.Signal("loaduser", user=user)
+        if user:
+            self.Signal("loaduser", user=user)
         return user
     
 
@@ -311,6 +315,7 @@ class root(RootBase):
     def LookupUser(self, id=None, ident=None, name=None, email=None, activeOnly=1, reloadFromDB=0):
         """
         """
+        print "!"
         if not id:
             # lookup id for name, email or ident
             param = {}

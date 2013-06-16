@@ -468,6 +468,13 @@ class BaseView(object):
         """
         returns the *Authenticated User Object* or None
         """
+        # cached session user object
+        try:
+            user = self.request.authenticated_user
+            if user:
+                return user
+        except AttributeError:
+            pass
         ident = authenticated_userid(self.request)
         if not ident:
             return None
