@@ -468,10 +468,10 @@ class BaseView(object):
         """
         returns the *Authenticated User Object* or None
         """
-        name = authenticated_userid(self.request)
-        if not name:
+        ident = authenticated_userid(self.request)
+        if not ident:
             return None
-        return self.context.app.portal.userdb.root().GetUser(name)
+        return self.context.app.portal.userdb.root().GetUser(ident)
     
     def UserName(self):
         """
