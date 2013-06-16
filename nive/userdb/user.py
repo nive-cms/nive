@@ -39,18 +39,15 @@ class user(ObjectBase):
     
     def __str__(self):
         return self.data.get("name",str(self.id))
+    
+    @property
+    def identity(self):
+        return self.data.get("name",str(self.id))
 
     def Init(self):
         self.groups = tuple(self.data.get("groups",()))
         self.ListenEvent("commit", "HashPassword")
         self.ListenEvent("commit", "OnCommit")
-
-
-    def HashPassword(self):
-        if not self.data.HasTempKey("password"):
-            return
-        pw = Sha(self.data.password)
-        self.data["password"] = pw
 
 
     def Authenticate(self, password):
@@ -66,7 +63,6 @@ class user(ObjectBase):
         self.data.set("lastlogin", date)
         self.Signal("login")
         self.Commit(self)
-        self.AddToCache()
 
 
     def Logout(self):
@@ -75,13 +71,25 @@ class user(ObjectBase):
         """
         self.Signal("logout")
         self.Commit(self)
-        self.RemoveFromCache()
 
 
     def OnCommit(self):
         title = self.TitleFromName(self.data["surname"], self.data["lastname"], self.data["name"])
         self.meta["title"] = title
-        self.RemoveFromCache()
+
+
+    def HashPassword(self):
+        if not self.data.HasTempKey("password"):
+            return
+        pw = Sha(self.data.password)
+        self.data["password"] = pw
+
+
+    def TitleFromName(self, surname, lastname, name):
+        title = surname + u" " + lastname
+        if title.replace(u" ",u"")==u"":
+            title = name
+        return title
 
 
     def SecureUpdate(self, data, user):
@@ -100,7 +108,6 @@ class user(ObjectBase):
             return False, [_(u"Update failed.")]
         
         self.Commit(user)
-        self.RemoveFromCache()
         return True, []
 
 
@@ -110,7 +117,6 @@ class user(ObjectBase):
         """
         self.groups = tuple(groups)
         self.data["groups"] = groups
-        self.RemoveFromCache()
         return True
 
 
@@ -125,7 +131,6 @@ class user(ObjectBase):
         self.groups = tuple(g)
         self.data["groups"] = g
         self.Commit(user)
-        self.RemoveFromCache()
         return True
 
 
@@ -147,21 +152,6 @@ class user(ObjectBase):
             if g in self.groups:
                 return True
         return False
-    
-
-
-    def TitleFromName(self, surname, lastname, name):
-        title = surname + u" " + lastname
-        if title.replace(u" ",u"")==u"":
-            title = name
-        return title
-
-
-    def AddToCache(self):
-        pass
-       
-    def RemoveFromCache(self):
-        pass
 
 
 

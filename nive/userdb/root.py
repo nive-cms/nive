@@ -50,7 +50,7 @@ class root(RootBase):
     """
     
     # field used as unique user identity in sessions and acache
-    identityField = u"id"
+    identityField = u"name"
     
     # User account handling ------------------------------------------------------------------------------------------------------
 
