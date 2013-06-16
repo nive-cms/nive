@@ -49,6 +49,21 @@ class EventTest(unittest.TestCase):
         self.assert_(self.called==0)
 
 
+    def test_eventcontext(self):
+        
+        def event_fnc_test(context=None, data=None):
+            self.assert_(context==self.obj)
+            self.called=1
+        
+        self.called = 0
+        self.obj.ListenEvent("callme", event_fnc_test)
+        self.obj.callme()
+        self.assert_(self.called==1)
+        self.obj.RemoveListener("callme", event_fnc_test)
+        self.called=0
+        self.obj.callme()
+        self.assert_(self.called==0)
+
 
 
 if __name__ == '__main__':
