@@ -53,9 +53,9 @@ class ObjectTest(unittest.TestCase):
         self.assert_(root.GetUserByID(o.id, activeOnly=0))
         self.assert_(root.GetUserByMail("user2@aaa.ccc", activeOnly=1))
         
-        self.assert_(root.LookupUser(name="user1", id=None, activeOnly=1, reloadFromDB=1))
-        self.assertFalse(root.LookupUser(name="user3", id=None, activeOnly=1, reloadFromDB=1))
-        self.assert_(root.LookupUser(name="user3", id=None, activeOnly=0, reloadFromDB=1))
+        self.assert_(root.LookupUser(name="user1", id=None, activeOnly=1))
+        self.assertFalse(root.LookupUser(name="user3", id=None, activeOnly=1))
+        self.assert_(root.LookupUser(name="user3", id=None, activeOnly=0))
         
         self.assert_(len(root.GetUserInfos(["user1", "user2"], fields=["name", "email", "title"], activeOnly=True)))
         self.assert_(len(root.GetUsersWithGroup("group:author", fields=["name"], activeOnly=True)))
@@ -134,8 +134,7 @@ class ObjectTest(unittest.TestCase):
         self.assert_(o.InGroups("group:editor"))
         self.assert_(o.InGroups("group:author"))
     
-        self.assert_(o.TitleFromName("surname", "lastname", "name")=="surname lastname")
-        self.assert_(o.TitleFromName("", "", "name")=="name")
+        self.assert_(o.ReadableName()=="surname lastname")
 
         root.DeleteUser("user1")
 

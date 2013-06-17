@@ -3,7 +3,6 @@
 - move datapool2 Group functions
 - move datapool2 Fulltext functions
 - universal and locale date/time handling (parsing)
-- user id handling
 - update page changed time on edit elements
    
 - cms browser application tests

@@ -37,16 +37,15 @@ class user(ObjectBase):
     """
     implements(IUser)
     
+    @property
+    def identity(self):
+        return self.data.get(self.parent.identityField,str(self.id))
+
     def __str__(self):
         return str(self.identity)
     
-    @property
-    def identity(self):
-        return self.data.get("name",str(self.id))
-
     def Init(self):
         self.groups = tuple(self.data.get("groups",()))
-        self.ListenEvent("commit", "HashPassword")
         self.ListenEvent("commit", "OnCommit")
 
 
@@ -74,8 +73,10 @@ class user(ObjectBase):
 
 
     def OnCommit(self):
-        title = self.TitleFromName(self.data["surname"], self.data["lastname"], self.data["name"])
-        self.meta["title"] = title
+        self.HashPassword()
+        t = self.ReadableName()
+        if t != self.meta["title"]:
+            self.meta["title"] = t
 
 
     def HashPassword(self):
@@ -85,11 +86,10 @@ class user(ObjectBase):
         self.data["password"] = pw
 
 
-    def TitleFromName(self, surname, lastname, name):
-        title = surname + u" " + lastname
-        if title.replace(u" ",u"")==u"":
-            title = name
-        return title
+    def ReadableName(self):
+        if self.data.surname or self.data.lastname: 
+            return u" ".join([self.data.surname, self.data.lastname])
+        return self.data.name
 
 
     def SecureUpdate(self, data, user):

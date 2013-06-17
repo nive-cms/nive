@@ -214,23 +214,21 @@ class root(RootBase):
 
         # session login
         user = self.GetUserByName(name)
-        if not user and self.app.configuration.get("loginByEmail"):
-            user = self.GetUserByEmail(name)
         if not user:
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
-            report.append(_(u"Login failed. Please check your username and password."))
+            report.append(_(u"Sign in failed. Please check your username and password."))
             return None, report
             
         if not user.Authenticate(password):
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
-            report.append(_(u"Login failed. Please check your username and password."))
+            report.append(_(u"Sign in failed. Please check your username and password."))
             return None, report
 
         # call user
         user.Login()
-        report.append(_(u"Logged in."))
+        report.append(_(u"You are now signed in."))
         return user, report
 
 
@@ -295,29 +293,27 @@ class root(RootBase):
     
 
     def GetUserByName(self, name, activeOnly=1):
-        """
-        """
+        """ """
         return self.LookupUser(name=name, activeOnly=activeOnly)
 
 
     def GetUserByMail(self, email, activeOnly=1):
-        """
-        """
+        """ """
         return self.LookupUser(email=email, activeOnly=activeOnly)
 
 
     def GetUserByID(self, id, activeOnly=1):
-        """
-        """
+        """ """
         return self.LookupUser(id=id, activeOnly=activeOnly)
 
 
     def LookupUser(self, id=None, ident=None, name=None, email=None, activeOnly=1, reloadFromDB=0):
+        """ 
+        reloadFromDB deprecated. will be removed in the future
         """
-        """
-        print "!"
         if not id:
             # lookup id for name, email or ident
+            loginByEmail = self.app.configuration.get("loginByEmail")
             param = {}
             if activeOnly:
                 param[u"pool_state"] = 1
@@ -327,10 +323,23 @@ class root(RootBase):
                 param[u"email"] = email
             elif ident:
                 if not self.identityField:
-                    raise ValueError, "custom user identity unused"
+                    raise ValueError, "user identity filed not set"
                 param[self.identityField] = ident
                 
             user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+            
+            # check multiple identity fields
+            if len(user)==0 and loginByEmail:
+                if name:
+                    del param["name"]
+                    param["email"] = name
+                    user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+                elif email:
+                    del param["email"]
+                    param["name"] = email
+                    user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+                return None
+            
             if len(user)!=1:
                 return None
             id = user[0][0]
@@ -350,13 +359,12 @@ class root(RootBase):
     def GetUserInfos(self, userids, fields=None, activeOnly=True):
         """
         """
-        param = {u"name":userids}
+        param = {self.identityField:userids}
         if activeOnly:
             param[u"pool_state"] = 1
         if not fields:
-            fields = ["name", "email", "title"]
-        users = self.SelectDict(pool_type=u"user", parameter=param, fields=fields, operators={u"name":u"IN"})
-        return users
+            fields = [u"id", u"name", u"email", u"title", u"groups", self.identityField]
+        return self.SelectDict(pool_type=u"user", parameter=param, fields=fields, operators={self.identityField:u"IN"})
     
     
     def GetUsersWithGroup(self, group, fields=None, activeOnly=True):
@@ -498,18 +506,7 @@ def UsernameValidator(node, value):
     """
     # lookup name in database
     r = node.widget.form.context.root()
-    u = r.Select(pool_type=u"user", parameter={u"name": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"name":u"="})
-    if u:
-        # check if its the current user
-        ctx = node.widget.form.context
-        if len(u)==1 and ctx.id == u[0][0]:
-            return
-        err = _(u"Username '${name}' already in use. Please choose a different name.", mapping={'name':value})
-        raise Invalid(node, err)
-    if not r.app.configuration.get("loginByEmail"):
-        return
-    # check if name is ussed as email
-    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"name":u"="})
+    u = r.LookupUser(name=value, activeOnly=0)
     if u:
         # check if its the current user
         ctx = node.widget.form.context
@@ -527,18 +524,7 @@ def EmailValidator(node, value):
     Email()(node, value)
     # lookup email in database
     r = node.widget.form.context.root()
-    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id"], max=2, operators={u"email":u"="})
-    if u:
-        # check if its the current user
-        ctx = node.widget.form.context
-        if len(u)==1 and ctx.id == u[0][0]:
-            return
-        err = _(u"Email '${name}' already in use. Please use the login form if you already have a account.", mapping={'name':value})
-        raise Invalid(node, err)
-    if not r.app.configuration.get("loginByEmail"):
-        return
-    # check if email is ussed as name
-    u = r.Select(pool_type=u"user", parameter={u"name": value}, fields=[u"id"], max=2, operators={u"name":u"="})
+    u = r.LookupUser(email=value, activeOnly=0)
     if u:
         # check if its the current user
         ctx = node.widget.form.context

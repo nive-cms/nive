@@ -162,7 +162,6 @@ class UserListener(object):
     def Init(self):
         self.ListenEvent("commit", self.InvalidateCache)
         self.ListenEvent("logout", self.InvalidateCache)
-        self.ListenEvent("login", self.AddToCache)
     
     def AddToCache(self, lastlogin=None):
         sessionuser = self.SessionUserFactory(self.identity, self)
@@ -182,10 +181,14 @@ class UserListener(object):
 
 
 def NewConnListener(context=None, event=None):
+    """
+    !!! use call back property for request var
+    """
     uid = event.request.environ["REMOTE_USER"]
-    user = context.userdb.usercache.Get(uid)
-    if user:
-        event.request.authenticated_user = user
+    if uid:
+        user = context.userdb.usercache.Get(uid)
+        if user:
+            event.request.authenticated_user = user
 
 
 class SessionUser(object):
@@ -206,10 +209,17 @@ class SessionUser(object):
     
     def __init__(self, ident, id, data):
         self.id = id
-        self.ident = ident
+        self.identity = ident
         self.data = data
         self.lastlogin = data.get(u"lastlogin")
         self.currentlogin = time.time()
+    
+    def __str__(self):
+        return str(self.identity)
+
+    @property
+    def groups(self):
+        return self.data.groups
     
     def GetGroups(self, context=None):
         """
@@ -229,6 +239,10 @@ class SessionUser(object):
                 return True
         return False
     
+    def ReadableName(self):
+        if self.data.surname or self.data.lastname: 
+            return u" ".join([self.data.surname, self.data.lastname])
+        return self.data.name
     
     
 # session user module definition

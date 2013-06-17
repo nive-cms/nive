@@ -464,17 +464,21 @@ class BaseView(object):
     def user(self):
         return self.User()
     
-    def User(self):
+    def User(self, sessionuser=True):
         """
+        Get the currently signed in user. If sessionuser=False the function will return
+        the uncached write enabled user from database.
+        
         returns the *Authenticated User Object* or None
         """
         # cached session user object
-        try:
-            user = self.request.authenticated_user
-            if user:
-                return user
-        except AttributeError:
-            pass
+        if sessionuser:
+            try:
+                user = self.request.authenticated_user
+                if user:
+                    return user
+            except AttributeError:
+                pass
         ident = authenticated_userid(self.request)
         if not ident:
             return None

@@ -79,18 +79,26 @@ class UserDB(ApplicationBase):
 
 
         
-    def Groupfinder(self, userid, request):
+    def Groupfinder(self, userid, request=None, context=None):
         """
         returns the list of groups assigned to the user 
         """
-        groups = self.GetRoot().GetUserGroups(userid)
-        if hasattr(request, "context"):
-            ctx = request.context
-            if ctx and ILocalGroups.providedBy(ctx):
-                local = ctx.GetLocalGroups(userid)
-                if not groups:
-                    return local
-                return tuple(list(groups)+list(local))
+        try:
+            user = request.authenticated_user
+        except:
+            user = self.root().GetUser(userid)
+        if user:
+            groups = user.groups
+        else:
+            groups = ()
+        # lookup context for local roles
+        if not context and hasattr(request, "context"):
+            context = request.context
+        if context and ILocalGroups.providedBy(context):
+            local = context.GetLocalGroups(userid, user=user)
+            if not groups:
+                return local
+            return tuple(list(groups)+list(local))
         return groups
 
 
