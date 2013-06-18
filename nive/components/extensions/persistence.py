@@ -75,7 +75,7 @@ def LoadStoredConfValues(app, pyramidConfig):
     if not storage:
         return
     try:
-        db = app.NewDBConnection()
+        db = app.NewDBApi()
         if not db:
             return
     except:
@@ -85,7 +85,7 @@ def LoadStoredConfValues(app, pyramidConfig):
         storage(app=app, configuration=conf.factory).Load(db=db)
     for conf in app.registry.registeredUtilities():
         storage(app=app, configuration=conf.component).Load(db=db)
-    
+    db.close()
     
 
 class DbPersistence(PersistentConf):
@@ -103,7 +103,7 @@ class DbPersistence(PersistentConf):
             close = 0
             if not db:
                 close = 1
-                db = self.app.NewDBConnection()
+                db = self.app.NewDBApi()
             sql = """select value,ts from pool_sys where id=%s""" % (db.placeholder)
             c=db.cursor()
             c.execute(sql, (self._GetUid(),))

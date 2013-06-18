@@ -62,13 +62,15 @@ class MySqlConnSingle(Connection):
     def connect(self):
         """ Close and connect to server """
         self.close()
-        use_unicode = self.unicode
+        conf = self.configuration
+        use_unicode = conf.unicode
         charset = None
         if use_unicode:
             charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        db = MySQLdb.connect(conf.host, conf.user, conf.password, conf.dbName, connect_timeout=conf.timeout, 
+                             use_unicode=use_unicode, charset=charset)
         if not db:
-            raise OperationalError, "Cannot connect to database '%s.%s'" % (self.host, self.dbName)
+            raise OperationalError, "Cannot connect to database '%s.%s'" % (conf.host, conf.dbName)
         self._set(db)
         
 
@@ -86,7 +88,7 @@ class MySqlConnSingle(Connection):
         """ returns the database manager obj """
         self.VerifyConnection()
         aDB = MySQLManager()
-        aDB.SetDB(self._get())
+        aDB.SetDB(self.PrivateConnection())
         return aDB
 
 
@@ -101,11 +103,13 @@ class MySqlConnSingle(Connection):
 
     def PrivateConnection(self):
         """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        use_unicode = self.unicode
+        conf = self.configuration
+        use_unicode = conf.unicode
         charset = None
         if use_unicode:
             charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        db = MySQLdb.connect(conf.host, conf.user, conf.password, conf.dbName, connect_timeout=conf.timeout, 
+                             use_unicode=use_unicode, charset=charset)
         return db
 
 

@@ -13,6 +13,7 @@ if ENABLE_MYSQL_TESTS:
     from nive.utils.dataPool2.mySqlPool import *
     uTestCase = unittest.TestCase
     
+from nive.definitions import DatabaseConf
 from nive.utils.dataPool2.base import *
 from nive.utils.path import DvPath
 
@@ -21,14 +22,15 @@ from test_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_
 
 from nive.tests import __local
 
-conn = {}
-conn["user"] = __local.USER
-conn["password"] = __local.PASSWORD
-conn["host"] = __local.HOST
-conn["port"] = __local.PORT
-conn["dbName"] = __local.DATABASE
-conn["unicode"] = 1
-conn["timeout"] = 1
+conn = DatabaseConf(
+    user = __local.USER,
+    password = __local.PASSWORD,
+    host = __local.HOST,
+    port = __local.PORT,
+    dbName = __local.DATABASE,
+    unicode = 1,
+    timeout = 1
+)
 myconn = conn
 
 def getPool():

@@ -52,23 +52,11 @@ class Sqlite3ConnSingle(Connection):
 
     def __init__(self, config = None, connectNow = True):
         self.db = None
-        self.dbName = u""
-        
-        self.user = u""
-        self.host = u""
-        self.password = u""
-        self.port = u""
-        self.unicode = True
-        self.timeout = 3
-        self.revalidate = 0
-        self.verifyConnection = False
+        self.configuration = config
         
         self.placeholder = u"?"
-        
         self.check_same_thread = False
-        if(config):
-            self.SetConfig(config)
-        if(connectNow):
+        if connectNow:
             self.connect()
         
 
@@ -80,11 +68,12 @@ class Sqlite3ConnSingle(Connection):
     def connect(self):
         """ Close and connect to server """
         self.close()
-        if not self.dbName:
+        conf = self.configuration
+        if not conf.dbName:
             raise OperationalError, "Connection failed. Database name is empty." 
-        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
+        db = sqlite3.connect(conf.dbName, check_same_thread=self.check_same_thread)
         if not db:
-            raise OperationalError, "Cannot connect to database '%s'" % (self.dbName)
+            raise OperationalError, "Cannot connect to database '%s'" % (conf.dbName)
         c = db.cursor()
         c.execute("PRAGMA journal_mode = TRUNCATE")
         #c.execute("PRAGMA secure_delete = 0")
@@ -106,7 +95,7 @@ class Sqlite3ConnSingle(Connection):
     def GetDBManager(self):
         """ returns the database manager obj """
         aDB = Sqlite3Manager()
-        aDB.SetDB(self._get())
+        aDB.SetDB(self.PrivateConnection())
         return aDB
 
 
@@ -122,16 +111,12 @@ class Sqlite3ConnSingle(Connection):
 
     def PrivateConnection(self):
         """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        if not self.dbName:
+        conf = self.configuration
+        if not conf.dbName:
             raise OperationalError, "Connection failed. Database name is empty." 
-        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
+        db = sqlite3.connect(conf.dbName, check_same_thread=self.check_same_thread)
         return db
 
-
-    def SetConfig(self, config):
-        """ """
-        self.configuration=config
-        self.dbName = config.get("dbName")
 
 
 

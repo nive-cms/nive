@@ -103,13 +103,14 @@ By default this tool will only create new tables and columns and never delete an
         app = self.app
         try:
             conf = app.dbConfiguration
-            connection = app.NewDBConnection()
+            connection = app.NewConnection()
             if not connection:
                 self.stream.write(localizer.translate(_(u"""<div class="alert alert-error">No database connection configured</div>""")))
                 return 0
         except OperationalError, e:
             self.stream.write(localizer.translate(_(u"""<div class="alert alert-error">No database connection configured</div>""")))
             return 0
+
         db = connection.GetDBManager()
         self.stream.write(localizer.translate(_(u"<h4>Database '${name}' ${host} </h4><br/>", mapping={"host":conf.host, "name":conf.dbName})))
 
@@ -117,12 +118,6 @@ By default this tool will only create new tables and columns and never delete an
             self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.dbConfiguration.context})))
             return 0
         
-        if not connection.IsConnected():
-            connection.connect()
-            if not connection.IsConnected():
-                self.stream.write(localizer.translate(_(u"<div class='alert alert-error'>Database connection error (${name})</div>", mapping={"name": app.dbConfiguration.context})))
-                return 0
-
         # check database exists
         if not db.IsDatabase(conf.get("dbName")):
             db.CreateDatabase(conf.get("dbName"))
@@ -211,7 +206,7 @@ By default this tool will only create new tables and columns and never delete an
                 localizer.translate(_(u"Modify selected columns")), 
                 localizer.translate(_(u"Changes on existing columns have to be applied manually. This will write selected 'Configuration settings' to the database.<br/> <b>Warning: This may destroy something!</b>"))))
         self.stream.write(localizer.translate(u"</form>"))
-
+        connection.close()
         return result
 
     

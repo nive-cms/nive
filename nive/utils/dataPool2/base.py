@@ -108,7 +108,7 @@ class Base(object):
         self.InitFileStorage(root, connParam)
         if connection:
             self._conn = connection
-            self.name = self._conn.dbName
+            self.name = self._conn.configuration.dbName
         elif connParam:
             self._conn = self.CreateConnection(connParam)
             self.name = connParam.get("dbName",u"")
@@ -1951,19 +1951,9 @@ class Connection(object):
     placeholder = u"%s"
 
     def __init__(self, config = None, connectNow = True):
+        self.configuration=config
         self.db = None
-        self.host = u""
-        self.port = u""
-        self.user = u""
-        self.password = u""
-        self.dbName = u""
-        self.unicode = True
-        self.timeout = 3
-        self.revalidate = 100
-        self.verifyConnection = False
         self._vtime = time()
-        if config:
-            self.SetConfig(config)
         if connectNow:
             self.connect()
 
@@ -2026,16 +2016,16 @@ class Connection(object):
         db = self._get()
         if not db:
             return self.connect()
-        if not self.verifyConnection:
+        conf = self.configuration
+        if not conf.verifyConnection:
             return True
-        if self.revalidate > 0:
-            if self._getvtime()+self.revalidate > time():
+        if conf.revalidate > 0:
+            if self._getvtime()+conf.revalidate > time():
                 return True
         if not self.IsConnected():
             return self.connect()
         self._setvtime()
         return True
-    
     
     @property
     def dbapi(self):
@@ -2063,34 +2053,6 @@ class Connection(object):
             d = d.replace(u'"',u'\\"')
         return u'"%s"'%d
 
-
-
-
-    def SetConfig(self, config):
-        self.configuration=config
-        if isinstance(config, dict):
-            for k,v in config.items():
-                if k=="password":
-                    v = str(v)
-                setattr(self, k, v)
-        else:
-            self.user = config.user
-            self.host = config.host
-            self.password = str(config.password)
-            self.port = config.port
-            self.dbName = config.dbName
-            self.unicode = config.unicode
-            self.verifyConnection = config.verifyConnection
-            self.unicode = config.unicode
-            try:
-                self.timeout = config.timeout
-            except:
-                pass
-            try:
-                self.revalidate = config.revalidate
-            except:
-                pass
-            
 
     def GetDBManager(self):
         """ returns the database manager obj """

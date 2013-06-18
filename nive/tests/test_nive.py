@@ -107,9 +107,6 @@ class appTest(unittest.TestCase):
 
 
     def test_fncs(self):
-        self.assert_(self.app.ConvertID(23)==23)
-        self.assert_(self.app.ConvertID("23")==23)
-        self.assert_(self.app.ConvertID("aaa")==-1)
         self.assert_(self.app.GetVersion())
         self.assert_(self.app.CheckVersion())
         
@@ -208,7 +205,6 @@ class appTest_db:
         self.assert_(len(self.app.Query("select id from pool_meta", values = [])))
         ph = self.app.db.placeholder
         self.assert_(len(self.app.Query("select id from pool_meta where pool_type="+ph, values = ["type1"])))
-        self.assert_(self.app.GetCountEntries())
         o=self.app.obj(id, rootname = "")
         self.assert_(o)
         self.app.Register("nive.components.tools.example")
