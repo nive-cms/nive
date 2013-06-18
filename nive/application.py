@@ -94,27 +94,11 @@ class Application(object):
             self.id = configuration.id
         else:
             self.id = __name__
-        #bw 0.9.3
-        self.modules = self.registry
         
         self.__name__ = u""
         self.__parent__ = None
         self.__acl__ = []
 
-        # 0.9.4 - moved to configuration
-        #self.id = u""
-        #self.title = u""
-        #self.description = u""
-    
-        # data pool
-        # 0.9.4 - moved to configuration
-        #self.fulltextIndex = False
-        #self.autocommit = True
-        #self.useCache = True
-        #self.frontendCodepage = "utf-8"
-        #self.workflowEnabled = False
-        #self.groups = []
-        #self.categories = []
         # development
         self.debug = False
         self.reloadExtensions = False
@@ -1067,7 +1051,7 @@ class AppFactory:
     Internal class for dynamic object creation and caching.
 
     Requires:
-    - Workflow.Workflow
+    - Application
     """
 
     def _GetDataPoolObj(self):
