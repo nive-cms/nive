@@ -111,6 +111,7 @@ class Application(object):
         self._structure = PoolStructure()
         self._dbpool = None
         log = logging.getLogger(self.id)
+        
         log.debug("Initialize %s", repr(configuration))
         self.Signal("init", configuration=configuration)
 

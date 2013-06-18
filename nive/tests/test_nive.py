@@ -212,6 +212,7 @@ class appTest_db:
         user = User(u"test")
         self.app.Close()
         self.assertFalse(self.app.db.usedconnection.IsConnected())
+        # should reopen the connection
         self.assert_(self.app.LookupObj(id))
         self.app.root().Delete(id, user=user)
 

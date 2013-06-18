@@ -10,6 +10,7 @@
 - FieldConf.listItems callback tests
 - json mapping form tests
 - field renderer tests
+- unused datapool.connection tests
 - application.StoreSysValue and LoadSysValue tests 
 - helper.DumpJSONConf, LoadJSONConf tests
 - forms.JsonSequenceForm tests

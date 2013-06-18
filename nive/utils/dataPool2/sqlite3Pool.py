@@ -20,22 +20,24 @@ Data Pool Sqlite Module
 *Requires python-sqlite*
 """
 
+import threading
 import sqlite3
+from time import time
 
 from nive.utils.utils import STACKF
 
-from nive.utils.dataPool2.base import *
-from nive.utils.dataPool2.files import FileManager
-from nive.utils.dataPool2.files import FileEntry
+from nive.utils.dataPool2.base import Base, Entry
+from nive.utils.dataPool2.base import NotFound
+from nive.utils.dataPool2.connection import Connection, ConnectionThreadLocal, ConnectionRequest
+
+from nive.utils.dataPool2.files import FileManager, FileEntry
 from nive.utils.dataPool2.dbManager import Sqlite3Manager
 
 from nive.definitions import OperationalError
 
 
 
-
-
-class Sqlite3ConnSingle(Connection):
+class Sqlite3Connection(Connection):
     """
     Sqlite connection handling class
 
@@ -67,7 +69,7 @@ class Sqlite3ConnSingle(Connection):
 
     def connect(self):
         """ Close and connect to server """
-        self.close()
+        #t = time()
         conf = self.configuration
         if not conf.dbName:
             raise OperationalError, "Connection failed. Database name is empty." 
@@ -81,6 +83,8 @@ class Sqlite3ConnSingle(Connection):
         c.execute("PRAGMA synchronous = OFF")
         c.close()
         self._set(db)
+        #print "connect:", time() - t
+        return db
 
 
     def IsConnected(self):
@@ -119,23 +123,30 @@ class Sqlite3ConnSingle(Connection):
 
 
 
-
-import threading
-
-class Sqlite3ConnThreadLocal(Sqlite3ConnSingle, ConnectionThreadLocal):
+class Sqlite3ConnThreadLocal(Sqlite3Connection, ConnectionThreadLocal):
     """
-    Stores database connections as thread locals.
-    Usage is the same as Sqlite3 connection.
+    Caches database connections as thread local values.
     """
 
     def __init__(self, config = None, connectNow = True):
         self.local = threading.local()
-        Sqlite3ConnSingle.__init__(self, config, False)
+        Sqlite3Connection.__init__(self, config, False)
         self.check_same_thread = True
-        if(connectNow):
+        if connectNow:
             self.connect()
 
         
+class Sqlite3ConnRequest(Sqlite3Connection, ConnectionRequest):
+    """
+    Caches database connections as request values. Uses thread local stack as fallback (e.g testing).
+    """
+
+    def __init__(self, config = None, connectNow = True):
+        self.local = threading.local()
+        Sqlite3Connection.__init__(self, config, False)
+        self.check_same_thread = True
+        if connectNow:
+            self.connect()
     
 
 
@@ -145,7 +156,7 @@ class Sqlite3(FileManager, Base):
     Data Pool Sqlite3 implementation
     """
     _OperationalError = sqlite3.OperationalError
-    _DefaultConnection = Sqlite3ConnThreadLocal
+    _DefaultConnection = Sqlite3ConnRequest
     _EmptyValues = []
 
 

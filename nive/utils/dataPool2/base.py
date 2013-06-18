@@ -262,8 +262,7 @@ class Base(object):
             if not aCombi in (u"AND",u"OR",u"NOT"):
                 aCombi = u"AND"
         addCombi = False
-        connection = self.connection
-
+        
         where = []
         if parameter==None:
             parameter={}
@@ -452,7 +451,6 @@ class Base(object):
         For further options see -> FmtSQLSelect
         """
         sql, values = self.FmtSQLSelect(flds, parameter, dataTable=dataTable, **kw)
-        connection = self.connection
         searchPhrase = self.DecodeText(searchPhrase)
         values.insert(0, searchPhrase)
         ph = self.placeholder
@@ -546,7 +544,6 @@ class Base(object):
         result = c.fetchall()
         if cc:
             c.close()
-
         return result
 
 
@@ -1936,177 +1933,11 @@ class Entry(object):
 
 
 
-class Connection(object):
-    """
-    Base database connection class. Parameter depend on database version.
-
-    config parameter in dictionary:
-    user = database user
-    pass = password user
-    host = host server
-    port = port server
-    db = initial database name
-    """
-    
-    placeholder = u"%s"
-
-    def __init__(self, config = None, connectNow = True):
-        self.configuration=config
-        self.db = None
-        self._vtime = time()
-        if connectNow:
-            self.connect()
-
-    def __del__(self):
-        self.close()
-
-    # dbapi like functions --------------------------------------------------------------
-
-    def cursor(self):
-        db = self._get()
-        if not db:
-            raise OperationalError, "Database is closed"
-        return db.cursor()
-    
-    def begin(self):
-        """ Calls commit on the current transaction, if supported """
-        return
-
-    def rollback(self):
-        """ Calls rollback on the current transaction, if supported """
-        db = self._get()
-        db.rollback()
-
-    def commit(self):
-        """ Calls commit on the current transaction, if supported """
-        db = self._get()
-        db.commit()
-
-    def connect(self):
-        """ Close and connect to server """
-        self.close()
-        # "use a subclassed connection"
-
-    def close(self):
-        """ Close database connection """
-        db = self._get()
-        if db:
-            db.close()
-            self._set(None)
-    
-    def ping(self):
-        """ ping database server """
-        db = self._get()
-        return db.ping()
-
-
-    def IsConnected(self):
-        """ Check if database is connected """
-        try:
-            db = self._get()
-            return db.cursor()!=None
-        except:
-            return False
-
-    def VerifyConnection(self):
-        """ 
-        reconnects if not connected. If revalidate is larger than 0 IsConnected() will only be called 
-        after `revalidate` time
-        """
-        db = self._get()
-        if not db:
-            return self.connect()
-        conf = self.configuration
-        if not conf.verifyConnection:
-            return True
-        if conf.revalidate > 0:
-            if self._getvtime()+conf.revalidate > time():
-                return True
-        if not self.IsConnected():
-            return self.connect()
-        self._setvtime()
-        return True
-    
-    @property
-    def dbapi(self):
-        """ returns the dbapi database connection """
-        db = self._get()
-        if db:
-            return db
-        self.connect()
-        return self._get()
-
-    def PrivateConnection(self):
-        """ """
-        return None
-
-    
-    def FmtParam(self, param):
-        """ 
-        Format a parameter for sql queries like literal for db. This function is not
-        secure for any values. 
-        """
-        if isinstance(param, (int, long, float)):
-            return unicode(param)
-        d = unicode(param)
-        if d.find(u'"')!=-1:
-            d = d.replace(u'"',u'\\"')
-        return u'"%s"'%d
-
-
-    def GetDBManager(self):
-        """ returns the database manager obj """
-        raise TypeError, "please use a subclassed connection"
-
-
-    def _get(self):
-        # get stored database connection
-        return self.db
-        
-    def _set(self, dbconn):
-        # locally store database connection
-        self.db = dbconn
-
-    def _getvtime(self):
-        # get stored database connection
-        return self._vtime
-        
-    def _setvtime(self):
-        # locally store database connection
-        self._vtime = time()
-
-
-class ConnectionThreadLocal(Connection):
-    """
-    Caches database connections as thread local values.
-    """
-
-    def _get(self):
-        # get stored database connection
-        if not hasattr(self.local, "db"):
-            return None
-        return self.local.db
-        
-    def _set(self, dbconn):
-        # locally store database connection
-        self.local.db = dbconn
-        
-    def _getvtime(self):
-        # get stored database connection
-        if not hasattr(self.local, "_vtime"):
-            self._setvtime()
-        return self.local._vtime
-        
-    def _setvtime(self):
-        # locally store database connection
-        self.local._vtime = time()
-
-
 class NotFound(Exception):
     """ raised if entry not found """
+
 class FileNotFound(Exception):
     """ raised if physical file not found """
 
 class ConnectionError(Exception):
     """ No connection """
-    pass

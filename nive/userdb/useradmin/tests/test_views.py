@@ -70,7 +70,6 @@ class tViews(unittest.TestCase):
         render("nive.userdb.useradmin:delete.pt", values)
         
         self.root.Delete(u.id, user=user)
-        
 
 
     def test_add(self):

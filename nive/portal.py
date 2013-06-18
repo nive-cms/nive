@@ -204,7 +204,7 @@ class Portal(Events, object):
         - finish(request)
         """
         self.Signal("finish", request)
-
+        
 
     def GetGroups(self, sort=u"id", visibleOnly=False):
         """

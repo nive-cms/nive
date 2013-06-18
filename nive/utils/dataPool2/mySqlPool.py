@@ -23,6 +23,7 @@ Data Pool MySql Module
 
 
 import string, re, os
+import threading
 from time import time, localtime
 
 try:
@@ -39,13 +40,16 @@ except ImportError:
     
 from nive.utils.utils import STACKF
 
-from nive.utils.dataPool2.base import *
+from nive.utils.dataPool2.base import Base, Entry
+from nive.utils.dataPool2.base import NotFound
+from nive.utils.dataPool2.connection import Connection, ConnectionThreadLocal, ConnectionRequest
+
 from nive.utils.dataPool2.dbManager import MySQLManager
 from nive.utils.dataPool2.files import FileManager, FileEntry
 
 
 
-class MySqlConnSingle(Connection):
+class MySqlConnection(Connection):
     """
     MySql connection handling class
 
@@ -61,7 +65,7 @@ class MySqlConnSingle(Connection):
 
     def connect(self):
         """ Close and connect to server """
-        self.close()
+        #t = time()
         conf = self.configuration
         use_unicode = conf.unicode
         charset = None
@@ -72,6 +76,8 @@ class MySqlConnSingle(Connection):
         if not db:
             raise OperationalError, "Cannot connect to database '%s.%s'" % (conf.host, conf.dbName)
         self._set(db)
+        #print "connect:", time() - t
+        return db
         
 
     def IsConnected(self):
@@ -114,19 +120,24 @@ class MySqlConnSingle(Connection):
 
 
 
-import threading
-
-class MySqlConnThreadLocal(MySqlConnSingle, ConnectionThreadLocal):
+class MySqlConnThreadLocal(MySqlConnection, ConnectionThreadLocal):
     """
-    Stores database connections as thread locals.
-    Usage is the same as MySqlConn connection.
+    Caches database connections as thread local values.
     """
 
     def __init__(self, config = None, connectNow = True):
         self.local = threading.local()
-        MySqlConnSingle.__init__(self, config, connectNow)
+        MySqlConnection.__init__(self, config, connectNow)
 
 
+class MySqlConnRequest(MySqlConnection, ConnectionRequest):
+    """
+    Caches database connections as request values. Uses thread local stack as fallback (e.g testing).
+    """
+
+    def __init__(self, config = None, connectNow = True):
+        self.local = threading.local()
+        MySqlConnection.__init__(self, config, connectNow)
 
 
 
@@ -137,7 +148,7 @@ class MySql(FileManager, Base):
     _OperationalError = MySQLdb.OperationalError
     _ProgrammingError = MySQLdb.ProgrammingError
     _Warning = MySQLdb.Warning
-    _DefaultConnection = MySqlConnThreadLocal
+    _DefaultConnection = MySqlConnRequest
 
 
     def _GetInsertIDValue(self, cursor):
