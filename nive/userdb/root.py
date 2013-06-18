@@ -392,6 +392,31 @@ class root(RootBase):
         return verified
 
 
+    def DeleteUser(self, ident, currentUser=None):
+        """
+        returns status and report list
+        """
+        report = []
+        if isinstance(ident, basestring):
+            if not ident:
+                report.append(_(u"Invalid user."))
+                return False, report
+    
+            user = self.LookupUser(ident=ident, activeOnly=0)
+            if not user:
+                report.append(_(u"Invalid username."))
+                return False, report
+        else:
+            user = ident
+
+        if not self.Delete(user.id, obj=user, user=currentUser):
+            report.append(_(u"Sorry. An error occured."))
+            return False, report
+
+        report.append(_(u"User deleted."))
+        return True, report
+
+
     # to be removed ------------------------------------------------------
     def GetUserGroups(self, name, activeOnly=1):
         """
@@ -400,29 +425,6 @@ class root(RootBase):
         if not user:
             return None
         return user.data.groups
-
-    def DeleteUser(self, name):
-        """
-        returns status and report list
-        """
-        report = []
-        # check email exists
-        if name == "" or not name:
-            report.append(_(u"Invalid username."))
-            return False, report
-
-        user = self.LookupUser(name=name, activeOnly=0)
-        if not user:
-            report.append(_(u"Invalid username."))
-            return False, report
-
-        if not self.Delete(user.GetID(), obj=user, user=user):
-            report.append(_(u"Sorry. An error occured."))
-            return False, report
-
-        report.append(_(u"User deleted."))
-        return True, report
-
 
 
     def Encrypt(self, string):

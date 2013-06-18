@@ -16,7 +16,7 @@ from pyramid.renderers import render
 
 class TestView(BaseView):
     
-    def User(self):
+    def User(self, sessionuser=None):
         return self.context.root().GetUserByName("testuser")
     
 
