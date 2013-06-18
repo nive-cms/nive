@@ -173,10 +173,16 @@ class UserListener(object):
 
     def SessionUserFactory(self, ident, user):
         fields = ("name", "email", "surname", "lastname", "groups", "notify", "lastlogin")
-        data = {}
+        data = Conf()
         for f in fields:
             data[f] = user.data.get(f)
-        su = SessionUser(ident, user.id, Conf(**data))
+        data.lock()
+        fields = ("id", "title", "pool_state")
+        meta = Conf()
+        for f in fields:
+            meta[f] = user.data.get(f)
+        meta.lock()
+        su = SessionUser(ident, user.id, data, meta)
         return su
 
 
@@ -207,10 +213,11 @@ class SessionUser(object):
     """
     implements(ISessionUser)    
     
-    def __init__(self, ident, id, data):
+    def __init__(self, ident, id, data, meta=None):
         self.id = id
         self.identity = ident
         self.data = data
+        self.meta = meta
         self.lastlogin = data.get(u"lastlogin")
         self.currentlogin = time.time()
     

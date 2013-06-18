@@ -33,9 +33,9 @@ class CacheTest(unittest.TestCase):
         pass
     
     def test_caching(self):
-        user1 = SessionUser("user1", 1, Conf())
-        user2 = SessionUser("user2", 2, Conf())
-        user3 = SessionUser("user3", 3, Conf())
+        user1 = SessionUser("user1", 1, Conf(), Conf())
+        user2 = SessionUser("user2", 2, Conf(), Conf())
+        user3 = SessionUser("user3", 3, Conf(), Conf())
         
         self.assertFalse(self.cache.Get("user1"))
         self.assertFalse(self.cache.GetAll())
@@ -93,7 +93,7 @@ class ListenerTest(unittest.TestCase):
         r.app.usercache = SessionUserCache()
         user = r.LookupCache(ident="user1", activeOnly=None)
         self.assertFalse(user)
-        r.app.usercache.Add(SessionUser("user1", 1, Conf()), "user1")
+        r.app.usercache.Add(SessionUser("user1", 1, Conf(), Conf()), "user1")
         self.assertRaises(UserFound, r.LookupCache, ident="user1", activeOnly=None)
         
     def test_user(self):
@@ -118,7 +118,8 @@ class SessionuserTest(unittest.TestCase):
                   "lastname": "User", 
                   "groups": ("here", "there"), 
                   "lastlogin": time.time()}
-        self.user = SessionUser("user1", 1, Conf(**values))
+        values2 = {"id": 1, "pool_state": 1}
+        self.user = SessionUser("user1", 1, Conf(**values), Conf(**values2))
         pass
     
     def tearDown(self):
@@ -135,6 +136,8 @@ class SessionuserTest(unittest.TestCase):
         self.assert_(self.user.data.name)
         self.assert_(self.user.data.email)
         self.assert_(self.user.data.groups)
+        self.assert_(self.user.meta.id==1)
+        self.assert_(self.user.meta.pool_state==1)
     
     def test_groups(self):
         grps = self.user.GetGroups()
