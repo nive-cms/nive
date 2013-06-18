@@ -206,7 +206,7 @@ class appTest_db:
         self.assert_(self.app.GetDB())
         self.assert_(self.app.db.connection.VerifyConnection())
         self.assert_(len(self.app.Query("select id from pool_meta", values = [])))
-        ph = self.app.db.GetPlaceholder()
+        ph = self.app.db.placeholder
         self.assert_(len(self.app.Query("select id from pool_meta where pool_type="+ph, values = ["type1"])))
         self.assert_(self.app.GetCountEntries())
         o=self.app.obj(id, rootname = "")
@@ -215,7 +215,7 @@ class appTest_db:
         self.assert_(self.app.GetTool("exampletool"))
         user = User(u"test")
         self.app.Close()
-        self.assertFalse(self.app.db.GetConnection().IsConnected())
+        self.assertFalse(self.app.db.usedconnection.IsConnected())
         self.assert_(self.app.LookupObj(id))
         self.app.root().Delete(id, user=user)
 

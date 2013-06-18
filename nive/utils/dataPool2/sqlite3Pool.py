@@ -63,6 +63,8 @@ class Sqlite3ConnSingle(Connection):
         self.revalidate = 0
         self.verifyConnection = False
         
+        self.placeholder = u"?"
+        
         self.check_same_thread = False
         if(config):
             self.SetConfig(config)
@@ -92,14 +94,6 @@ class Sqlite3ConnSingle(Connection):
         self._set(db)
 
 
-    def RawConnection(self):
-        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        if not self.dbName:
-            raise OperationalError, "Connection failed. Database name is empty." 
-        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
-        return db
-
-
     def IsConnected(self):
         """ Check if database is connected """
         try:
@@ -116,13 +110,8 @@ class Sqlite3ConnSingle(Connection):
         return aDB
 
 
-    def GetPlaceholder(self):
-        return u"?"
-
-    
     def FmtParam(self, param):
-        """??? format a parameter for sql queries like literal for  db"""
-        #return self.db.literal(param)
+        """ format a parameter for sql queries like literal for  db"""
         if isinstance(param, (int, long, float)):
             return unicode(param)
         d = unicode(param)
@@ -131,12 +120,12 @@ class Sqlite3ConnSingle(Connection):
         return u'"%s"'%d
 
 
-    def Duplicate(self):
-        """ Duplicates the current connection and returns a new unconnected connection """
-        new = Sqlite3Conn(None, False)
-        new.dbName = self.dbName
-        new.configuration=self.configuration.copy()
-        return new
+    def PrivateConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        if not self.dbName:
+            raise OperationalError, "Connection failed. Database name is empty." 
+        db = sqlite3.connect(self.dbName, check_same_thread=self.check_same_thread)
+        return db
 
 
     def SetConfig(self, config):
@@ -171,8 +160,8 @@ class Sqlite3(FileManager, Base):
     Data Pool Sqlite3 implementation
     """
     _OperationalError = sqlite3.OperationalError
-    defaultConnection = Sqlite3ConnThreadLocal
-    EmptyValues = []
+    _DefaultConnection = Sqlite3ConnThreadLocal
+    _EmptyValues = []
 
 
     def GetContainedIDs(self, base=0, sort=u"title", parameter=u""):
@@ -272,7 +261,7 @@ class Sqlite3(FileManager, Base):
         if self.IsIDUsed(id):
             raise TypeError, "ID already in use"
         aC = self.connection.cursor()
-        ph = self.GetPlaceholder()
+        ph = self.placeholder
         if not dataTbl:
             raise TypeError, "Missing data table."
 
@@ -298,12 +287,9 @@ class Sqlite3(FileManager, Base):
 
     # types/classes -------------------------------------------------------------------
 
-    def FormatListForQuery(self, values):
+    def _FmtListForQuery(self, values):
         FmtParam = self.connection.FmtParam
         return u",".join([FmtParam(v) for v in values])
-
-    def GetPlaceholder(self):
-        return u"?"
 
     def _GetPoolEntry(self, id, **kw):
         try:

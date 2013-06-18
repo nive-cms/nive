@@ -108,10 +108,10 @@ class BaseTest(unittest.TestCase):
             base.SetConnection(Connection())
         except TypeError:
             pass
-        base.GetConnection()
+        base.usedconnection
         base.connection
         try:
-            base.dbapi()
+            base.dbapi
         except ConnectionError:
             pass
             

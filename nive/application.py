@@ -1122,7 +1122,7 @@ class AppFactory:
         elif poolTag.lower() == "mysql":
             poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
-        return dbObj.defaultConnection(self.dbConfiguration)
+        return dbObj._DefaultConnection(self.dbConfiguration)
 
 
     def _GetRootObj(self, rootConf):

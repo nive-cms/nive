@@ -72,16 +72,6 @@ class MySqlConnSingle(Connection):
         self._set(db)
         
 
-    def RawConnection(self):
-        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        use_unicode = self.unicode
-        charset = None
-        if use_unicode:
-            charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
-        return db
-
-
     def IsConnected(self):
         """ Check if database is connected """
         try:
@@ -109,15 +99,15 @@ class MySqlConnSingle(Connection):
         return db.literal(param)
 
 
-    def Duplicate(self):
-        """ Duplicates the current connection and returns a new unconnected connection """
-        new = MySqlConn(None, False)
-        new.user = self.user
-        new.host = self.host
-        new.password = self.password
-        new.port = self.port
-        new.dbName = self.dbName
-        return new
+    def PrivateConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        use_unicode = self.unicode
+        charset = None
+        if use_unicode:
+            charset = u"utf8"
+        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        return db
+
 
 
 import threading
@@ -143,7 +133,7 @@ class MySql(FileManager, Base):
     _OperationalError = MySQLdb.OperationalError
     _ProgrammingError = MySQLdb.ProgrammingError
     _Warning = MySQLdb.Warning
-    defaultConnection = MySqlConnThreadLocal
+    _DefaultConnection = MySqlConnThreadLocal
 
 
     def _GetInsertIDValue(self, cursor):

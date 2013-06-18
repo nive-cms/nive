@@ -104,7 +104,7 @@ class DbPersistence(PersistentConf):
             if not db:
                 close = 1
                 db = self.app.NewDBConnection()
-            sql = """select value,ts from pool_sys where id=%s""" % (db.GetPlaceholder())
+            sql = """select value,ts from pool_sys where id=%s""" % (db.placeholder)
             c=db.cursor()
             c.execute(sql, (self._GetUid(),))
             data = c.fetchall()
@@ -151,7 +151,7 @@ class DbPersistence(PersistentConf):
             if not db:
                 close = 1
                 db = self.app.db
-            sql = """select ts from pool_sys where id=%s""" % (db.GetPlaceholder())
+            sql = """select ts from pool_sys where id=%s""" % (db.placeholder)
             r = db.Query(sql, (self._GetUid(),))
             data = pickle.dumps(values)
             if len(r):
