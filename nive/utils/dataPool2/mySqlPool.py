@@ -71,8 +71,14 @@ class MySqlConnection(Connection):
         charset = None
         if use_unicode:
             charset = u"utf8"
-        db = MySQLdb.connect(conf.host, conf.user, conf.password, conf.dbName, connect_timeout=conf.timeout, 
-                             use_unicode=use_unicode, charset=charset)
+        db = MySQLdb.connect(conf.host,
+                             conf.user,
+                             str(conf.password), 
+                             port=conf.port or 3306,
+                             db=conf.dbName, 
+                             connect_timeout=conf.timeout, 
+                             use_unicode=use_unicode, 
+                             charset=charset)
         if not db:
             raise OperationalError, "Cannot connect to database '%s.%s'" % (conf.host, conf.dbName)
         self._set(db)
@@ -114,8 +120,14 @@ class MySqlConnection(Connection):
         charset = None
         if use_unicode:
             charset = u"utf8"
-        db = MySQLdb.connect(conf.host, conf.user, conf.password, conf.dbName, connect_timeout=conf.timeout, 
-                             use_unicode=use_unicode, charset=charset)
+        db = MySQLdb.connect(conf.host,
+                             conf.user,
+                             str(conf.password), 
+                             port=conf.port or 3306,
+                             db=conf.dbName, 
+                             connect_timeout=conf.timeout, 
+                             use_unicode=use_unicode, 
+                             charset=charset)
         return db
 
 
