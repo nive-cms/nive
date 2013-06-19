@@ -474,10 +474,10 @@ class BaseView(object):
         # cached session user object
         if sessionuser:
             try:
-                user = self.request.authenticated_user
+                user = self.request.environ["authenticated_user"]
                 if user:
                     return user
-            except AttributeError:
+            except KeyError:
                 pass
         ident = authenticated_userid(self.request)
         if not ident:

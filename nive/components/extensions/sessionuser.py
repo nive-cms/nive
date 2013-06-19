@@ -28,15 +28,13 @@ from nive.userdb.root import UserFound
 Session user cache
 ------------------
 Caches simplified user objects and attaches them to request objects
-as request.authenticated_userobj.
+as request.environ["authenticated_user"]
 
 Setup:
 - adds SessionUserCache object to usedb.app as userdb.usercache
 - 
 - listens to root *getuser* events
 - listens to user *login*, *logout*, *commit*, *delete*
-- listens to new request
-
 
 """
 
@@ -142,6 +140,7 @@ class SessionUserCache(object):
         return "__c__" + str(hash(str(id)))
 
 
+
 class RootListener(object):
     
     def Init(self):
@@ -186,15 +185,6 @@ class UserListener(object):
         return su
 
 
-def NewConnListener(context=None, event=None):
-    """
-    !!! use call back property for request var
-    """
-    uid = event.request.environ["REMOTE_USER"]
-    if uid:
-        user = context.userdb.usercache.Get(uid)
-        if user:
-            event.request.authenticated_user = user
 
 
 class SessionUser(object):
@@ -276,8 +266,6 @@ def SetupRootAndUser(app, pyramidConfig):
     add([app.GetObjectConf("user",skipRoot=True)], userextension)
     # add usercache to app
     app.usercache = SessionUserCache()
-    # add new conn listener
-    app.portal.ListenEvent("start", NewConnListener)
 
 
 

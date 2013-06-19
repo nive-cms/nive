@@ -83,14 +83,24 @@ class UserDB(ApplicationBase):
         """
         returns the list of groups assigned to the user 
         """
-        try:
-            user = request.authenticated_user
-        except:
-            user = self.root().GetUser(userid)
-        if user:
-            groups = user.groups
+        if request:
+            try:
+                user = request.environ["authenticated_user"]
+            except:
+                user = self.root().GetUser(userid)
+                request.environ["authenticated_user"] = user
+                def remove_user(request):
+                    if "authenticated_user" in request.environ:
+                        del request.environ["authenticated_user"]
+                request.add_finish_callback(remove_user)
         else:
-            groups = ()
+                user = self.root().GetUser(userid)
+        if not user:
+            return None
+
+        # users groups or empty list
+        groups = user.groups or ()
+
         # lookup context for local roles
         if not context and hasattr(request, "context"):
             context = request.context
