@@ -40,7 +40,7 @@ class Connection(object):
     pass = password user
     host = host server
     port = port server
-    db = initial database name
+    dbName = database name
     """
     
     placeholder = u"%s"
@@ -194,6 +194,23 @@ class ConnectionThreadLocal(Connection):
         self.local._vtime = time()
 
 
+class ConnectionCache(object):
+    """
+    Supports caching of multiple different database connection
+    """
+    def __init__(self):
+        self.connections = {}
+
+    def __setitem__(self, key, conn):
+        self.connections[key] = conn
+    
+    def __getitem__(self, key):
+        return self.connections[key]
+    
+    def close(self):
+        for key, conn in self.connections.iteritems():
+            conn.close()
+
 class ConnectionRequest(Connection):
     """
     Caches database connections as webob request values. Uses thread local stack as fallback (e.g testing).
@@ -236,8 +253,8 @@ class ConnectionRequest(Connection):
                 return None
             return self.local.db
         try:
-            return req.__nive_db__ or  self.connect()
-        except AttributeError:
+            return req.__nive_db__[self.configuration.dbName] or  self.connect()
+        except (AttributeError, KeyError):
             return self.connect()
         
     def _set(self, dbconn):
@@ -247,11 +264,16 @@ class ConnectionRequest(Connection):
             # use thread local stack as fallback
             self.local.db = dbconn
             return
-        req.__nive_db__ = dbconn
+        if not hasattr(req, "__nive_db__"):
+            req.__nive_db__ = ConnectionCache()
+        req.__nive_db__[self.configuration.dbName] = dbconn
 
         def CloseDatabase(request):
-            request.__nive_db__.close()
-            request.__nive_db__ = None
+            try:
+                request.__nive_db__.close()
+                request.__nive_db__ = None
+            except AttributeError:
+                pass
         req.add_finished_callback(CloseDatabase)
         
     def _getvtime(self):
