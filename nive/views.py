@@ -472,13 +472,17 @@ class BaseView(object):
         returns the *Authenticated User Object* or None
         """
         # cached session user object
-        if sessionuser:
-            try:
-                user = self.request.environ["authenticated_user"]
-                if user:
-                    return user
-            except KeyError:
-                pass
+        if not sessionuser:
+            ident = authenticated_userid(self.request)
+            if not ident:
+                return None
+            return self.context.app.portal.userdb.root().LookupUser(ident=ident)
+        try:
+            user = self.request.environ["authenticated_user"]
+            if user:
+                return user
+        except KeyError:
+            pass
         ident = authenticated_userid(self.request)
         if not ident:
             return None

@@ -92,7 +92,7 @@ class UserDB(ApplicationBase):
                 def remove_user(request):
                     if "authenticated_user" in request.environ:
                         del request.environ["authenticated_user"]
-                request.add_finish_callback(remove_user)
+                request.add_finished_callback(remove_user)
         else:
                 user = self.root().GetUser(userid)
         if not user:
