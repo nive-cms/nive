@@ -110,7 +110,10 @@ class Events(object):
                         if f != None:
                             f(self, **kw)
                 else:
-                    fnc(**kw)
+                    try:
+                        fnc(context=self,**kw)
+                    except TypeError:
+                        fnc(**kw)
         else:
             for fnc in self._eventdispatch[signal]:
                 try:
@@ -120,7 +123,10 @@ class Events(object):
                             if f != None:
                                 f(self, **kw)
                     else:
-                        fnc(**kw)
+                        try:
+                            fnc(context=self,**kw)
+                        except TypeError:
+                            fnc(**kw)
                 except Exception, e:
                     pass
 

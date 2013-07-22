@@ -5,6 +5,7 @@ from time import time
 import unittest
 from types import UnicodeType
 
+from nive.definitions import DatabaseConf
 from nive.utils.dataPool2.base import *
 from nive.utils.dataPool2.sqlite3Pool import Sqlite3
 from nive.utils.path import DvPath
@@ -17,8 +18,9 @@ from test_Base import conf, stdMeta, struct, SystemFlds, Fulltext, Files, data1_
 from nive.tests import __local
 
 # configuration ---------------------------------------------------------------------------
-conn = {}
-conn["dbName"] = __local.ROOT+"nive.db"
+conn = DatabaseConf(
+    dbName = __local.ROOT+"nive.db"
+)
 
 def getPool():
     p = Sqlite3(connParam=conn, **conf)

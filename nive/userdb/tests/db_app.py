@@ -17,11 +17,13 @@ dbconf = DatabaseConf(
     fileRoot = __local.ROOT,
     context = "Sqlite3"
 )
-appconf = AppConf("nive.userdb.app")
-appconf.modules.append("nive.userdb.userview.view")
-appconf.modules.append("nive.components.tools.sendMail")
 
-def app():
+
+def app(extmodules=None):
+    appconf = AppConf("nive.userdb.app")
+    appconf.modules.append("nive.userdb.userview.view")
+    appconf.modules.append("nive.components.tools.sendMail")
+    
     a = UserDB(appconf)
     a.dbConfiguration=dbconf
     p = Portal()
@@ -41,7 +43,11 @@ def app():
     return a
 
 def app_nodb():
-    a = WebsitePublisher(appconf)
+    appconf = AppConf("nive.userdb.app")
+    appconf.modules.append("nive.userdb.userview.view")
+    appconf.modules.append("nive.components.tools.sendMail")
+    
+    a = UserDB(appconf)
     a.dbConfiguration=DatabaseConf()
     p = Portal()
     p.Register(a)

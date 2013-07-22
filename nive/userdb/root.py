@@ -27,7 +27,7 @@ from time import time
 import uuid
 import json
 
-from nive.definitions import RootConf, Conf, StagUser
+from nive.definitions import RootConf, Conf, StagUser, IUser
 from nive.security import User
 from nive.components.objects.base import RootBase
 from nive.i18n import _
@@ -38,111 +38,21 @@ class Unauthorized(Exception):
     failed login
     """
 
-
-import thread
-
-class UserCache(object):
+class UserFound(Exception):
     """
-    User caching support. Caches users including data as attributes. 
+    Can be used in *getuser* listeners to break user lookup and
+    pass a session user to LookupUser. The second argument is the session
+    user 
+    """
+    def __init__(self, user):
+        self.user = user
+
+class root(RootBase):
+    """
+    """
     
-    Options: ::
-
-        useCache = enable or disable caching
-        cacheTypes = a list of pool_types to be cached. not matching types are not cached
-        expires = objs are reloaded or purged after this many seconds. 0 = never expires 
-    """
-    useCache = True
-    cacheTypes = (u"user",)
-    expires = 0 
-
-    def Cache(self, obj, id):
-        """
-        """
-        if not self.useCache:
-            return 
-        try:
-            t = obj.GetTypeID()
-            if self.cacheTypes and not t in self.cacheTypes:
-                return
-        except:
-            if self.cacheTypes:
-                return 
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            setattr(self, self._Cachename(id), (obj, time()))
-            if lock.locked():
-                lock.release()
-        except:
-            if lock and lock.locked():
-                lock.release()
-
-    def GetFromCache(self, id):
-        """
-        returns the cached object
-        """
-        if not self.useCache:
-            return None
-        n = self._Cachename(id)
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            if hasattr(self, n):
-                o = getattr(self, n)
-                if lock.locked():
-                    lock.release()
-                return o[0]
-        except:
-            if lock and lock.locked():
-                lock.release()
-        return None
-
-    def GetAllFromCache(self):
-        """
-        returns all cached objects
-        """
-        objs = []
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            for v in self.__dict__.keys():
-                if v[:5] == "__c__":
-                    objs.append(getattr(self, v)[0])
-            if lock.locked():
-                lock.release()
-        except:
-            if lock and lock.locked():
-                lock.release()
-        return objs
-
-    def RemoveCache(self, id):
-        """
-        """
-        if not self.useCache:
-            return 
-        try:
-            lock = thread.allocate_lock()
-            lock.acquire(1)
-            try:
-                delattr(self, self._Cachename(id))
-            except:
-                pass
-            if lock.locked():
-                lock.release()
-        except:
-            if lock and lock.locked():
-                lock.release()
-
-    def _Cachename(self, id):
-        return "__c__" + str(hash(str(id)))
-
-
-
-
-
-class root(UserCache, RootBase):
-    """
-    """
+    # field used as unique user identity in sessions and acache
+    identityField = u"name"
     
     # User account handling ------------------------------------------------------------------------------------------------------
 
@@ -169,9 +79,16 @@ class root(UserCache, RootBase):
             return None, report
 
         # check user with name exists
-        if self.LookupUser(name=name, activeOnly=0):
+        user = self.GetUserByName(name, activeOnly=0)
+        if user:
             report.append(_(u"Username '${name}' already in use. Please choose a different name.", mapping={u"name":name}))
             return None, report
+        email = data.get("email")
+        if email and self.app.configuration.get("loginByEmail"):
+            user = self.GetUserByEmail(email, activeOnly=0)
+            if user:
+                report.append(_(u"Email '${name}' already in use. ", mapping={'name':email}))
+                return None, report
         
         if generatePW:
             pw = self.GeneratePassword()
@@ -287,35 +204,6 @@ class root(UserCache, RootBase):
         return True, report
 
 
-    def GenerateID(self, length=20, repl="-"):
-        # generates a id
-        return str(uuid.uuid4()).replace(repl,"")[:length]
-        
-
-    def DeleteUser(self, name):
-        """
-        returns status and report list
-        """
-        report = []
-        # check email exists
-        if name == "" or not name:
-            report.append(_(u"Invalid username."))
-            return False, report
-
-        user = self.LookupUser(name=name, activeOnly=0)
-        if not user:
-            report.append(_(u"Invalid username."))
-            return False, report
-
-        self.RemoveCache(name)
-        if not self.Delete(user.GetID(), obj=user, user=user):
-            report.append(_(u"Sorry. An error occured."))
-            return False, report
-
-        report.append(_(u"User deleted."))
-        return True, report
-
-
     # Login/logout and user sessions ------------------------------------------------------------------------------------------------------
 
     def Login(self, name, password, raiseUnauthorized = 1):
@@ -329,33 +217,41 @@ class root(UserCache, RootBase):
         if not user:
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
-            report.append(_(u"Login failed. Please check your username and password."))
+            report.append(_(u"Sign in failed. Please check your username and password."))
             return None, report
             
         if not user.Authenticate(password):
             if raiseUnauthorized:
                 raise Unauthorized, "Login failed"
-            report.append(_(u"Login failed. Please check your username and password."))
+            report.append(_(u"Sign in failed. Please check your username and password."))
             return None, report
 
         # call user
         user.Login()
-        report.append(_(u"Logged in."))
+        report.append(_(u"You are now signed in."))
         return user, report
 
 
-    def Logout(self, name):
+    def Logout(self, ident):
         """
         Logout and delete session data
         """
-        user = self.GetUser(name)
+        user = self.GetUser(ident)
         if not user:
             return False
-        user.Logout()
+        if not IUser.providedBy(user):
+            user = self.LookupUser(id=user.id)
+        if user:
+            user.Logout()
         return True
 
 
     # Password, activationID ------------------------------------------------------------------------------------------------------
+
+    def GenerateID(self, length=20, repl="-"):
+        # generates a id
+        return str(uuid.uuid4()).replace(repl,"")[:length]
+        
 
     def GeneratePassword(self, mincount=5, maxcount=5):
         # generates a password
@@ -376,110 +272,99 @@ class root(UserCache, RootBase):
         return password
 
 
-    def Encrypt(self, string):
-        try:
-            return base64.encodestring(string)
-        except:
-            return string
-
-    def Decrypt(self, string):
-        try:
-            return base64.decodestring(string)
-        except:
-            return string
-
-
     # User ------------------------------------------------------------------------------------------------------
 
-    def GetUser(self, name, activeOnly=1):
+    def GetUser(self, ident, activeOnly=1):
         """
-        Lookup user by *user_id* as used in session cookies for example
+        Lookup user by *user identity* as used in session cookies for example
+        
+        events: 
+        - getuser(ident, activeOnly)
+        - loaduser(user)
         """
-        user = self.LookupUser(name=name, activeOnly=activeOnly)
+        try:
+            self.Signal("getuser", ident=ident, activeOnly=activeOnly)
+        except UserFound, user:
+            return user.user
+        user = self.LookupUser(ident=ident, activeOnly=activeOnly)
+        if user:
+            self.Signal("loaduser", user=user)
         return user
-
+    
 
     def GetUserByName(self, name, activeOnly=1):
-        """
-        """
-        user = self.LookupUser(name=name, activeOnly=activeOnly)
-        if not user and self.app.configuration.get("loginByEmail"): 
-            user = self.GetUserByMail(name, activeOnly)
-        return user
+        """ """
+        return self.LookupUser(name=name, activeOnly=activeOnly)
+
+
+    def GetUserByMail(self, email, activeOnly=1):
+        """ """
+        return self.LookupUser(email=email, activeOnly=activeOnly)
 
 
     def GetUserByID(self, id, activeOnly=1):
+        """ """
+        return self.LookupUser(id=id, activeOnly=activeOnly)
+
+
+    def LookupUser(self, id=None, ident=None, name=None, email=None, activeOnly=1, reloadFromDB=0):
+        """ 
+        reloadFromDB deprecated. will be removed in the future
         """
-        """
+        if not id:
+            # lookup id for name, email or ident
+            loginByEmail = self.app.configuration.get("loginByEmail")
+            param = {}
+            if activeOnly:
+                param[u"pool_state"] = 1
+            if name:
+                param[u"name"] = name
+            elif email:
+                param[u"email"] = email
+            elif ident:
+                if not self.identityField:
+                    raise ValueError, "user identity filed not set"
+                param[self.identityField] = ident
+                
+            user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+            
+            # check multiple identity fields
+            if len(user)==0 and loginByEmail:
+                if name:
+                    del param["name"]
+                    param["email"] = name
+                    user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+                elif email:
+                    del param["email"]
+                    param["name"] = email
+                    user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
+                return None
+            
+            if len(user)!=1:
+                return None
+            id = user[0][0]
+            
         user = self.GetObj(id)
         if not user or (activeOnly and not user.meta.get("pool_state")==1):
             return None
         return user
+     
 
-
-    def GetUserByMail(self, email, activeOnly=1):
+    def GetUsers(self, **kw):
         """
         """
-        user = self.Select(pool_type=u"user", parameter={u"email":email}, fields=[u"id",u"name",u"email"], max=2, operators={u"email":u"="})
-        if len(user) != 1:
-            return None
-        if user[0][2] != email:
-            return None
-        return self.LookupUser(id=user[0][0], activeOnly=activeOnly)
-
-
-    def GetUserGroups(self, name, activeOnly=1):
-        """
-        """
-        user = self.GetUser(name, activeOnly=activeOnly)
-        if not user:
-            return None
-        return user.data.groups
-
-
-    def LookupUser(self, name=None, id=None, activeOnly=1, reloadFromDB=0):
-        """
-        """
-        if id:
-            user = self.GetObj(id)
-            if not user or (activeOnly and not user.meta.get("pool_state")==1):
-                return None
-            return user
-        elif name:
-            user = self.GetFromCache(name)
-            if user:
-                return user
-            # load admin user from configuration
-            try:
-                app = self.app
-                if app.configuration.admin["name"] == name:
-                    return adminuser(app.configuration.admin)
-            except:
-                pass
-            
-            user =  self.Select(pool_type=u"user", parameter={u"name":name}, fields=[u"id"], max=2, operators={u"name":u"="})
-            if len(user)==0:
-                return None
-            id = user[0][0]
-            if id:
-                user = self.GetObj(id)
-                if not user or (activeOnly and not user.meta.get("pool_state")==1):
-                    return None
-                self.Cache(user, name)
-                return user
-        return None
+        return self.SearchType(u"user", {u"pool_state":1}, [u"id",u"title",u"name",u"groups",u"lastlogin"])
 
 
     def GetUserInfos(self, userids, fields=None, activeOnly=True):
         """
         """
-        param = {u"name":userids}
+        param = {self.identityField:userids}
         if activeOnly:
             param[u"pool_state"] = 1
         if not fields:
-            fields = ["name", "email", "title"]
-        users = self.SelectDict(pool_type=u"user", parameter=param, fields=fields, operators={u"name":u"IN"})
-        return users
+            fields = [u"id", u"name", u"email", u"title", u"groups", self.identityField]
+        return self.SelectDict(pool_type=u"user", parameter=param, fields=fields, operators={self.identityField:u"IN"})
     
     
     def GetUsersWithGroup(self, group, fields=None, activeOnly=True):
@@ -507,11 +392,54 @@ class root(UserCache, RootBase):
         return verified
 
 
-    def GetUsers(self, **kw):
+    def DeleteUser(self, ident, currentUser=None):
+        """
+        returns status and report list
+        """
+        report = []
+        if isinstance(ident, basestring):
+            if not ident:
+                report.append(_(u"Invalid user."))
+                return False, report
+    
+            user = self.LookupUser(ident=ident, activeOnly=0)
+            if not user:
+                report.append(_(u"Invalid username."))
+                return False, report
+        else:
+            user = ident
+
+        if not self.Delete(user.id, obj=user, user=currentUser):
+            report.append(_(u"Sorry. An error occured."))
+            return False, report
+
+        report.append(_(u"User deleted."))
+        return True, report
+
+
+    # to be removed ------------------------------------------------------
+    def GetUserGroups(self, name, activeOnly=1):
         """
         """
-        users = self.SearchType(u"user", {u"pool_state":1}, [u"id",u"title",u"name",u"groups",u"lastlogin"])
-        return users
+        user = self.GetUser(name, activeOnly=activeOnly)
+        if not user:
+            return None
+        return user.data.groups
+
+
+    def Encrypt(self, string):
+        try:
+            return base64.encodestring(string)
+        except:
+            return string
+
+    def Decrypt(self, string):
+        try:
+            return base64.decodestring(string)
+        except:
+            return string
+
+
 
 
 # Root definition ------------------------------------------------------------------
@@ -546,24 +474,15 @@ class adminuser(object):
 
     def Authenticate(self, password):
         return password == self.data["password"]
-
     
     def Login(self):
-        """
-        events: login()
-        """
-        self.AddToCache()
+        """ """
 
     def Logout(self):
-        """
-        events: logout()
-        """
-        self.RemoveFromCache()
+        """ """
 
     def GetGroups(self, context=None):
-        """
-        groups
-        """
+        """ """
         return self.groups
 
     def InGroups(self, groups):
@@ -577,16 +496,6 @@ class adminuser(object):
                 return True
         return False
     
-    # System ------------------------------------------------
-
-    def AddToCache(self):
-        pass
-        #self.GetParent().Cache(self, self.id)
-
-    def RemoveFromCache(self):
-        pass
-        #self.GetParent().RemoveCache(self.id)
-
 
 
 from nive.components.reform.schema import Invalid
@@ -599,7 +508,7 @@ def UsernameValidator(node, value):
     """
     # lookup name in database
     r = node.widget.form.context.root()
-    u = r.Select(pool_type=u"user", parameter={u"name": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"name":u"="})
+    u = r.LookupUser(name=value, activeOnly=0)
     if u:
         # check if its the current user
         ctx = node.widget.form.context
@@ -617,7 +526,7 @@ def EmailValidator(node, value):
     Email()(node, value)
     # lookup email in database
     r = node.widget.form.context.root()
-    u = r.Select(pool_type=u"user", parameter={u"email": value}, fields=[u"id",u"name",u"email"], max=2, operators={u"email":u"="})
+    u = r.LookupUser(email=value, activeOnly=0)
     if u:
         # check if its the current user
         ctx = node.widget.form.context

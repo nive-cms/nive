@@ -132,7 +132,6 @@ class UsermanagementView(AdminBasics):
                 if not root.Delete(id=u.id, obj=u, user=self.User()):
                     result = False
                     msgs.append(self.Translate(_(u"Delete failed: User '%(name)s'", mapping={"name": u.meta.title})))
-                root.RemoveCache(name)
             users=()
             if result:
                 if len(ids)>1:

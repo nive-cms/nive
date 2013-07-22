@@ -464,14 +464,29 @@ class BaseView(object):
     def user(self):
         return self.User()
     
-    def User(self):
+    def User(self, sessionuser=True):
         """
+        Get the currently signed in user. If sessionuser=False the function will return
+        the uncached write enabled user from database.
+        
         returns the *Authenticated User Object* or None
         """
-        name = authenticated_userid(self.request)
-        if not name:
+        # cached session user object
+        if not sessionuser:
+            ident = authenticated_userid(self.request)
+            if not ident:
+                return None
+            return self.context.app.portal.userdb.root().LookupUser(ident=ident)
+        try:
+            user = self.request.environ["authenticated_user"]
+            if user:
+                return user
+        except KeyError:
+            pass
+        ident = authenticated_userid(self.request)
+        if not ident:
             return None
-        return self.context.app.portal.userdb.root().GetUser(name)
+        return self.context.app.portal.userdb.root().GetUser(ident)
     
     def UserName(self):
         """

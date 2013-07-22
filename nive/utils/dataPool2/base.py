@@ -28,15 +28,8 @@ from nive.utils.path import DvPath
 
 from nive.definitions import ConfigurationError, OperationalError, ProgrammingError, Warning
 
-from nive.utils.dataPool2.files import File
 from nive.utils.dataPool2.structure import PoolStructure, DataWrapper, MetaWrapper, FileWrapper
 
-
-# Pool Constants ---------------------------------------------------------------------------
-
-#
-StdEncoding = u"utf-8"
-EncodeMapping = u"replace"
 
 
 class Base(object):
@@ -82,17 +75,17 @@ class Base(object):
     _OperationalError=OperationalError
     _ProgrammingError=ProgrammingError
     _Warning=Warning
-    defaultConnection = None
-    EmptyValues = None
+    _DefaultConnection = None
+    _EmptyValues = None
 
     MetaTable = u"pool_meta"
     FulltextTable = u"pool_fulltext"
     GroupsTable = u"pool_groups"
-
+    
 
     def __init__(self, connection = None, structure = None, root = "",
                  useTrashcan = False, useBackups = False, 
-                 codePage = StdEncoding, dbCodePage = StdEncoding,
+                 codePage = "utf-8", dbCodePage = "utf-8",
                  connParam = None, 
                  debug = 0, log = "sql.log", **kw):
 
@@ -103,10 +96,9 @@ class Base(object):
 
         self._debug = debug
         self._log = log
+        self.name = root        # used for logging
         
         self._conn = None
-        self.name = u""        # used for logging
-
         if not structure:
             self.structure = self._GetDefaultPoolStructure()(pool=self)
         else:
@@ -116,16 +108,15 @@ class Base(object):
         self.InitFileStorage(root, connParam)
         if connection:
             self._conn = connection
+            self.name = self._conn.configuration.dbName
         elif connParam:
             self._conn = self.CreateConnection(connParam)
-            if not self.name:
-                self.name = connParam.get("dbName",u"")
+            self.name = connParam.get("dbName",u"")
         
 
     def Close(self):
         if self._conn:
             self._conn.close()
-        #self.structure = None
 
     def __del__(self):
          self.Close()
@@ -142,28 +133,56 @@ class Base(object):
         self._conn.VerifyConnection()
         return self._conn
 
-    def dbapi(self):
-        if not self._conn:
-            raise ConnectionError, "No Connection"
-        return self._conn.dbapi()
-
-
-    def GetConnection(self):
+    @property
+    def usedconnection(self):
         """
-        Returns the database connection without verifying the connection.
+        Returns the previously used connection without verifying the connection. The returned
+        connection may be none or not connected. Can be used in cases if the connection will
+        only be used to finish previous actions e.g. Commit(). Lookup is faster and will not 
+        waste unnecessary resources.
         """
         return self._conn
 
-    def GetPlaceholder(self):
-        return u"%s"
-    
+    @property
+    def dbapi(self):
+        if not self._conn:
+            raise ConnectionError, "No Connection"
+        return self._conn.dbapi
+
+
+    def Begin(self):
+        """
+        Start a database transaction, if supported
+        """
+        self.connection.begin()
+
+    def Undo(self):
+        """
+        Rollback the changes made to the database, if supported
+        """
+        self.usedconnection.rollback()
+
+    def Commit(self, user=""):
+        """
+        Commit the changes made to the database, if supported
+        """
+        self.usedconnection.commit()
+
     def GetDBDate(self, date=None):
         if not date:
             date = datetime.now()
         elif not isinstance(date, datetime):
             date = ConvertToDateTime(date)
         return date.strftime(u"%Y-%m-%d %H:%M:%S")
-
+    
+    @property
+    def placeholder(self):
+        """
+        SQL statement format string to be used as placeholder for values. 
+        e.g. mysql=%s, sqlite=?
+        """
+        return self._conn.placeholder
+    
 
     # SQL queries ---------------------------------------------------------------------
 
@@ -203,7 +222,7 @@ class Base(object):
         metaStructure = self.structure.get(self.MetaTable, version=version)
         mapJoinFld = kw.get("mapJoinFld")
         plist = []   # sorted list of query parameters for execute()
-        ph = self.GetPlaceholder()   # placeholder to be used instead plist values
+        ph = self.placeholder   # placeholder to be used instead plist values
         fields = []
         for field in flds:
             if singleTable:
@@ -243,8 +262,7 @@ class Base(object):
             if not aCombi in (u"AND",u"OR",u"NOT"):
                 aCombi = u"AND"
         addCombi = False
-        connection = self.connection
-
+        
         where = []
         if parameter==None:
             parameter={}
@@ -313,9 +331,9 @@ class Base(object):
                     where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
                     plist.append(value[0])
                 else:
-                    v = self.FormatListForQuery(value)
+                    v = self._FmtListForQuery(value)
                     if isinstance(v, basestring):
-                        # sqlite error
+                        # sqlite error: cannot use placeholder
                         where.append(u"%s%s %s (%s) " % (table, paramname, operator, v))
                     else:
                         where.append(u"%s%s %s %s " % (table, paramname, operator, ph))
@@ -408,13 +426,15 @@ class Base(object):
         return sql, plist
 
 
+    def _FmtListForQuery(self, value):
+        return tuple(value)
+
     def _FmtWhereClause(self, where, singleTable):
         if len(where):
             where = u"WHERE %s" % u"".join(where)
         else:
             where = u""
         return where
-
 
     def _FmtLimit(self, start, max):
         if start != None:
@@ -431,10 +451,9 @@ class Base(object):
         For further options see -> FmtSQLSelect
         """
         sql, values = self.FmtSQLSelect(flds, parameter, dataTable=dataTable, **kw)
-        connection = self.connection
         searchPhrase = self.DecodeText(searchPhrase)
         values.insert(0, searchPhrase)
-        ph = self.GetPlaceholder()
+        ph = self.placeholder
         phrase = u"""%s.text LIKE %s""" % (self.FulltextTable, ph)
 
         if not searchPhrase in (u"", u"'%%'", None):
@@ -450,8 +469,34 @@ class Base(object):
 
         sql = sql.replace(u"FROM %s AS meta__"%(self.MetaTable), "FROM %s AS meta__\r\n        LEFT JOIN %s ON (meta__.id = %s.id)"%(self.MetaTable, self.FulltextTable, self.FulltextTable))
         return sql, values
+    
+    
+    # database query execution -----------------------------------------------------------------------
 
+    def Execute(self, sql, values = None, cursor=None):
+        """
+        Execute a query on the database. Returns the dbapi cursor. Use `cursor.fetchall()` or
+        `cursor.fetchone()` to retrieve results. The cursor should be closed after usage.
+        """
+        if not cursor:
+            cursor = self.connection.cursor()
+        if self._debug:
+            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
+        # adjust different accepted empty values sets
+        if not values:
+            values = self._EmptyValues
+        try:
+            cursor.execute(sql, values)
+        except self._OperationalError, e:
+            # map to nive.utils.dataPool2.base.OperationalError
+            raise OperationalError, e
+        except self._ProgrammingError, e:
+            # map to nive.utils.dataPool2.base.OperationalError
+            self.Undo()
+            raise ProgrammingError, e
+        return cursor
 
+    
     def Query(self, sql, values = None, cursor=None, getResult=True):
         """
         execute a query on the database. non unicode texts are converted according to codepage settings.
@@ -481,7 +526,7 @@ class Base(object):
                 values = v1
         # adjust different accepted empty values sets
         if not values:
-            values = self.EmptyValues
+            values = self._EmptyValues
         try:
             c.execute(sql, values)
         except self._OperationalError, e:
@@ -499,40 +544,8 @@ class Base(object):
         result = c.fetchall()
         if cc:
             c.close()
-
         return result
 
-
-    def Execute(self, sql, values = None, cursor=None):
-        """
-        Execute a query on the database. Returns the dbapi cursor. Use `cursor.fetchall()` or
-        `cursor.fetchone()` to retrieve results. The cursor should be closed after usage.
-        """
-        if not cursor:
-            cursor = self.connection.cursor()
-        if self._debug:
-            STACKF(0,sql+"\r\n",self._debug, self._log,name=self.name)
-        # adjust different accepted empty values sets
-        if not values:
-            values = self.EmptyValues
-        try:
-            cursor.execute(sql, values)
-        except self._OperationalError, e:
-            # map to nive.utils.dataPool2.base.OperationalError
-            raise OperationalError, e
-        except self._ProgrammingError, e:
-            # map to nive.utils.dataPool2.base.OperationalError
-            self.Undo()
-            raise ProgrammingError, e
-        return cursor
-
-    
-    def FormatListForQuery(self, value):
-        return tuple(value)
-
-    def GetPlaceholder(self):
-        return u"%s"
-    
 
     def SelectFields(self, table, fields, idValues, cursor = None, idColumn = None):
         """
@@ -548,7 +561,7 @@ class Base(object):
         """
         dataList = []
         phdata = []
-        ph = self.GetPlaceholder()
+        ph = self.placeholder
         key = idColumn or u"id"
         for value in idValues:
             phdata.append(ph)
@@ -588,7 +601,7 @@ class Base(object):
         dataList = []
         flds = []
         phdata = []
-        ph = self.GetPlaceholder()
+        ph = self.placeholder
         data = self.structure.serialize(table, None, data)
         for key, value in data.items():
             flds.append(key)
@@ -634,7 +647,7 @@ class Base(object):
         if not cursor:
             cc = 1
             cursor = self.connection.cursor()
-        ph = self.GetPlaceholder()
+        ph = self.placeholder
         if autoinsert:
             # if record does not exist, insert it
             sql = """select id from %s where %s=%s""" %(table, idColumn, ph)
@@ -687,7 +700,7 @@ class Base(object):
             return False
         p = []
         v = []
-        ph = self.GetPlaceholder()
+        ph = self.placeholder
         for field, value in parameter.items():
             p.append(u"%s=%s"%(field, ph))
             v.append(value)
@@ -707,27 +720,6 @@ class Base(object):
             cursor.close()
 
 
-    def Begin(self):
-        """
-        Start a database transaction, if supported
-        """
-        self.connection.Begin()
-
-
-    def Commit(self, user=""):
-        """
-        Commit the changes made to the database, if supported
-        """
-        self.connection.commit()
-
-
-    def Undo(self):
-        """
-        Rollback the changes made to the database, if supported
-        """
-        self.connection.rollback()
-
-
     # Text conversion -----------------------------------------------------------------------
 
     def EncodeText(self, text):
@@ -738,7 +730,7 @@ class Base(object):
         if text==None:
             return text
         if isinstance(text, bytes):
-            return unicode(text, self.dbCodePage, EncodeMapping)
+            return unicode(text, self.dbCodePage, "replace")
         return text
 
 
@@ -750,7 +742,7 @@ class Base(object):
         if text==None:
             return text
         if isinstance(text, bytes):
-            return unicode(text, self.codePage, EncodeMapping)
+            return unicode(text, self.codePage, "replace")
         return text
 
 
@@ -759,74 +751,6 @@ class Base(object):
         Convert a database record tuple to dictionary based on flds list
         """
         return dict(zip(flds, rec))
-
-
-    # groups - userid assignment storage ------------------------------------------------------------------------------------
-
-    def GetGroups(self, id, userid=None, group=None):
-        """
-        Get local group assignment for userid.
-        
-        returns a group assignment list [["userid", "groupid", "id"], ...]
-        """
-        # check if exists
-        p = {}
-        
-        if id!=None:
-            p["id"] = id
-        else:
-            raise TypeError, "id must not be none"
-        if userid:
-            p["userid"] = userid
-        if group:
-            p["groupid"] = group
-        sql, values = self.FmtSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
-        r = self.Query(sql, values)
-        return r
-
-
-    def AddGroup(self, id, userid, group):
-        """
-        Add a local group assignment for userid.
-        """
-        data = {"userid": userid, "groupid": group}
-        if id!=None:
-            data["id"] = id
-        else:
-            raise TypeError, "id must not be none"
-        self.InsertFields(self.GroupsTable, data)
-        self.Commit()
-
-
-    def RemoveGroups(self, id, userid=None, group=None):
-        """
-        Remove a local group assignment for userid or all for the id/ref.
-        """
-        p = {}
-        if id!=None:
-            p["id"] = id
-        else:
-            raise TypeError, "id must not be none"
-        if userid:
-            p["userid"] = userid
-        if group:
-            p["groupid"] = group
-        self.DeleteRecords(self.GroupsTable, p)
-        self.Commit()
-
-
-    def GetAllUserGroups(self, userid):
-        """
-        Get all local group assignment for userid.
-        
-        returns a group assignment list [["userid", "groupid", "id"], ...]
-        """
-        # check if exists
-        p = {u"userid": userid}
-        o = {u"userid": u"="}
-        sql, values = self.FmtSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
-        r = self.Query(sql, values)
-        return r
 
 
     # Entries -------------------------------------------------------------------------------------------
@@ -1229,7 +1153,7 @@ class Base(object):
         return parents
 
 
-    # Configuration ---------------------------------------------------------------------
+    # Files and directories ---------------------------------------------------------------------
 
     def InitFileStorage(self, root, connectionParam):
         """
@@ -1238,9 +1162,80 @@ class Base(object):
         self.root = DvPath()
         self.root.SetStr(root)
 
-
     def GetRoot(self):
         return str(self.root)
+
+    def DeleteFiles(self, id, cursor, version):
+        # subclassed
+        pass
+
+
+    # groups - userid assignment storage ------------------------------------------------------------------------------------
+
+    def GetGroups(self, id, userid=None, group=None):
+        """
+        Get local group assignment for userid.
+        
+        returns a group assignment list [["userid", "groupid", "id"], ...]
+        """
+        # check if exists
+        p = {}
+        
+        if id!=None:
+            p["id"] = id
+        else:
+            raise TypeError, "id must not be none"
+        if userid:
+            p["userid"] = userid
+        if group:
+            p["groupid"] = group
+        sql, values = self.FmtSQLSelect(["userid", "groupid", "id"], parameter=p, dataTable = self.GroupsTable, singleTable=1)
+        r = self.Query(sql, values)
+        return r
+
+
+    def AddGroup(self, id, userid, group):
+        """
+        Add a local group assignment for userid.
+        """
+        data = {"userid": userid, "groupid": group}
+        if id!=None:
+            data["id"] = id
+        else:
+            raise TypeError, "id must not be none"
+        self.InsertFields(self.GroupsTable, data)
+        self.Commit()
+
+
+    def RemoveGroups(self, id, userid=None, group=None):
+        """
+        Remove a local group assignment for userid or all for the id/ref.
+        """
+        p = {}
+        if id!=None:
+            p["id"] = id
+        else:
+            raise TypeError, "id must not be none"
+        if userid:
+            p["userid"] = userid
+        if group:
+            p["groupid"] = group
+        self.DeleteRecords(self.GroupsTable, p)
+        self.Commit()
+
+
+    def GetAllUserGroups(self, userid):
+        """
+        Get all local group assignment for userid.
+        
+        returns a group assignment list [["userid", "groupid", "id"], ...]
+        """
+        # check if exists
+        p = {u"userid": userid}
+        o = {u"userid": u"="}
+        sql, values = self.FmtSQLSelect([u"userid", u"groupid", u"id"], parameter=p, operators=o, dataTable=self.GroupsTable, singleTable=1)
+        r = self.Query(sql, values)
+        return r
 
 
     # Pool status ---------------------------------------------------------------------
@@ -1265,14 +1260,11 @@ class Base(object):
         self._conn = conn
 
     def CreateConnection(self, connParam):
-        return self.defaultConnection(connParam)
+        return self._DefaultConnection(connParam)
 
     
-    # internal subclassing
+    # internal subclassing -------------------------------------------
     
-    def DeleteFiles(self, id, cursor, version):
-        pass
-
     def _GetDefaultPoolStructure(self):
         return PoolStructure
 
@@ -1285,6 +1277,11 @@ class Base(object):
     def _GetFileWrapper(self):
         return FileWrapper
     
+    # to be removed --------------------------------------------------
+    
+    def GetConnection(self):
+        return self._conn
+
 
 
 
@@ -1342,7 +1339,6 @@ class Entry(object):
         self.files.close()
         self.pool = None
 
-
     def Exists(self):
         """
         Check if the entry physically exists in the database
@@ -1352,7 +1348,6 @@ class Entry(object):
         if not self.IsValid():
             return False
         return self.pool.IsIDUsed(self.id)
-
 
     def IsValid(self):
         """
@@ -1720,7 +1715,7 @@ class Entry(object):
         """
         Delete fulltext for entry
         """
-        ph = self.pool.GetPlaceholder()
+        ph = self.pool.placeholder
         sql = u"DELETE FROM %s WHERE id = %s"%(self.pool.FulltextTable, ph)
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n",self.pool._debug, self.pool._log,name=self.pool.name)
@@ -1781,7 +1776,7 @@ class Entry(object):
         c = 0
         if not cursor:
             c = 1
-            cursor = pool.GetCursor()
+            cursor = pool.connection.cursor()
         if pool._debug:
             STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
         try:
@@ -1809,7 +1804,7 @@ class Entry(object):
         c = 0
         if not cursor:
             c = 1
-            cursor = pool.GetCursor()
+            cursor = pool.connection.cursor()
         if self.pool._debug:
             STACKF(0,sql+"\r\n\r\n",pool._debug, pool._log,name=pool.name)
         try:
@@ -1938,238 +1933,11 @@ class Entry(object):
 
 
 
-class Connection(object):
-    """
-    Base database connection class. Parameter depend on database version.
-
-    config parameter in dictionary:
-    user = database user
-    pass = password user
-    host = host server
-    port = port server
-    db = initial database name
-    """
-
-    def __init__(self, config = None, connectNow = True):
-        self.db = None
-        self.host = u""
-        self.port = u""
-        self.user = u""
-        self.password = u""
-        self.dbName = u""
-        self.unicode = True
-        self.timeout = 3
-        self.revalidate = 100
-        self.verifyConnection = False
-        self._vtime = time()
-        if(config):
-            self.SetConfig(config)
-        if(connectNow):
-            self.connect()
-       
-
-    def __del__(self):
-        self.close()
-
-
-    def cursor(self):
-        db = self._get()
-        if not db:
-            raise OperationalError, "Database is closed"
-        return db.cursor()
-        
-    
-    def rollback(self):
-        """ Calls rollback on the current transaction, if supported """
-        db = self._get()
-        db.rollback()
-        return
-
-
-    def commit(self):
-        """ Calls commit on the current transaction, if supported """
-        db = self._get()
-        db.commit()
-        return
-
-
-    def connect(self):
-        """ Close and connect to server """
-        self.close()
-        # "use a subclassed connection"
-
-
-    def close(self):
-        """ Close database connection """
-        db = self._get()
-        if db:
-            db.close()
-            self._set(None)
-
-    
-    def ping(self):
-        """ ping database server """
-        db = self._get()
-        return db.ping()
-
-
-    def dbapi(self):
-        """ returns the database connection class """
-        self.VerifyConnection()
-        db = self._get()
-        if not db:
-            self.connect()
-        return self._get()
-
-
-    def Connect(self):
-        """ Close and connect to server """
-        self.connect()
-
-    def IsConnected(self):
-        """ Check if database is connected """
-        try:
-            db = self._get()
-            return db.cursor()!=None
-        except:
-            return False
-    
-
-    def VerifyConnection(self):
-        """ 
-        reconnects if not connected. If revalidate is larger than 0 IsConnected() will only be called 
-        after `revalidate` time
-        """
-        db = self._get()
-        if not db:
-            return self.connect()
-        if not self.verifyConnection:
-            return True
-        if self.revalidate > 0:
-            if self._getvtime()+self.revalidate > time():
-                return True
-        if not self.IsConnected():
-            return self.connect()
-        self._setvtime()
-        return True
-    
-    
-    def RawConnection(self):
-        """ """
-        return None
-
-    
-    def Begin(self):
-        """ Calls commit on the current transaction, if supported """
-        return
-
-
-    def GetUser(self):
-        """ returns the current database user """
-        return self.user
-
-
-    def GetPlaceholder(self):
-        return u"%s"
-
-    
-    def FmtParam(self, param):
-        """format a parameter for sql queries like literal for mysql db"""
-        return str(param)
-
-
-    def Duplicate(self):
-        """ Duplicates the current connection and returns a new unconnected connection """
-        raise TypeError, "please use a subclassed connection"
-        new = Connection(None, False)
-        new.user = self.user
-        new.host = self.host
-        new.password = self.password
-        new.port = self.port
-        new.dbName = self.dbName
-        new.configuration=self.configuration.copy()
-        return new
-
-
-    def SetConfig(self, config):
-        self.configuration=config
-        if isinstance(config, dict):
-            for k,v in config.items():
-                if k=="password":
-                    v = str(v)
-                setattr(self, k, v)
-        else:
-            self.user = config.user
-            self.host = config.host
-            self.password = str(config.password)
-            self.port = config.port
-            self.dbName = config.dbName
-            self.unicode = config.unicode
-            self.verifyConnection = config.verifyConnection
-            self.unicode = config.unicode
-            try:
-                self.timeout = config.timeout
-            except:
-                pass
-            try:
-                self.revalidate = config.revalidate
-            except:
-                pass
-            
-
-    def GetDBManager(self):
-        """ returns the database manager obj """
-        raise TypeError, "please use a subclassed connection"
-
-
-    def _get(self):
-        # get stored database connection
-        return self.db
-        
-    def _set(self, dbconn):
-        # locally store database connection
-        self.db = dbconn
-
-    def _getvtime(self):
-        # get stored database connection
-        return self._vtime
-        
-    def _setvtime(self):
-        # locally store database connection
-        self._vtime = time()
-
-
-class ConnectionThreadLocal(Connection):
-    """
-    Caches database connections as thread local values.
-    """
-
-    def _get(self):
-        # get stored database connection
-        if not hasattr(self.local, "db"):
-            return None
-        return self.local.db
-        
-    def _set(self, dbconn):
-        # locally store database connection
-        self.local.db = dbconn
-        
-    def _getvtime(self):
-        # get stored database connection
-        if not hasattr(self.local, "_vtime"):
-            self._setvtime()
-        return self.local._vtime
-        
-    def _setvtime(self):
-        # locally store database connection
-        self.local._vtime = time()
-
-
 class NotFound(Exception):
     """ raised if entry not found """
+
 class FileNotFound(Exception):
     """ raised if physical file not found """
 
 class ConnectionError(Exception):
-    """    No connection """
-    pass
+    """ No connection """

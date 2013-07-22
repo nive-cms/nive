@@ -37,13 +37,46 @@ class user(ObjectBase):
     """
     implements(IUser)
     
-    def __str__(self):
-        return self.data.get("name",str(self.id))
+    @property
+    def identity(self):
+        return self.data.get(self.parent.identityField,str(self.id))
 
+    def __str__(self):
+        return str(self.identity)
+    
     def Init(self):
         self.groups = tuple(self.data.get("groups",()))
-        self.ListenEvent("commit", "HashPassword")
         self.ListenEvent("commit", "OnCommit")
+
+
+    def Authenticate(self, password):
+        return Sha(password) == self.data["password"]
+
+    
+    def Login(self):
+        """
+        events: login(lastlogin)
+        """
+        lastlogin = self.data.get("lastlogin")
+        date = datetime.now()
+        self.data.set("lastlogin", date)
+        self.Commit(self)
+        self.Signal("login", lastlogin=lastlogin)
+
+
+    def Logout(self):
+        """
+        events: logout()
+        """
+        self.Signal("logout")
+        self.Commit(self)
+
+
+    def OnCommit(self):
+        self.HashPassword()
+        t = self.ReadableName()
+        if t != self.meta["title"]:
+            self.meta["title"] = t
 
 
     def HashPassword(self):
@@ -53,29 +86,10 @@ class user(ObjectBase):
         self.data["password"] = pw
 
 
-    def Authenticate(self, password):
-        return Sha(password) == self.data["password"]
-
-    
-    def Login(self):
-        """
-        events: login()
-        """
-        lastlogin = self.data.get("lastlogin")
-        date = datetime.now()
-        self.data.set("lastlogin", date)
-        self.Signal("login")
-        self.Commit(self)
-        self.AddToCache()
-
-
-    def Logout(self):
-        """
-        events: logout()
-        """
-        self.Signal("logout")
-        self.Commit(self)
-        self.RemoveFromCache()
+    def ReadableName(self):
+        if self.data.surname or self.data.lastname: 
+            return u" ".join([self.data.surname, self.data.lastname])
+        return self.data.name
 
 
     def SecureUpdate(self, data, user):
@@ -94,7 +108,6 @@ class user(ObjectBase):
             return False, [_(u"Update failed.")]
         
         self.Commit(user)
-        self.RemoveFromCache()
         return True, []
 
 
@@ -104,13 +117,14 @@ class user(ObjectBase):
         """
         self.groups = tuple(groups)
         self.data["groups"] = groups
-        self.RemoveFromCache()
         return True
 
 
     def AddGroup(self, group, user):
         """
         add user to this group
+        
+        event: securityCahnged()
         """
         if group in self.groups:
             return True
@@ -119,7 +133,6 @@ class user(ObjectBase):
         self.groups = tuple(g)
         self.data["groups"] = g
         self.Commit(user)
-        self.RemoveFromCache()
         return True
 
 
@@ -141,27 +154,6 @@ class user(ObjectBase):
             if g in self.groups:
                 return True
         return False
-    
-    # System ------------------------------------------------
-
-    def TitleFromName(self, surname, lastname, name):
-        title = surname + u" " + lastname
-        if title.replace(u" ",u"")==u"":
-            title = name
-        return title
-
-
-    def OnCommit(self):
-        title = self.TitleFromName(self.data["surname"], self.data["lastname"], self.data["name"])
-        self.meta["title"] = title
-        self.RemoveFromCache()
-
-
-    def AddToCache(self):
-        self.GetParent().Cache(self, self.id)
-
-    def RemoveFromCache(self):
-        self.GetParent().RemoveCache(self.id)
 
 
 

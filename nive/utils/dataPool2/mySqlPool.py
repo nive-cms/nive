@@ -23,6 +23,7 @@ Data Pool MySql Module
 
 
 import string, re, os
+import threading
 from time import time, localtime
 
 try:
@@ -39,13 +40,16 @@ except ImportError:
     
 from nive.utils.utils import STACKF
 
-from nive.utils.dataPool2.base import *
+from nive.utils.dataPool2.base import Base, Entry
+from nive.utils.dataPool2.base import NotFound
+from nive.utils.dataPool2.connection import Connection, ConnectionThreadLocal, ConnectionRequest
+
 from nive.utils.dataPool2.dbManager import MySQLManager
 from nive.utils.dataPool2.files import FileManager, FileEntry
 
 
 
-class MySqlConnSingle(Connection):
+class MySqlConnection(Connection):
     """
     MySql connection handling class
 
@@ -61,26 +65,26 @@ class MySqlConnSingle(Connection):
 
     def connect(self):
         """ Close and connect to server """
-        self.close()
-        use_unicode = self.unicode
+        #t = time()
+        conf = self.configuration
+        use_unicode = conf.unicode
         charset = None
         if use_unicode:
             charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        db = MySQLdb.connect(conf.host,
+                             conf.user,
+                             str(conf.password), 
+                             port=conf.port or 3306,
+                             db=conf.dbName, 
+                             connect_timeout=conf.timeout, 
+                             use_unicode=use_unicode, 
+                             charset=charset)
         if not db:
-            raise OperationalError, "Cannot connect to database '%s.%s'" % (self.host, self.dbName)
+            raise OperationalError, "Cannot connect to database '%s.%s'" % (conf.host, conf.dbName)
         self._set(db)
-        
-
-    def RawConnection(self):
-        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
-        use_unicode = self.unicode
-        charset = None
-        if use_unicode:
-            charset = u"utf8"
-        db = MySQLdb.connect(self.host, self.user, self.password, self.dbName, connect_timeout=self.timeout, use_unicode=use_unicode, charset=charset)
+        #print "connect:", time() - t
         return db
-
+        
 
     def IsConnected(self):
         """ Check if database is connected """
@@ -96,7 +100,7 @@ class MySqlConnSingle(Connection):
         """ returns the database manager obj """
         self.VerifyConnection()
         aDB = MySQLManager()
-        aDB.SetDB(self._get())
+        aDB.SetDB(self.PrivateConnection())
         return aDB
 
 
@@ -109,30 +113,43 @@ class MySqlConnSingle(Connection):
         return db.literal(param)
 
 
-    def Duplicate(self):
-        """ Duplicates the current connection and returns a new unconnected connection """
-        new = MySqlConn(None, False)
-        new.user = self.user
-        new.host = self.host
-        new.password = self.password
-        new.port = self.port
-        new.dbName = self.dbName
-        return new
+    def PrivateConnection(self):
+        """ This function will return a new and raw connection. It is up to the caller to close this connection. """
+        conf = self.configuration
+        use_unicode = conf.unicode
+        charset = None
+        if use_unicode:
+            charset = u"utf8"
+        db = MySQLdb.connect(conf.host,
+                             conf.user,
+                             str(conf.password), 
+                             port=conf.port or 3306,
+                             db=conf.dbName, 
+                             connect_timeout=conf.timeout, 
+                             use_unicode=use_unicode, 
+                             charset=charset)
+        return db
 
 
-import threading
 
-class MySqlConnThreadLocal(MySqlConnSingle, ConnectionThreadLocal):
+class MySqlConnThreadLocal(MySqlConnection, ConnectionThreadLocal):
     """
-    Stores database connections as thread locals.
-    Usage is the same as MySqlConn connection.
+    Caches database connections as thread local values.
     """
 
     def __init__(self, config = None, connectNow = True):
         self.local = threading.local()
-        MySqlConnSingle.__init__(self, config, connectNow)
+        MySqlConnection.__init__(self, config, connectNow)
 
 
+class MySqlConnRequest(MySqlConnection, ConnectionRequest):
+    """
+    Caches database connections as request values. Uses thread local stack as fallback (e.g testing).
+    """
+
+    def __init__(self, config = None, connectNow = True):
+        self.local = threading.local()
+        MySqlConnection.__init__(self, config, connectNow)
 
 
 
@@ -143,7 +160,7 @@ class MySql(FileManager, Base):
     _OperationalError = MySQLdb.OperationalError
     _ProgrammingError = MySQLdb.ProgrammingError
     _Warning = MySQLdb.Warning
-    defaultConnection = MySqlConnThreadLocal
+    _DefaultConnection = MySqlConnRequest
 
 
     def _GetInsertIDValue(self, cursor):

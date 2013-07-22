@@ -94,9 +94,16 @@ class Portal(Events, object):
         #print "del portal"
         
     def __getitem__(self, name):
+        """
+        Called by traversal machinery
+        
+        event: getitem(obj) called with the traversed object
+        """
         try:
-            return getattr(self, name)
-        except:
+            obj = getattr(self, name)
+            self.Signal("getitem", obj=obj)
+            return obj
+        except AttributeError:
             raise KeyError, name
         
     def Register(self, comp, name=None):
@@ -157,7 +164,7 @@ class Portal(Events, object):
         log.debug("Portal.Startup with debug=%s", str(debug))
         if pyramidConfig:
             self.SetupPortalViews(pyramidConfig)
-            pyramidConfig.add_subscriber(self.StartConnection, iface=NewRequest)
+            #pyramidConfig.add_subscriber(self.StartConnection, iface=NewRequest)
         for c in self.components:
             component = getattr(self, c)
             if hasattr(component, "Startup"):
@@ -204,7 +211,7 @@ class Portal(Events, object):
         - finish(request)
         """
         self.Signal("finish", request)
-
+        
 
     def GetGroups(self, sort=u"id", visibleOnly=False):
         """

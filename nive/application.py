@@ -94,27 +94,11 @@ class Application(object):
             self.id = configuration.id
         else:
             self.id = __name__
-        #bw 0.9.3
-        self.modules = self.registry
         
         self.__name__ = u""
         self.__parent__ = None
         self.__acl__ = []
 
-        # 0.9.4 - moved to configuration
-        #self.id = u""
-        #self.title = u""
-        #self.description = u""
-    
-        # data pool
-        # 0.9.4 - moved to configuration
-        #self.fulltextIndex = False
-        #self.autocommit = True
-        #self.useCache = True
-        #self.frontendCodepage = "utf-8"
-        #self.workflowEnabled = False
-        #self.groups = []
-        #self.categories = []
         # development
         self.debug = False
         self.reloadExtensions = False
@@ -127,6 +111,7 @@ class Application(object):
         self._structure = PoolStructure()
         self._dbpool = None
         log = logging.getLogger(self.id)
+        
         log.debug("Initialize %s", repr(configuration))
         self.Signal("init", configuration=configuration)
 
@@ -289,13 +274,6 @@ class Application(object):
         return self._GetWfObj(wfProcID, contextObject or _GlobalObject())
 
 
-    def NewDBConnection(self):
-        """
-        Creates a new database connection. This one is independent from caching and 
-        connections used internally.  
-        """
-        return self._GetConnectionObj()
-        
     # Data Pool ------------------------------------------------------------------------------
 
     def GetDB(self):
@@ -328,17 +306,6 @@ class Application(object):
         return r
 
 
-    def GetCountEntries(self):
-        """
-        Get the total number of entries in the data pool.
-        
-        returns number
-        """
-        db = self.db
-        c = db.GetCountEntries()
-        return c
-
-
     def TestDB(self):
         """
         Test database connection for errors. Returns state and list with errors.
@@ -357,17 +324,19 @@ class Application(object):
             return False, e
 
 
-    def ConvertID(self, id):
+    def NewConnection(self):
         """
-        Convert id to number.
+        Creates a new database connection. Works before startup and application setup.
+        """
+        return self._GetConnection()
         
-        returns number
-        """
-        try:
-            return int(id)
-        except:
-            return -1
 
+    def NewDBApi(self):
+        """
+        Creates a raw database connection (dbapi). Works before startup and application setup.
+        """
+        return self._GetDBApi()
+        
 
     def GetVersion(self):
         """ """
@@ -376,6 +345,25 @@ class Application(object):
     def CheckVersion(self):
         """ """
         return __version__ == __version__
+
+
+    # to be removed in future versions -------------------------------------------
+
+    def NewDBConnection(self):
+        return self.NewConnection()
+    
+    def ConvertID(self, id):
+        try:
+            return int(id)
+        except:
+            return -1
+
+    def GetCountEntries(self):
+        db = self.db
+        c = db.GetCountEntries()
+        return c
+
+
 
 
 class Registration(object):
@@ -1064,7 +1052,7 @@ class AppFactory:
     Internal class for dynamic object creation and caching.
 
     Requires:
-    - Workflow.Workflow
+    - Application
     """
 
     def _GetDataPoolObj(self):
@@ -1083,7 +1071,7 @@ class AppFactory:
         cTag = self.dbConfiguration.connection
         if cTag:
             connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
-            connObj = connObj(config=self.dbConfiguration)
+            connObj = connObj(config=self.dbConfiguration, connectNow=False)
         else:
             connObj = None
 
@@ -1100,15 +1088,21 @@ class AppFactory:
         return dbObj
 
     
-    def _GetConnectionObj(self):
+    def _GetConnection(self):
         """
-        creates a new database connection object
+        Creates a new database connection. Works before startup and application setup.
         """
+        if self._dbpool:
+            try:
+                return self._dbpool.usedconnection
+            except:
+                pass
+                
         cTag = self.dbConfiguration.connection
         poolTag = self.dbConfiguration.context
         if cTag:
             connObj = GetClassRef(cTag, self.reloadExtensions, True, None)
-            connObj = connObj(config=self.dbConfiguration)
+            connObj = connObj(config=self.dbConfiguration, connectNow=False)
             return connObj
         if self._dbpool:
             return self._dbpool.CreateConnection(self.dbConfiguration)
@@ -1122,7 +1116,17 @@ class AppFactory:
         elif poolTag.lower() == "mysql":
             poolTag = "nive.utils.dataPool2.mySqlPool.MySql"
         dbObj = GetClassRef(poolTag, self.reloadExtensions, True, None)
-        return dbObj.defaultConnection(self.dbConfiguration)
+        return dbObj._DefaultConnection(config=self.dbConfiguration, connectNow=False)
+
+
+    def _GetDBApi(self):
+        """
+        Creates a new and raw database connection. Works before startup and application setup.
+        """
+        conn = self._GetConnection()
+        if conn:
+            return conn.PrivateConnection()
+        return None
 
 
     def _GetRootObj(self, rootConf):

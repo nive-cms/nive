@@ -38,7 +38,7 @@ class LocalGroups(object):
         self._secid = self.id or self.idhash
         
     
-    def GetLocalGroups(self, username):
+    def GetLocalGroups(self, username, user=None):
         """
         Group assignments use the user name.
         returns a list of all local user groups, including parent settings

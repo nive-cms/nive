@@ -48,6 +48,8 @@ configuration.loginByEmail = False
 configuration.modules = [
     "nive.userdb.root", 
     "nive.userdb.user", 
+    # session user cache
+    "nive.components.extensions.sessionuser",
     # user administration
     "nive.userdb.useradmin", 
     # tools
@@ -77,18 +79,36 @@ class UserDB(ApplicationBase):
 
 
         
-    def Groupfinder(self, userid, request):
+    def Groupfinder(self, userid, request=None, context=None):
         """
         returns the list of groups assigned to the user 
         """
-        groups = self.GetRoot().GetUserGroups(userid)
-        if hasattr(request, "context"):
-            ctx = request.context
-            if ctx and ILocalGroups.providedBy(ctx):
-                local = ctx.GetLocalGroups(userid)
-                if not groups:
-                    return local
-                return tuple(list(groups)+list(local))
+        if request:
+            try:
+                user = request.environ["authenticated_user"]
+            except:
+                user = self.root().GetUser(userid)
+                request.environ["authenticated_user"] = user
+                def remove_user(request):
+                    if "authenticated_user" in request.environ:
+                        del request.environ["authenticated_user"]
+                request.add_finished_callback(remove_user)
+        else:
+                user = self.root().GetUser(userid)
+        if not user:
+            return None
+
+        # users groups or empty list
+        groups = user.groups or ()
+
+        # lookup context for local roles
+        if not context and hasattr(request, "context"):
+            context = request.context
+        if context and ILocalGroups.providedBy(context):
+            local = context.GetLocalGroups(userid, user=user)
+            if not groups:
+                return local
+            return tuple(list(groups)+list(local))
         return groups
 
 

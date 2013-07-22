@@ -562,10 +562,10 @@ class DatabaseConf(baseConf):
                    MySql requires python-mysqldb installed.
         *dbName  : sqlite3=database file path, mysql=database name 
         fileRoot : Relative or absolute root directory for files.
-        host     : mysql database server host.
-        port     : mysql database server port.
-        user     : mysql database server user.
-        password : mysql database server password.
+        host     : database server host.
+        port     : database server port.
+        user     : database server user.
+        password : database server password.
         useTrashcan : Move files to fileRoot.__traschcan directory on delete.
         unicode  : Database is using unicode mode.
         dbCodePage : If not in unicode mode, the database codepage used (default "utf-8").
@@ -588,7 +588,7 @@ class DatabaseConf(baseConf):
         self.fileRoot = ""
         self.dbName = ""
         self.host = ""
-        self.port = ""
+        self.port = 0
         self.user = ""
         self.password = ""
         self.useTrashcan = False

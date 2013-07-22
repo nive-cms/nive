@@ -119,13 +119,6 @@ class UserForm(ObjectForm):
                                                 currentUser=self.view.User())
 
         return self._FinishFormProcessing(result, data, msgs, errors, **kw)
-        #    if result:
-        #        redirectSuccess = kw.get("redirectSuccess")
-        #        errors=None
-        #        if self.view and redirectSuccess:
-        #            self.view.Redirect(redirectSuccess, messages=msgs)
-        #        return result, self._Msgs(msgs=msgs)
-        #return result, self.Render(data, msgs=msgs, errors=errors)
         
         
     def LoadUser(self, action, **kw):
@@ -154,17 +147,12 @@ class UserForm(ObjectForm):
         msgs = []
         result,data,errors = self.Validate(self.request)
         if result:
-            result = user.SecureUpdate(data, self.view.User())
+            uobj = self.context.LookupUser(id=user.id)
+            result = uobj.SecureUpdate(data, user)
             if result:
                 msgs.append(_(u"OK"))
 
         return self._FinishFormProcessing(result, data, msgs, errors, **kw)
-        #        redirectSuccess = kw.get("redirectSuccess")
-        #        errors=None
-        #        if self.view and redirectSuccess:
-        #            self.view.Redirect(redirectSuccess, messages=msgs)
-        #            return
-        #return result, self.Render(data, msgs=msgs, errors=errors)
         
     
     def Login(self, action, **kw):
@@ -199,14 +187,6 @@ class UserForm(ObjectForm):
         if result:
             data = {}
         return self._FinishFormProcessing(result, data, msgs, None, **kw)
-        #if result:
-        #    redirectSuccess = kw.get("redirectSuccess")
-        #    if self.view and redirectSuccess:
-        #        self.view.Redirect(redirectSuccess, messages=msgs)
-        #        return
-        #    data = {}
-        #errors=None
-        #return result, self.Render(data, msgs=msgs, errors=errors)
 
 
 

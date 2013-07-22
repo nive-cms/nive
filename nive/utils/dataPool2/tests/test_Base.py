@@ -4,6 +4,7 @@ import copy, time, StringIO
 import unittest
 
 from nive.utils.dataPool2.base import *
+from nive.utils.dataPool2.connection import Connection
 from nive.utils.dataPool2.structure import *
 
 from nive.tests import __local
@@ -108,10 +109,10 @@ class BaseTest(unittest.TestCase):
             base.SetConnection(Connection())
         except TypeError:
             pass
-        base.GetConnection()
+        base.usedconnection
         base.connection
         try:
-            base.dbapi()
+            base.dbapi
         except ConnectionError:
             pass
             
