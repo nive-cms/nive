@@ -85,7 +85,7 @@ class root(RootBase):
             return None, report
         email = data.get("email")
         if email and self.app.configuration.get("loginByEmail"):
-            user = self.GetUserByEmail(email, activeOnly=0)
+            user = self.GetUserByMail(email, activeOnly=0)
             if user:
                 report.append(_(u"Email '${name}' already in use. ", mapping={'name':email}))
                 return None, report
