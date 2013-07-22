@@ -174,7 +174,7 @@ class sendMail(Tool):
                 except Exception, e:
                     result = 0
                     if maillog:
-                        LOG(data = "ERROR: "+str(e), path="log/mail.log", t=0)
+                        LOG(data = "ERROR: "+str(e), path=maillog, t=0)
                     self.stream.write(str(e))
             mailer.quit()
         return result
