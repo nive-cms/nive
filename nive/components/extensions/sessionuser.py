@@ -201,7 +201,7 @@ class SessionUser(object):
      
     Default data values: name, email, surname, lastname, groups
     """
-    implements(ISessionUser)    
+    implements(ISessionUser)
     
     def __init__(self, ident, id, data, meta=None):
         self.id = id
