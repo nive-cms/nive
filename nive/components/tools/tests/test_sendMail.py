@@ -1,6 +1,7 @@
 
 import time
 import unittest
+import logging
 from smtplib import SMTPServerDisconnected
 
 from nive.definitions import *
@@ -34,6 +35,7 @@ class SendMailTest2_db(unittest.TestCase):
     def setUp(self):
         self.app = db_app.app_db()
         self.app.Include(configuration)
+        logging.basicConfig()
     
     def tearDown(self):
         self.app.Close()
@@ -56,8 +58,18 @@ class SendMailTest2_db(unittest.TestCase):
         self.assert_(t)
         try:
             r,v = t(recvmails=[("test@aaaaaaaa.com", "No name")], title="Testmail", body="body mail")
-        except SMTPServerDisconnected:
+        except ConfigurationError:
             pass
+
+
+    def test_toolrundebug(self):
+        t = self.app.GetTool("sendMail")
+        self.assert_(t)
+        try:
+            r,v = t(debug=1, recvmails=[("test@aaaaaaaa.com", "No name")], title="Testmail", body="body mail")
+        except ConfigurationError:
+            pass
+
 
 if __name__ == '__main__':
     unittest.main()
