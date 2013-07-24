@@ -24,12 +24,14 @@ mails as list with [(email, name),...] ("name@mail.com","Name")
 
 import types, string
 import time
+import logging
 
-from nive.utils.utils import LOG
+from smtplib import SMTPServerDisconnected, SMTPRecipientsRefused, SMTPHeloError, SMTPSenderRefused, SMTPDataError, SMTPException
+
 from nive.utils.utils import ConvertToList
-
-from nive.tools import Tool
+from nive.definitions import ConfigurationError
 from nive.definitions import ToolConf, FieldConf
+from nive.tools import Tool
 from nive.i18n import _
 
 configuration = ToolConf()
@@ -59,11 +61,11 @@ configuration.data = [
     FieldConf(id="body",  name=_(u"Text"),              datatype="htext",        required=0,     readonly=0, default=u"",    description=u""),
     FieldConf(id="html",  name=_(u"Html format"),       datatype="bool",         required=0,     readonly=0, default=1,      description=u""),
     FieldConf(id="utf8",  name=_(u"UTF-8 encoding"),    datatype="bool",         required=0,     readonly=0, default=1,      description=u""),
-    FieldConf(id="ssl",   name=_(u"Use SSL"),           datatype="bool",         required=0,     readonly=0, default=0,      description=u""),
+    FieldConf(id="ssl",   name=_(u"Use SSL"),           datatype="bool",         required=0,     readonly=0, default=1,      description=u""),
     FieldConf(id="maillog",  name=_(u"Log mails"),      datatype="string",       required=0,     readonly=0, default=u"",    description=u""),
     FieldConf(id="showToListInHeader",name=_(u"Show all receivers in header"), datatype="bool", required=0, readonly=0, default=0,    description=u""),
 
-    FieldConf(id="debug", name=_(u"Debug mode"),        datatype="bool",         required=0,     readonly=0, default=False, description=_(u"All mails are sent to 'Receiver role' or 'Receiver User IDs' field default values. No external mail address is used.")), 
+    FieldConf(id="debug", name=_(u"Debug mode"),        datatype="bool",         required=0,     readonly=0, default=False, description=_(u"All mails are sent to 'Receiver role' or 'Receiver User IDs' field default value. No external mail address is used.")), 
 ]
 configuration.mimetype = "text/html"
 
@@ -101,14 +103,26 @@ class sendMail(Tool):
         force = values.get("force")
         debug = values.get("debug")
         maillog = values.get("maillog")
+        log = logging.getLogger(maillog or "sendMail")
+
 
         # lookup receivers
-        recvs = self._GetRecv(recvids, recvrole, force, self.app)
+        recvs = []
         if recvmails:
-            recvs += recvmails
-        cc = self._GetRecv(cc, None, force, self.app)
-        bcc = self._GetRecv(bcc, None, force, self.app)
-        mails = recvs + cc + bcc
+            if isinstance(recvmails, basestring):
+                recvs.append((recvmails, u""))
+            else:
+                recvs.extend(recvmails)
+        if recvids or recvrole:
+            recvs.extend(self._GetRecv(recvids, recvrole, force, self.app))
+        if cc:
+            cc = self._GetRecv(cc, None, force, self.app)
+            if cc:
+                recvs.extend(cc)
+        if bcc:
+            bcc = self._GetRecv(bcc, None, force, self.app)
+            if bcc:
+                recvs.extend(bcc)
         
         if len(recvs) == 0:
             self.stream.write(_(u"No receiver for the e-mail! Aborting."))
@@ -134,11 +148,18 @@ class sendMail(Tool):
             senderMail = u""
 
         #raise "1", mails
+        if not host:
+            raise ConfigurationError, "Empty mail host"
         mailer = DvSMTP(host, port)
-        if ssl:
+        try:
             mailer.ehlo()
-            mailer.starttls()
-            mailer.ehlo()
+            if ssl:
+                mailer.starttls()
+                mailer.ehlo()
+        except (SMTPServerDisconnected, SMTPHeloError, SMTPException), e:
+            log.error(" %s", repr(e))
+            return False
+
         if user != u"" and pass_ != u"":
             mailer.Login(user, str(pass_))
         contentType = u"text/plain"
@@ -148,42 +169,48 @@ class sendMail(Tool):
             contentType += u"; charset=utf-8"
 
         if debug:
-            recvs = self._GetRecv(values.get("recvids"), values.get("recvrole"), force, self.app)
-            cc = []
-            bcc = []
             mails_original = u""
-            for m in mails:
-                mails_original += (u" <").join(m) + u">\r\n<br/>"
-            mails = recvs + cc + bcc
+            for m in recvs:
+                mails_original += m + u"\r\n<br/>"
             body += u"""\r\n<br/><br/>\r\nDEBUG\r\n<br/> Original receiver: \r\n<br/>""" + mails_original
+            # in debug mode use default receiver mail as receiving address for all mails
+            recvs = [(recvmails, u"")]
 
         result = 1
         if showToListInHeader:
-            result = mailer.Send3(fromMail, mails, title, body, inFromName=sendername, inTo=to, inContentType=contentType, inCC=cc, inBCC=bcc, inSender=senderMail, inReplyTo=replyTo)
+            result = mailer.Send3(fromMail, recvs, title, body, fromName=sendername, inTo=to, contentType=contentType, cc=cc, bcc=bcc, sender=senderMail, replyTo=replyTo)
             self.stream.write((u", ").join(r))
             mailer.quit()
         else:
-            for recv in mails:  #recvs:
+            for recv in recvs:
                 try:
-                    if maillog:
-                        logdata = u"-----------------------------------------------------------------------\r\n%s - %s - %s\r\n\r\n%s" % (recv[0], recv[1], title, body)
-                        LOG(data = logdata, path=maillog, t=0)
-                    mailer.Send2(fromMail, recv[0], title, body, sendername, recv[1], inContentType=contentType, inCC=cc, inBCC=bcc, inSender=senderMail, inReplyTo=replyTo)
+                    mailer.Send2(fromMail, recv[0], title, body, sendername, recv[1], contentType=contentType, cc=cc, bcc=bcc, sender=senderMail, replyTo=replyTo)
                     self.stream.write(recv[0] + u" ok, ")
-                    pass
-                except Exception, e:
-                    result = 0
                     if maillog:
-                        LOG(data = "ERROR: "+str(e), path=maillog, t=0)
+                        logdata = u"%s - %s - %s" % (recv[0], recv[1], title)
+                        log.debug(u" %s", logdata)
+                    pass
+                except (SMTPServerDisconnected,), e:
+                    result = 0
+                    log.error(" %s", repr(e))
+                    logdata = u"%s - %s - %s" % (recv[0], recv[1], title)
+                    log.error(u"  ->  %s", logdata)
+                    self.stream.write(str(e))
+                    break
+                except (SMTPSenderRefused, SMTPRecipientsRefused, SMTPDataError), e:
+                    result = 0
+                    log.error(" %s", repr(e))
+                    logdata = u"%s - %s - %s" % (recv[0], recv[1], title)
+                    log.error(u"  ->  %s", logdata)
                     self.stream.write(str(e))
             mailer.quit()
         return result
 
 
     def _GetMailStr(self, mail):
-        if type(mail) in (types.StringType,types.UnicodeType):
+        if isinstance(mail, basestring):
             return mail
-        if len(mail) > 1 and mail[1] != u"":
+        if isinstance(mail, (list,tuple)) and len(mail) > 1:
             return u'"%s" <%s>' % (mail[1], mail[0])
         return mail[0]
         
@@ -204,7 +231,7 @@ class sendMail(Tool):
             recvids2 = userdb.GetUsersWithRole(recvrole, activeOnly=not force)
         # get users
         if recvids:
-            if type(recvids) == type("s"):
+            if isinstance(recvids, basestring):
                 recvids = ConvertToList(recvids)
             for user in userdb.GetUserInfos(recvids+recvids2, ["name", "email", "title"], activeOnly=not force):
                 if user and user["email"] != u"":
@@ -228,77 +255,74 @@ class DvSMTP(SMTP):
         return self.login(user, passw)
 
 
-    def Send2(self, inFromMail, inToMail, inSubject, inBody, inFromName = u"", inToName = u"", inContentType = u"text/plain", inCC = u"", inBCC = u"", inSender = u"", inReplyTo = u""):
+    def Send2(self, fromMail, toMail, subject, body, fromName=u"", toName=u"", contentType=u"text/plain", cc=u"", bcc=u"", sender=u"", replyTo=u""):
         """
         does not call quit after sending
         """
-        aM = self.FormatStdMail(inFromMail, inToMail, inSubject, inBody, inFromName, inToName, inContentType, inCC, inBCC, inSender, inReplyTo)
-        result = self.sendmail(inFromMail, inToMail, aM)
+        aM = self.FormatStdMail(fromMail, toMail, subject, body, fromName, toName, contentType, cc, bcc, sender, replyTo)
+        result = self.sendmail(fromMail, toMail, aM)
         return result
 
 
-    def Send3(self, inFromMail, inToMail, inSubject, inBody, inFromName = u"", inContentType = u"text/plain", inTo = u"", inCC = u"", inBCC = u"", inSender = u"", inReplyTo = u""):
+    def Send3(self, fromMail, toMail, subject, body, fromName=u"", contentType=u"text/plain", inTo=u"", cc=u"", bcc=u"", sender=u"", replyTo=u""):
         """
         does not call quit after sending
-        inToMail = mail recv list
+        toMail = mail recv list
         inTo = mail header To str
         """
-        aM = self.FormatStdMail(inFromMail, inTo, inSubject, inBody, inFromName=inFromName, inContentType=inContentType, inCC=inCC, inBCC=inBCC, inSender=inSender, inReplyTo=inReplyTo)
+        aM = self.FormatStdMail(fromMail, inTo, subject, body, fromName=fromName, contentType=contentType, cc=cc, bcc=bcc, sender=sender, replyTo=replyTo)
         result = []
-        for m in inToMail:
-            if type(m) == type([]):
+        for m in toMail:
+            if isinstance(m, (list,tuple)):
                 m=m[0]
-            try:
-                self.sendmail(inFromMail, m, aM)
-                result.append(m + u" ok")
-            except Exception, e:
-                result.append(str(e))
+            self.sendmail(fromMail, m, aM)
+            result.append(m + u" ok")
         return result
 
 
-    def FormatStdMail(self, inFromMail, inToMail, inSubject, inBody, inFromName = u"", inToName = u"", inContentType = u"text/plain", inCC = u"", inBCC = u"", inSender = u"", inReplyTo = u""):
+    def FormatStdMail(self, fromMail, toMail, subject, body, fromName=u"", toName=u"", contentType=u"text/plain", cc=u"", bcc=u"", sender=u"", replyTo=u""):
         """
         """
-        aH = self.FormatStdMailHeader(inFromMail, inToMail, inSubject, inFromName, inToName, inContentType, inCC, inBCC, inSender, inReplyTo)
-        aH += inBody + u"\r\n\r\n"
+        aH = self.FormatStdMailHeader(fromMail, toMail, subject, fromName, toName, contentType, cc, bcc, sender, replyTo)
+        aH += body + u"\r\n\r\n"
         return aH
 
 
-    def FormatStdMailHeader(self, inFromMail, inToMail, inSubject, inFromName = u"", inToName = u"", inContentType = u"text/plain", inCC = u"", inBCC = u"", inSender = u"", inReplyTo = u""):
+    def FormatStdMailHeader(self, fromMail, toMail, subject, fromName=u"", toName=u"", contentType=u"text/plain", cc=u"", bcc=u"", sender=u"", replyTo=u""):
         """
         formats std mail header
         """
         aHeader = ""
-        if inFromName == u"":
-            aHeader += u"From: %s\r\n" % inFromMail
+        if fromName == u"":
+            aHeader += u"From: %s\r\n" % fromMail
         else:
-            aHeader += u"From: \"%s\" <%s>\r\n" % (inFromName, inFromMail)
+            aHeader += u"From: \"%s\" <%s>\r\n" % (fromName, fromMail)
 
-        if type(inToMail) == type([]):
-            inToMail = (u", ").join(inToMail)
-            aHeader += u"To: %s\r\n" % inToMail
-        elif inToName == u"":
-            aHeader += u"To: %s\r\n" % inToMail
+        if isinstance(toMail, (list,tuple)):
+            toMail = (u", ").join(toMail)
+            aHeader += u"To: %s\r\n" % toMail
+        elif toName == u"":
+            aHeader += u"To: %s\r\n" % toMail
         else:
-            aHeader += u"To: \"%s\" <%s>\r\n" % (inToName, inToMail)
+            aHeader += u"To: \"%s\" <%s>\r\n" % (toName, toMail)
 
-        if inCC and inCC != u"" and inCC != []:
-            if type(inCC) == type([]):
-                inCC = (u", ").join(inCC)
-            aHeader += u"Cc: %s\r\n" % inCC
-        if inBCC and inBCC != u"" and inBCC != []:
-            if type(inBCC) == type([]):
-                inBCC = (u", ").join(inBCC)
-            aHeader += u"Bcc: %s\r\n" % inBCC
+        if cc:
+            if isinstance(cc, (list,tuple)):
+                cc = (u", ").join(cc)
+            aHeader += u"Cc: %s\r\n" % cc
+        if bcc:
+            if isinstance(bcc, (list,tuple)):
+                bcc = (u", ").join(bcc)
+            aHeader += u"Bcc: %s\r\n" % bcc
 
-        if inSender:
-            aHeader += u"Sender: %s\r\n" % inSender
-        if inReplyTo:
-            aHeader += u"Reply-To: %s\r\n" % inReplyTo
+        if sender:
+            aHeader += u"Sender: %s\r\n" % sender
+        if replyTo:
+            aHeader += u"Reply-To: %s\r\n" % replyTo
 
-        aHeader += u"Subject: %s\r\n" % inSubject
+        aHeader += u"Subject: %s\r\n" % subject
         aHeader += u"Date: %s\r\n" % self._FormatDate()
-        aHeader += u"Content-Type: %s\r\n\r\n" % (inContentType)
+        aHeader += u"Content-Type: %s\r\n\r\n" % (contentType)
         return aHeader
 
 
