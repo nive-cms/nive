@@ -115,7 +115,7 @@ class root(RootBase):
             body = mail(user=obj, **kw)
             tool = app.GetTool("sendMail")
             try:
-                result, value = tool(body=body, title=title, recvids=[name], force=1)
+                result, value = tool(body=body, title=title, recvids=[str(obj)], force=1)
                 if not result:
                     report.append(_(u"The email could not be sent."))
                     return None, report
