@@ -27,6 +27,7 @@ from pyramid.security import Everyone, Authenticated
 from pyramid.security import remember, forget, authenticated_userid
 
 from nive.definitions import ModuleConf, Conf
+from nive.definitions import Interface, implements
 
 
 def GetUsers(app):
@@ -39,8 +40,8 @@ def GetUsers(app):
         return userdb.root().GetUsers()
     except:
         return []
-    
 
+    
 class User(object):
     """
     A fake user object for testing.
@@ -58,5 +59,71 @@ class User(object):
     
 
 
+
+class Unauthorized(Exception):
+    """
+    failed login
+    """
+
+class UserFound(Exception):
+    """
+    Can be used in *getuser* listeners to break user lookup and
+    pass a session user to LookupUser. The second argument is the session
+    user 
+    """
+    def __init__(self, user):
+        self.user = user
+
+
+
+class IAdminUser(Interface):
+    """
+    Used for admin user instance hard coded in configration 
+    """
+
+
+class AdminUser(object):
+    """
+    Admin User object with groups and login possibility. 
+    """
+    implements(IAdminUser)
+    
+    def __init__(self, values, ident):
+        self.id = 0
+        self.data = Conf(**values)
+        self.meta = Conf()
+        self.identity = ident or str(self.id)
+        self.groups = self.data.groups = (u"group:admin",)
+
+    def __str__(self):
+        return str(self.identity)
+
+    def Authenticate(self, password):
+        return password == self.data["password"]
+    
+    def Login(self):
+        """ """
+
+    def Logout(self):
+        """ """
+
+    def GetGroups(self, context=None):
+        """ """
+        return self.groups
+
+    def InGroups(self, groups):
+        """
+        check if user has one of these groups
+        """
+        if isinstance(groups, basestring):
+            return groups in self.groups
+        for g in groups:
+            if g in self.groups:
+                return True
+        return False
+    
+    def ReadableName(self):
+        return self.data.name
+    
 
         

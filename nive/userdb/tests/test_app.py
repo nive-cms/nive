@@ -3,8 +3,10 @@
 import time
 import unittest
 
-from nive.userdb.root import adminuser
+from nive.security import AdminUser, UserFound
 from db_app import *
+
+
 
 class ObjectTest(unittest.TestCase):
 
@@ -14,7 +16,7 @@ class ObjectTest(unittest.TestCase):
     def tearDown(self):
         self.app.Close()
         pass
-
+    
     def test_add(self):
         a=self.app
         root=a.root()
@@ -142,58 +144,41 @@ class ObjectTest(unittest.TestCase):
 
 class AdminuserTest(unittest.TestCase):
 
-    def test_user(self):
-        u = adminuser({"name":"admin", "password":"password", "email":"aa@eee.com", "groups":("group:admin",)})
-        
-        self.assert_(str(u)=="admin")
-        self.assert_(u.Authenticate("password"))
-        self.assertFalse(u.Authenticate("aaaaaaa"))
-        u.Login()
-        u.Logout()
-        self.assert_(u.GetGroups()==("group:admin",))
-        self.assert_(u.InGroups("group:admin"))
-        self.assertFalse(u.InGroups("group:traa"))
-        
-        
-class CacheTest: ###disabled(unittest.TestCase):
-        
     def setUp(self):
         self.app = app()
-
+        self.app.configuration.unlock()
+        self.app.configuration.admin = {"name":"admin", "password":"11111", "email":"admin@aaa.ccc", "groups":("group:admin",)}
+        self.app.configuration.loginByEmail = True
+        self.app.configuration.lock()
+        
     def tearDown(self):
         self.app.Close()
         pass
-
-    def test_cache(self):
+    
+    def test_login(self):
+        user = User("test")
         a=self.app
         root=a.root()
-        user = User("test")
-        # root
-        root.DeleteUser("user1")
+        root.identityField=u"name"
+        root.DeleteUser("adminXXXXX")
+        root.DeleteUser("admin")
+
         data = {"password": "11111", "surname": "surname", "lastname": "lastname", "organistion": "organisation"}
-        
-        data["name"] = "user1"
-        data["email"] = "user1@aaa.ccc"
+        data["name"] = "admin"
+        data["email"] = "admin@aaa.cccXXXXX"
         o,r = root.AddUser(data, activate=1, generatePW=0, mail=None, notify=False, groups="", currentUser=user)
-        self.assert_(o,r)
-        
-        obj = root.GetUserByName("user1")
-        cache = UserCache()
-        
-        cache.Cache(obj, obj.id)
-        self.assertFalse(cache.GetFromCache(0))
-        self.assertFalse(cache.GetFromCache(123))
-        self.assert_(cache.GetFromCache(obj.id))
-        self.assert_(len(cache.GetAllFromCache())==1)
-        cache.RemoveCache(123)
-        self.assert_(len(cache.GetAllFromCache())==1)
-        cache.RemoveCache(obj.id)
-        self.assert_(len(cache.GetAllFromCache())==0)
-        cache.Cache(obj, 1)
-        cache.Cache(obj, 2)
-        cache.Cache(obj, 3)
-        self.assert_(len(cache.GetAllFromCache())==3)
+        self.assertFalse(o,r)
+        data["name"] = "adminXXXXX"
+        data["email"] = "admin@aaa.ccc"
+        o,r = root.AddUser(data, activate=1, generatePW=0, mail=None, notify=False, groups="", currentUser=user)
+        self.assertFalse(o,r)
+
+        l,r = root.Login("admin", "11111", raiseUnauthorized = 0)
+        self.assert_(l,r)
+        self.assert_(root.Logout("admin"))
+        l,r = root.Login("admin", "aaaaa", raiseUnauthorized = 0)
+        self.assertFalse(l,r)
+        l,r = root.Login("admin", "", raiseUnauthorized = 0)
+        self.assertFalse(l,r)
 
         
-if __name__ == '__main__':
-    unittest.main()

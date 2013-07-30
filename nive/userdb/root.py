@@ -28,24 +28,11 @@ import uuid
 import json
 
 from nive.definitions import RootConf, Conf, StagUser, IUser
-from nive.security import User
+from nive.definitions import Interface, implements
+from nive.security import User, AdminUser, IAdminUser
 from nive.components.objects.base import RootBase
 from nive.i18n import _
 
-
-class Unauthorized(Exception):
-    """
-    failed login
-    """
-
-class UserFound(Exception):
-    """
-    Can be used in *getuser* listeners to break user lookup and
-    pass a session user to LookupUser. The second argument is the session
-    user 
-    """
-    def __init__(self, user):
-        self.user = user
 
 class root(RootBase):
     """
@@ -312,8 +299,17 @@ class root(RootBase):
         reloadFromDB deprecated. will be removed in the future
         """
         if not id:
-            # lookup id for name, email or ident
             loginByEmail = self.app.configuration.get("loginByEmail")
+            # lookup adminuser
+            admin = self.app.configuration.get("admin")
+            if admin:
+                if ident and ident == admin[self.identityField]:
+                    return AdminUser(admin, admin[self.identityField])
+                elif name and name == admin["name"]:
+                    return AdminUser(admin, admin[self.identityField])
+                elif loginByEmail and email and email == admin["email"]: 
+                    return AdminUser(admin, admin[self.identityField])
+            # lookup id for name, email or ident
             param = {}
             if activeOnly:
                 param[u"pool_state"] = 1
@@ -409,6 +405,10 @@ class root(RootBase):
         else:
             user = ident
 
+        if IAdminUser.providedBy(user):
+            report.append(_(u"You cannot delete the admin user."))
+            return False, report
+            
         if not self.Delete(user.id, obj=user, user=currentUser):
             report.append(_(u"Sorry. An error occured."))
             return False, report
@@ -455,47 +455,6 @@ configuration = RootConf(
     name = _(u"User account"),
     description = __doc__
 )
-
-
-
-class adminuser(object):
-    """
-    Admin User object with groups and login possibility. 
-    """
-    
-    def __init__(self, values):
-        self.id = 0
-        self.data = Conf(**values)
-        self.meta = Conf()
-        self.groups = self.data.groups = (u"group:admin",)
-
-    def __str__(self):
-        return self.data.get("name",str(self.id))
-
-    def Authenticate(self, password):
-        return password == self.data["password"]
-    
-    def Login(self):
-        """ """
-
-    def Logout(self):
-        """ """
-
-    def GetGroups(self, context=None):
-        """ """
-        return self.groups
-
-    def InGroups(self, groups):
-        """
-        check if user has one of these groups
-        """
-        if isinstance(groups, basestring):
-            return groups in self.groups
-        for g in groups:
-            if g in self.groups:
-                return True
-        return False
-    
 
 
 from nive.components.reform.schema import Invalid
