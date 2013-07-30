@@ -21,7 +21,7 @@ import time
 
 from nive.definitions import Interface, implements
 from nive.definitions import ModuleConf, Conf
-from nive.userdb.root import UserFound
+from nive.security import UserFound
 
 
 """
@@ -152,24 +152,11 @@ class RootListener(object):
         if user:
             raise UserFound, UserFound(user)
 
-    def AddToCache(self, user=None):
-        user.AddToCache()
-        
-        
-class UserListener(object):
-
-    def Init(self):
-        self.ListenEvent("commit", self.InvalidateCache)
-        self.ListenEvent("logout", self.InvalidateCache)
-    
-    def AddToCache(self, lastlogin=None):
-        sessionuser = self.SessionUserFactory(self.identity, self)
+    def AddToCache(self, user=None, lastlogin=None):
+        sessionuser = self.SessionUserFactory(user.identity, user)
         sessionuser.lastlogin=lastlogin
-        self.app.usercache.Add(sessionuser, self.identity)
+        self.app.usercache.Add(sessionuser, user.identity)
         
-    def InvalidateCache(self):
-        self.app.usercache.Invalidate(self.identity)
-
     def SessionUserFactory(self, ident, user):
         fields = ("name", "email", "surname", "lastname", "groups", "notify", "lastlogin")
         data = Conf()
@@ -184,6 +171,16 @@ class UserListener(object):
         su = SessionUser(ident, user.id, data, meta)
         return su
 
+
+        
+class UserListener(object):
+
+    def Init(self):
+        self.ListenEvent("commit", self.InvalidateCache)
+        self.ListenEvent("logout", self.InvalidateCache)
+    
+    def InvalidateCache(self):
+        self.app.usercache.Invalidate(self.identity)
 
 
 

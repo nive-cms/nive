@@ -86,7 +86,6 @@ class ListenerTest(unittest.TestCase):
     def tearDown(self):
         pass
     
-    
     def test_root(self):
         r = RootListener()
         r.app = testobj()
@@ -95,6 +94,16 @@ class ListenerTest(unittest.TestCase):
         self.assertFalse(user)
         r.app.usercache.Add(SessionUser("user1", 1, Conf(), Conf()), "user1")
         self.assertRaises(UserFound, r.LookupCache, ident="user1", activeOnly=None)
+
+        u = UserListener()
+        u.app = testobj()
+        u.app.usercache = SessionUserCache()
+        u.identity = "user1"
+        u.data = Conf()
+        u.id = 1
+        sessionuser = r.SessionUserFactory("user1", u)
+        self.assert_(sessionuser)
+        u.AddToCache()
         
     def test_user(self):
         u = UserListener()
@@ -103,9 +112,6 @@ class ListenerTest(unittest.TestCase):
         u.identity = "user1"
         u.data = Conf()
         u.id = 1
-        sessionuser = u.SessionUserFactory("user1", u)
-        self.assert_(sessionuser)
-        u.AddToCache()
         u.InvalidateCache()
         
         
