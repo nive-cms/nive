@@ -29,7 +29,7 @@ import json
 
 from nive.definitions import RootConf, Conf, StagUser, IUser
 from nive.definitions import Interface, implements
-from nive.security import User, AdminUser, IAdminUser
+from nive.security import User, AdminUser, IAdminUser, UserFound
 from nive.components.objects.base import RootBase
 from nive.i18n import _
 
@@ -303,12 +303,12 @@ class root(RootBase):
             # lookup adminuser
             admin = self.app.configuration.get("admin")
             if admin:
-                if ident and ident == admin[self.identityField]:
+                if ident and ident == admin.get(self.identityField):
                     return AdminUser(admin, admin[self.identityField])
                 elif name and name == admin["name"]:
-                    return AdminUser(admin, admin[self.identityField])
+                    return AdminUser(admin, admin.get(self.identityField))
                 elif loginByEmail and email and email == admin["email"]: 
-                    return AdminUser(admin, admin[self.identityField])
+                    return AdminUser(admin, admin.get(self.identityField))
             # lookup id for name, email or ident
             param = {}
             if activeOnly:
