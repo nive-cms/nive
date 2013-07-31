@@ -54,7 +54,7 @@ import weakref
 from nive.definitions import baseConf, ConfigurationError, TryResolveName
 from nive.definitions import IWfProcessConf, IWfStateConf, IWfTransitionConf, IProcess, ILocalGroups
 from nive.helper import ResolveName, ResolveConfiguration, GetClassRef
-
+from nive.security import effective_principals 
 from zope.interface import implements
 
 
@@ -549,12 +549,17 @@ class Transition(object):
         if self.roles == WfAllRoles:
             return True
         if user:
-            groups = user.GetGroups(context)
-            if context and ILocalGroups.providedBy(context):
-                local = context.GetLocalGroups(unicode(user))
-                groups = list(groups)+list(local)
+            # call registered authentication policy
+            groups = effective_principals()
+            if groups==None:
+                # no pyramid authentication policy activated
+                # use custom user lookup
+                groups = user.GetGroups(context)
+                if context and ILocalGroups.providedBy(context):
+                    local = context.GetLocalGroups(unicode(user))
+                    groups = list(groups)+list(local)
         else:
-            groups = (u"Anonymous",)
+            groups = (u"system.Everyone",)
         for r in groups:
             if r in self.process.adminGroups:
                 return True

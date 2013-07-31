@@ -103,7 +103,7 @@ class ListenerTest(unittest.TestCase):
         u.id = 1
         sessionuser = r.SessionUserFactory("user1", u)
         self.assert_(sessionuser)
-        u.AddToCache()
+        r.AddToCache(sessionuser)
         
     def test_user(self):
         u = UserListener()

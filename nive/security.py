@@ -25,6 +25,8 @@ from pyramid.security import Deny
 from pyramid.security import ALL_PERMISSIONS
 from pyramid.security import Everyone, Authenticated
 from pyramid.security import remember, forget, authenticated_userid
+from pyramid import threadlocal 
+from pyramid.interfaces import IAuthenticationPolicy, IAuthorizationPolicy
 
 from nive.definitions import ModuleConf, Conf
 from nive.definitions import Interface, implements
@@ -124,6 +126,19 @@ class AdminUser(object):
     
     def ReadableName(self):
         return self.data.name
+
     
+def effective_principals(request=None):
+    # uses pyramid authentication groupfinder callback to lookup principals
+    # returns None if no auth policy is configured (e.g. in tests)
+    registry = threadlocal.get_current_registry()
+    request = request or threadlocal.get_current_request()
+    authn_policy = registry.queryUtility(IAuthenticationPolicy)
+    authz_policy = registry.queryUtility(IAuthorizationPolicy)
+    if authn_policy and authz_policy:
+        principals = authn_policy.effective_principals(request)
+        return principals
+    return None
+
 
         
