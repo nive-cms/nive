@@ -327,14 +327,15 @@ class root(RootBase):
             # check multiple identity fields
             if len(user)==0 and loginByEmail:
                 if name:
-                    del param["name"]
-                    param["email"] = name
+                    del param[u"name"]
+                    param[u"email"] = name
                     user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
                 elif email:
-                    del param["email"]
-                    param["name"] = email
+                    del param[u"email"]
+                    param[u"name"] = email
                     user = self.Select(pool_type=u"user", parameter=param, fields=[u"id"], max=2)
-                return None
+                else:
+                    return None
             
             if len(user)!=1:
                 return None
