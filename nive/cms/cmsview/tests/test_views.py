@@ -188,6 +188,30 @@ class tCMS(unittest.TestCase):
             render("nive.cms.cmsview:meta.pt", values)
 
 
+    def test_assets(self):
+        view = Editor(self.page, self.request)
+        user = User(u"test")
+        html = view.Assets()
+        self.assert_(html)
+        self.assert_(html.find("<script")!=-1)
+        self.assert_(html.find("<link")!=-1)
+        
+        assets = [
+            ('jquery.js', 'http://nive.co/static/mods/jquery.min.js'),
+            ('toolbox.css', 'http://nive.co/static/toolbox/toolbox.css'),
+            ('overlay.css', 'nive.cms.cmsview:static/overlay/overlay.css'),
+            ('cmseditor.js', 'nive.cms.cmsview:static/cmseditor.js'),
+        ]
+        html = view.Assets(assets=assets)
+        self.assert_(html)
+        self.assert_(html.find(assets[0][1])!=-1)
+        self.assert_(html.find(assets[1][1])!=-1)
 
-if __name__ == '__main__':
-    unittest.main()
+        html = view.Assets(assets=[])
+        self.assertFalse(html)
+
+        html = view.Assets(assets=assets, ignore=('jquery.js', 'toolbox.css'))
+        self.assert_(html.find(assets[0][1])==-1)
+        self.assert_(html.find(assets[1][1])==-1)
+
+
