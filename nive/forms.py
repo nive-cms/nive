@@ -643,10 +643,11 @@ class Form(Events, ReForm):
                 values = request
         if not values:
             return {}
-        cp=self.app.configuration.frontendCodepage
-        for k in values.items():
-            if type(k[1]) == StringType:
-                values[k[0]] = unicode(values[k[0]], cp)
+        # should be unicode ?
+        #cp=self.app.configuration.frontendCodepage
+        #for k in values.items():
+        #    if type(k[1]) == StringType:
+        #        values[k[0]] = unicode(values[k[0]], cp)
         return values
 
 
@@ -676,6 +677,7 @@ class HTMLForm(Form):
     formid = u"upload"
     css_class = u"form form-horizontal"
     actionPostfix = u"$"
+    anchor = u""
     
     # Form actions --------------------------------------------------------------------------------------------
 

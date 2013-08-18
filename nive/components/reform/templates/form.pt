@@ -5,7 +5,7 @@
 
 <form 
   id="${field.formid}"
-  action="${field.action}"
+  action="${field.action}${field.anchor}"
   method="${field.method}"
   class="${field.css_class}"
   enctype="multipart/form-data"
