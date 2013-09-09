@@ -329,8 +329,8 @@ def robots_view(context, request):
 def sitemap_view(context, request):
     portal = request.context
     # portal google sitemap link
-    r = Response(content_type="text/plain", conditional_response=False)
-    r.unicode_body = portal.configuration.get("sitemap", u"")
+    r = Response(content_type="text/xml", conditional_response=False)
+    r.unicode_body = portal.configuration.sitemap
     return r
 
 def error_view(context, request):
