@@ -478,6 +478,8 @@ class AppConf(baseConf):
         useCache :         Cache database on application level.
         frontendCodepage : Default=utf-8. The codepage used to render the html frontend.
         workflowEnabled :  Enable or disable the workflow engine.
+        events  : Register for one or multiple Application events. 
+                  Register each event as e.g. Conf(event="run", callback=function).
         
     Call ``AppConf().test()`` to verify configuration values.
     
@@ -576,6 +578,8 @@ class DatabaseConf(baseConf):
         querylog : Enable database query log. "querylog" is used as filename the application 
                    will use for the query log and the number of traceback lines. 
                    use e.g. (10,'sql.log')
+        events  : Register for one or multiple Application events. 
+                  Register each event as e.g. Conf(event="run", callback=function).
     
     Interface: IDatabaseConf
     
@@ -650,10 +654,13 @@ class ObjectConf(baseConf):
         selectTag : Default select tag for this type. Stored as meta.pool_stag.
         category  : Default category stored as meta.pool_category.
         hidden    : Hide in select lists in user interface.
-        description      : Description.
         workflowDisabled : Enable or disable workflow for this type.
         workflowID       : Workflow process id.
+
+        events  : Register for one or multiple Application events. 
+                  Register each event as e.g. Conf(event="run", callback=function).
         version   : Optional version string.
+        description      : Description.
 
     Call ``ObjectConf().test()`` to verify configuration values.
     
@@ -679,6 +686,7 @@ class ObjectConf(baseConf):
         self.subtypes = "*"
         self.category = u""
         self.hidden = False
+        self.events = None
         self.description = u""
         self.version = "1"
         baseConf.__init__(self, copyFrom, **values)
@@ -763,6 +771,8 @@ class RootConf(baseConf):
         urlTraversal : if True the root name is allowed to be used in url traversal.
         workflowDisabled : Enable or disable workflow for this type.
         workflowID       : Workflow process id.
+        events  : Register for one or multiple Application events. 
+                  Register each event as e.g. Conf(event="run", callback=function).
         description : Description.
 
     Call RootConf().test() to verify configuration values.
@@ -832,6 +842,8 @@ class ViewModuleConf(baseConf):
         staticName : By default ViewModule.id is used as url name to map the static
                      directory. To change the default specify a different name here.  
         acl    : Pyramid security definitions added to nive.Application acls
+        events  : Register for one or multiple Application events. 
+                  Register each event as e.g. Conf(event="run", callback=function).
         description : optional description
     
     Included views ::
@@ -1071,6 +1083,8 @@ class ToolConf(baseConf):
         mimetype : Mimetype of tool return stream
         hidden   : Hide in user interface.
         name     : Display name
+        events   : Register for one or multiple Application events. 
+                   Register each event as e.g. Conf(event="run", callback=function).
         description : Description
     
     Call ToolConf().test() to verify configuration values.
@@ -1210,6 +1224,8 @@ class WidgetConf(baseConf):
         *id         : Unique ascii string id to register this widget.
         name        : Widget name.
         sort        : Default sort for widgets as number.
+        events      : Register for one or multiple Application events. 
+                      Register each event as e.g. Conf(event="run", callback=function).
         description : Description.
 
     Call ``WidgetConf().test()`` to verify configuration values.
