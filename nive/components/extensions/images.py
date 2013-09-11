@@ -139,10 +139,6 @@ class ImageProcessor(object):
             return False, ()
         if not source:
             return False, [_(u"Image not found: ") + profile.source]
-        p = DvPath()
-        p.SetUniqueTempFileName()
-        p.SetExtension(profile.extension)
-        destPath = str(p)
         
         try:
             source.file.seek(0)
@@ -153,8 +149,26 @@ class ImageProcessor(object):
         except IOError:
             # no file to be converted
             return False, ()
-        iObj = iObj.convert("RGB")
         
+        # skip conversion if image is smaller
+        if profile.width > iObj.size[0]:
+            # copy file
+            filename = DvPath(profile.dest+"_"+source.filename)
+            file = File(filekey=profile.dest, 
+                        filename=str(filename), 
+                        file=source.file,
+                        size=source.size, 
+                        path=source.path, 
+                        extension=source.extension,  
+                        tempfile=True)
+            self.files.set(profile.dest, file)
+            return True, []
+            
+        p = DvPath()
+        p.SetUniqueTempFileName()
+        p.SetExtension(profile.extension)
+        destPath = str(p)
+
         # resize
         size = [profile.width, profile.height]
         if size[0] != 0 or size[1] != 0:
@@ -167,8 +181,9 @@ class ImageProcessor(object):
             if y > size[1]: x = x * size[1] / y; y = size[1]
             size = x, y
         
+        iObj = iObj.convert("RGB")
         iObj = iObj.resize(size, Image.ANTIALIAS)
-        iObj.save(destPath, profile.format)
+        iObj.save(destPath, profile.format or image.format)
         try:
             source.file.seek(0)
         except:

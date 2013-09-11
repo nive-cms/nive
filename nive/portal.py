@@ -260,7 +260,6 @@ class Portal(Events, object):
         config.add_view(forbidden_view, context=Forbidden)
         config.add_view(portal_view, name="", context="nive.portal.Portal")
         config.add_view(robots_view, name="robots.txt", context="nive.portal.Portal")
-        config.add_view(sitemap_view, name="sitemap.xml", context="nive.portal.Portal")
         config.add_view(logout_view, name="logout", context="nive.portal.Portal")
         config.add_view(login_view,  name="login", context="nive.portal.Portal")
         config.add_view(account_view,name="account", context="nive.portal.Portal")
@@ -324,13 +323,6 @@ def robots_view(context, request):
     # website root / domain root redirect
     r = Response(content_type="text/plain", conditional_response=False)
     r.unicode_body = portal.configuration.robots
-    return r
-
-def sitemap_view(context, request):
-    portal = request.context
-    # portal google sitemap link
-    r = Response(content_type="text/plain", conditional_response=False)
-    r.unicode_body = portal.configuration.get("sitemap", u"")
     return r
 
 def error_view(context, request):
