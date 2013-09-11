@@ -260,6 +260,7 @@ class Portal(Events, object):
         config.add_view(forbidden_view, context=Forbidden)
         config.add_view(portal_view, name="", context="nive.portal.Portal")
         config.add_view(robots_view, name="robots.txt", context="nive.portal.Portal")
+        config.add_view(sitemap_view, name="sitemap.xml", context="nive.portal.Portal")
         config.add_view(logout_view, name="logout", context="nive.portal.Portal")
         config.add_view(login_view,  name="login", context="nive.portal.Portal")
         config.add_view(account_view,name="account", context="nive.portal.Portal")
