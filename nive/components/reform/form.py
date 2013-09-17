@@ -90,6 +90,7 @@ class Form(Field):
     """
     css_class = 'reform'
     view = None
+    anchor = ''
     
     def __init__(self, schema=None, action='', method='POST', buttons=(),
                  formid='reform', use_ajax=False, ajax_options='{}', **kw):

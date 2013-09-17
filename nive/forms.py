@@ -731,7 +731,7 @@ class HTMLForm(Form):
 
         # no action -> raise exception
         if not action:
-            raise ConfigurationError, "No action found to process the form"
+            raise ConfigurationError, "No action to process the form found"
 
         # call action
         if isinstance(action["method"], basestring):
