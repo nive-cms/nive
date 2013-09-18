@@ -313,10 +313,11 @@ class BaseView(object):
         tmpl = self._LookupTemplate(templatename)
         if not tmpl:
             raise ConfigurationError, "Template not found: %(name)s %(type)s." % {"name": templatename, "type": self.context.configuration.id}
-        self.CacheHeader(self.request.response, user=self.User())
         if not "context" in values: values[u"context"] = self.context
         if not "view" in values: values[u"view"] = self
-        return render_to_response(tmpl, values, request=self.request)
+        response = render_to_response(tmpl, values, request=self.request)
+        self.CacheHeader(response, user=self.User())
+        return response
             
 
     def RenderView(self, obj, name="", secure=True, raiseUnauthorized=False, codepage="utf-8"):
