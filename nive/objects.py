@@ -58,10 +58,6 @@ class Object(object):
         self.selectTag = configuration.get("selectTag", StagContainer) 
 
         self.Signal("init")
-        #print "init obj", self.id
-
-    #def __del__(self):
-    #    print "del obj", self.id
 
     # Shortcuts -----------------------------------------------------------
 
