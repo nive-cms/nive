@@ -79,19 +79,10 @@ class Portal(Events, object):
         
         self.configuration = configuration or PortalConf()
         
-        # 0.9.4 - moved to configuration
-        #self.portalDefaultUrl = "/website/"
-        #self.loginUrl = "/userdb/udb/login"
-        #self.forbiddenUrl = "/userdb/udb/login"
-        #self.logoutUrl = "/userdb/udb/logout"
-        #self.accountUrl = "/userdb/udb/update"
-        #self.robots = u""
-
         self.Signal("init", configuration=self.configuration)
 
     def __del__(self):
         self.Close()
-        #print "del portal"
         
     def __getitem__(self, name):
         """
