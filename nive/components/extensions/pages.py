@@ -20,9 +20,9 @@ Extensions for easier Page, Column and Page element handling.
 """
 
 import string
-from types import StringType, UnicodeType, IntType, LongType
-from nive.utils.utils import ConvertToList
+from datetime import datetime
 
+from nive.utils.utils import ConvertToList
 from nive.definitions import StagPage, StagPageElement
 from nive.security import Allow, Deny, Authenticated, Everyone
 
@@ -206,6 +206,7 @@ class PageElement:
         return self.parent.page
 
     def Init(self):
+        self.ListenEvent("commit", self.TouchPage)
         groups = self.meta.get("pool_groups")
         if groups:
             groups = ConvertToList(groups)
@@ -220,7 +221,7 @@ class PageElement:
 
 
     def GetElementContainer(self):
-        """    Returns the current element container """
+        """ Returns the current element container """
         return self.GetParent()
 
 
@@ -229,6 +230,13 @@ class PageElement:
         return self.GetParent().GetPage()
     
     
+    def TouchPage(self, user=None):
+        """ Changes the change date and time of the containing page to now """
+        try:
+            # calls touch for the page
+            self.page.CommitInternal(user=user) 
+        except AttributeError:
+            self.page.meta[u"pool_change"]=datetime.now()
     
 
 class PageColumns:
