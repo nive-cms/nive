@@ -19,6 +19,7 @@ __doc__ = ""
 
 import json
 import os
+from datetime import datetime
 
 from pyramid.path import DottedNameResolver
 from pyramid.path import AssetResolver
@@ -216,6 +217,8 @@ def DumpJSONConf(conf):
         v = conf[k]
         if isinstance(v, baseConf):
             values[k] = DumpJSONConf(v)
+        elif isinstance(v, datetime):
+            values[k] = str(v)
         else:
             values[k] = v
     return json.dumps(values)
