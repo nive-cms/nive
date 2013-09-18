@@ -196,7 +196,12 @@ class Application(object):
     # Properties -----------------------------------------------------------
 
     def root(self, name=""):
-        """ returns root object     """
+        """ 
+        Events:
+        - loadRoot(root)
+
+        returns root object
+        """
         return self._GetRootObj(name)
 
     def obj(self, id, rootname = "", **kw):
@@ -236,6 +241,9 @@ class Application(object):
         """
         Returns the data root object. If name is empty the default root is returned.
         
+        Events:
+        - loadRoot(root)
+
         returns root object
         """
         return self._GetRootObj(name)
@@ -1150,6 +1158,7 @@ class AppFactory:
             rootObj = rootObj(name, self, rootConf)
             if rootObj and useCache:
                 setattr(self, cachename, rootObj)
+        self.Signal("loadRoot", rootObj)
         return rootObj
 
 
