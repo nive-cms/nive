@@ -187,7 +187,8 @@ def emptypool(app):
     db.Query(u"delete FROM data2")
     db.Query(u"delete FROM data1")
     db.Commit()
-    DvDirCleaner(str(db.root)).DeleteFiles(subdirectories = True)
+    import shutil
+    shutil.rmtree(str(db.root), ignore_errors=True)
     db.root.CreateDirectories()
 
 def createpool(path,app):

@@ -234,19 +234,6 @@ class dbTest(object):
 
 
 
-    # helper ------------------------------------------------------------------------
-    def bakupSQL(self):
-        #print "Bakup SQL Dump to file"
-        p = PoolBakup(self.pool)
-        r,p1 = p.SQLDump()
-        r,p2 = p.SQLArchive()
-        #print r
-        p1 = DvPath(p1)
-        self.assert_(p1.Exists())
-        p2 = DvPath(p2)
-        self.assert_(p2.Exists())
-
-
     # new test fncs -----------------------------------------------------------------------------
 
     def test_create_empty(self):
