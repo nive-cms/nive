@@ -144,6 +144,7 @@ def main(global_config, **settings):
         config = Configurator(root_factory = getRoot, 
                               settings = settings,
                               session_factory = session_factory)
+    config.include('pyramid_chameleon')
         
     # init nive
     portal.Startup(config, debug=True)

@@ -7,7 +7,8 @@ pyramid.debug_notfound = false
 pyramid.debug_routematch = false
 pyramid.debug_templates = true
 pyramid.default_locale_name = {{language}}
-debugtoolbar.enabled = false
+debugtoolbar.enabled = true
+debugtoolbar.show_on_exc_only = true
 debugtoolbar.panels =
     pyramid_debugtoolbar.panels.versions.VersionDebugPanel
     pyramid_debugtoolbar.panels.settings.SettingsDebugPanel
