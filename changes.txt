@@ -1,3 +1,13 @@
+0.9.11b
+------
+- new sessionuser with limited functionality for caching
+- added serialize and deserialize callback option
+- user identity field added
+- enabled non-class functions as event callbacks
+- nive.utils.dataPool2.connections refactored
+- added support to view.Assets() for url links e.g. http://example.com/assets/jquery.js
+- bugfixes and improvements
+
 0.9.10b
 ------
 - maintenance and bugfixes
