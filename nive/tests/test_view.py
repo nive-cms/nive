@@ -92,7 +92,6 @@ class viewTest(unittest.TestCase):
         self.assertRaises(HTTPOk, view.Relocate, "nowhere", messages=[u"aaa",u"bbb"], slot="", raiseException=True)
         self.assertRaises(HTTPOk, view.Relocate, "nowhere", messages=[u"aaa",u"bbb"], slot="test", raiseException=True)
         self.assert_(view.Relocate("nowhere", messages=[u"aaa",u"bbb"], slot="test", raiseException=False)==u"")
-        view.Relocated()
         view.ResetFlashMessages(slot="")
         view.ResetFlashMessages(slot="test")
         view.AddHeader("name", "value")

@@ -208,6 +208,8 @@ class BaseView(object):
         except:
             return link
 
+    
+    # Response and headers (defined on module level below -------------------------------------------
 
     def SendResponse(self, data, mime="text/html", raiseException=False, filename=None):
         """
@@ -217,12 +219,7 @@ class BaseView(object):
         If filename is not none the response will extended with a ``attachment; filename=filename``
         header.
         """
-        cd = None
-        if filename:
-            cd = 'attachment; filename=%s'%(filename)
-        if raiseException:
-            raise HTTPOk(content_type=mime, body=data, content_disposition=cd)
-        return Response(content_type=mime, body=data, content_disposition=cd)
+        return SendResponse(data, mime=mime, raiseException=raiseException, filename=filename)
         
         
     def Redirect(self, url, messages=None, slot=""):
@@ -231,16 +228,7 @@ class BaseView(object):
         by calling ``request.session.pop_flash()``. Messages are added by calling
         ``request.session.flash(m, slot)``.
         """
-        if messages:
-            if isinstance(messages, basestring):
-                self.request.session.flash(messages, slot)
-            else:
-                for m in messages:
-                    self.request.session.flash(m, slot)
-        headers = None
-        if hasattr(self.request.response, "headerlist"):
-            headers = self.request.response.headerlist
-        raise HTTPFound(location=url, headers=headers)
+        return Redirect(url, self.request, messages=messages, slot=slot)
     
 
     def Relocate(self, url, messages=None, slot="", raiseException=False):
@@ -248,39 +236,21 @@ class BaseView(object):
         Returns messages and X-Relocate header in response.
         If raiseException is True HTTPOk is raised with empty body.
         """
-        if messages:
-            if isinstance(messages, basestring):
-                self.request.session.flash(messages, slot)
-            else:
-                for m in messages:
-                    self.request.session.flash(m, slot)
-        headers = [('X-Relocate', str(url))]
-        if hasattr(self.request.response, "headerlist"):
-            headers += list(self.request.response.headerlist)
-        self.request.response.headerlist = headers    
-        if raiseException:
-            raise HTTPOk(headers=headers, body_template="redirect "+url)
-        return u""
+        return Relocate(url, self.request, messages=messages, slot=slot, raiseException=raiseException)
 
-    def Relocated(self):
-        return u""
 
     def ResetFlashMessages(self, slot=""):
         """
         Removes all messages stored in session.
         """
-        while self.request.session.pop_flash(slot):
-            continue
+        ResetFlashMessages(slot=slot)
         
     
     def AddHeader(self, name, value):
         """
         Add a additional response header value.
         """
-        headers = [(name, value)]
-        if hasattr(self.request.response, "headerlist"):
-            headers += list(self.request.response.headerlist)
-        self.request.response.headerlist = headers    
+        AddHeader(self.request, name, value)
 
     
     # render other elements and objects ---------------------------------------------
@@ -753,12 +723,73 @@ class BaseView(object):
         except:
             return u""
 
-
-    # bw 0.9.7 ----------------------------------------------------------------------------
-    def AjaxRelocate(self, url, messages=None, slot="", raiseException=False):
-        return self.Relocate(url, messages=messages, slot=slot, raiseException=raiseException)
  
 
+# Response utilities -------------------------------------------------
+
+def SendResponse(data, mime="text/html", raiseException=False, filename=None):
+    """
+    See views.BaseView class function for docs
+    """
+    cd = None
+    if filename:
+        cd = 'attachment; filename=%s'%(filename)
+    if raiseException:
+        raise HTTPOk(content_type=mime, body=data, content_disposition=cd)
+    return Response(content_type=mime, body=data, content_disposition=cd)
+        
+        
+def Redirect(url, request, messages=None, slot=""):
+    """
+    See views.BaseView class function for docs
+    """
+    if messages:
+        if isinstance(messages, basestring):
+            request.session.flash(messages, slot)
+        else:
+            for m in messages:
+                request.session.flash(m, slot)
+    headers = None
+    if hasattr(request.response, "headerlist"):
+        headers = request.response.headerlist
+    raise HTTPFound(location=url, headers=headers)
+    
+
+def Relocate(url, request, messages=None, slot="", raiseException=False):
+    """
+    See views.BaseView class function for docs
+    """
+    if messages:
+        if isinstance(messages, basestring):
+            request.session.flash(messages, slot)
+        else:
+            for m in messages:
+                request.session.flash(m, slot)
+    headers = [('X-Relocate', str(url))]
+    if hasattr(request.response, "headerlist"):
+        headers += list(request.response.headerlist)
+    request.response.headerlist = headers    
+    if raiseException:
+        raise HTTPOk(headers=headers, body_template="redirect "+url)
+    return u""
+
+
+def ResetFlashMessages(request, slot=""):
+    """
+    See views.BaseView class function for docs
+    """
+    while request.session.pop_flash(slot):
+        continue
+        
+    
+def AddHeader(request, name, value):
+    """
+    See views.BaseView class function for docs
+    """
+    headers = [(name, value)]
+    if hasattr(request.response, "headerlist"):
+        headers += list(request.response.headerlist)
+    request.response.headerlist = headers    
 
 
 
@@ -959,23 +990,3 @@ class Mail(object):
     def __call__(self, **kws):
         mail = render(self.tmpl, kws)
         return mail
-
-
-# Configuration -------------------------------------------------
-"""
-???
-"""
-def Redirect(url, request, messages=None):
-    headers = None
-    if hasattr(request.response, "headerlist"):
-        headers = request.response.headerlist
-    return HTTPFound(location=url, headers=headers)
-
-def AuthenticatedUserName(request):
-    # bw 0.9.6. removed in next version.
-    return authenticated_userid(request)
-
-def forbidden_view(request):
-    return Response('forbidden')
-
-

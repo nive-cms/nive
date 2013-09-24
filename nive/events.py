@@ -144,11 +144,4 @@ class Events(object):
 
 
 
-    # bw 0.9.9. renamed functions
-    def RegisterEvent(self, signal, function):
-        return self.ListenEvent(signal, function)
-
-    def RemoveEvent(self, signal, function):
-        return self.RemoveListener(signal, function)
-
 

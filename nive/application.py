@@ -357,21 +357,6 @@ class Application(object):
 
     # to be removed in future versions -------------------------------------------
 
-    def NewDBConnection(self):
-        return self.NewConnection()
-    
-    def ConvertID(self, id):
-        try:
-            return int(id)
-        except:
-            return -1
-
-    def GetCountEntries(self):
-        db = self.db
-        c = db.GetCountEntries()
-        return c
-
-
 
 
 class Registration(object):
@@ -527,9 +512,6 @@ class Registration(object):
         c = self.registry.queryUtility(IAppConf, name="IApp")
         if c:
             self.configuration = c
-        # bw 0.9.3
-        if not self.configuration:
-            raise TypeError, "Application configuration is not set"
         
         def idinlist(l, id):
             for i in l:
@@ -562,14 +544,6 @@ class Registration(object):
                     self.dbConfiguration = c.dbConfiguration
                 continue
             
-            # map value
-            #setattr(self, k, c[k])
-
-        dbc = self.registry.queryUtility(IDatabaseConf, name="IDatabase")
-        # bw 0.9.3
-        if dbc:
-            self.dbConfiguration = dbc
-        
 
     def RegisterViews(self, config):
         """
@@ -642,15 +616,6 @@ class Registration(object):
             try:       a.component.lock()
             except:    pass
 
-
-    # bw 0.9.3
-    def Include(self, module, **kw):
-        return self.Register(module, **kw)
-
-    def LoadConfiguration(self):
-        return self.SetupRegistry()
-
-    
     
 
 

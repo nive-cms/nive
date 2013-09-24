@@ -29,6 +29,7 @@ from nive.definitions import Conf
 from nive.definitions import StagContainer, StagPageElement, MetaTbl
 from nive.definitions import IContainer, ICache, IObject, IConf 
 from nive.definitions import ContainmentError, ConfigurationError
+from nive.definitions import AllTypesAllowed
 from nive.workflow import WorkflowNotAllowed
 from nive.helper import ResolveName, ClassFactory
 
@@ -545,7 +546,7 @@ class ContainerSecurity:
         if not subtypes:
             return False
         all = self.app.GetAllObjectConfs(visibleOnly=visible)
-        if subtypes == "*":
+        if subtypes == AllTypesAllowed:
             return all
 
         # check types by interface
@@ -562,6 +563,7 @@ class ContainerSecurity:
                     if not iface:
                         continue
                 try:
+                # may not be interface class
                     if iface.providedBy(type):
                         allowed.append(conf)
                 except:
@@ -587,7 +589,7 @@ class ContainerSecurity:
         if not type:
             return False
         subtypes = self.configuration.subtypes
-        if subtypes == "*":
+        if subtypes == AllTypesAllowed:
             return True
         if not subtypes:
             return False
@@ -609,6 +611,7 @@ class ContainerSecurity:
                 if not iface:
                     continue
             try:
+                # may not be interface class
                 if iface.providedBy(type):
                     return True
             except:

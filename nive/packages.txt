@@ -1,0 +1,56 @@
+Package reorganisation
+----------------------
+
+nive.cms    ->  nive_cms
+
+nive.userdb ->  nive_userdb
+
+nive.locale ->  nive.locale (reform.)
+            ->  nive_cms.locale (cms.)
+            ->  nive_userdb.locale (userdb.)
+
+nive.components.objects [part 2] -> nive_cms.extensions.baseobjects
+
+nive.components.extensions.fulltextpage -> nive_cms.extensions.fulltextpage
+
+nive.components.extensions.images -> nive_cms.extensions.images
+
+nive.components.extensions.pages -> nive_cms.extensions.pages
+
+nive.components.extensions.path -> nive_cms.extensions.path
+
+nive.components.extensions.sessionuser -> nive_userdb.sessionuser
+
+
+
+
+Cleanup
+---------------------------
+
+
+removed 'bw' marked functions:
+---------------------------------
+utils.path.DvDirCleaner
+utils.datapool2.bakupSQL
+utils.datapool2.PoolBakup
+
+application.Registration
+    def Include(self, module, **kw):
+    def LoadConfiguration(self):
+
+applicatio.Application
+    def NewDBConnection(self):
+    def ConvertID(self, id):
+    def GetCountEntries(self):
+
+views
+    def AuthenticatedUserName(request):
+    def forbidden_view(request):
+    
+view.BaseView
+    def Relocated(self):
+    def AjaxRelocate(self, url, messages=None, slot="", raiseException=False):
+
+events.Event
+    def RegisterEvent(self, signal, function):
+    def RemoveEvent(self, signal, function):
