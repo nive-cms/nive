@@ -1,6 +1,6 @@
 <h3 i18n:translate="">Welcome to Nive cms!</h3>
 
-<div tal:condition="not context.app.GetCountEntries()" 
+<div tal:condition="not context.app.db.GetCountEntries()" 
      class="alert">
 <span i18n:translate="">The website is empty.</span>
 <a tal:condition="not view.User()" href="${view.FolderUrl()}editor" i18n:translate="">You have to sign in to start 

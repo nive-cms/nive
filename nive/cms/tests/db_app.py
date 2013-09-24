@@ -23,8 +23,10 @@ appconf.modules.append("nive.cms.design.view")
 
 def app(confs=[]):
     a = WebsitePublisher()
+    appconf.unlock()
+    appconf.dbConfiguration = dbconf
+    appconf.lock()
     a.Register(appconf)
-    a.Register(dbconf)
     for c in confs:
         a.Register(c)
     p = Portal()
