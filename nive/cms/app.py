@@ -76,8 +76,12 @@ configuration = AppConf(
     context = "nive.cms.app.WebsitePublisher",
     workflowEnabled = True,
     columns=[u"footer"],
-    meta = copy.deepcopy(AllMetaFlds)
 )
+
+configuration.meta.append(FieldConf(id="pool_groups", datatype="mcheckboxes", size=250, default="", 
+                                    name=_(u"Permission"), 
+                                    description=_(u"Only displayed to users in the selected group")))
+
 configuration.modules = [
     # objects
     "nive.cms.box", "nive.cms.column", "nive.cms.menublock", "nive.cms.file", 
@@ -102,10 +106,6 @@ configuration.modules = [
     "nive.adminview",
     "nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
-
-configuration.meta.append(FieldConf(id="pool_groups", datatype="mcheckboxes", size=250, default="", 
-                                    name=_(u"Permission"), 
-                                    description=_(u"Only displayed to users in the selected group")))
 
 configuration.acl = [
     (Allow, Everyone, 'view'),

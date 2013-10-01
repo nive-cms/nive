@@ -525,8 +525,7 @@ class AppConf(baseConf):
         baseConf.__init__(self, copyFrom, **values)
 
         if not self.meta:
-            dc = copy.deepcopy
-            self.meta = dc(list(SystemFlds)) + dc(list(UserFlds)) 
+            self.meta = copy.deepcopy(AllMetaFlds)
                         
         # bw 0.9.3 
         # database connection parameter

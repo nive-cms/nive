@@ -4,11 +4,9 @@ import time
 import unittest
 
 from nive.definitions import OperationalError
-from nive.utils.path import *
+from nive.utils.path import DvPath
 
-from nive.application import *
 from nive.definitions import *
-from nive.helper import *
 from nive.portal import Portal
 from nive.security import User
 
@@ -92,7 +90,9 @@ appconf = AppConf(
     modules = [root, type1, type2, type3],
     categories = [cat1, cat2],
     groups = [group1, group2],
-    fulltextIndex = True
+    fulltextIndex = True,
+    # run tests with the minimum required set of meta fields
+    meta = copy.deepcopy(list(SystemFlds)) + copy.deepcopy(list(UserFlds))
 )
 appconf.meta.append(FieldConf(id="testfld", datatype="number", size=4, name=u"Number"))
 

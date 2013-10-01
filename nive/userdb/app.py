@@ -43,8 +43,7 @@ configuration = AppConf(
     id = "userdb",
     title = _(u"Users"),
     context = "nive.userdb.app.UserDB",
-    loginByEmail = False,
-    meta = copy.deepcopy(AllMetaFlds)
+    loginByEmail = False
 )
 
 # configuration.systemAdmin = (u"email", u"display name")
