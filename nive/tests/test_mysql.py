@@ -55,9 +55,7 @@ else:
     
 def myapp(modules=None):
     a = ApplicationBase()
-    appconf.unlock()
-    appconf.dbConfiguration = dbconfMySql
-    appconf.lock()
+    a.Register(dbconfMySql)
     a.Register(appconf)
     if modules:
         for m in modules:

@@ -58,23 +58,25 @@ class Application(object):
     SQLite example:
     ::
     
-        conf = AppConf(id="website", title="nive app", 
-                       dbConfiguration = DatabaseConf(context="Sqlite3", 
-                                                      fileRoot="data", 
-                                                      dbName="data/ewp.db")
-        )
+        appConf = AppConf(id="website", 
+                          title="nive app")
+        dbConf = DatabaseConf(context="Sqlite3", 
+                              fileRoot="data", 
+                              dbName="data/ewp.db")
+        appConf.modules.append(dbConf)
     
     MySql example:
     ::
     
-        conf = AppConf(id="website", title="nive app", 
-                       dbConfiguration = DatabaseConf(context="MySql", 
-                                                      fileRoot="data", 
-                                                      dbName="nive",
-                                                      host="localhost",
-                                                      user="user",
-                                                      password="password")
-        )
+        appConf = AppConf(id="website", 
+                          title="nive app")
+        dbConf = DatabaseConf(context="MySql", 
+                              fileRoot="data", 
+                              dbName="nive",
+                              host="localhost",
+                              user="user",
+                              password="password")
+        appConf.modules.append(dbConf)
 
     Requires (Configuration, Registration, AppFactory, Events.Events)
     """
@@ -460,6 +462,7 @@ class Registration(object):
         
         elif iface == IDatabaseConf:
             self.registry.registerUtility(conf, provided=IDatabaseConf, name="IDatabase")
+            self.dbConfiguration = conf
             return True
         
         elif iface == IModuleConf:
@@ -530,6 +533,7 @@ class Registration(object):
                 self.__acl__ = c.acl
                 continue
             if k == "dbConfiguration" and c.dbConfiguration:
+                # bw 0.9.3
                 if type(c.dbConfiguration) == DictType:
                     self.dbConfiguration = DatabaseConf(**c.dbConfiguration)
                 else:

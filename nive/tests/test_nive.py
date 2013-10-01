@@ -14,7 +14,7 @@ from nive.tests import db_app
 mApp = AppConf(id="app", 
                groups=[GroupConf(id="g1",name="G1")], 
                categories=[CategoryConf(id="c1",name="C1")], 
-               dbConfiguration = DatabaseConf(dbName="test"))
+               modules = [DatabaseConf(dbName="test")])
 
 mObject = ObjectConf(id="object", dbparam="object", name="Object",
                      data=(FieldConf(id="a1",datatype="string",name="A1"),FieldConf(id="a2",datatype="number",name="A2"),))
@@ -24,15 +24,14 @@ mTool = ToolConf(id="tool", context="nive.components.tools.example")
 mViewm = ViewModuleConf(id="vm")
 mView = ViewConf(id="v",context=mApp,view=mApp)
 mMod = ModuleConf(id="mod", context=mApp)
-
+mDb = DatabaseConf(dbName="test")
 
 
 mApp2 = AppConf(id="app2", 
                 context="nive.tests.test_nive.testapp",
-                modules=[mObject,mRoot,mTool,mViewm,mView,mMod], 
+                modules=[mObject,mRoot,mTool,mViewm,mView,mMod,mDb], 
                 groups=[GroupConf(id="g1",name="G1")], 
-                categories=[CategoryConf(id="c1",name="C1")],
-                dbConfiguration=DatabaseConf(dbName="test")
+                categories=[CategoryConf(id="c1",name="C1")]
 )
 
 mAppErr = AppConf(id="app2", 
@@ -74,6 +73,7 @@ class modTest(unittest.TestCase):
         self.app.Register(mViewm)
         self.app.Register(mView)
         self.app.Register(mMod)
+        self.app.Register(mDb)
         self.app.Register(ModuleConf(id="aaa"), provided=IObject, name="testttttt")
         self.app.Startup(None)
         self.assert_(self.app.db)

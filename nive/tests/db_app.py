@@ -128,10 +128,8 @@ file2_2 = {"filename":"file2.txt", "file":file2_2_data}
 # empty -------------------------------------------------------------------------
 def app_db(modules=None):
     a = ApplicationBase()
-    appconf.unlock()
-    appconf.dbConfiguration = dbconf
-    appconf.lock()
     a.Register(appconf)
+    a.Register(dbconf)
     if modules:
         for m in modules:
             a.Register(m)
@@ -165,10 +163,8 @@ def app_db(modules=None):
 
 def app_nodb():
     a = ApplicationBase()
-    appconf.unlock()
-    appconf.dbConfiguration = DatabaseConf()
-    appconf.lock()
     a.Register(appconf)
+    a.Register(DatabaseConf())
     p = Portal()
     p.Register(a, "nive")
     a.SetupRegistry()

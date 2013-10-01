@@ -29,12 +29,12 @@ Minimal local system configuration (sqlite example) and usage
 
     app = AppConf("nive.cms.app",
                   id = "website",
-                  title = "My website",
-                  dbConfiguration = DatabaseConf(
+                  title = "My website")
+    dbConfiguration = DatabaseConf(
                        fileRoot="/var/opt/website",
                        context=u"Sqlite3",
                        dbName="/var/opt/website/website.db")
-    )
+    app.modules.append(dbConfiguration)
     design = ViewModuleConf("nive.cms.design.view")
     app.modules.append(design)
 
