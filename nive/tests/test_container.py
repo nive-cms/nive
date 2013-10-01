@@ -196,7 +196,6 @@ class containerTest_db:
         self.assert_(o3.GetObj(o4.GetID()))
         id = o5.GetID()
         self.assert_(r.LookupObj(id))
-        self.assert_(r.LookupTitle(id))
 
         # subitems
         #root
@@ -310,7 +309,6 @@ class containerTest_db:
         self.assertFalse(o3.GetObj(o4.GetID()))
         id = o5.GetID()
         self.assertFalse(r.LookupObj(id))
-        self.assertFalse(r.LookupTitle(id))
 
         # subitems
         #root

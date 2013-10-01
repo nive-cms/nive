@@ -182,6 +182,17 @@ def FormatConfTestFailure(report, fmt="text"):
     return "".join(v)
 
 
+def ReplaceInListByID(conflist, id, newconf):
+    new = []
+    for conf in conflist:
+        if conf.id == id:
+            new.append(newconf)
+        else:
+            new.apend(conf)
+    return new
+            
+
+
 class ConfEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, baseConf):

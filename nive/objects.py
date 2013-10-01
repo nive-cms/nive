@@ -187,7 +187,7 @@ class Object(object):
 
     def GetTitle(self):
         """ returns the objects meta.title as string """
-        return self.meta["title"]
+        return self.meta.get("title","")
 
     def GetPath(self):
         """ returns the url path name of the object as string """
@@ -318,7 +318,7 @@ class ObjectEdit:
                     files[id] = sourceData[id]
                 else:
                     data[id] = sourceData[id]
-        for f in self.GetApp()._meta:
+        for f in self.GetApp().GetAllMetaFlds(False):
             id = f["id"]
             if sourceData.has_key(id):
                 meta[id] = sourceData[id]

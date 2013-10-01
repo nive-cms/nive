@@ -118,10 +118,10 @@ class ConversionTest(unittest.TestCase):
         self.assert_(self.structure.serialize(u"pool_meta", u"somevalue", value).startswith(u"_json_"))
         
     def test_se_mselection(self):
-        v = {u"id":u"123", u"pool_sort":u"123.12", u"pool_wfa":["value"], u"somevalue": "test"}
+        v = {u"id":u"123", u"pool_stag":u"123.12", u"pool_wfa":["value"], u"somevalue": "test"}
         values = self.structure.serialize(u"pool_meta", None, v)
         self.assert_(values[u"id"]==123)
-        self.assert_(values[u"pool_sort"]==123.12)
+        self.assert_(values[u"pool_stag"]==123.12)
         self.assert_(values[u"pool_wfa"]==u"value")        
 
     def test_se_number(self):
@@ -131,10 +131,10 @@ class ConversionTest(unittest.TestCase):
         self.assert_(self.structure.serialize(u"pool_meta", u"id", 123.12)==123)
 
     def test_se_float(self):
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", 123)==123.0)
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", u"123.12")==123.12)
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", "123.0")==123.0)
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", 123.12)==123.12)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", 123)==123.0)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", u"123.12")==123.12)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", "123.0")==123.0)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", 123.12)==123.12)
 
     def test_se_date(self):
         value = datetime.now()
@@ -234,10 +234,10 @@ class CallbackTest(unittest.TestCase):
 
         
     def test_se_mselection(self):
-        v = {u"id":u"123", u"pool_sort":u"123.12", u"pool_wfa":["value"], u"somevalue": "test"}
+        v = {u"id":u"123", u"pool_stag":u"123.12", u"pool_wfa":["value"], u"somevalue": "test"}
         values = self.structure.serialize(u"pool_meta", None, v)
         self.assert_(values[u"id"]==123)
-        self.assert_(values[u"pool_sort"]==123.12)
+        self.assert_(values[u"pool_stag"]==123.12)
         self.assert_(values[u"pool_wfa"]==u"value")        
 
     def test_se_number(self):
@@ -247,9 +247,9 @@ class CallbackTest(unittest.TestCase):
         self.assert_(self.structure.serialize(u"pool_meta", u"id", 123.12)==123)
 
     def test_se_float(self):
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", 123)==123.0)
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", u"123.12")==123.12)
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", "123.0")==123.0)
-        self.assert_(self.structure.serialize(u"pool_meta", u"pool_sort", 123.12)==123.12)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", 123)==123.0)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", u"123.12")==123.12)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", "123.0")==123.0)
+        self.assert_(self.structure.serialize(u"pool_meta", u"pool_stag", 123.12)==123.12)
 
         

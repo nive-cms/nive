@@ -26,7 +26,7 @@ from time import time
 from datetime import datetime
 
 from nive.definitions import Conf
-from nive.definitions import StagContainer, StagPageElement, MetaTbl
+from nive.definitions import StagContainer, StagRessource, MetaTbl
 from nive.definitions import IContainer, ICache, IObject, IConf 
 from nive.definitions import ContainmentError, ConfigurationError
 from nive.definitions import AllTypesAllowed
@@ -99,7 +99,7 @@ class Container(object):
             operators = {}
         parameter[u"pool_unitref"] = self.id
         sort = kw.get("sort", self.GetSort())
-        fields = [u"id",u"pool_datatbl",u"pool_dataref",u"pool_type",u"pool_state"]
+        fields = [u"id",u"pool_datatbl",u"pool_dataref",u"pool_type"]
         root = self.root()
         if kw.get("queryRestraints")!=False:
             parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
@@ -146,7 +146,11 @@ class Container(object):
         parameter[u"pool_unitref"] = self.id
         sort = kw.get("sort", self.GetSort())
         if not fields:
-            fields = [u"id", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_sort", u"pool_stag", u"pool_wfa"]
+            # lookup meta list default fields
+            fields = self.app.configuration.listDefault
+            if not fields:
+                # bw: 0.9.12 fallback for backward compatibility
+                fields = [u"id", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_sort", u"pool_stag", u"pool_wfa"]
         root = self.root()
         parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
         if pool_type:
@@ -186,7 +190,7 @@ class Container(object):
     def GetContainers(self, parameter = None, operators = None, **kw):
         """
         Loads all subobjects with container functionality. Uses select tag range `nive.definitions.StagContainer` to 
-        `nive.definitions.StagPageElement - 1`.  ::
+        `nive.definitions.StagRessource - 1`.  ::
         
             kw.batch = load subobjects as batch and not as single object
             parameter = see pool Search
@@ -203,7 +207,7 @@ class Container(object):
             parameter = {}
         if operators==None:
             operators = {}
-        parameter[u"pool_stag"] = (StagContainer, StagPageElement-1)
+        parameter[u"pool_stag"] = (StagContainer, StagRessource-1)
         operators[u"pool_stag"] = u"BETWEEN"
         objs = self.GetObjs(parameter, operators, **kw)        
         return objs
@@ -212,7 +216,7 @@ class Container(object):
     def GetContainerList(self, fields = None, parameter = None, operators = None, **kw):
         """
         Lists all subobjects with container functionality. Uses select tag range `nive.definitions.StagContainer` to 
-        `nive.definitions.StagPageElement - 1`. This function performs a sql query based on parameters and
+        `nive.definitions.StagRessource - 1`. This function performs a sql query based on parameters and
         does not load any object. ::
 
             fields = list. see nive.Search
@@ -228,7 +232,7 @@ class Container(object):
             parameter = {}
         if operators==None:
             operators = {}
-        parameter[u"pool_stag"] = (StagContainer, StagPageElement-1)
+        parameter[u"pool_stag"] = (StagContainer, StagRessource-1)
         operators[u"pool_stag"] = u"BETWEEN"
         return self.GetObjsList(fields, parameter, operators, **kw)
     
@@ -252,7 +256,7 @@ class Container(object):
         
         returns the field id as string
         """
-        return u"title"
+        return u"id"
 
 
     def IsContainer(self):
@@ -856,20 +860,6 @@ class Root(object):
         return obj
 
 
-    def LookupTitle(self, id):
-        """
-        Lookup the object title referenced by id *anywhere* in the tree structure.
-        
-        returns title as string or empty string
-        """
-        p, o = self.ObjQueryRestraints(self)
-        p["id"] = id
-        v = self.Select(parameter = p, operators = o, fields = [u"title"], start = 0, max = 1)
-        if len(v):
-            return v[0][0]
-        return ""
-
-
     def ObjQueryRestraints(self, containerObj=None, parameter=None, operators=None):
         """
         The functions returns two dictionaries (parameter, operators) used to restraint
@@ -917,7 +907,7 @@ class Root(object):
 
     def GetTitle(self):
         """ returns the root title from configuration. """
-        return self.meta["title"]
+        return self.meta.get("title","")
 
     def GetPath(self):
         """ returns the url path name as string. """

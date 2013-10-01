@@ -96,7 +96,7 @@ class Search:
 
     # Simple search functions ----------------------------------------------------------------------------------------------
     
-    def Select(self, pool_type=None, parameter={}, fields=["id"], operators={}, sort=None, ascending = 1, start=0, max=0, **kw):
+    def Select(self, pool_type=None, parameter=None, fields=None, operators=None, sort=None, ascending=1, start=0, max=0, **kw):
         """
         Fast and simple sql query. 
         
@@ -116,12 +116,24 @@ class Search:
         
         returns records as list
         """
-        if not fields:
-            raise TypeError, "No fields specified"
+        parameter = parameter or {}
+        operators = operators or {}
+        fields = fields or ["id"]
         db = self.db
         if pool_type==None:
             dataTable=kw.get("dataTable") or u"pool_meta"
-            sql, values = db.FmtSQLSelect(fields, parameter, dataTable=dataTable, singleTable=1, operators=operators, sort=sort, ascending=ascending, start=start, max=max, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"))
+            sql, values = db.FmtSQLSelect(fields or ["id"], 
+                                          parameter, 
+                                          dataTable=dataTable, 
+                                          singleTable=1, 
+                                          operators=operators, 
+                                          sort=sort, 
+                                          ascending=ascending, 
+                                          start=start, 
+                                          max=max, 
+                                          groupby=kw.get("groupby"), 
+                                          logicalOperator=kw.get("logicalOperator"), 
+                                          condition=kw.get("condition"))
         else:
             if not parameter.has_key("pool_type") and not kw.get("dontAddType"):
                 parameter["pool_type"] = pool_type
@@ -135,7 +147,7 @@ class Search:
         return recs
 
 
-    def SelectDict(self, pool_type=None, parameter={}, fields=[u"id"], operators={}, sort=None, ascending = 1, start=0, max=0, **kw):
+    def SelectDict(self, pool_type=None, parameter=None, fields=None, operators=None, sort=None, ascending=1, start=0, max=0, **kw):
         """
         Fast and simple sql query. 
         
@@ -159,7 +171,16 @@ class Search:
         
         returns records as dict list
         """
-        recs = self.Select(pool_type, parameter, fields, operators, sort, ascending, start, max, **kw)
+        fields = fields or ["id"]
+        recs = self.Select(pool_type=pool_type,
+                           parameter=parameter, 
+                           fields=fields, 
+                           operators=operators, 
+                           sort=sort, 
+                           ascending=ascending, 
+                           start=start, 
+                           max=max, 
+                           **kw)
         if len(recs)==0:
             return recs
         # convert
@@ -175,7 +196,7 @@ class Search:
 
     # Extended search functions ----------------------------------------------------------------------------------------------
 
-    def Search(self, parameter, fields = [], operators = {}, sort = u"title", ascending = 1, start = 0, max = 100, **kw):
+    def Search(self, parameter, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=100, **kw):
         """
         Extended meta layer search function. Supports all keyword options and search result. 
         
@@ -198,6 +219,9 @@ class Search:
         try:    max = int(max)
         except:    max = 100
         debug = kw.get("debug",False)
+        
+        fields = fields or []
+        operators = operators or {}
 
         # return empty result set and not all reords
         if kw.get("showAll",True) == False and parameter == {}:
@@ -315,7 +339,7 @@ class Search:
         return result
 
 
-    def SearchType(self, pool_type, parameter, fields = [], sort = u"title", ascending = 1, start = 0, max = 100, **kw):
+    def SearchType(self, pool_type, parameter, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=100, **kw):
         """
         Extended meta and data layer search function. Supports all keyword options and search result. 
         
@@ -338,6 +362,9 @@ class Search:
         except:    start = 0
         try:    max = int(max)
         except:    max = 100
+
+        fields = fields or []
+        operators = operators or {}
 
         # set join type
         default_join = 0
@@ -389,7 +416,13 @@ class Search:
             ct = 0
         else:
 
-            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
+            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, 
+                                          dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, 
+                                          groupby=kw.get("groupby"), 
+                                          logicalOperator=kw.get("logicalOperator"), 
+                                          condition=kw.get("condition"), 
+                                          join=kw.get("join"), 
+                                          mapJoinFld=kw.get("mapJoinFld"))
             aL = db.Query(sql, values)
             
             # render
@@ -423,10 +456,19 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, 
+                                                   dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, 
+                                                   logicalOperator=kw.get("logicalOperator"), 
+                                                   condition=kw.get("condition"), 
+                                                   join=kw.get("join"))
                     total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", 
+                                                   ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, 
+                                                   operators=operators, 
+                                                   logicalOperator=kw.get("logicalOperator"), 
+                                                   condition=kw.get("condition"), 
+                                                   join=kw.get("join"))
                     total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
@@ -460,7 +502,7 @@ class Search:
         return result
 
 
-    def SearchData(self, pool_type, parameter, fields = [], sort = u"id", ascending = 1, start = 0, max = 100, **kw):
+    def SearchData(self, pool_type, parameter, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=100, **kw):
         """
         Extended data layer search function. Supports all keyword options and search result. 
         
@@ -483,6 +525,9 @@ class Search:
         except:    start = 0
         try:    max = int(max)
         except:    max = 100
+
+        fields = fields or []
+        operators = operators or {}
 
         if kw.get("showAll",True) == False and parameter == {}:
             parameter["id"] = 0
@@ -523,7 +568,12 @@ class Search:
         if not db:
             ct = 0
         else:
-            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, 
+                                          ascending=ascending, start=start, max=max, operators=operators, 
+                                          groupby=kw.get("groupby"), 
+                                          logicalOperator=kw.get("logicalOperator"), 
+                                          condition=kw.get("condition"), 
+                                          singleTable=1)
             aL = db.Query(sql, values)
             
             # render
@@ -557,10 +607,19 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", 
+                                                   ascending=ascending, start=None, max=None, operators=operators, 
+                                                   logicalOperator=kw.get("logicalOperator"), 
+                                                   condition=kw.get("condition"), 
+                                                   singleTable=1)
                     total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, start=None, max=None, operators=operators, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), singleTable=1)
+                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, 
+                                                   dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, 
+                                                   start=None, max=None, operators=operators, 
+                                                   logicalOperator=kw.get("logicalOperator"), 
+                                                   condition=kw.get("condition"), 
+                                                   singleTable=1)
                     total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
@@ -594,7 +653,7 @@ class Search:
         return result
 
 
-    def SearchFulltext(self, phrase, parameter=None, fields = ("id","title","pool_type","-pool_fulltext.text as fulltext"), sort = u"", ascending = 1, start = 0, max = 300, **kw):
+    def SearchFulltext(self, phrase, parameter=None, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=300, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -610,9 +669,11 @@ class Search:
         """
         t = time.time()
 
+        fields = fields or ("id","title","pool_type","-pool_fulltext.text as fulltext")
+        operators = operators or {}
+        parameter = parameter or {}
+
         # check parameter
-        if not parameter:
-            parameter = {}
         if phrase==None:
             phrase = u""
         searchFor = phrase
@@ -655,7 +716,11 @@ class Search:
         if not db:
             ct = 0
         else:
-            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, operators=kw.get("operators",{}), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, 
+                                            operators=operators, 
+                                            logicalOperator=kw.get("logicalOperator"), 
+                                            condition=kw.get("condition"), 
+                                            join=kw.get("join"))
             aL = db.Query(sql, values)
             
             # render
@@ -684,7 +749,12 @@ class Search:
                     break
 
             # total records
-            sql2, values = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, operators=kw.get("operators",{}), skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+            sql2, values = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, 
+                                             operators=operators, 
+                                             skipRang=1, 
+                                             logicalOperator=kw.get("logicalOperator"), 
+                                             condition=kw.get("condition"), 
+                                             join=kw.get("join"))
             total = db.Query(sql2, values)[0][0]
             
         result = {}
@@ -717,7 +787,7 @@ class Search:
         return result
 
 
-    def SearchFulltextType(self, pool_type, phrase, parameter=None, fields = ["id","title"], sort = None, ascending = 1, start = 0, max = 300, **kw):
+    def SearchFulltextType(self, pool_type, phrase, parameter=None, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=300, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search of the given type. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -734,9 +804,11 @@ class Search:
         """
         t = time.time()
 
+        fields = fields or ("id","title","-pool_fulltext.text as fulltext")
+        operators = operators or {}
+        parameter = parameter or {}
+
         # check parameter
-        if not parameter:
-            parameter = {}
         if phrase==None:
             phrase = u""
         searchFor = phrase
@@ -800,7 +872,13 @@ class Search:
         if not db:
             ct = 0
         else:
-            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, start=start, max=max, operators=operators, groupby=kw.get("groupby"), logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"), mapJoinFld=kw.get("mapJoinFld"))
+            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, 
+                                            start=start, max=max, operators=operators, 
+                                            groupby=kw.get("groupby"), 
+                                            logicalOperator=kw.get("logicalOperator"), 
+                                            condition=kw.get("condition"), 
+                                            join=kw.get("join"), 
+                                            mapJoinFld=kw.get("mapJoinFld"))
             aL = db.Query(sql, values)
             
             # render
@@ -832,10 +910,19 @@ class Search:
             # total records
             if len(items) == max and kw.get("skipCount") != 1:
                 if not kw.get("groupby"):
-                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], 
+                                                     ascending=ascending, start=None, max=None, operators=operators, skipRang=1, 
+                                                     logicalOperator=kw.get("logicalOperator"), 
+                                                     condition=kw.get("condition"), 
+                                                     join=kw.get("join"))
                     total = db.Query(sql2, values)[0][0]
                 else:
-                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, operators=operators, skipRang=1, logicalOperator=kw.get("logicalOperator"), condition=kw.get("condition"), join=kw.get("join"))
+                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, 
+                                                     dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, 
+                                                     operators=operators, skipRang=1, 
+                                                     logicalOperator=kw.get("logicalOperator"), 
+                                                     condition=kw.get("condition"), 
+                                                     join=kw.get("join"))
                     total = db.Query(sql2, values)[0][0]
             else:
                 total = len(items) + start
@@ -870,7 +957,7 @@ class Search:
         return result
 
 
-    def SearchFilename(self, filename, parameter, fields = [], sort = None, ascending = 1, start = 0, max = 100, **kw):
+    def SearchFilename(self, filename, parameter, fields=None, operators=None, sort=None, ascending=1, start=0, max=100, **kw):
         """
         Filename search function. Searches all physical file filenames (not url path names). Supports all 
         keyword options and search result. 
@@ -887,6 +974,9 @@ class Search:
         
         returns search result (See above)
         """
+        fields = fields or ()
+        operators = operators or {}
+
         db = self.db
         if kw.get("showAll",True) == False and filename == "":
             files = []
@@ -932,13 +1022,19 @@ class Search:
 
     # Tree structure -----------------------------------------------------------
 
-    def GetTree(self, flds=[u"id", u"pool_unitref", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_wfa", u"pool_sort"], sort=u"pool_sort", base=0, parameter=u""):
+    def GetTree(self, flds=None, sort=u"id", base=0, parameter=u""):
         """
         Select list of all folders from db.
         
         returns the subtree
         {'items': [{u'id': 354956L, 'ref1': 354954L, 'ref2': 354952L, ..., 'ref10': None, 'items': [...]}]
         """
+        if not flds:
+            # lookup meta list default fields
+            flds = self.app.configuration.listDefault
+            if not flds:
+                # bw: 0.9.12 fallback for backward compatibility
+                flds = [u"id", u"pool_unitref", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_wfa", u"pool_sort"]
         db = self.db
         return db.GetTree(flds=flds, sort=sort, base=base, parameter=parameter)
 
@@ -961,7 +1057,7 @@ class Search:
 
     # Codelists representation for entries -----------------------------------------------------------------------------------------
 
-    def GetEntriesAsCodeList(self, pool_type, name_field, parameter=None, operators=None, sort = None):
+    def GetEntriesAsCodeList(self, pool_type, name_field, parameter=None, operators=None, sort=None):
         """
         Search the database for entries of type *pool_type* and return matches as codelist ::
         
@@ -972,19 +1068,19 @@ class Search:
         
         returns list
         """
-        if parameter==None:
-            parameter = {}
-        if operators==None:
-            operators = {}
+        operators = operators or {}
+        parameter = parameter or {}
         if not sort:
             sort = name_field
         if not parameter.has_key(u"pool_type"):
             parameter[u"pool_type"] = pool_type
-        recs = self.SelectDict(pool_type=pool_type, parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], operators=operators, sort = sort)
+        recs = self.SelectDict(pool_type=pool_type, parameter=parameter, 
+                               fields=[u"id", u"pool_unitref", name_field+u" as name"], 
+                               operators=operators, sort = sort)
         return recs
 
 
-    def GetEntriesAsCodeList2(self, name_field, parameter=None, operators=None, sort = None):
+    def GetEntriesAsCodeList2(self, name_field, parameter=None, operators=None, sort=None):
         """
         Search the database and return matches as codelist ::
         
@@ -992,17 +1088,16 @@ class Search:
         
         returns list
         """
-        if parameter==None:
-            parameter = {}
-        if operators==None:
-            operators = {}
+        operators = operators or {}
+        parameter = parameter or {}
         if not sort:
             sort = name_field
-        recs = self.SelectDict(parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], operators=operators, sort = sort)
+        recs = self.SelectDict(parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], 
+                               operators=operators, sort = sort)
         return recs
 
 
-    def GetGroupAsCodeList(self, pool_type, name_field, parameter=None, operators=None, sort = None):
+    def GetGroupAsCodeList(self, pool_type, name_field, parameter=None, operators=None, sort=None):
         """
         Search the database for entries of type *pool_type* and return matches grouped by unique
         *name_field* values as codelist ::
@@ -1014,19 +1109,22 @@ class Search:
         
         returns list
         """
-        if parameter==None:
-            parameter = {}
-        if operators==None:
-            operators = {}
+        operators = operators or {}
+        parameter = parameter or {}
         if not sort:
             sort = name_field
         if not parameter.has_key(u"pool_type"):
             parameter[u"pool_type"] = pool_type
-        recs = self.SelectDict(pool_type=pool_type, parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], operators=operators, groupby = name_field, sort = sort)
+        recs = self.SelectDict(pool_type=pool_type, 
+                               parameter=parameter, 
+                               fields=[u"id", u"pool_unitref", name_field+u" as name"], 
+                               operators=operators, 
+                               groupby=name_field, 
+                               sort=sort)
         return recs
 
 
-    def GetGroupAsCodeList2(self, name_field, parameter=None, operators=None, sort = None):
+    def GetGroupAsCodeList2(self, name_field, parameter=None, operators=None, sort=None):
         """
         Search the database and return matches grouped by unique *name_field* values as codelist ::
         
@@ -1034,13 +1132,15 @@ class Search:
         
         returns list
         """
-        if parameter==None:
-            parameter = {}
-        if operators==None:
-            operators = {}
+        operators = operators or {}
+        parameter = parameter or {}
         if not sort:
             sort = name_field
-        recs = self.SelectDict(parameter=parameter, fields=[u"id", u"pool_unitref", name_field+u" as name"], operators=operators, groupby = name_field, sort = sort)
+        recs = self.SelectDict(parameter=parameter, 
+                               fields=[u"id", u"pool_unitref", name_field+u" as name"], 
+                               operators=operators, 
+                               groupby=name_field, 
+                               sort=sort)
         return recs
 
 
@@ -1053,15 +1153,18 @@ class Search:
 
         returns id
         """
-        if parameter==None:
-            parameter = {}
-        if operators==None:
-            operators = {}
+        operators = operators or {}
+        parameter = parameter or {}
         if unitref != None:
             parameter[u"pool_unitref"] = unitref
         parameter[u"pool_filename"] = filename
         operators[u"pool_filename"] = u"="
-        recs = self.Select(parameter=parameter, fields=[u"id",u"pool_type",u"pool_unitref",u"title"], operators=operators)
+        # lookup meta list default fields
+        flds = self.app.configuration.listDefault
+        if not flds:
+            # bw: 0.9.12 fallback for backward compatibility
+            flds = [u"id", u"pool_unitref", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_wfa", u"pool_sort"]
+        recs = self.Select(parameter=parameter, fields=flds, operators=operators)
         #print recs
         if firstResultOnly:
             if len(recs) == 0:
@@ -1111,13 +1214,13 @@ class Search:
 
     # References --------------------------------------------------------------------
 
-    def GetReferences(self, unitID, types = []):
+    def GetReferences(self, unitID, types=None, sort=u"id"):
         """
         Search for references in unit or unitlist fields of all objects.
         
         returns id list
         """
-        if types == []:
+        if not types:
             types = self.app.GetAllObjectConfs()
         else:
             l = []
@@ -1129,12 +1232,19 @@ class Search:
 
         db = self.db
 
+        # lookup meta list default fields
+        flds = self.app.configuration.listDefault
+        if not flds:
+            # bw: 0.9.12 fallback for backward compatibility
+            flds = [u"id", u"pool_unitref", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_wfa", u"pool_sort"]
+        else:
+            flds = list(flds)
         # search unit flds
         for t in types:
             for f in t["data"]:
                 if f["datatype"] != "unit":
                     continue
-                l = self.Select(pool_type=t["id"], parameter={f["id"]:unitID}, fields=["id", "title", "pool_type"], sort="pool_sort")
+                l = self.Select(pool_type=t["id"], parameter={f["id"]:unitID}, fields=flds, sort=sort)
                 for r in l:
                     if not r[0] in ids:
                         ids.append(r[0])
@@ -1145,7 +1255,8 @@ class Search:
             for f in t["data"]:
                 if f["datatype"] != "unitlist":
                     continue
-                l = self.Select(pool_type=t["id"], parameter={f["id"]:str(unitID)}, fields=["id", "title", "pool_type", f["id"]], sort="pool_sort", operators={f["id"]:"LIKE"})
+                l = self.Select(pool_type=t["id"], parameter={f["id"]:str(unitID)}, fields=flds+[f["id"]], sort=sort, 
+                                operators={f["id"]:"LIKE"})
                 for r in l:
                     if not r[2] == t["id"]:
                         continue

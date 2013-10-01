@@ -99,10 +99,9 @@ configuration.modules = [
     "nive.components.extensions.persistence.dbPersistenceConfiguration"
 ]
 
-configuration.meta = [
-    FieldConf(id="pool_groups", datatype="mcheckboxes", size=250, default="", 
-              name=_(u"Permission"), description=_(u"Only displayed to users in the selected group"))
-]
+configuration.meta.append(FieldConf(id="pool_groups", datatype="mcheckboxes", size=250, default="", 
+                                    name=_(u"Permission"), 
+                                    description=_(u"Only displayed to users in the selected group")))
 
 configuration.acl = [
     (Allow, Everyone, 'view'),

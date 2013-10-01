@@ -103,7 +103,7 @@ class Persistent(object):
                         files[id] = sourceData[id]
                     else:
                         data[id] = sourceData[id]
-        for f in self.GetApp()._meta:
+        for f in self.GetApp().GetAllMetaFlds(False):
             id = f["id"]
             if sourceData.has_key(id):
                 meta[id] = sourceData[id]

@@ -35,6 +35,12 @@ mApp2 = AppConf(id="app2",
                 dbConfiguration=DatabaseConf(dbName="test")
 )
 
+mAppErr = AppConf(id="app2", 
+                context="nive.tests.test_nive.testapp",
+                modules=[mObject,mRoot,mTool,mViewm,mView,mMod], 
+                groups=[GroupConf(id="g1",name="G1")], 
+                categories=[CategoryConf(id="c1",name="C1")]
+)
 
 
 class testapp(Application, Registration, Configuration, AppFactory, Events):
@@ -78,7 +84,7 @@ class modTest(unittest.TestCase):
         self.assert_(self.app.db)
 
     def test_includefailure(self):
-        self.app.Register(mApp2)
+        self.app.Register(mAppErr)
         #no database: self.app.Register(dbConfiguration2)
         self.assertRaises(OperationalError, self.app.Startup, None)
 

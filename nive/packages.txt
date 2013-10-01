@@ -5,9 +5,14 @@ nive.cms    ->  nive_cms
 
 nive.userdb ->  nive_userdb
 
+nive.datastore ->  nive_datastore
+
 nive.locale ->  nive.locale (reform.)
             ->  nive_cms.locale (cms.)
             ->  nive_userdb.locale (userdb.)
+            ->  nive_datastore.locale (datastore.)
+
+nive.cms.workflow -> nive.workflow
 
 nive.components.objects [part 2] -> nive_cms.extensions.baseobjects
 
@@ -22,6 +27,10 @@ nive.components.extensions.path -> nive_cms.extensions.path
 nive.components.extensions.sessionuser -> nive_userdb.sessionuser
 
 
+Renaming
+------
+nive.definitions.ObjectConf.workflowDisabled -> nive.definitions.ObjectConf.workflowEnabled
+nive.definitions.RootConf.workflowDisabled -> nive.definitions.RootConf.workflowEnabled
 
 
 Cleanup
@@ -40,10 +49,13 @@ application.Registration
         Register database conf as part of app conf, not by calling Register() !!!
     def LoadConfiguration(self):  -> SetupRegistry()
 
-applicatio.Application
+application.Application
     def NewDBConnection(self):
     def ConvertID(self, id):
     def GetCountEntries(self):
+
+application.Root
+    def LookupTitle()
 
 views
     def AuthenticatedUserName(request):

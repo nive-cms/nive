@@ -90,12 +90,11 @@ appconf = AppConf(
     context="nive.components.objects.base.ApplicationBase",
     title = u"nive application python unittest",
     modules = [root, type1, type2, type3],
-    meta = [FieldConf(id="testfld", datatype="number", size=4, name=u"Number")],
     categories = [cat1, cat2],
     groups = [group1, group2],
     fulltextIndex = True
 )
-
+appconf.meta.append(FieldConf(id="testfld", datatype="number", size=4, name=u"Number"))
 
 # test data -----------------------------------------------------------------------
 data1_1 = { u"ftext": "this is text!",

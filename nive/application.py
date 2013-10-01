@@ -103,10 +103,12 @@ class Application(object):
         self.debug = False
         self.reloadExtensions = False
     
-        # internal configuration
+        # v0.9.12: moved _meta to configuration.meta 
+        # meta fields are now handled by the application configuration
+        # self._meta = copy.deepcopy(SystemFlds)
+
+        # default root name if multiple
         self._defaultRoot = ""
-        self._meta = copy.deepcopy(SystemFlds)
-        self._views = []
         # cache database structure 
         self._structure = PoolStructure()
         self._dbpool = None
@@ -527,16 +529,6 @@ class Registration(object):
             if k == "acl" and c.acl:
                 self.__acl__ = c.acl
                 continue
-            if k == "meta" and c.meta:
-                temp = []
-                for system in self._meta:
-                    if idinlist(c.meta, system["id"]):
-                        continue
-                    temp.append(system)
-                for m in c.meta:
-                    temp.append(m)
-                self._meta = temp
-                continue
             if k == "dbConfiguration" and c.dbConfiguration:
                 if type(c.dbConfiguration) == DictType:
                     self.dbConfiguration = DatabaseConf(**c.dbConfiguration)
@@ -836,7 +828,7 @@ class Configuration:
         
         returns configuration or None
         """
-        m = filter(lambda d: d["id"]==fldID, self._meta)
+        m = filter(lambda d: d["id"]==fldID, self.configuration.meta)
         if not m:
             return None
         return m[0]
@@ -849,8 +841,8 @@ class Configuration:
         returns list
         """
         if not ignoreSystem:
-            return self._meta
-        return filter(lambda m: m["id"] in ReadonlySystemFlds, self._meta)
+            return self.configuration.meta
+        return filter(lambda m: m["id"] in ReadonlySystemFlds, self.configuration.meta)
 
 
     def GetMetaFldName(self, fldID):
@@ -859,7 +851,7 @@ class Configuration:
         
         returns string
         """
-        m = filter(lambda d: d["id"]==fldID, self._meta)
+        m = filter(lambda d: d["id"]==fldID, self.configuration.meta)
         if not m:
             return u""
         return m[0]["name"]

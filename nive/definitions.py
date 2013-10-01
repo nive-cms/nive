@@ -462,11 +462,13 @@ class AppConf(baseConf):
         description :  Application description (optional).
             
         # extensions
-        meta :    Additional meta layer fields or replacements for system fields.
+        meta :    Meta layer definition of custom and system fields.
         modules : List of included configurations. Calls nive.Registration.Include for 
                   each module on startup. 
                   Refer to helper.ResolveConfiguration for possible values. 
         categories : list of CategoryConf definitions.
+        listDefault: list of meta field names to be used as default list fields in
+                     database query results.
     
         # security
         groups : List of Definitions.GroupConf with groups used in this application.
@@ -482,6 +484,13 @@ class AppConf(baseConf):
                   Register each event as e.g. Conf(event="run", callback=function).
         
     Call ``AppConf().test()`` to verify configuration values.
+    
+    *Version 0.9.12 update*:
+    
+    All meta fields are now included in the application configuration, including custom 
+    definitions and system fields. The list stored as `self.meta` has been empty in previous
+    versions and all fields have been added automatically on application startup.
+    From version 0.9.12 on all meta fields are stored in the AppConf instance.
     
     Interface: IAppConf
     """
@@ -507,6 +516,7 @@ class AppConf(baseConf):
         
         # extensions
         self.meta = []
+        self.listDefault = []
         self.modules = []
         self.categories = []
         
@@ -514,6 +524,10 @@ class AppConf(baseConf):
         self.reloadExtensions = False
         baseConf.__init__(self, copyFrom, **values)
 
+        if not self.meta:
+            dc = copy.deepcopy
+            self.meta = dc(list(SysFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
+                        
         # bw 0.9.3 
         # database connection parameter
         if hasattr(self, "dbConfiguration") and isinstance(self.dbConfiguration, basestring):
@@ -1407,6 +1421,8 @@ Conf(id="binary",      name=_(u"Binary"),             description=u""),   # not 
 
 
 # system meta fields -----------------------------------------------------------------------
+ReadonlySystemFlds = ("id", "pool_type", "pool_unitref", "pool_dataref", "pool_datatbl")
+
 SystemFlds = (
 FieldConf(id="id",             datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"ID")),
 FieldConf(id="pool_type",      datatype="list",      size=35,    default=u"",   required=1,   readonly=1, name=_(u"Type")),
@@ -1426,31 +1442,36 @@ FieldConf(id="pool_change",    datatype="datetime",  size=100,   default=u"",   
 FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by"), settings={u"relation":"userid"}),
 FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by"), settings={u"relation":"userid"}),
 )
-ReadonlySystemFlds = ("id", "pool_type", "pool_unitref", "pool_dataref", "pool_datatbl")
 
-"""
-#v2
+#v2: Meta layer fields grouped for easier linking. SysFlds and UserFlds are always required.
+SysFlds=(
 FieldConf(id="id",             datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"ID")),
 FieldConf(id="pool_type",      datatype="list",      size=35,    default=u"",   required=1,   readonly=1, name=_(u"Type")),
 FieldConf(id="pool_unitref",   datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"Container")),
+FieldConf(id="pool_filename",  datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Filename")),
+FieldConf(id="pool_state",     datatype="number",    size=4,     default=1,     required=0,   readonly=0, name=_(u"State")),
+FieldConf(id="pool_stag",      datatype="number",    size=4,     default=0,     required=0,   readonly=0, name=_(u"Select Number")),
 FieldConf(id="pool_dataref",   datatype="number",    size=8,     default=0,     required=1,   readonly=1, name=_(u"Data Table Reference")),
 FieldConf(id="pool_datatbl",   datatype="string",    size=35,    default=u"",   required=1,   readonly=1, name=_(u"Data Table Name")),
+)
 # user change/mod
+UserFlds=(
 FieldConf(id="pool_create",    datatype="datetime",  size=30,    default=u"",   required=0,   readonly=1, name=_(u"Created")),
 FieldConf(id="pool_change",    datatype="datetime",  size=30,    default=u"",   required=0,   readonly=1, name=_(u"Changed")),
 FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by"), settings={u"relation":"userid"}),
 FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by"), settings={u"relation":"userid"}),
+)
 # utilities
-FieldConf(id="pool_state",     datatype="number",    size=4,     default=1,     required=0,   readonly=0, name=_(u"State")),
-FieldConf(id="pool_stag",      datatype="number",    size=4,     default=0,     required=0,   readonly=0, name=_(u"Select Number")),
+UtilityFlds=(
 FieldConf(id="title",          datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Title"), fulltext=True),
 FieldConf(id="pool_sort",      datatype="number",    size=8,     default=0,     required=0,   readonly=0, name=_(u"Sort")),
 FieldConf(id="pool_category",  datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Category")),
-FieldConf(id="pool_filename",  datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Filename")),
+)
 # workflow
+WorkflowFlds=(
 FieldConf(id="pool_wfp",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Process")),
 FieldConf(id="pool_wfa",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Activity")),
-"""
+)
 
 
 # base table structure -------------------------------------------------------------------
@@ -1500,6 +1521,7 @@ LocalGroupsTbl: {"identity": None,
 StagContainer = 0        # 0-9
 StagPage = 10            # 10-19
 StagPageElement = 20     # 20-29
+StagItem = 30            # 30-39
 StagRessource = 50       # 50-59
 StagUser = 100           # 100-109
 
