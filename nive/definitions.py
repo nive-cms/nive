@@ -526,7 +526,7 @@ class AppConf(baseConf):
 
         if not self.meta:
             dc = copy.deepcopy
-            self.meta = dc(list(SysFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
+            self.meta = dc(list(SystemFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
                         
         # bw 0.9.3 
         # database connection parameter
@@ -1423,28 +1423,8 @@ Conf(id="binary",      name=_(u"Binary"),             description=u""),   # not 
 # system meta fields -----------------------------------------------------------------------
 ReadonlySystemFlds = ("id", "pool_type", "pool_unitref", "pool_dataref", "pool_datatbl")
 
-SystemFlds = (
-FieldConf(id="id",             datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"ID")),
-FieldConf(id="pool_type",      datatype="list",      size=35,    default=u"",   required=1,   readonly=1, name=_(u"Type")),
-FieldConf(id="pool_unitref",   datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"Container")),
-FieldConf(id="pool_state",     datatype="number",    size=4,     default=1,     required=0,   readonly=0, name=_(u"State")),
-FieldConf(id="pool_stag",      datatype="number",    size=4,     default=0,     required=0,   readonly=0, name=_(u"Select Number")),
-FieldConf(id="pool_datatbl",   datatype="string",    size=35,    default=u"",   required=1,   readonly=1, name=_(u"Data Table Name")),
-FieldConf(id="pool_dataref",   datatype="number",    size=8,     default=0,     required=1,   readonly=1, name=_(u"Data Table Reference")),
-FieldConf(id="title",          datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Title"), fulltext=True),
-FieldConf(id="pool_sort",      datatype="number",    size=8,     default=0,     required=0,   readonly=0, name=_(u"Sort")),
-FieldConf(id="pool_wfp",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Process")),
-FieldConf(id="pool_wfa",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Activity")),
-FieldConf(id="pool_category",  datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Category")),
-FieldConf(id="pool_filename",  datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Filename")),
-FieldConf(id="pool_create",    datatype="datetime",  size=100,   default=u"",   required=0,   readonly=1, name=_(u"Created")),
-FieldConf(id="pool_change",    datatype="datetime",  size=100,   default=u"",   required=0,   readonly=1, name=_(u"Changed")),
-FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by"), settings={u"relation":"userid"}),
-FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by"), settings={u"relation":"userid"}),
-)
-
 #v2: Meta layer fields grouped for easier linking. SysFlds and UserFlds are always required.
-SysFlds=(
+SystemFlds=(
 FieldConf(id="id",             datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"ID")),
 FieldConf(id="pool_type",      datatype="list",      size=35,    default=u"",   required=1,   readonly=1, name=_(u"Type")),
 FieldConf(id="pool_unitref",   datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"Container")),

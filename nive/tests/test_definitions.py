@@ -317,8 +317,20 @@ class SystemTest(unittest.TestCase):
     def test_data(self, **kw):
         self.assert_(len(DataTypes))
         self.assert_(len(SystemFlds))
+        self.assert_(len(UserFlds))
+        self.assert_(len(UtilityFlds))
+        self.assert_(len(WorkflowFlds))
         self.assert_(len(ReadonlySystemFlds))
         
+    def test_setup(self):
+        testlist = (SystemFlds,UserFlds,UtilityFlds,WorkflowFlds)
+        for l in testlist:
+            # test each field
+            for field in l:
+                report = field.test()
+                if len(report):
+                    raise ConfigurationError, FormatConfTestFailure(report)
+
 
     def test_structure1(self, **kw):
         for tbl in Structure.items():

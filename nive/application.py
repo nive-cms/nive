@@ -40,7 +40,7 @@ from zope.interface import providedBy
 from nive.utils.dataPool2.structure import PoolStructure
 from nive.i18n import _
 
-from nive.definitions import AppConf, DatabaseConf, SystemFlds, MetaTbl, ReadonlySystemFlds
+from nive.definitions import AppConf, DatabaseConf, MetaTbl, ReadonlySystemFlds
 from nive.definitions import IViewModuleConf, IViewConf, IRootConf, IObjectConf, IToolConf 
 from nive.definitions import IAppConf, IDatabaseConf, IModuleConf, IWidgetConf
 
