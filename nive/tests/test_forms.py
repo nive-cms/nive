@@ -467,8 +467,3 @@ class FormTest_db(unittest.TestCase):
         self.assert_(obj.data.get("ftext"))
         
 
-
-        
-
-if __name__ == '__main__':
-    unittest.main()

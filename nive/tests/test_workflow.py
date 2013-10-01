@@ -390,8 +390,3 @@ class ConfTest(unittest.TestCase):
         self.assert_(len(testconf.test())==2)
         self.assert_(str(testconf))
 
-
-
-
-if __name__ == '__main__':
-    unittest.main()

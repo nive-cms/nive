@@ -40,6 +40,3 @@ class DBSqlDataTest1_db(unittest.TestCase):
         #print v.getvalue()
         self.assert_(r)
 
-
-if __name__ == '__main__':
-    unittest.main()

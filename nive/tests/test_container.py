@@ -454,5 +454,4 @@ class groupsrootTest_db_(groupsrootTest_db, unittest.TestCase):
     """
 
 
-if __name__ == '__main__':
-    unittest.main()
+

@@ -149,8 +149,4 @@ class tDesign(unittest.TestCase):
         r=view.search()
         self.assertEqual(r.status_int, 200)
         self.assertGreater(r.content_length, 2000)
-        
-        
 
-if __name__ == '__main__':
-    unittest.main()

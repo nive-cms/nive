@@ -58,5 +58,3 @@ class DBStructureTest2(unittest.TestCase):
         self.assert_(r)
 
 
-if __name__ == '__main__':
-    unittest.main()

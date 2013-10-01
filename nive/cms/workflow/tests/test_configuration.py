@@ -32,5 +32,3 @@ class TestConf(unittest.TestCase):
         self.assert_(False, "Configuration Error")
 
 
-if __name__ == '__main__':
-    unittest.main()

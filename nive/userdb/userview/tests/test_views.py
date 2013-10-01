@@ -133,7 +133,4 @@ class tViews(unittest.TestCase):
         r,v = form.MailPass("action", redirectSuccess="")
         self.assert_(v.find("The email could not be sent"))
         
-        
 
-if __name__ == '__main__':
-    unittest.main()

@@ -105,6 +105,3 @@ class ConfigurationTest(unittest.TestCase):
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==6)
 
 
-
-if __name__ == '__main__':
-    unittest.main()

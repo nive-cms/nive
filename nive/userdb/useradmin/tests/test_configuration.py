@@ -27,7 +27,3 @@ class TestConf(unittest.TestCase):
         print FormatConfTestFailure(r)
         self.assert_(False, "Configuration Error")
 
-
-
-if __name__ == '__main__':
-    unittest.main()

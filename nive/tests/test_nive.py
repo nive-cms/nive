@@ -227,5 +227,3 @@ class appTest_db_(appTest_db, unittest.TestCase):
     """
 
 
-if __name__ == '__main__':
-    unittest.main()

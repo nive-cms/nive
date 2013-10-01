@@ -49,8 +49,5 @@ class portalTest(unittest.TestCase):
         self.portal.FinishConnection(Event())
 
 
-if __name__ == '__main__':
-    unittest.main()
-
 
 

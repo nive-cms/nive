@@ -187,10 +187,3 @@ class viewTest(unittest.TestCase):
         self.assert_(view2.FmtSeconds(2584))
         self.assert_(view2.FmtBytes(135786))
 
-    
-
-                
-        
-
-if __name__ == '__main__':
-    unittest.main()

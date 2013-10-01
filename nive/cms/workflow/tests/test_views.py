@@ -68,7 +68,3 @@ class tWf(unittest.TestCase):
         render("nive.cms.workflow:templates/editorpage.pt", values)
 
         
-        
-
-if __name__ == '__main__':
-    unittest.main()

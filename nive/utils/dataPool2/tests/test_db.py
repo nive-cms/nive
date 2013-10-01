@@ -642,9 +642,6 @@ class Sqlite3Test(dbTest, unittest.TestCase):
         self.assert_(self.pool.connection.IsConnected())
         #print "OK"
 
-    
 
-if __name__ == '__main__':
-    unittest.main()
 
 

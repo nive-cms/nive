@@ -136,8 +136,5 @@ class mygroupsrootTest_db(groupsrootTest_db, uTestCase):
 
 
 
-if __name__ == '__main__':
-    unittest.main()
-
 
 

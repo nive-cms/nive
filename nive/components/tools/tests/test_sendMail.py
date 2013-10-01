@@ -70,6 +70,3 @@ class SendMailTest2_db(unittest.TestCase):
         except ConfigurationError:
             pass
 
-
-if __name__ == '__main__':
-    unittest.main()

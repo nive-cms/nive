@@ -62,6 +62,3 @@ class ToolTest(unittest.TestCase):
         self.assert_(r1)
         r.Delete(o.GetID(), user=user)
 
-
-if __name__ == '__main__':
-    unittest.main()

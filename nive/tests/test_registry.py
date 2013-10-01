@@ -88,6 +88,3 @@ class registryTest(unittest.TestCase):
         a = list(registry.getAdapters((c,), ITest))
         self.assert_(len(a)==3,a)
         
-
-if __name__ == '__main__':
-    unittest.main()

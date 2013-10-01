@@ -119,10 +119,3 @@ class Sqlite3Test(unittest.TestCase):
         self.db.DeleteTable(tablename)
         self.assertFalse(self.db.IsTable(tablename))
         
-        
-        
-def __test():
-    unittest.main()
-
-if __name__ == '__main__':
-    __test()

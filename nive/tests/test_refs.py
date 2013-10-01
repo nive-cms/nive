@@ -101,6 +101,3 @@ class dbTest(unittest.TestCase):
         print 
         a=1
 
-
-if __name__ == '__main__':
-    unittest.main()

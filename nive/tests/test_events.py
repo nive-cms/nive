@@ -65,6 +65,3 @@ class EventTest(unittest.TestCase):
         self.assert_(self.called==0)
 
 
-
-if __name__ == '__main__':
-    unittest.main()

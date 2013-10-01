@@ -165,11 +165,3 @@ class BaseTest(unittest.TestCase):
                           sort=u"title, pool_type")
 
 
-
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()
-

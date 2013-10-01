@@ -527,7 +527,6 @@ class AppConf(baseConf):
         if not self.meta:
             dc = copy.deepcopy
             self.meta = dc(list(SystemFlds)) + dc(list(UserFlds)) 
-            #self.meta = dc(list(SystemFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
                         
         # bw 0.9.3 
         # database connection parameter

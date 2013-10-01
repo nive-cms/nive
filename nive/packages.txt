@@ -12,8 +12,6 @@ nive.locale ->  nive.locale (reform.)
             ->  nive_userdb.locale (userdb.)
             ->  nive_datastore.locale (datastore.)
 
-nive.cms.workflow -> nive.workflow
-
 nive.components.objects [part 2] -> nive_cms.extensions.baseobjects
 
 nive.components.extensions.fulltextpage -> nive_cms.extensions.fulltextpage

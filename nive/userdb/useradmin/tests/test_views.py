@@ -166,5 +166,3 @@ class tViews(unittest.TestCase):
         self.assertFalse(self.root.GetUserByName("testuser"))
         
 
-if __name__ == '__main__':
-    unittest.main()

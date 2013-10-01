@@ -359,22 +359,3 @@ class objWfTest_db_:#(objWfTest_db, unittest.TestCase):
     """
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == '__main__':
-    unittest.main()

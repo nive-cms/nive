@@ -48,10 +48,3 @@ class securityTest(unittest.TestCase):
         p = effective_principals()
         self.assert_(p==None)
 
-
-
-                
-        
-
-if __name__ == '__main__':
-    unittest.main()

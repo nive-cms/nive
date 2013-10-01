@@ -15,6 +15,3 @@ class i18nTest(unittest.TestCase):
         t = translator()
         self.assert_(t("a nice string")=="a nice string")
 
-
-if __name__ == '__main__':
-    unittest.main()

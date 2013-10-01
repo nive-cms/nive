@@ -51,6 +51,3 @@ class DBSqlDataTest1_db(unittest.TestCase):
         r,v = t()
         self.assert_(r)
 
-
-if __name__ == '__main__':
-    unittest.main()
