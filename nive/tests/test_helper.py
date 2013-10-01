@@ -105,3 +105,10 @@ class ConfigurationTest(unittest.TestCase):
         self.assert_(len(ClassFactory(c, reloadClass=False, raiseError=False).mro())==6)
 
 
+    def test_replace(self):
+        alist = [Conf(id="1", value=123),Conf(id="2", value=456),Conf(id="3", value=789)]
+        repl = Conf(id="2", value=999)
+        new = ReplaceInListByID(alist, repl)
+        self.assert_(new!=alist)
+        self.assert_(new[1].value==999)
+

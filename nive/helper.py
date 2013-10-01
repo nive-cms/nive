@@ -182,13 +182,14 @@ def FormatConfTestFailure(report, fmt="text"):
     return "".join(v)
 
 
-def ReplaceInListByID(conflist, id, newconf):
+def ReplaceInListByID(conflist, newconf, id=None):
     new = []
+    id = id or newconf.id
     for conf in conflist:
         if conf.id == id:
             new.append(newconf)
         else:
-            new.apend(conf)
+            new.append(conf)
     return new
             
 
