@@ -73,7 +73,7 @@ configuration = ObjectConf(
     template = "page.pt",
     selectTag = StagPage,
     container = True,
-    workflowDisabled = False,
+    workflowEnabled = True,
     description = _(u"Pages are rendered as html files and make up the website.")
 )
 

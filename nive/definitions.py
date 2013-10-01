@@ -655,7 +655,7 @@ class ObjectConf(baseConf):
         selectTag : Default select tag for this type. Stored as meta.pool_stag.
         category  : Default category stored as meta.pool_category.
         hidden    : Hide in select lists in user interface.
-        workflowDisabled : Enable or disable workflow for this type.
+        workflowEnabled : Enable or disable workflow for this type.
         workflowID       : Workflow process id.
 
         events  : Register for one or multiple Application events. 
@@ -682,7 +682,7 @@ class ObjectConf(baseConf):
         self.data = []
         self.forms = {}
         self.views = []
-        self.workflowDisabled = True
+        self.workflowEnabled = False
         self.workflowID = ""
         self.subtypes = "*"
         self.category = u""
@@ -770,7 +770,7 @@ class RootConf(baseConf):
         subtypes : Define possible subtypes. None=no objects allowed, *=all objects allowed, 
                    [IContainer,IPageElement]=list with interfaces of allowed objects.
         urlTraversal : if True the root name is allowed to be used in url traversal.
-        workflowDisabled : Enable or disable workflow for this type.
+        workflowEnabled : Enable or disable workflow for this type.
         workflowID       : Workflow process id.
         events  : Register for one or multiple Application events. 
                   Register each event as e.g. Conf(event="run", callback=function).
@@ -791,7 +791,7 @@ class RootConf(baseConf):
         self.default = True
         self.views = []
         self.subtypes = "*"
-        self.workflowDisabled = True
+        self.workflowEnabled = False
         self.urlTraversal = True
         self.workflowID = ""
         self.description = u""

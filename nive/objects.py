@@ -633,7 +633,7 @@ class ObjectWorkflow:
         app = self.app
         if not app.configuration.workflowEnabled:
             return None
-        if self.configuration.workflowDisabled:
+        if not self.configuration.workflowEnabled:
             return None
         wfID = self.configuration.workflowID
         if wfID:

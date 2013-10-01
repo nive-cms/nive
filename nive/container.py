@@ -1061,7 +1061,7 @@ class RootWorkflow:
 
         returns string
         """
-        if self.configuration.workflowDisabled:
+        if not self.configuration.workflowEnabled:
             return ""
         return self.configuration.workflowID
 
