@@ -29,18 +29,23 @@ The system admin for notification mails can be specified as `systemAdmin`.
     configuration.systemAdmin = (u"email", u"display name")
 
 """
+import copy
 
-from nive.definitions import implements, AppConf, FieldConf, GroupConf, IUserDatabase, ILocalGroups
+from nive.definitions import AppConf, FieldConf, GroupConf
+from nive.definitions import implements, IUserDatabase, ILocalGroups
+from nive.definitions import AllMetaFlds
 from nive.security import Allow, Deny, Everyone, ALL_PERMISSIONS, remember, forget
 from nive.components.objects.base import ApplicationBase
 from nive.i18n import _
 
 #@nive_module
-configuration = AppConf()
-configuration.id = "userdb"
-configuration.title = _(u"Users")
-configuration.context = "nive.userdb.app.UserDB"
-configuration.loginByEmail = False
+configuration = AppConf(
+    id = "userdb",
+    title = _(u"Users"),
+    context = "nive.userdb.app.UserDB",
+    loginByEmail = False,
+    meta = copy.deepcopy(AllMetaFlds)
+)
 
 # configuration.systemAdmin = (u"email", u"display name")
 # configuration.admin = {"name": "admin", "password": "adminpass", "email": "admin@domain.com"}

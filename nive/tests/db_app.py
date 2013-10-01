@@ -104,22 +104,20 @@ data1_1 = { u"ftext": "this is text!",
             u"fmselect": "item 5",
             u"funit": 35,
             u"funitlist": [34, 35, 36],
-            u"title":"äüöß and others",
-            u"pool_type": "type1",
-            u"pool_category": "cat1"}
+            u"pool_filename":"äüöß and others",
+            u"pool_type": "type1"}
 data2_1 = { u"fstr": u"this is sting!",
             u"ftext": u"this is text!",
-            u"title": u"äüöß and others",
-            u"pool_type": u"type2",
-            u"pool_category": u"cat2"}
-data3_1 = { u"title": u"title data 3",
+            u"pool_filename": u"äüöß and others",
+            u"pool_type": u"type2"}
+data3_1 = { u"pool_filename": u"title data 3",
             u"fstr": u"testing type 3!"}
 
 data1_2 = { u"ftext": "this is a new text!",
             u"funit": 0,
-            u"title":"new title data 1"}
+            u"pool_filename":"new title data 1"}
 data2_2 = { u"fstr": "this is new sting!",
-            u"title": "new title data 2"}
+            u"pool_filename": "new title data 2"}
 
 file2_1_data="This is the first text"
 file2_2_data=u"This is the text in the second file"

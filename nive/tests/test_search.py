@@ -66,20 +66,20 @@ class SearchTest_db(unittest.TestCase):
         self.assertFalse(r.SelectDict(parameter={"pool_type": "type"}, operators={"pool_type": "="}, sort="id", ascending = 0))
         self.assert_(r.Select(parameter={"pool_type": "type"}, operators={"pool_type": "LIKE"}, sort="id", ascending = 0))
         self.assert_(r.SelectDict(parameter={"pool_type": "type"}, operators={"pool_type": "LIKE"}, sort="id", ascending = 0))
-        self.assert_(r.Select(pool_type="type1", parameter={}, fields=["id","title","ftext","fnumber","fdate"], start=10, max=1))
-        self.assert_(r.SelectDict(pool_type="type1", parameter={}, fields=["id","title","ftext","fnumber","fdate"], start=10, max=1))
-        self.assert_(r.Select(parameter={"pool_type": "notype", "title": "others"}, logicalOperator="or", operators={"pool_type":"LIKE", "title":"LIKE"}))
-        self.assert_(r.SelectDict(parameter={"pool_type": "notype", "title": "others"}, logicalOperator="or", operators={"pool_type":"LIKE", "title":"LIKE"}))
-        self.assertFalse(r.Select(parameter={"pool_type": "notype", "title": "notitle"}, logicalOperator="or", operators={"pool_type":"LIKE", "title":"LIKE"}))
-        self.assertFalse(r.SelectDict(parameter={"pool_type": "notype", "title": "notitle"}, logicalOperator="or", operators={"pool_type":"LIKE", "title":"LIKE"}))
-        self.assert_(r.Select(groupby="title"))
-        self.assert_(r.SelectDict(groupby="title"))
+        self.assert_(r.Select(pool_type="type1", parameter={}, fields=["id","pool_filename","ftext","fnumber","fdate"], start=10, max=1))
+        self.assert_(r.SelectDict(pool_type="type1", parameter={}, fields=["id","pool_filename","ftext","fnumber","fdate"], start=10, max=1))
+        self.assert_(r.Select(parameter={"pool_type": "notype", "pool_filename": "others"}, logicalOperator="or", operators={"pool_type":"LIKE", "pool_filename":"LIKE"}))
+        self.assert_(r.SelectDict(parameter={"pool_type": "notype", "pool_filename": "others"}, logicalOperator="or", operators={"pool_type":"LIKE", "pool_filename":"LIKE"}))
+        self.assertFalse(r.Select(parameter={"pool_type": "notype", "pool_filename": "notitle"}, logicalOperator="or", operators={"pool_type":"LIKE", "pool_filename":"LIKE"}))
+        self.assertFalse(r.SelectDict(parameter={"pool_type": "notype", "pool_filename": "notitle"}, logicalOperator="or", operators={"pool_type":"LIKE", "pool_filename":"LIKE"}))
+        self.assert_(r.Select(groupby="pool_filename"))
+        self.assert_(r.SelectDict(groupby="pool_filename"))
         self.assert_(r.Select(condition="id > 23"))
         self.assert_(r.SelectDict(condition="id > 23"))
 
         #test_codelists
         pool_type="type1"
-        name_field="title"
+        name_field="pool_filename"
         self.assert_(r.GetEntriesAsCodeList(pool_type, name_field))
         self.assert_(r.GetEntriesAsCodeList2(name_field))
         self.assert_(r.GetGroupAsCodeList(pool_type, name_field))
@@ -108,8 +108,8 @@ class SearchTest_db(unittest.TestCase):
         parameter = {"pool_state":1}
         operators = {"pool_state":"<="}
         pool_type = "type1"
-        fields1 = ["id","title","pool_state","pool_unitref","pool_wfa"]
-        fields2 = ["id","title","pool_state","pool_unitref","pool_wfa","ftext"]
+        fields1 = ["id","pool_filename","pool_state","pool_unitref"]
+        fields2 = ["id","pool_filename","pool_state","pool_unitref","ftext"]
         fields3 = ["id","ftext"]
 
         d=r.Select(fields=["-count(*)"])
@@ -118,26 +118,20 @@ class SearchTest_db(unittest.TestCase):
         self.assert_(r.SelectDict(parameter=parameter, fields=fields1, start=0, max=100))
         self.assert_(r.SelectDict(pool_type=pool_type, parameter=parameter, fields=fields2, start = 0, max=100, operators=operators))
 
-        self.assert_(r.Search(parameter, fields = fields1, sort = "title", ascending = 1, start = 0, max = 100)["count"])
-        self.assert_(r.SearchType(pool_type, parameter, fields = fields2, sort = "title", ascending = 1, start = 0, max = 100, operators=operators)["count"])
+        self.assert_(r.Search(parameter, fields = fields1, sort = "pool_filename", ascending = 1, start = 0, max = 100)["count"])
+        self.assert_(r.SearchType(pool_type, parameter, fields = fields2, sort = "pool_filename", ascending = 1, start = 0, max = 100, operators=operators)["count"])
         self.assert_(r.SearchData(pool_type, {}, fields = fields3, sort = "id", ascending = 1, start = 0, max = 100, operators={})["count"])
-        self.assert_(r.SearchFulltext("text", fields = fields1, sort = "title", ascending = 1, start = 0, max = 300)) #["count"]
-        self.assert_(r.SearchFulltextType(pool_type, "text", fields = fields2, sort = "title", ascending = 1, start = 0, max = 300))   #["count"]
-        r.SearchFilename("file1.txt", parameter, fields = [], sort = "title", ascending = 1, start = 0, max = 100, operators=operators)
+        self.assert_(r.SearchFulltext("text", fields = fields1, sort = "pool_filename", ascending = 1, start = 0, max = 300)) #["count"]
+        self.assert_(r.SearchFulltextType(pool_type, "text", fields = fields2, sort = "pool_filename", ascending = 1, start = 0, max = 300))   #["count"]
+        r.SearchFilename("file1.txt", parameter, fields = [], sort = "pool_filename", ascending = 1, start = 0, max = 100, operators=operators)
         
         #test_listitems
-        self.assert_(len(r.LoadListItems(self.app.GetFld("pool_category"), obj=None, pool_type=None, force=False))==2)
         self.assert_(len(r.LoadListItems(self.app.GetFld("pool_type"), obj=None, pool_type=None, force=True))==3)
-        #self.assert_(r.LoadListItems(self.app.GetFld("pool_groups"), obj=None, pool_type=None, force=True))
         r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"users"}))
         self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"groups"})))
         self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"languages"})))
         self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"countries"})))
         self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"types"})))
-        self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"type:type1"})))
         self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"meta"})))
+        #self.assert_(r.LoadListItems(FieldConf(id="test",datatype="list",settings={"codelist":"type:type1"})))
 
-
-
-if __name__ == '__main__':
-    unittest.main()

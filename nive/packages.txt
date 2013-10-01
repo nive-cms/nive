@@ -27,8 +27,13 @@ nive.components.extensions.path -> nive_cms.extensions.path
 nive.components.extensions.sessionuser -> nive_userdb.sessionuser
 
 
+Configuration
+-------------
+AppConf.meta ! Usage changed !
+
+
 Renaming
-------
+--------
 nive.definitions.ObjectConf.workflowDisabled -> nive.definitions.ObjectConf.workflowEnabled
 nive.definitions.RootConf.workflowDisabled -> nive.definitions.RootConf.workflowEnabled
 

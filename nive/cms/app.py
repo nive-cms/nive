@@ -59,12 +59,15 @@ This will replace the static directory of the design with your own directory. Ho
 have to add the required css, images and javascript used by the templates to the new folder.
 (For a start just copy the contents of ``nive.cms.design:static``.)
 """
+import copy
 
 from nive.i18n import _
 from nive.definitions import implements, IWebsite
 from nive.definitions import AppConf, FieldConf, GroupConf
+from nive.definitions import AllMetaFlds
 from nive.security import ALL_PERMISSIONS, Allow, Everyone, Deny
 from nive.components.objects.base import ApplicationBase
+
 
 #@nive_module
 configuration = AppConf(
@@ -72,7 +75,8 @@ configuration = AppConf(
     title = u"Nive cms",
     context = "nive.cms.app.WebsitePublisher",
     workflowEnabled = True,
-    columns=[u"footer"]
+    columns=[u"footer"],
+    meta = copy.deepcopy(AllMetaFlds)
 )
 configuration.modules = [
     # objects

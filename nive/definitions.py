@@ -526,7 +526,8 @@ class AppConf(baseConf):
 
         if not self.meta:
             dc = copy.deepcopy
-            self.meta = dc(list(SystemFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
+            self.meta = dc(list(SystemFlds)) + dc(list(UserFlds)) 
+            #self.meta = dc(list(SystemFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
                         
         # bw 0.9.3 
         # database connection parameter
@@ -1452,6 +1453,9 @@ WorkflowFlds=(
 FieldConf(id="pool_wfp",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Process")),
 FieldConf(id="pool_wfa",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Activity")),
 )
+
+dc = copy.deepcopy
+AllMetaFlds = dc(list(SystemFlds)) + dc(list(UtilityFlds)) + dc(list(UserFlds)) + dc(list(WorkflowFlds)) 
 
 
 # base table structure -------------------------------------------------------------------

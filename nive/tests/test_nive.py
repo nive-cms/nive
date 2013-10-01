@@ -155,7 +155,7 @@ class appTest(unittest.TestCase):
         self.assert_(self.app.GetGroupName("g1")=="G1")
 
     def test_flds(self):
-        self.assert_(self.app.GetFld("title", typeID = None))
+        self.assert_(self.app.GetFld("pool_type", typeID = None))
         self.assert_(self.app.GetFld("aaaaa", typeID = None)==None)
         self.assert_(self.app.GetFld("pool_stag", typeID = "object"))
         self.assert_(self.app.GetFld("a1", typeID = "object"))
@@ -167,10 +167,10 @@ class appTest(unittest.TestCase):
         self.assert_(self.app.GetFldName("a2", typeID = "object")=="A2")
         self.assert_(self.app.GetObjectFld("a1", "object"))
         self.assert_(len(self.app.GetAllObjectFlds("object"))==2)
-        self.assert_(self.app.GetMetaFld("title"))
+        self.assert_(self.app.GetMetaFld("pool_type"))
         self.assert_(len(self.app.GetAllMetaFlds(ignoreSystem = True)))
         self.assert_(len(self.app.GetAllMetaFlds(ignoreSystem = False)))
-        self.assert_(self.app.GetMetaFldName("title")=="Title")
+        self.assert_(self.app.GetMetaFldName("pool_type")=="Type")
         
     def test_flds2(self):    
         self.app.LoadStructure(forceReload = False)

@@ -110,7 +110,7 @@ class containerTest_db:
         self.assert_(o2.IsContainer()==False)
         self.assert_(o1.GetID())
         self.assert_(o1.GetTypeID()=="type1")
-        self.assert_(o1.GetTitle())
+        self.assert_(o1.GetTitle()=="")
         self.assert_(o1.GetPath())
         #Parents()
         self.assert_(o1.GetRoot()==r)

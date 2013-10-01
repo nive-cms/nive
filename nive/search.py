@@ -1236,7 +1236,7 @@ class Search:
         flds = self.app.configuration.listDefault
         if not flds:
             # bw: 0.9.12 fallback for backward compatibility
-            flds = [u"id", u"pool_unitref", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_wfa", u"pool_sort"]
+            flds = [u"id", u"pool_unitref", u"pool_filename", u"pool_type", u"pool_state"]
         else:
             flds = list(flds)
         # search unit flds
