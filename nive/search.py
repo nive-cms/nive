@@ -122,7 +122,7 @@ class Search:
         db = self.db
         if pool_type==None:
             dataTable=kw.get("dataTable") or u"pool_meta"
-            sql, values = db.FmtSQLSelect(fields or ["id"], 
+            sql, values = db.FmtSQLSelect(fields, 
                                           parameter, 
                                           dataTable=dataTable, 
                                           singleTable=1, 
