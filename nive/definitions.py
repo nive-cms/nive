@@ -689,7 +689,7 @@ class ObjectConf(baseConf):
         self.name = u""
         self.dbparam = u""
         self.selectTag = 0
-        self.context = "nive.components.objects.base.ObjectBase"
+        self.context = "nive.components.objects.base.ObjectContainerBase"
         self.template = None
         self.extensions = None
         self.data = []
