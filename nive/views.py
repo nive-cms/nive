@@ -664,7 +664,9 @@ class BaseView(object):
                 elif method == "GET":
                     values = request.GET
                 else:
-                    values = request.GET
+                    values = {}
+                    if request.GET:
+                        values.update(request.GET)
                     values.update(request.POST)
             except AttributeError:
                 values = request
