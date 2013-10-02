@@ -34,9 +34,7 @@ def app(extmodules=None):
         dbfile.CreateDirectories()
     try:
         a.Query("select id from pool_meta where id=1")
-        a.Query("select id from data1 where id=1")
-        a.Query("select id from data2 where id=1")
-        a.Query("select id from data3 where id=1")
+        a.Query("select id from users where id=1")
         a.Query("select id from pool_files where id=1")
     except:
         a.GetTool("nive.components.tools.dbStructureUpdater")()
@@ -61,8 +59,7 @@ def emptypool(app):
     db.Query(u"delete FROM pool_fulltext")
     db.Query(u"delete FROM pool_groups")
     db.Query(u"delete FROM pool_sys")
-    db.Query(u"delete FROM data2")
-    db.Query(u"delete FROM data1")
+    db.Query(u"delete FROM users")
     import shutil
     shutil.rmtree(str(db.root), ignore_errors=True)
     db.root.CreateDirectories()
