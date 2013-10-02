@@ -275,6 +275,13 @@ class Form(Events, ReForm):
             else:
                 config = typeOrConfiguration
             self.loadFromType = config
+            if not subsets:
+                try:
+                    # try to load subset names from configuration
+                    subsets = config.forms
+                except AttributeError:
+                    pass
+                
         
         # unconfigured form
         if not subset and not subsets and not config and not self.fields:
