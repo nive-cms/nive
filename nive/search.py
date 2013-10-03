@@ -195,8 +195,8 @@ class Search:
 
 
     # Extended search functions ----------------------------------------------------------------------------------------------
-
-    def Search(self, parameter, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=100, **kw):
+    
+    def Search(self, parameter, fields=None, operators=None, **kw):
         """
         Extended meta layer search function. Supports all keyword options and search result. 
         
@@ -210,136 +210,55 @@ class Search:
         returns search result (See above)
         """
         t = time.time()
-
-        # check parameter
-        try:    ascending = int(ascending)
-        except:    ascending = 1
-        try:    start = int(start)
-        except:    start = 0
-        try:    max = int(max)
-        except:    max = 100
-        debug = kw.get("debug",False)
-        
         fields = fields or []
         operators = operators or {}
-
-        # return empty result set and not all reords
-        if kw.get("showAll",True) == False and parameter == {}:
-            parameter["id"] = 0
-
+        start, max, kw = self._SearchKWs(kw)
         # lookup field definitions
-        fields = self._GetFieldDefinitions(fields)
-        fldList = []
-        groupcol = 0
-        for f in fields:
-            if f["id"][0] == "-":
-                groupcol += 1
-            fldList.append(f["id"])
-
-        # add id. required for group by  queries
-        removeID = False
-        if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
-            fldList.append("id")
-            fields.append(self.app.GetFld("id"))
-            removeID = True
+        fields, fldList, groupcol = self._PrepareFields(fields)
+        removeID = self._HandleGroupByQueries(fields, fldList, groupcol, kw)
 
         db = self.db
         if not db:
             raise ConnectionError, "No database connection"
-
-        sql, values = db.FmtSQLSelect(fldList, parameter=parameter, operators=operators, 
-                              sort=sort, ascending=ascending, start=start, max=max, 
-                              groupby=kw.get("groupby"), 
-                              logicalOperator=kw.get("logicalOperator"), 
-                              condition=kw.get("condition"), 
-                              join=kw.get("join"))
+        
+        sql, values = db.FmtSQLSelect(fldList, 
+                                      parameter=parameter, 
+                                      operators=operators, 
+                                      start=start,
+                                      max=max,
+                                      **kw)
         records = db.Query(sql, values)
 
-        # prepare field renderer
-        skipRender = kw.get("skipRender", False)
-        renderer = None
-        if not skipRender:
-            # default values
-            renderer = FieldRenderer(self, skip = ["pool_type", "pool_wfa", "pool_wfp"])
-        elif isinstance(skipRender, (list,tuple)):
-            renderer = FieldRenderer(self, skip = skipRender)
-
-        # parse alias field names used in sql query
-        p = 0
-        for f in fldList:
-            if f[0] == u"-" and f.find(u" as ") != -1:
-                a = f.split(u" as ")[-1]
-                a = a.replace(u" ", u"")
-                a = a.replace(u")", u"")
-                fldList[p] = a
-            p += 1
-
         # convert records
-        items = []
-        cnt = 0
-        total = 0
-        for rec in records:
-            cnt+=1
-            # render if activated
-            if renderer:
-                rec2 = []
-                for p in range(len(fields)):
-                    rec2.append(renderer.Render(fields[p], rec[p], False, **kw))
-                rec = rec2
-            items.append(dict(zip(fldList, rec)))
-            if max > 0 and cnt == max:
-                break
+        fldList = self._RenameFieldAlias(fldList)
+        skipRender, converter = self._PrepareRenderer(kw)
+        items, cnt = self._ConvertRecords(records, converter, fields, fldList, skipRender, kw)
 
         # total records
-        total = len(items)
-        if total == max and kw.get("skipCount") != 1:
+        total = len(items) + start
+        if (total==max or start>0) and kw.get("skipCount") != 1:
             if not kw.get("groupby"):
-                sql2, values =db.FmtSQLSelect([u"-count(*)"], parameter=parameter, operators=operators, 
-                                      sort=sort, ascending=ascending, start=None, max=None, 
-                                      logicalOperator=kw.get("logicalOperator"), 
-                                      condition=kw.get("condition"), 
-                                      join=kw.get("join"))
+                sql2, values = db.FmtSQLSelect([u"-count(*)"], 
+                                               parameter=parameter, 
+                                               operators=operators, 
+                                               start=None, 
+                                               max=None,
+                                               **kw)
                 total = db.Query(sql2, values)[0][0]
             else:
-                sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], parameter=parameter, operators=operators, 
-                                       sort=sort, ascending=ascending, start=None, max=None, 
-                                       logicalOperator=kw.get("logicalOperator"), 
-                                       condition=kw.get("condition"), 
-                                       join=kw.get("join"))
+                sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s)" % (kw.get("groupby"))], 
+                                               parameter=parameter, 
+                                               operators=operators, 
+                                               start=None, 
+                                               max=None, 
+                                               **kw)
                 total = db.Query(sql2, values)[0][0]
 
-        # prepare result dictionary and paging information
-        result = {}
-        result["criteria"] = parameter
-        result["count"] = cnt
-        result["total"] = total
-        result["items"] = items
-        result["time"] = time.time() - t
-        result["start"] = start
-        result["max"] = max
-        if debug:
-            result["sql"] = sql
-        
-        next = start + max
-        if next >= total:
-            next = 0
-        result["next"] = next
-        nextend = next + max
-        if nextend > total:
-            nextend = total
-        result["nextend"] = nextend
-
-        prev = start - max
-        if prev < 1:
-            prev = 0
-        result["prev"] = prev
-        prevend = prev + max
-        result["prevend"] = prevend
-
+        result = self._PrepareResult(items, parameter, cnt, total, start, max, t, sql)
         return result
 
 
-    def SearchType(self, pool_type, parameter, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=100, **kw):
+    def SearchType(self, pool_type, parameter, fields=None, operators=None, **kw):
         """
         Extended meta and data layer search function. Supports all keyword options and search result. 
         
@@ -354,58 +273,13 @@ class Search:
         returns search result (See above)
         """
         t = time.time()
-
-        # check parameter
-        try:    ascending = int(ascending)
-        except:    ascending = 1
-        try:    start = int(start)
-        except:    start = 0
-        try:    max = int(max)
-        except:    max = 100
-
         fields = fields or []
         operators = operators or {}
-
-        # set join type
-        default_join = 0
-        if not kw.has_key("jointype") or kw.get("jointype")==u"inner":
-            default_join = 1
-            parameter["pool_type"] = pool_type
-
-        if kw.get("showAll") == False and parameter == {}:
-            parameter["id"] = 0
-
-        # update result field list, search for special fields
-        fields = self._GetFieldDefinitions(fields, pool_type)
-        fldList = []
-        groupcol = 0
-        for f in fields:
-            if f["id"][0] == u"-":
-                groupcol += 1
-            fldList.append(f["id"])
-
-        # add id fld
-        removeID = False
-        # groupcol == 0 entfernt
-        #if not "id" in fldList and kw.get("groupby") == None:
-        if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
-            fldList.append("id")
-            fields.append(self.app.GetFld("id"))
-            removeID = True
-
-        #operators
-        operators=kw.get("operators")
-        if not operators:
-            operators = {}
-        if not operators.has_key("pool_type"):
-            operators["pool_type"] = u"="
-        if not default_join:
-            operators["jointype"] = kw.get("jointype")
-
-        items = []
-        cnt = 0
-        total = 0
-        sql = ""
+        start, max, kw = self._SearchKWs(kw)
+        # lookup field definitions
+        fields, fldList, groupcol = self._PrepareFields(fields, pool_type)
+        removeID = self._HandleGroupByQueries(fields, fldList, groupcol, kw)
+        self._HandleTypeJoins(pool_type, parameter, operators, kw)
 
         typeInf = self.app.GetObjectConf(pool_type)
         if not typeInf:
@@ -413,96 +287,44 @@ class Search:
 
         db = self.db
         if not db:
-            ct = 0
-        else:
+            raise ConnectionError, "No database connection"
 
-            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, sort=sort, ascending=ascending, 
-                                          dataTable=typeInf["dbparam"], start=start, max=max, operators=operators, 
-                                          groupby=kw.get("groupby"), 
-                                          logicalOperator=kw.get("logicalOperator"), 
-                                          condition=kw.get("condition"), 
-                                          join=kw.get("join"), 
-                                          mapJoinFld=kw.get("mapJoinFld"))
-            aL = db.Query(sql, values)
+        sql, values = db.FmtSQLSelect(fldList, 
+                                      parameter=parameter,  
+                                      operators=operators,
+                                      start=start, 
+                                      max=max, 
+                                      dataTable=typeInf["dbparam"],
+                                      **kw)
+        records = db.Query(sql, values)
             
-            # render
-            converter = FieldRenderer(self)
-            skipRender = kw.get("skipRender", False)
-            if skipRender == True:
-                skipRender = fldList
-            elif not skipRender:
-                skipRender = [u"pool_type", u"pool_wfa", u"pool_wfp"]
+        # prepare field renderer and names
+        fldList = self._RenameFieldAlias(fldList)
+        skipRender, converter = self._PrepareRenderer(kw)
+        items, cnt = self._ConvertRecords(records, converter, fields, fldList, skipRender, kw)
 
-            # convert records
-            p = 0
-            for f in fldList:
-                if f[0] == u"-" and f.find(u" as ") != -1:
-                    a = f.split(u" as ")[-1]
-                    a = a.replace(u" ", u"")
-                    a = a.replace(u")", u"")
-                    fldList[p] = a
-                p += 1
-            for aI in aL:
-                cnt+=1
-                # convert
-                aI2 = []
-                for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(fldList, aI2)))
-
-                if max > 0 and cnt == max:
-                    break
-
-            # total records
-            if len(items) == max and kw.get("skipCount") != 1:
-                if not kw.get("groupby"):
-                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, sort=u"-cnt", ascending=ascending, 
-                                                   dataTable=typeInf["dbparam"], start=None, max=None, operators=operators, 
-                                                   logicalOperator=kw.get("logicalOperator"), 
-                                                   condition=kw.get("condition"), 
-                                                   join=kw.get("join"))
-                    total = db.Query(sql2, values)[0][0]
-                else:
-                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, sort="-cnt", 
-                                                   ascending=ascending, dataTable=typeInf["dbparam"], start=None, max=None, 
-                                                   operators=operators, 
-                                                   logicalOperator=kw.get("logicalOperator"), 
-                                                   condition=kw.get("condition"), 
-                                                   join=kw.get("join"))
-                    total = db.Query(sql2, values)[0][0]
+        # total records
+        total = len(items) + start
+        if (total==max or start>0) and kw.get("skipCount") != 1:
+            if not kw.get("groupby"):
+                cntflds = [u"-count(*) as cnt"]
             else:
-                total = len(items) + start
+                cntflds = [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))]
+            sql2, values = db.FmtSQLSelect(cntflds, 
+                                           parameter=parameter,  
+                                           operators=operators,
+                                           start=start, 
+                                           max=max, 
+                                           dataTable=typeInf["dbparam"],
+                                           #sort=u"-cnt", 
+                                           **kw)
+            total = db.Query(sql2, values)[0][0]
 
-        result = {}
-        result["criteria"] = parameter
-        result["count"] = cnt
-        result["total"] = total
-        result["items"] = items
-        result["time"] = time.time() - t
-        result["start"] = start
-        result["max"] = max
-        result["sql"] = sql
-        
-        next = start + max
-        if next >= total:
-            next = 0
-        result["next"] = next
-        nextend = next + max
-        if nextend > total:
-            nextend = total
-        result["nextend"] = nextend
-
-        prev = start - max
-        if prev < 1:
-            prev = 0
-        result["prev"] = prev
-        prevend = prev + max
-        result["prevend"] = prevend
-
+        result = self._PrepareResult(items, parameter, cnt, total, start, max, t, sql)
         return result
 
 
-    def SearchData(self, pool_type, parameter, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=100, **kw):
+    def SearchData(self, pool_type, parameter, fields=None, operators=None, **kw):
         """
         Extended data layer search function. Supports all keyword options and search result. 
         
@@ -517,48 +339,12 @@ class Search:
         returns search result (See above)
         """
         t = time.time()
-
-        # check parameter
-        try:    ascending = int(ascending)
-        except:    ascending = 1
-        try:    start = int(start)
-        except:    start = 0
-        try:    max = int(max)
-        except:    max = 100
-
         fields = fields or []
         operators = operators or {}
-
-        if kw.get("showAll",True) == False and parameter == {}:
-            parameter["id"] = 0
-
-        # update result field list, search for special fields
-        fields = self._GetFieldDefinitions(fields, pool_type)
-        fldList = []
-        groupcol = 0
-        for f in fields:
-            if f["id"][0] == u"-":
-                groupcol += 1
-            fldList.append(f["id"])
-
-        # add id fld
-        removeID = False
-        # groupcol == 0 entfernt
-        #if not "id" in fldList and kw.get("groupby") == None:
-        if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
-            fldList.append("id")
-            fields.append(self.app.GetFld("id", pool_type))
-            removeID = True
-
-        #operators
-        operators=kw.get("operators")
-        if not operators:
-            operators = {}
-
-        items = []
-        cnt = 0
-        total = 0
-        sql = ""
+        start, max, kw = self._SearchKWs(kw)
+        # lookup field definitions
+        fields, fldList, groupcol = self._PrepareFields(fields, pool_type)
+        removeID = self._HandleGroupByQueries(fields, fldList, groupcol, kw)
 
         typeInf = self.app.GetObjectConf(pool_type)
         if not typeInf:
@@ -566,94 +352,46 @@ class Search:
 
         db = self.db
         if not db:
-            ct = 0
-        else:
-            sql, values = db.FmtSQLSelect(fldList, parameter=parameter, dataTable=typeInf["dbparam"], sort=sort, 
-                                          ascending=ascending, start=start, max=max, operators=operators, 
-                                          groupby=kw.get("groupby"), 
-                                          logicalOperator=kw.get("logicalOperator"), 
-                                          condition=kw.get("condition"), 
-                                          singleTable=1)
-            aL = db.Query(sql, values)
+            raise ConnectionError, "No database connection"
+
+        sql, values = db.FmtSQLSelect(fldList, 
+                                      parameter=parameter,  
+                                      operators=operators,
+                                      start=start, 
+                                      max=max, 
+                                      dataTable=typeInf["dbparam"],
+                                      singleTable=1,
+                                      **kw)
+        records = db.Query(sql, values)
             
-            # render
-            converter = FieldRenderer(self)
-            skipRender = kw.get("skipRender", False)
-            if skipRender == True:
-                skipRender = fldList
+        # prepare field renderer and names
+        fldList = self._RenameFieldAlias(fldList)
+        skipRender, converter = self._PrepareRenderer(kw)
+        items, cnt = self._ConvertRecords(records, converter, fields, fldList, skipRender, kw)
+
+        # total records
+        total = len(items) + start
+        if (total==max or start>0) and kw.get("skipCount") != 1:
+            if not kw.get("groupby"):
+                cntflds = [u"-count(*) as cnt"]
             else:
-                skipRender = []
-
-            # convert records
-            p = 0
-            for f in fldList:
-                if f[0] == u"-" and f.find(u" as ") != -1:
-                    a = f.split(u" as ")[-1]
-                    a = a.replace(u" ", u"")
-                    a = a.replace(u")", u"")
-                    fldList[p] = a
-                p += 1
-            for aI in aL:
-                cnt+=1
-                # convert
-                aI2 = []
-                for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(fldList, aI2)))
-
-                if max > 0 and cnt == max:
-                    break
-
-            # total records
-            if len(items) == max and kw.get("skipCount") != 1:
-                if not kw.get("groupby"):
-                    sql2, values = db.FmtSQLSelect([u"-count(*) as cnt"], parameter=parameter, dataTable=typeInf["dbparam"], sort=u"-cnt", 
-                                                   ascending=ascending, start=None, max=None, operators=operators, 
-                                                   logicalOperator=kw.get("logicalOperator"), 
-                                                   condition=kw.get("condition"), 
-                                                   singleTable=1)
-                    total = db.Query(sql2, values)[0][0]
-                else:
-                    sql2, values = db.FmtSQLSelect([u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter=parameter, 
-                                                   dataTable=typeInf["dbparam"], sort="-cnt", ascending=ascending, 
-                                                   start=None, max=None, operators=operators, 
-                                                   logicalOperator=kw.get("logicalOperator"), 
-                                                   condition=kw.get("condition"), 
-                                                   singleTable=1)
-                    total = db.Query(sql2, values)[0][0]
-            else:
-                total = len(items) + start
-
-        result = {}
-        result["criteria"] = parameter
-        result["count"] = cnt
-        result["total"] = total
-        result["items"] = items
-        result["time"] = time.time() - t
-        result["start"] = start
-        result["max"] = max
-        result["sql"] = sql
-
-        next = start + max
-        if next >= total:
-            next = 0
-        result["next"] = next
-        nextend = next + max
-        if nextend > total:
-            nextend = total
-        result["nextend"] = nextend
-
-        prev = start - max
-        if prev < 1:
-            prev = 0
-        result["prev"] = prev
-        prevend = prev + max
-        result["prevend"] = prevend
-
+                cntflds = [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))]
+            sql2, values = db.FmtSQLSelect(cntflds, 
+                                           parameter=parameter,  
+                                           operators=operators,
+                                           start=start, 
+                                           max=max, 
+                                           dataTable=typeInf["dbparam"],
+                                           singleTable=1,
+                                           #sort=u"-cnt", 
+                                           **kw)
+            total = db.Query(sql2, values)[0][0]
+                
+        result = self._PrepareResult(items, parameter, cnt, total, start, max, t, sql)
         return result
 
 
-    def SearchFulltext(self, phrase, parameter=None, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=300, **kw):
+    def SearchFulltext(self, phrase, parameter=None, fields=None, operators=None, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -672,122 +410,59 @@ class Search:
         fields = fields or ("id","title","pool_type","-pool_fulltext.text as fulltext")
         operators = operators or {}
         parameter = parameter or {}
-
-        # check parameter
         if phrase==None:
             phrase = u""
         searchFor = phrase
-        try:    ascending = int(ascending)
-        except:    ascending = 1
-        try:    start = int(start)
-        except:    start = 0
-        try:    max = int(max)
-        except:    max = 100
-
-        fields = self._GetFieldDefinitions(fields)
-
-        fldList = []
-
-        if kw.get("showAll",True) == False and parameter == {} and phrase == "":
-            parameter["id"] = 0
-
-        groupcol = 0
-        for f in fields:
-            if f["id"][0] == "-":
-                groupcol += 1
-            fldList.append(f["id"])
-
-        # add id
-        removeID = False
-        if not "id" in fldList and groupcol == 0:
-            fldList.append("id")
-            fields.append(self.app.GetFld("id"))
-            removeID = True
+        start, max, kw = self._SearchKWs(kw)
+        # lookup field definitions
+        fields, fldList, groupcol = self._PrepareFields(fields)
+        removeID = self._HandleGroupByQueries(fields, fldList, groupcol, kw)
 
         if phrase.find(u"*") == -1:
             phrase = u"%%%s%%" % phrase
         else:
             phrase = phrase.replace(u"*", u"%")
 
-        items = []
-        cnt = 0
-        total = 0
         db = self.db
         if not db:
-            ct = 0
-        else:
-            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, sort=sort, ascending=ascending, start=start, max=max, 
-                                            operators=operators, 
-                                            logicalOperator=kw.get("logicalOperator"), 
-                                            condition=kw.get("condition"), 
-                                            join=kw.get("join"))
-            aL = db.Query(sql, values)
-            
-            # render
-            converter = FieldRenderer(self)
-            skipRender = kw.get("skipRender", False)
-            if skipRender == True:
-                skipRender = fldList
-            elif not skipRender:
-                skipRender = ["pool_type", "pool_wfa", "pool_wfp"]
-            p = 0
-            for f in fldList:
-                if f[0] == "-" and f.find(u" as ") != -1:
-                    a = f.split(u" as ")[-1]
-                    a = a.replace(u" ", u"")
-                    a = a.replace(u")", u"")
-                    fldList[p] = a
-                p += 1
-            # convert records
-            for aI in aL:
-                cnt+=1
-                aI2 = []
-                for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(fldList, aI2)))
-                if max > 0 and cnt == max:
-                    break
+            raise ConnectionError, "No database connection"
 
-            # total records
-            sql2, values = db.GetFulltextSQL(phrase, [u"-count(*)"], parameter, sort=sort, ascending=ascending, start=None, max=None, 
-                                             operators=operators, 
-                                             skipRang=1, 
-                                             logicalOperator=kw.get("logicalOperator"), 
-                                             condition=kw.get("condition"), 
-                                             join=kw.get("join"))
+        sql, values = db.GetFulltextSQL(phrase, 
+                                        fldList, 
+                                        parameter=parameter,  
+                                        operators=operators, 
+                                        start=start, 
+                                        max=max,
+                                        **kw)
+        records = db.Query(sql, values)
+            
+        # prepare field renderer and names
+        fldList = self._RenameFieldAlias(fldList)
+        skipRender, converter = self._PrepareRenderer(kw)
+        items, cnt = self._ConvertRecords(records, converter, fields, fldList, skipRender, kw)
+        
+        # total records
+        total = len(items) + start
+        if (total==max or start>0) and kw.get("skipCount") != 1:
+            if not kw.get("groupby"):
+                cntflds = [u"-count(*) as cnt"]
+            else:
+                cntflds = [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))]
+            sql2, values = db.FmtSQLSelect(cntflds, 
+                                           parameter=parameter,  
+                                           operators=operators,
+                                           start=start, 
+                                           max=max, 
+                                           skipRang=1, 
+                                           **kw)
             total = db.Query(sql2, values)[0][0]
-            
-        result = {}
+
+        result = self._PrepareResult(items, parameter, cnt, total, start, max, t, sql)
         result["phrase"] = searchFor
-        result["criteria"] = parameter
-        result["count"] = cnt
-        result["total"] = total
-        result["items"] = items
-        result["time"] = time.time() - t
-        result["start"] = start
-        result["max"] = max
-        result["sql"] = sql
-
-        next = start + max
-        if next >= total:
-            next = 0
-        result["next"] = next
-        nextend = next + max
-        if nextend > total:
-            nextend = total
-        result["nextend"] = nextend
-
-        prev = start - max
-        if prev < 1:
-            prev = 0
-        result["prev"] = prev
-        prevend = prev + max
-        result["prevend"] = prevend
-
         return result
 
 
-    def SearchFulltextType(self, pool_type, phrase, parameter=None, fields=None, operators=None, sort=u"id", ascending=1, start=0, max=300, **kw):
+    def SearchFulltextType(self, pool_type, phrase, parameter=None, fields=None, operators=None, **kw):
         """
         Fulltext search function. Searches all text fields marked for fulltext search of the given type. Uses *searchPhrase* 
         as parameter for text search. Supports all keyword options and search result. 
@@ -807,51 +482,14 @@ class Search:
         fields = fields or ("id","title","-pool_fulltext.text as fulltext")
         operators = operators or {}
         parameter = parameter or {}
-
-        # check parameter
         if phrase==None:
             phrase = u""
         searchFor = phrase
-        try:    ascending = int(ascending)
-        except:    ascending = 1
-        try:    start = int(start)
-        except:    start = 0
-        try:    max = int(max)
-        except:    max = 100
-
-        # set join type
-        default_join = 0
-        if not kw.has_key("jointype") or kw.get("jointype")==u"inner":
-            default_join = 1
-            parameter["pool_type"] = pool_type
-
-        if kw.get("showAll",True) == False and parameter == {} and phrase == "":
-            parameter["id"] = 0
-
-        # update result field list, search for special fields
-        fields = self._GetFieldDefinitions(fields, pool_type)
-        fldList = []
-        groupcol = 0
-        for f in fields:
-            if f["id"][0] == u"-":
-                groupcol += 1
-            fldList.append(f["id"])
-
-        # add id
-        removeID = False
-        if (not "id" in fldList and groupcol == 0 and kw.get("groupby") == None) or kw.get("addID")==1:
-            fldList.append(u"id")
-            fields.append(self.app.GetFld("id", pool_type))
-            removeID = True
-
-        #operators
-        operators=kw.get("operators")
-        if not operators:
-            operators = {}
-        if not operators.has_key("pool_type"):
-            operators["pool_type"] = u"="
-        if not default_join:
-            operators["jointype"] = kw.get("jointype")
+        start, max, kw = self._SearchKWs(kw)
+        # lookup field definitions
+        fields, fldList, groupcol = self._PrepareFields(fields, pool_type)
+        removeID = self._HandleGroupByQueries(fields, fldList, groupcol, kw)
+        self._HandleTypeJoins(pool_type, parameter, operators, kw)
 
         # fulltext wildcard
         if phrase.find(u"*") == -1:
@@ -863,101 +501,48 @@ class Search:
         if not typeInf:
             raise ConfigurationError, "Type not found (%s)" % (pool_type)
 
-        items = []
-        cnt = 0
-        total = 0
-        sql = ""
-
         db = self.db
         if not db:
-            ct = 0
-        else:
-            sql, values = db.GetFulltextSQL(phrase, fldList, parameter, dataTable=typeInf["dbparam"], sort=sort, ascending=ascending, 
-                                            start=start, max=max, operators=operators, 
-                                            groupby=kw.get("groupby"), 
-                                            logicalOperator=kw.get("logicalOperator"), 
-                                            condition=kw.get("condition"), 
-                                            join=kw.get("join"), 
-                                            mapJoinFld=kw.get("mapJoinFld"))
-            aL = db.Query(sql, values)
+            raise ConnectionError, "No database connection"
+
+        sql, values = db.GetFulltextSQL(phrase, 
+                                        fldList, 
+                                        parameter=parameter, 
+                                        operators=operators,
+                                        start=start, 
+                                        max=max,
+                                        dataTable=typeInf["dbparam"],
+                                        **kw)
+        records = db.Query(sql, values)
             
-            # render
-            converter = FieldRenderer(self)
-            skipRender = kw.get("skipRender", False)
-            if skipRender == True:
-                skipRender = fldList
-            elif not skipRender:
-                skipRender = ["pool_type", "pool_wfa", "pool_wfp"]
+        # prepare field renderer and names
+        fldList = self._RenameFieldAlias(fldList)
+        skipRender, converter = self._PrepareRenderer(kw)
+        items, cnt = self._ConvertRecords(records, converter, fields, fldList, skipRender, kw)
 
-            # convert records
-            p = 0
-            for f in fldList:
-                if f[0] == u"-" and f.find(u" as ") != -1:
-                    a = f.split(u" as ")[-1]
-                    a = a.replace(u" ", u"")
-                    a = a.replace(u")", u"")
-                    fldList[p] = a
-                p += 1
-            for aI in aL:
-                cnt+=1
-                aI2 = []
-                for p in range(len(fields)):
-                    aI2.append(converter.Render(fields[p], aI[p], False, render = (fldList[p] not in skipRender), **kw))
-                items.append(dict(zip(fldList, aI2)))
-                if max > 0 and cnt == max:
-                    break
-
-            # total records
-            if len(items) == max and kw.get("skipCount") != 1:
-                if not kw.get("groupby"):
-                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(*) as cnt"], parameter, dataTable=typeInf["dbparam"], 
-                                                     ascending=ascending, start=None, max=None, operators=operators, skipRang=1, 
-                                                     logicalOperator=kw.get("logicalOperator"), 
-                                                     condition=kw.get("condition"), 
-                                                     join=kw.get("join"))
-                    total = db.Query(sql2, values)[0][0]
-                else:
-                    sql2, values = db.GetFulltextSQL(phrase, [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))], parameter, 
-                                                     dataTable=typeInf["dbparam"], ascending=ascending, start=None, max=None, 
-                                                     operators=operators, skipRang=1, 
-                                                     logicalOperator=kw.get("logicalOperator"), 
-                                                     condition=kw.get("condition"), 
-                                                     join=kw.get("join"))
-                    total = db.Query(sql2, values)[0][0]
+        # total records
+        total = len(items) + start
+        if (total==max or start>0) and kw.get("skipCount") != 1:
+            if not kw.get("groupby"):
+                cntflds = [u"-count(*) as cnt"]
             else:
-                total = len(items) + start
-            
-        result = {}
+                cntflds = [u"-count(DISTINCT %s) as cnt" % (kw.get("groupby"))]
+            sql2, values = db.FmtSQLSelect(cntflds, 
+                                           parameter=parameter,  
+                                           operators=operators,
+                                           start=start, 
+                                           max=max, 
+                                           dataTable=typeInf["dbparam"],
+                                           skipRang=1, 
+                                           **kw)
+            total = db.Query(sql2, values)[0][0]
+
+        result = self._PrepareResult(items, parameter, cnt, total, start, max, t, sql)
         result["phrase"] = searchFor
-        result["criteria"] = parameter
-        result["count"] = cnt
-        result["total"] = total
-        result["items"] = items
-        result["time"] = time.time() - t
-        result["start"] = start
-        result["max"] = max
-        result["sql"] = sql
-        
-        next = start + max
-        if next >= total:
-            next = 0
-        result["next"] = next
-        nextend = next + max
-        if nextend > total:
-            nextend = total
-        result["nextend"] = nextend
-
-        prev = start - max
-        if prev < 1:
-            prev = 0
-        result["prev"] = prev
-        prevend = prev + max
-        result["prevend"] = prevend
-
         return result
 
 
-    def SearchFilename(self, filename, parameter, fields=None, operators=None, sort=None, ascending=1, start=0, max=100, **kw):
+    def SearchFilename(self, filename, parameter, fields=None, operators=None, **kw):
         """
         Filename search function. Searches all physical file filenames (not url path names). Supports all 
         keyword options and search result. 
@@ -978,10 +563,9 @@ class Search:
         operators = operators or {}
 
         db = self.db
-        if kw.get("showAll",True) == False and filename == "":
-            files = []
-        else:
-            files = db.SearchFilename(filename)
+        if not db:
+            raise ConnectionError, "No database connection"
+        files = db.SearchFilename(filename)
 
         ids = []
         filesMapped = {}
@@ -994,11 +578,9 @@ class Search:
         if len(ids)==0:
             ids.append(0)
         
-        if not kw.has_key("operators"):
-            kw["operators"] = {}
         parameter["id"] = ids
-        kw["operators"].update({"id":u"IN"})
-        result = self.Search(parameter=parameter, fields=fields, sort=sort, ascending=ascending, start=start, max=max, **kw)
+        operators["id"] = u"IN"
+        result = self.Search(parameter=parameter, fields=fields, operators=operators, **kw)
 
         # merge result and files
         for rec in result["items"]:
@@ -1018,6 +600,128 @@ class Search:
         result["criteria"]["filename"] = filename
         return result
 
+
+    def _SearchKWs(self, kws):
+        default = {"ascending":1, "start":0, "max":100}
+        # parse incoming kws
+        
+        try:       start = int(kws["start"])
+        except:    start = default["start"]
+        if "start" in kws:
+            del kws["start"]
+
+        try:       max = int(kws["max"])
+        except:    max = default["max"]
+        if "max" in kws:
+            del kws["max"]
+
+        try:       kws["ascending"] = int(kws["ascending"])
+        except:    kws["ascending"] = default["ascending"]
+        
+        """
+        groupby=kw.get("groupby"), 
+        logicalOperator=kw.get("logicalOperator"), 
+        condition=kw.get("condition"), 
+        join=kw.get("join"))
+        """
+        return start, max, kws
+         
+    def _PrepareFields(self, fields, pool_type=None):
+        # lookup field definitions
+        fields = self._GetFieldDefinitions(fields, pool_type)
+        fldList = []
+        groupcol = 0
+        for f in fields:
+            if f["id"][0] == "-":
+                groupcol += 1
+            fldList.append(f["id"])
+        return fields, fldList, groupcol
+    
+    def _HandleGroupByQueries(self, fields, fldList, groupcol, kws):
+        # add id. required for group by  queries
+        removeID = False
+        if (not "id" in fldList and groupcol == 0 and kws.get("groupby") == None) or kws.get("addID")==1:
+            fldList.append("id")
+            fields.append(self.app.GetFld("id"))
+            removeID = True
+        return removeID
+    
+    def _HandleTypeJoins(self, pool_type, parameter, operators, kws):
+        # set join type
+        default_join = 0
+        if not kws.has_key("jointype") or kws.get("jointype")==u"inner":
+            default_join = 1
+            parameter["pool_type"] = pool_type
+        #operators
+        if not operators:
+            operators = {}
+        if not operators.has_key("pool_type"):
+            operators["pool_type"] = u"="
+        if not default_join:
+            operators["jointype"] = kws.get("jointype")
+        return default_join
+
+    
+    def _PrepareRenderer(self, kws):
+        # prepare field renderer
+        converter = FieldRenderer(self)
+        skipRender = kws.get("skipRender", False)
+        if skipRender == True:
+            skipRender = fldList
+        elif not skipRender:
+            skipRender = (u"pool_type", u"pool_wfa", u"pool_wfp")
+        return skipRender, converter
+    
+    def _RenameFieldAlias(self, fldList):
+        # parse alias field names used in sql query
+        p = 0
+        for f in fldList:
+            if f[0] == u"-" and f.find(u" as ") != -1:
+                a = f.split(u" as ")[-1]
+                a = a.replace(u" ", u"")
+                a = a.replace(u")", u"")
+                fldList[p] = a
+            p += 1
+        return fldList
+
+    def _ConvertRecords(self, records, converter, fields, fldList, skipRender, kws):
+        # convert result
+        items = []
+        for rec in records:
+            rec2 = []
+            for p in range(len(fields)):
+                rec2.append(converter.Render(fields[p], rec[p], False, render=(fldList[p] not in skipRender), **kws))
+            items.append(dict(zip(fldList, rec2)))
+        return items, len(items)
+    
+    def _PrepareResult(self, items, parameter, cnt, total, start, max, t, sql):
+        # prepare result dictionary and paging information
+        result = {}
+        result["items"] = items
+        result["criteria"] = parameter
+        result["count"] = cnt
+        result["total"] = total
+        result["start"] = start
+        result["max"] = max
+        result["time"] = time.time() - t
+        result["sql"] = sql
+        
+        next = start + max
+        if next >= total:
+            next = 0
+        result["next"] = next
+        nextend = next + max
+        if nextend > total:
+            nextend = total
+        result["nextend"] = nextend
+
+        prev = start - max
+        if prev < 1:
+            prev = 0
+        result["prev"] = prev
+        prevend = prev + max
+        result["prevend"] = prevend
+        return result
 
 
     # Tree structure -----------------------------------------------------------
