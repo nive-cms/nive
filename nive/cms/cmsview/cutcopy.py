@@ -69,7 +69,7 @@ class ContainerCopy:
         """
         Paste the copied object with id to this object
         """
-        root = self.GetRoot()
+        root = self.dataroot
         new = []
         msgs = []
         result = True
@@ -107,7 +107,7 @@ class ContainerCopy:
         - moved()
         - afterAdd(obj=obj)
         """
-        root = self.root()
+        root = self.dataroot
         oldParent=None
 
         moved = []
@@ -129,8 +129,8 @@ class ContainerCopy:
                 raise TypeError, "Object cannot be added here"
 
             self.Signal("beforeAdd", data=obj.meta, type=type)
-            if not oldParent or oldParent.id != obj.GetParent().id:
-                oldParent = obj.GetParent()
+            if not oldParent or oldParent.id != obj.parent.id:
+                oldParent = obj.parent
             obj.__parent__ = self
             obj.meta["pool_unitref"] = self.GetID()
             oldParent.Signal("afterDelete", id=obj.id)

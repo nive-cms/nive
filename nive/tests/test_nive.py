@@ -124,7 +124,6 @@ class appTest(unittest.TestCase):
         self.assert_(self.app.__getitem__("root"))
         self.assert_(self.app.GetRoot(name="root"))
         self.assert_(len(self.app.GetRoots())==1)
-        self.assert_(self.app.GetApp())
         #self.assert_(self.app.portal)
         self.assert_(self.app.GetTool("nive.components.tools.example"))
         #!!! self.app.GetWorkflow(wfProcID)

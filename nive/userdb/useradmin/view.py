@@ -62,7 +62,7 @@ class UsermanagementView(AdminBasics):
     
     
     def GetAdminWidgets(self):
-        url = self.FolderUrl(self.context.root())
+        url = self.FolderUrl(self.context.dataroot)
         confs = [
             Conf(id="admin.root", viewmapper=url+"list", name=_(u"List users")),
             Conf(id="admin.add", viewmapper=url+"add", name=_(u"Add user"))
@@ -114,7 +114,7 @@ class UsermanagementView(AdminBasics):
         confirm = self.GetFormValue("confirm")
         users = []
         msgs = []
-        root = self.context.root()
+        root = self.context.dataroot
         if isinstance(ids, basestring):
             ids = (ids,)
         elif not ids:

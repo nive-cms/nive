@@ -72,10 +72,10 @@ class AlternatePath(object):
         Converts name to valid path/url
         """
         cnt = 1
-        root = self.root()
+        root = self.dataroot
         if name == u"file":
             name = u"file_"
-        while root.FilenameToID(name, self.GetParent().id, parameter={u"id":self.id}, operators={u"id":u"!="}) != 0:
+        while root.FilenameToID(name, self.parent.id, parameter={u"id":self.id}, operators={u"id":u"!="}) != 0:
             if cnt>1:
                 name = name[:-1]+str(cnt)
             else:
@@ -130,7 +130,7 @@ class AlternatePath(object):
             name = id
             id = 0
             if name:
-                id = self.root().FilenameToID(name, self.id)
+                id = self.dataroot.FilenameToID(name, self.id)
             if not id:
                 raise KeyError, id
         o = self.GetObj(id)

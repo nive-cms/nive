@@ -36,7 +36,7 @@ class menublock(PageElementBase):
         if menu == u"sub":
             return self.GetPage().GetPages(hidden=0)
         elif menu == u"level":
-            p = self.GetPage().GetParent()
+            p = self.GetPage().parent
             if not p:
                 #root
                 p = self.GetPage()

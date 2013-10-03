@@ -100,7 +100,7 @@ class Container(object):
         parameter[u"pool_unitref"] = self.id
         sort = kw.get("sort", self.GetSort())
         fields = [u"id",u"pool_datatbl",u"pool_dataref",u"pool_type"]
-        root = self.root()
+        root = self.dataroot
         if kw.get("queryRestraints")!=False:
             parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
         objects = root.SelectDict(parameter=parameter, fields=fields, operators=operators, sort = sort)
@@ -151,7 +151,7 @@ class Container(object):
             if not fields:
                 # bw: 0.9.12 fallback for backward compatibility
                 fields = [u"id", u"title", u"pool_filename", u"pool_type", u"pool_state", u"pool_sort", u"pool_stag", u"pool_wfa"]
-        root = self.root()
+        root = self.dataroot
         parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
         if pool_type:
             objects = root.SelectDict(pool_type=pool_type, parameter=parameter, fields=fields, operators=operators, sort = sort)
@@ -177,7 +177,7 @@ class Container(object):
         parameter[u"id"] = ids
         parameter[u"pool_unitref"] = self.id
         operators[u"id"] = "IN"
-        root = self.root()
+        root = self.dataroot
         parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
         objects = root.SelectDict(parameter=parameter, fields=fields, operators=operators, sort = sort)
         ids = [c["id"] for c in objects]
@@ -292,7 +292,7 @@ class ContainerEdit:
         - add (called in context of the container)
         - create (called in context of the new object)
         """
-        app = self.GetApp()
+        app = self.app
         typedef = app.GetObjectConf(type)
         if not typedef:
             raise ConfigurationError, "Type not found (%s)" % (str(type))
@@ -351,7 +351,7 @@ class ContainerEdit:
         """
         if not updateValues:
             updateValues={}
-        app = self.GetApp()
+        app = self.app
         type=obj.GetTypeID()
         # allow subobject
         if not self.IsTypeAllowed(type, user):
@@ -455,12 +455,12 @@ class ContainerEdit:
         - remove (called in context of the container)
         - delete (called in context of the new object)
         """
-        app = self.GetApp()
+        app = self.app
         if not obj:
             obj = self.GetObj(id, queryRestraints=False, **kw)
             if not obj:
                 return False
-        if obj.GetParent().id!=self.id:
+        if obj.parent.id!=self.id:
             raise ContainmentError, "Object is not a child (%s)" % (str(id))
 
         # call workflow
@@ -498,11 +498,11 @@ class ContainerEdit:
         - delete() called on object to be deleted
         - afterDelete(id=id) called on container after object has been deleted
         """
-        app = self.GetApp()
+        app = self.app
         if not obj:
             obj = self.GetObj(id, queryRestraints=False, **kw)
         else:
-            if not obj.GetParent()==self:
+            if not obj.parent==self:
                 raise ContainmentError, "Object is not a child (%s)" % (str(id))
         obj.Signal("delete")
         if hasattr(obj, "_RecursiveDeleteInternal"):
@@ -649,7 +649,7 @@ class ContainerFactory:
             # check restraints
             qr = kw.get("queryRestraints",None)
             if qr!=False:
-                root = self.root()
+                root = self.dataroot
                 p,o = root.ObjQueryRestraints(self)
                 p["id"] = id
                 p["pool_unitref"] = self.id
@@ -718,7 +718,7 @@ class ContainerFactory:
                 return objs
             ids = load
 
-        app = self.GetApp()
+        app = self.app
         entries = app.db.GetBatch(ids, preload="all", **kw)
 
         # create object for type
@@ -784,7 +784,8 @@ class Root(object):
 
     # Properties -----------------------------------------------------------
 
-    def root(self):
+    @property
+    def dataroot(self):
         """ this will return itself. Used for object compatibility. """
         return self
 
@@ -920,18 +921,6 @@ class Root(object):
         """ returns always True. """
         return True
 
-    def GetRoot(self):
-        """ returns self. """
-        return self
-
-    def GetApp(self):
-        """ returns the cms application. """
-        return self.app
-
-    def GetParent(self):
-        """ returns None. """
-        return None
-
     def GetParents(self):
         """ returns empty list. Used for object compatibility. """
         return []
@@ -978,6 +967,28 @@ class Root(object):
             for o in self.GetAllFromCache():
                 o.Close()
         return
+
+    # to be removed in future versions --------------------------------------------
+
+    def root(self):
+        """
+        bw 0.9.12: use dataroot property instead! 
+        this will return itself. Used for object compatibility. 
+        """
+        return self
+
+    def GetRoot(self):
+        """bw 0.9.12: to be removed. returns self. """
+        return self
+
+    def GetApp(self):
+        """bw 0.9.12: to be removed. returns the cms application. """
+        return self.app
+
+    def GetParent(self):
+        """bw 0.9.12: to be removed. returns None. """
+        return None
+
 
 
 class RootWorkflow:
@@ -1078,6 +1089,4 @@ class RootWorkflow:
         regardless of transitions or calling any workflow actions.
         """
         self.meta["pool_wfa"] = stateID
-
-    
 

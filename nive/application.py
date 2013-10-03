@@ -126,6 +126,18 @@ class Application(object):
         self.Close()
         
 
+    def __getitem__(self, name):
+        """
+        This function is called by url traversal and looks up root objects for the corresponding
+        name. 
+        """
+        name = name.split(".")[0]
+        o = self.root(name)
+        if o and o.configuration.urlTraversal:
+            return o
+        raise KeyError, name
+
+
     def Startup(self, pyramidConfig, debug=False):
         """
         Called by nive.portal.portal on application startup.
@@ -229,18 +241,6 @@ class Application(object):
 
     # Content and root objects -----------------------------------------------------------
 
-    def __getitem__(self, name):
-        """
-        This function is called by url traversal and looks up root objects for the corresponding
-        name. 
-        """
-        name = name.split(".")[0]
-        o = self.root(name)
-        if o and o.configuration.urlTraversal:
-            return o
-        raise KeyError, name
-
-
     def GetRoot(self, name=""):
         """
         Returns the data root object. If name is empty the default root is returned.
@@ -260,10 +260,6 @@ class Application(object):
         returns list
         """
         return [self.GetRoot(r.id) for r in self.GetAllRootConfs()]
-
-
-    def GetApp(self):
-        return self
 
 
     def GetTool(self, toolID, contextObject=None):
@@ -286,7 +282,7 @@ class Application(object):
         return self._GetWfObj(wfProcID, contextObject or _GlobalObject())
 
 
-    # Data Pool ------------------------------------------------------------------------------
+    # Data Pool and database connections -------------------------------------------------------------------
 
     def GetDB(self):
         """
@@ -350,6 +346,13 @@ class Application(object):
         return self._GetDBApi()
         
 
+
+    # to be removed in future versions -------------------------------------------
+
+    def GetApp(self):
+        # bw 0.9.12: to be removed
+        return self
+
     def GetVersion(self):
         """ """
         return __version__, __version__
@@ -358,8 +361,6 @@ class Application(object):
         """ """
         return __version__ == __version__
 
-
-    # to be removed in future versions -------------------------------------------
 
 
 
@@ -613,6 +614,46 @@ class Registration(object):
             except:    pass
 
     
+    def LoadStructure(self, forceReload = False):
+        """
+        returns dictionary containing database tables and columns
+        """
+        if forceReload:
+            self._structure = PoolStructure()
+        if not self._structure.IsEmpty():
+            return self._structure
+
+        structure = {}
+        fieldtypes = {}
+        meta = self.GetAllMetaFlds(ignoreSystem = False)
+        m = []
+        f = {}
+        for fld in meta:
+            f[fld.id] = fld.datatype
+            if fld.datatype == "file":
+                continue
+            m.append(fld.id)
+        structure[MetaTbl] = m
+        fieldtypes[MetaTbl] = f
+
+        types = self.GetAllObjectConfs()
+        for ty in types:
+            t = []
+            f = {}
+            for fld in self.GetAllObjectFlds(ty.id):
+                f[fld.id] = fld.datatype
+                if fld.datatype == "file":
+                    continue
+                t.append(fld.id)
+            structure[ty.dbparam] = t
+            fieldtypes[ty.dbparam] = f
+        
+        self._structure.Init(structure, fieldtypes, m, self.configuration.frontendCodepage)
+        # reset cached db
+        self.Close()
+        return structure
+
+
 
 
 class Configuration:
@@ -975,46 +1016,6 @@ class Configuration:
         if not r:
             return None
         return r[0][0]
-
-
-    def LoadStructure(self, forceReload = False):
-        """
-        returns dictionary containing database tables and columns
-        """
-        if forceReload:
-            self._structure = PoolStructure()
-        if not self._structure.IsEmpty():
-            return self._structure
-
-        structure = {}
-        fieldtypes = {}
-        meta = self.GetAllMetaFlds(ignoreSystem = False)
-        m = []
-        f = {}
-        for fld in meta:
-            f[fld.id] = fld.datatype
-            if fld.datatype == "file":
-                continue
-            m.append(fld.id)
-        structure[MetaTbl] = m
-        fieldtypes[MetaTbl] = f
-
-        types = self.GetAllObjectConfs()
-        for ty in types:
-            t = []
-            f = {}
-            for fld in self.GetAllObjectFlds(ty.id):
-                f[fld.id] = fld.datatype
-                if fld.datatype == "file":
-                    continue
-                t.append(fld.id)
-            structure[ty.dbparam] = t
-            fieldtypes[ty.dbparam] = f
-        
-        self._structure.Init(structure, fieldtypes, m, self.configuration.frontendCodepage)
-        # reset cached db
-        self.Close()
-        return structure
 
 
 

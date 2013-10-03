@@ -467,7 +467,7 @@ def UsernameValidator(node, value):
     Can be used for the name input field in a sign up form.
     """
     # lookup name in database
-    r = node.widget.form.context.root()
+    r = node.widget.form.context.dataroot
     u = r.LookupUser(name=value, activeOnly=0)
     if u:
         # check if its the current user
@@ -485,7 +485,7 @@ def EmailValidator(node, value):
     # validate email format
     Email()(node, value)
     # lookup email in database
-    r = node.widget.form.context.root()
+    r = node.widget.form.context.dataroot
     u = r.LookupUser(email=value, activeOnly=0)
     if u:
         # check if its the current user

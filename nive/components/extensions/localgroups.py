@@ -49,7 +49,7 @@ class LocalGroups(object):
         o = self
         while o:
             g += o._LocalGroups(username)
-            o = o.GetParent()
+            o = o.parent
         return g 
 
 

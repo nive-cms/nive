@@ -76,14 +76,15 @@ class Object(object):
         """ files """
         return self.dbEntry.files
 
-    def root(self):
+    @property
+    def dataroot(self):
         """ returns the current root object in parent chain """
-        return self.parent.root()
+        return self.parent.dataroot
 
     @property
     def app(self):
         """ returns the cms application itself """
-        return self.root().app
+        return self.dataroot.app
 
     @property
     def parent(self):
@@ -200,18 +201,6 @@ class Object(object):
         """ returns bool """
         return False
 
-    def GetRoot(self):
-        """ returns the current root object """
-        return self.root()
-
-    def GetApp(self):
-        """ returns the cms main application object """
-        return self.root().app
-
-    def GetParent(self):
-        """ returns the parent object in the hierarchy """
-        return self.__parent__
-
     def GetParents(self):
         """ returns all parent objects as list """
         p = []
@@ -293,6 +282,28 @@ class Object(object):
         self.dbEntry.Close()
 
 
+    # to be removed in future versions ------------------------------------------------------------
+
+    def root(self):
+        """ 
+        bw 0.9.12: use `dataroot` property instead! 
+        returns the current root object in parent chain 
+        """
+        return self.parent.root()
+
+    def GetRoot(self):
+        """bw 0.9.12: to be removed. returns the current root object """
+        return self.dataroot
+
+    def GetApp(self):
+        """bw 0.9.12: to be removed. returns the cms main application object """
+        return self.dataroot.app
+
+    def GetParent(self):
+        """bw 0.9.12: to be removed. returns the parent object in the hierarchy """
+        return self.__parent__
+
+
 
 class ObjectEdit:
     """
@@ -318,7 +329,7 @@ class ObjectEdit:
                     files[id] = sourceData[id]
                 else:
                     data[id] = sourceData[id]
-        for f in self.GetApp().GetAllMetaFlds(False):
+        for f in self.app.GetAllMetaFlds(False):
             id = f["id"]
             if sourceData.has_key(id):
                 meta[id] = sourceData[id]

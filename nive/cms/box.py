@@ -59,15 +59,15 @@ class box(PageElementContainerBase):
     
     def GetPage(self):
         # return the current element container
-        return self.GetParent()
+        return self.parent
 
     def GetElementContainer(self):
         # return the current element container
-        return self #.GetParent()
+        return self #.parent
     
     def GetContainer(self):
         # return the current element container
-        return self.GetParent()
+        return self.parent
 
 
 

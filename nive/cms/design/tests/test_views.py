@@ -84,7 +84,7 @@ class tDesign(unittest.TestCase):
         vrender = {"context":self.page, "view":view, "request": self.request, "cmsview":None}
         
         render("nive.cms.design:templates/page.pt", vrender)
-        render("nive.cms.design:templates/root.pt", {"context":self.page.root(), "view":view, "cmsview":None})
+        render("nive.cms.design:templates/root.pt", {"context":self.page.dataroot, "view":view, "cmsview":None})
 
         b1 = create_box(self.page, user)
         render("nive.cms.design:templates/box.pt", {"context":b1, "view":view})
@@ -139,7 +139,7 @@ class tDesign(unittest.TestCase):
         
         # render page with elements
         render("nive.cms.design:templates/page.pt", {"context":self.page, "view":view, "cmsview":None})
-        render("nive.cms.design:templates/root.pt", {"context":self.page.root(), "view":view, "cmsview":None})
+        render("nive.cms.design:templates/root.pt", {"context":self.page.dataroot, "view":view, "cmsview":None})
         r=view.view()
         self.assertEqual(r.status_int, 200)
         self.assertGreater(r.content_length, 2000)

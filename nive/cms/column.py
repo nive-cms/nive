@@ -53,7 +53,7 @@ class column(PageElementContainerBase):
 
     def GetPage(self):
         # returns the current page
-        return self.GetParent()
+        return self.parent
 
     def GetPages(self):
         # columns have no subpages
@@ -65,7 +65,7 @@ class column(PageElementContainerBase):
 
     def GetContainer(self):
         # returns the current container
-        return self.GetParent()
+        return self.parent
 
     def GetColumn(self, name):
         # 

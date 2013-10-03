@@ -94,7 +94,7 @@ class PageContainer:
         if not includeMenu:
             parameter[u"navMenu"] = 0
         sort = self.GetSort()
-        root = self.root()
+        root = self.dataroot
         parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
         pages = root.SelectDict(pool_type=u"page", parameter=parameter, fields=fields, operators=operators, sort=sort, dontAddType=True)
         return pages
@@ -115,7 +115,7 @@ class PageContainer:
         operators[u"pool_stag"] = u"BETWEEN"
         parameter[u"pool_unitref"] = self.id
         sort = self.GetSort()
-        root = self.root()
+        root = self.dataroot
         parameter,operators = root.ObjQueryRestraints(self, parameter, operators)
         pages = root.SelectDict(pool_type=u"page", parameter=parameter, fields=fields, operators=operators, sort=sort, dontAddType=True)
         return pages
@@ -222,12 +222,12 @@ class PageElement:
 
     def GetElementContainer(self):
         """ Returns the current element container """
-        return self.GetParent()
+        return self.parent
 
 
     def GetPage(self):
         """ Return the current page """
-        return self.GetParent().GetPage()
+        return self.parent.GetPage()
     
     
     def TouchPage(self, user=None):
@@ -262,14 +262,14 @@ class PageColumns:
         c = self.LocalColumn(name)
         if c:
             return c
-        parent = self.GetParent()
+        parent = self.parent
         while parent:
             c = parent.LocalColumn(name)
             if c:
                 return c
             if parent.GetID() == 0:
                 break
-            parent = parent.GetParent()
+            parent = parent.parent
         return None
         
 
@@ -281,7 +281,7 @@ class PageColumns:
         c = self.LocalColumn(name)
         if c:
             return c
-        parent = self.GetParent()
+        parent = self.parent
         while parent:
             c = parent.LocalColumn(name)
             if c:
@@ -289,7 +289,7 @@ class PageColumns:
                 return c
             if parent.GetID() == 0:
                 break
-            parent = parent.GetParent()
+            parent = parent.parent
         return None
         
 

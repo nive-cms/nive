@@ -77,7 +77,7 @@ class PageFulltext(object):
     def GetTexts(self):
         # loop all fulltext fields and make one string
         text = []
-        root = self.root()
+        root = self.dataroot
         for f in self.app.GetAllMetaFlds(ignoreSystem=False):
             if f.get("fulltext") != True:
                 continue
@@ -148,7 +148,7 @@ class RewriteFulltext(Tool):
             localizer = FakeLocalizer()
 
         app = self.app
-        root = app.root()
+        root = app.dataroot
         datapool = app.db
         conn = datapool.connection
         c = conn.cursor()

@@ -198,7 +198,7 @@ class BaseView(object):
         """
         try:
             i = int(link)
-            o = self.context.GetRoot().LookupObj(i)
+            o = self.context.dataroot.LookupObj(i)
             if not o:
                 return link
             try:
@@ -824,7 +824,7 @@ class FieldRenderer(object):
             if not context:
                 return []
             pool_type = context.GetTypeID() 
-            return context.root().LoadListItems(fld, obj=context, pool_type=pool_type)
+            return context.dataroot.LoadListItems(fld, obj=context, pool_type=pool_type)
         
         # format for output
         fType = fieldConf["datatype"]

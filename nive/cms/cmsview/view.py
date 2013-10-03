@@ -202,7 +202,7 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
         root = self.context.app.root("editor")
         url = self.FolderUrl(root)
         if not self.context.IsRoot():
-            url = url + self.PageUrl(self.context)[len(self.FolderUrl(self.context.GetRoot())):]
+            url = url + self.PageUrl(self.context)[len(self.FolderUrl(self.context.dataroot)):]
         self.Redirect(url)
     
     def exit(self):
@@ -210,12 +210,12 @@ class Editor(BaseView, cutcopy.CopyView, sort.SortView):
         root = self.context.app.root()
         url = self.FolderUrl(root)
         if not self.context.IsRoot():
-            url = url + self.PageUrl(self.context)[len(self.FolderUrl(self.context.root())):]
+            url = url + self.PageUrl(self.context)[len(self.FolderUrl(self.context.dataroot)):]
         self.Redirect(url)
 
     def exitapp(self):
         # leave editor mode in application context
-        root = self.context.root()
+        root = self.context.dataroot
         url = self.FolderUrl(root)
         self.Redirect(url)
     

@@ -97,7 +97,7 @@ class Design(BaseView):
             return self._c_editor
         # restrict editor to roots with ICMSRoot Interface. Otherwise the editor views
         # will not be found 
-        root = self.context.root()
+        root = self.context.dataroot
         if not ICMSRoot.providedBy(root):
             return None
         module = self.context.app.QueryConfByName(IViewModuleConf, "editor")
@@ -171,7 +171,7 @@ class Design(BaseView):
         """
         html = StringIO()
         page = self.context
-        root = page.GetRoot()
+        root = page.dataroot
         if addHome:
             highlight = u""
             if page.id == root.id:
@@ -203,7 +203,7 @@ class Design(BaseView):
         """
         if not page:
             page = self.context.GetPage()
-        root = page.GetRoot()
+        root = page.dataroot
         html = StringIO()
         html.write(u"""<ul id="level1" class="%s">""" % (ulclass))
         if addHome:
@@ -230,14 +230,14 @@ class Design(BaseView):
         """
         if not page:
             page = self.context.GetPage()
-        base = page.GetParent()
+        base = page.parent
         if page.GetID()<=0:
             return u""
         elif base.GetID()<=0:
             base = page
         else:
-            while base.GetParent().GetID() > 0:
-                base = base.GetParent()
+            while base.parent.GetID() > 0:
+                base = base.parent
         
         root = base
         path = page.GetParentIDs()

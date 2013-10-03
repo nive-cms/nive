@@ -70,9 +70,6 @@ class containerTest_db:
         self.assert_(r.GetTitle())
         self.assert_(r.GetPath())
         #rootParents()
-        self.assert_(r.GetRoot()==r)
-        self.assert_(r.GetApp())
-        self.assert_(r.GetParent()==None)
         self.assert_(len(r.GetParents())==0)
         self.assert_(len(r.GetParentTitles())==0)
         self.assert_(len(r.GetParentPaths())==0)
@@ -113,15 +110,12 @@ class containerTest_db:
         self.assert_(o1.GetTitle()=="")
         self.assert_(o1.GetPath())
         #Parents()
-        self.assert_(o1.GetRoot()==r)
-        self.assert_(o1.GetApp()==a)
-        self.assert_(o1.GetParent()==r)
         self.assert_(len(o1.GetParents())==1)
         self.assert_(len(o1.GetParentIDs())==1)
         self.assert_(len(o1.GetParentTitles())==1)
         self.assert_(len(o1.GetParentPaths())==1)
 
-        self.assert_(o4.GetParent()==o3)
+        self.assert_(o4.parent==o3)
         self.assert_(len(o4.GetParents())==3)
         self.assert_(len(o4.GetParentIDs())==3)
         self.assert_(len(o4.GetParentTitles())==3)
@@ -355,16 +349,13 @@ class containerTest_db:
         r.Close()
         r.app
         r.db
-        r.root()
+        r.dataroot
         r.GetID()
         r.GetTypeID()
         r.GetTypeName()
         r.GetTitle()
         r.GetPath()
         r.IsRoot()
-        r.GetRoot()
-        r.GetApp()
-        r.GetParent()
         r.GetParents()
         r.GetParentIDs()
         r.GetParentTitles()
@@ -386,16 +377,13 @@ class containerTest_db:
         #root
         o1.app
         o1.db
-        o1.root()
+        o1.dataroot
         o1.GetID()
         o1.GetTypeID()
         o1.GetTypeName()
         o1.GetTitle()
         o1.GetPath()
         o1.IsRoot()
-        o1.GetRoot()
-        o1.GetApp()
-        o1.GetParent()
         o1.GetParents()
         o1.GetParentIDs()
         o1.GetParentTitles()
