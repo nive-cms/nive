@@ -89,8 +89,8 @@ class Application(object):
         - init(configuration)
         """
         self.registry = Components()
-        self.configuration = AppConf()
-        self.dbConfiguration = DatabaseConf()
+        self.configuration = None
+        self.dbConfiguration = None
         # set id for logging
         if configuration:
             self.id = configuration.id
