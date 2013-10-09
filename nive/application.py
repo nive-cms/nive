@@ -199,6 +199,7 @@ class Application(object):
         """ 
         Events:
         - loadRoot(root)
+        - loadFromCache() called for the root
 
         returns root object
         """
@@ -1118,6 +1119,7 @@ class AppFactory:
         cachename = "_c_root"+name
         if useCache and hasattr(self, cachename) and getattr(self, cachename):
             rootObj = getattr(self, cachename)
+            rootObj.Signal("loadFromCache")
         else:
             rootObj = ClassFactory(rootConf, self.reloadExtensions, True, base=None)
             rootObj = rootObj(name, self, rootConf)
