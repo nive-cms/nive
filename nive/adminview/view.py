@@ -146,9 +146,9 @@ class ConfigurationForm(HTMLForm):
             if self.view and redirectSuccess:
                 redirectSuccess = self.view.ResolveUrl(redirectSuccess, obj)
                 if self.use_ajax:
-                    self.view.Relocate(redirectSuccess, messages=msgs)
+                    self.view.Relocate(redirectSuccess, messages=msgs, raiseException=True)
                 else:
-                    self.view.Redirect(redirectSuccess, messages=msgs)
+                    self.view.Redirect(redirectSuccess, messages=msgs, raiseException=True)
         return result, self.Render(data, msgs=msgs, errors=errors)    
 
 

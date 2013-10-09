@@ -288,27 +288,27 @@ def forbidden_view(request):
     # login form
     url = request.referrer
     portal = request.context.app.portal
-    return Redirect(portal.configuration.forbiddenUrl+"?redirect="+request.url, request, messages=[u"Please log in"])
+    return Redirect(portal.configuration.forbiddenUrl+"?redirect="+request.url, request, messages=[u"Please log in"], raiseException=False)
        
 def login_view(context, request):
     # login form
     portal = context
-    return Redirect(portal.configuration.loginUrl+"?redirect="+request.GET.get("redirect",""), request)
+    return Redirect(portal.configuration.loginUrl+"?redirect="+request.GET.get("redirect",""), request, raiseException=False)
     
 def logout_view(context, request):
     # logout to login form
     portal = context
-    return Redirect(portal.configuration.logoutUrl+"?redirect="+request.GET.get("redirect",""), request)
+    return Redirect(portal.configuration.logoutUrl+"?redirect="+request.GET.get("redirect",""), request, raiseException=False)
     
 def portal_view(context, request):
     # website root / domain root redirect
     portal = context
-    return Redirect(portal.configuration.portalDefaultUrl, request)
+    return Redirect(portal.configuration.portalDefaultUrl, request, raiseException=False)
     
 def account_view(context, request):
     # account page
     portal = context
-    return Redirect(portal.configuration.accountUrl, request)
+    return Redirect(portal.configuration.accountUrl, request, raiseException=False)
     
 def robots_view(context, request):
     portal = request.context

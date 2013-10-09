@@ -211,7 +211,7 @@ class BaseView(object):
     
     # Response and headers (defined on module level below -------------------------------------------
 
-    def SendResponse(self, data, mime="text/html", raiseException=False, filename=None):
+    def SendResponse(self, data, mime="text/html", filename=None, raiseException=True):
         """
         Creates a response with data as body. If ``raiseException`` is true the function
         will raise a HTTPOk Exception with data as body.
@@ -219,19 +219,19 @@ class BaseView(object):
         If filename is not none the response will extended with a ``attachment; filename=filename``
         header.
         """
-        return SendResponse(data, mime=mime, raiseException=raiseException, filename=filename)
+        return SendResponse(data, mime=mime, filename=filename, raiseException=raiseException)
         
         
-    def Redirect(self, url, messages=None, slot=""):
+    def Redirect(self, url, messages=None, slot="", raiseException=True):
         """
         Redirect to the given URL. Messages are stored in session and can be accessed
         by calling ``request.session.pop_flash()``. Messages are added by calling
         ``request.session.flash(m, slot)``.
         """
-        return Redirect(url, self.request, messages=messages, slot=slot)
+        return Redirect(url, self.request, messages=messages, slot=slot, raiseException=raiseException)
     
 
-    def Relocate(self, url, messages=None, slot="", raiseException=False):
+    def Relocate(self, url, messages=None, slot="", raiseException=True):
         """
         Returns messages and X-Relocate header in response.
         If raiseException is True HTTPOk is raised with empty body.
@@ -729,7 +729,7 @@ class BaseView(object):
 
 # Response utilities -------------------------------------------------
 
-def SendResponse(data, mime="text/html", raiseException=False, filename=None):
+def SendResponse(data, mime="text/html", filename=None, raiseException=True):
     """
     See views.BaseView class function for docs
     """
@@ -739,9 +739,9 @@ def SendResponse(data, mime="text/html", raiseException=False, filename=None):
     if raiseException:
         raise HTTPOk(content_type=mime, body=data, content_disposition=cd)
     return Response(content_type=mime, body=data, content_disposition=cd)
-        
-        
-def Redirect(url, request, messages=None, slot=""):
+
+
+def Redirect(url, request, messages=None, slot="", raiseException=True):
     """
     See views.BaseView class function for docs
     """
@@ -754,10 +754,12 @@ def Redirect(url, request, messages=None, slot=""):
     headers = None
     if hasattr(request.response, "headerlist"):
         headers = request.response.headerlist
-    raise HTTPFound(location=url, headers=headers)
+    if raiseException:
+        raise HTTPFound(location=url, headers=headers)
+    return HTTPFound(location=url, headers=headers)
     
 
-def Relocate(url, request, messages=None, slot="", raiseException=False):
+def Relocate(url, request, messages=None, slot="", raiseException=True):
     """
     See views.BaseView class function for docs
     """
