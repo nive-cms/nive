@@ -649,8 +649,7 @@ class ObjectConf(baseConf):
                    nive.definitions.ViewModuleConf.
         forms :    Configuration of object form subsets and actions. Refer to nive.Form.
     
-        subtypes  : Define possible subtypes. None=no objects allowed, 
-                    `definitions.AllTypesAllowed`=all objects allowed, 
+        subtypes  : Define possible subtypes. None=no objects allowed, "*"=all objects allowed, 
                     [IContainer,IPageElement]=list with interfaces of allowed objects.
         selectTag : Default select tag for this type. Stored as meta.pool_stag.
         category  : Default category stored as meta.pool_category.
@@ -1426,32 +1425,7 @@ FieldConf(id="pool_change",    datatype="datetime",  size=100,   default=u"",   
 FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by"), settings={u"relation":"userid"}),
 FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by"), settings={u"relation":"userid"}),
 )
-ReadonlySystemFlds = ("id", "pool_type", "pool_unitref", "pool_dataref", "pool_datatbl")
-
-"""
-#v2
-FieldConf(id="id",             datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"ID")),
-FieldConf(id="pool_type",      datatype="list",      size=35,    default=u"",   required=1,   readonly=1, name=_(u"Type")),
-FieldConf(id="pool_unitref",   datatype="number",    size=8,     default=0,     required=0,   readonly=1, name=_(u"Container")),
-FieldConf(id="pool_dataref",   datatype="number",    size=8,     default=0,     required=1,   readonly=1, name=_(u"Data Table Reference")),
-FieldConf(id="pool_datatbl",   datatype="string",    size=35,    default=u"",   required=1,   readonly=1, name=_(u"Data Table Name")),
-# user change/mod
-FieldConf(id="pool_create",    datatype="datetime",  size=30,    default=u"",   required=0,   readonly=1, name=_(u"Created")),
-FieldConf(id="pool_change",    datatype="datetime",  size=30,    default=u"",   required=0,   readonly=1, name=_(u"Changed")),
-FieldConf(id="pool_createdby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Created by"), settings={u"relation":"userid"}),
-FieldConf(id="pool_changedby", datatype="string",    size=35,    default=u"",   required=0,   readonly=1, name=_(u"Changed by"), settings={u"relation":"userid"}),
-# utilities
-FieldConf(id="pool_state",     datatype="number",    size=4,     default=1,     required=0,   readonly=0, name=_(u"State")),
-FieldConf(id="pool_stag",      datatype="number",    size=4,     default=0,     required=0,   readonly=0, name=_(u"Select Number")),
-FieldConf(id="title",          datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Title"), fulltext=True),
-FieldConf(id="pool_sort",      datatype="number",    size=8,     default=0,     required=0,   readonly=0, name=_(u"Sort")),
-FieldConf(id="pool_category",  datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Category")),
-FieldConf(id="pool_filename",  datatype="string",    size=255,   default=u"",   required=0,   readonly=0, name=_(u"Filename")),
-# workflow
-FieldConf(id="pool_wfp",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Process")),
-FieldConf(id="pool_wfa",       datatype="list",      size=35,    default=u"",   required=0,   readonly=0, name=_(u"Workflow Activity")),
-"""
-
+ReadonlySystemFlds = ("id", "pool_type", "pool_datatbl", "pool_unitref", "pool_dataref")
 
 # base table structure -------------------------------------------------------------------
 
@@ -1503,9 +1477,6 @@ StagPageElement = 20     # 20-29
 StagRessource = 50       # 50-59
 StagUser = 100           # 100-109
 
-
-# allowed types in contaier --------------------------------------------------------------------------
-
-AllTypesAllowed = "*"
+AllTypes = 1
 
 

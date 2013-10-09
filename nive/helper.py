@@ -15,6 +15,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #----------------------------------------------------------------------
 
+__doc__ = ""
+
 import json
 import os
 from datetime import datetime
