@@ -55,16 +55,14 @@ else:
     
 def myapp(modules=None):
     a = ApplicationBase()
-    appconf.unlock()
-    appconf.dbConfiguration = dbconfMySql
-    appconf.lock()
     a.Register(appconf)
+    a.Register(dbconfMySql)
     if modules:
         for m in modules:
             a.Register(m)
     p = Portal()
     p.Register(a, "nive")
-    a.SetupRegistry()
+    a.LoadConfiguration()
     root = DvPath(a.dbConfiguration.fileRoot)
     if not root.IsDirectory():
         root.CreateDirectories()

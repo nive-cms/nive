@@ -243,7 +243,7 @@ class BaseView(object):
         """
         Removes all messages stored in session.
         """
-        ResetFlashMessages(self.request, slot)
+        ResetFlashMessages(slot=slot)
         
     
     def AddHeader(self, name, value):

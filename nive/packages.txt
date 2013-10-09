@@ -28,7 +28,6 @@ Cleanup
 ---------------------------
 
 
-
 removed 'bw' marked functions:
 ---------------------------------
 utils.path.DvDirCleaner
@@ -36,9 +35,8 @@ utils.datapool2.bakupSQL
 utils.datapool2.PoolBakup
 
 application.Registration
-    def Include(self, module, **kw):  -> Register()
-        Register database conf as part of app conf, not by calling Register() !!!
-    def LoadConfiguration(self):  -> SetupRegistry()
+    def Include(self, module, **kw):
+    def LoadConfiguration(self):
 
 applicatio.Application
     def NewDBConnection(self):

@@ -34,7 +34,7 @@ class SendMailTest2_db(unittest.TestCase):
 
     def setUp(self):
         self.app = db_app.app_db()
-        self.app.Register(configuration)
+        self.app.Include(configuration)
         logging.basicConfig()
     
     def tearDown(self):

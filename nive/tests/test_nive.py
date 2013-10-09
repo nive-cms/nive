@@ -11,10 +11,8 @@ from nive.portal import Portal
 
 from nive.tests import db_app
 
-mApp = AppConf(id="app", 
-               groups=[GroupConf(id="g1",name="G1")], 
-               categories=[CategoryConf(id="c1",name="C1")], 
-               dbConfiguration = DatabaseConf(dbName="test"))
+mApp = AppConf(id="app", groups=[GroupConf(id="g1",name="G1")], categories=[CategoryConf(id="c1",name="C1")])
+dbConfiguration = DatabaseConf(dbName="test")
 
 mObject = ObjectConf(id="object", dbparam="object", name="Object",
                      data=(FieldConf(id="a1",datatype="string",name="A1"),FieldConf(id="a2",datatype="number",name="A2"),))
@@ -31,9 +29,8 @@ mApp2 = AppConf(id="app2",
                 context="nive.tests.test_nive.testapp",
                 modules=[mObject,mRoot,mTool,mViewm,mView,mMod], 
                 groups=[GroupConf(id="g1",name="G1")], 
-                categories=[CategoryConf(id="c1",name="C1")],
-                dbConfiguration=DatabaseConf(dbName="test")
-)
+                categories=[CategoryConf(id="c1",name="C1")])
+dbConfiguration2 = DatabaseConf(dbName="test")
 
 
 
@@ -44,6 +41,7 @@ class testapp(Application, Registration, Configuration, AppFactory, Events):
 def app():
     app = testapp()
     app.Register(mApp2)
+    app.Register(dbConfiguration2)
     app.Startup(None)
     portal = Portal()
     portal.Register(app, "nive")
@@ -62,6 +60,7 @@ class modTest(unittest.TestCase):
 
     def test_Register(self):
         self.app.Register(mApp)
+        self.app.Register(dbConfiguration)
         self.app.Register(mObject)
         self.app.Register(mRoot)
         self.app.Register(mTool)
@@ -74,6 +73,7 @@ class modTest(unittest.TestCase):
 
     def test_include2(self):
         self.app.Register(mApp2)
+        self.app.Register(dbConfiguration2)
         self.app.Startup(None)
         self.assert_(self.app.db)
 
@@ -88,6 +88,7 @@ class appTest(unittest.TestCase):
     def setUp(self):
         self.app = testapp()
         self.app.Register(mApp2)
+        self.app.Register(dbConfiguration2)
         self.portal = Portal()
         self.portal.Register(self.app, "nive")
         self.app.Startup(None)
