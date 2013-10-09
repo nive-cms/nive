@@ -215,6 +215,7 @@ class Application(object):
         """ 
         Events:
         - loadRoot(root)
+        - loadFromCache() called for the root
 
         returns root object
         """
@@ -459,6 +460,7 @@ class Registration(object):
             if conf.modules:
                 for m in conf.modules:
                     self.Register(m)
+            self.configuration = conf
             return True
         
         elif iface == IDatabaseConf:
@@ -515,10 +517,6 @@ class Registration(object):
         """
         Loads self.configuration, includes modules and updates meta fields.
         """
-        c = self.registry.queryUtility(IAppConf, name="IApp")
-        if c:
-            self.configuration = c
-        
         def idinlist(l, id):
             for i in l:
                 if i["id"] == id:
@@ -1115,6 +1113,7 @@ class AppFactory:
         cachename = "_c_root"+name
         if useCache and hasattr(self, cachename) and getattr(self, cachename):
             rootObj = getattr(self, cachename)
+            rootObj.Signal("loadFromCache")
         else:
             rootObj = ClassFactory(rootConf, self.reloadExtensions, True, base=None)
             rootObj = rootObj(name, self, rootConf)
