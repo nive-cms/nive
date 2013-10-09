@@ -237,6 +237,8 @@ class Search:
         # total records
         total = len(items) + start
         if (total==max or start>0) and kw.get("skipCount") != 1:
+            if "sort" in kw:
+                del kw["sort"]
             if not kw.get("groupby"):
                 sql2, values = db.FmtSQLSelect([u"-count(*)"], 
                                                parameter=parameter, 
@@ -306,6 +308,8 @@ class Search:
         # total records
         total = len(items) + start
         if (total==max or start>0) and kw.get("skipCount") != 1:
+            if "sort" in kw:
+                del kw["sort"]
             if not kw.get("groupby"):
                 cntflds = [u"-count(*) as cnt"]
             else:
@@ -316,7 +320,6 @@ class Search:
                                            start=start, 
                                            max=max, 
                                            dataTable=typeInf["dbparam"],
-                                           #sort=u"-cnt", 
                                            **kw)
             total = db.Query(sql2, values)[0][0]
 
@@ -372,6 +375,8 @@ class Search:
         # total records
         total = len(items) + start
         if (total==max or start>0) and kw.get("skipCount") != 1:
+            if "sort" in kw:
+                del kw["sort"]
             if not kw.get("groupby"):
                 cntflds = [u"-count(*) as cnt"]
             else:
@@ -383,7 +388,6 @@ class Search:
                                            max=max, 
                                            dataTable=typeInf["dbparam"],
                                            singleTable=1,
-                                           #sort=u"-cnt", 
                                            **kw)
             total = db.Query(sql2, values)[0][0]
                 
@@ -444,6 +448,8 @@ class Search:
         # total records
         total = len(items) + start
         if (total==max or start>0) and kw.get("skipCount") != 1:
+            if "sort" in kw:
+                del kw["sort"]
             if not kw.get("groupby"):
                 cntflds = [u"-count(*) as cnt"]
             else:
@@ -523,6 +529,8 @@ class Search:
         # total records
         total = len(items) + start
         if (total==max or start>0) and kw.get("skipCount") != 1:
+            if "sort" in kw:
+                del kw["sort"]
             if not kw.get("groupby"):
                 cntflds = [u"-count(*) as cnt"]
             else:
