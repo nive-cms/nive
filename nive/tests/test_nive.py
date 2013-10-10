@@ -2,7 +2,7 @@
 import time
 import unittest
 
-from nive.definitions import OperationalError
+from nive.definitions import OperationalError, ConfigurationError
 from nive.application import *
 from nive.definitions import *
 from nive.helper import *
@@ -83,10 +83,11 @@ class modTest(unittest.TestCase):
         self.app.Startup(None)
         self.assert_(self.app.db)
 
-    def test_includefailure(self):
+    def test_includefailure1(self):
         self.app.Register(mAppErr)
         #no database: self.app.Register(dbConfiguration2)
-        self.assertRaises(OperationalError, self.app.Startup, None)
+        self.assertRaises(ConfigurationError, self.app.Startup, None)
+
 
 
 class appTest(unittest.TestCase):

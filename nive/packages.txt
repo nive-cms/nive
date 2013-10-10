@@ -1,18 +1,11 @@
 Package reorganisation
 ----------------------
 
-nive.cms    ->  nive_cms
+nive_cms    ->  nive_cms
 
-nive.userdb ->  nive_userdb
+nive_userdb ->  nive_userdb
 
-nive.datastore ->  nive_datastore
-
-nive.locale ->  nive.locale (reform.)
-            ->  nive_cms.locale (cms.)
-            ->  nive_userdb.locale (userdb.)
-            ->  nive_datastore.locale (datastore.)
-
-nive.components.objects [part 2] -> nive_cms.extensions.baseobjects
+nive_datastore ->  nive_datastore
 
 nive.components.extensions.fulltextpage -> nive_cms.extensions.fulltextpage
 
@@ -22,7 +15,30 @@ nive.components.extensions.pages -> nive_cms.extensions.pages
 
 nive.components.extensions.path -> nive_cms.extensions.path
 
-nive.components.extensions.sessionuser -> nive_userdb.sessionuser
+nive.components.extensions.sessionuser -> nive_userdb.extensions.sessionuser
+
+nive.components.objects [part 2] -> nive_cms.baseobjects  (see search and replace)
+
+
+    
+Search and replace nive.components.objects
+------------------------------------------
+nive.components.objects.base.PageBase -> nive_cms.baseobjects.PageBase
+nive.components.objects.base.PageRootBase -> nive_cms.baseobjects.PageRootBase
+nive.components.objects.base.PageElementBase -> nive_cms.baseobjects.PageElementBase
+nive.components.objects.base.PageElementFileBase -> nive_cms.baseobjects.PageElementFileBase
+nive.components.objects.base.PageElementContainerBase -> nive_cms.baseobjects.PageElementContainerBase
+nive.components.objects.base.FolderBase -> nive_cms.baseobjects.FolderBase
+
+
+Locales
+--------
+nive.locale ->  nive.locale (reform.)
+            ->  nive_cms.locale (cms.)
+            ->  nive_userdb.locale (userdb.)
+            ->  nive_datastore.locale (datastore.)
+
+nive.scaffolds ->  nive_cms.scaffolds
 
 
 Configuration
@@ -36,12 +52,8 @@ nive.definitions.ObjectConf.workflowDisabled -> nive.definitions.ObjectConf.work
 nive.definitions.RootConf.workflowDisabled -> nive.definitions.RootConf.workflowEnabled
 
 
-Cleanup
----------------------------
 
-
-
-removed 'bw' marked functions:
+removed 'bw' marked functions and unused modules:
 ---------------------------------
 utils.path.DvDirCleaner
 utils.datapool2.bakupSQL
@@ -71,3 +83,8 @@ view.BaseView
 events.Event
     def RegisterEvent(self, signal, function):
     def RemoveEvent(self, signal, function):
+
+    
+    
+    
+    

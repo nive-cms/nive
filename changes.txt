@@ -1,3 +1,18 @@
+
+0.9.12b
+------
+- refactored previous package nive -> nive, nive_cms, nive_userdb
+  see packages.txt for changed imports
+
+This ('nive') is now the base used for the different applications
+packages 'nive_cms', nive_userdb' and 'nive_datastore'. Install
+one of these to get the application you are looking for.
+
+
+----------------------------------------------------------------------------------------
+Preparation for 1.0 release
+----------------------------------------------------------------------------------------
+
 0.9.11b
 ------
 - new sessionuser with limited functionality for caching

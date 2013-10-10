@@ -11,3 +11,6 @@ from nive.components.reform.schema import FileData # API
 
 from nive.components.reform.template import ZPTRendererFactory # API
 from nive.components.reform.template import default_renderer # API
+
+
+from nive.components.reform.reformed import configuration # Module setup

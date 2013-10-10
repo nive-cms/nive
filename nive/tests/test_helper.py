@@ -65,11 +65,14 @@ class ConfigurationTest(unittest.TestCase):
         i,c = ResolveConfiguration("nive.tests.test_helper", base=None)
         self.assert_(c)
 
-    def test_load(self, **kw):
+    def test_load1(self, **kw):
         p=DvPath(__file__)
         p.SetNameExtension("app.json")
         i,c = ResolveConfiguration(str(p))
         self.assert_(c)
+
+    def test_load2(self, **kw):
+        p=DvPath(__file__)
         p.SetNameExtension("db.json")
         c = LoadConfiguration(str(p))
         self.assert_(c)

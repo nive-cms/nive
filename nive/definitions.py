@@ -51,7 +51,7 @@ configuration class is mapped from the type value ::
 
     {
         "type":    "ObjectConf",
-        "copyFrom":"nive.cms.app",
+        "copyFrom":"my_app.app",
         "id":      "my_object",
         "name":    "My Object",
         "dbparam": "my_object",
@@ -72,13 +72,13 @@ configuration to be copied as first non-keyword parameter: ::
 
 or ::
 
-    cms = AppConf("nive.cms.app", id="my_website", ...)
+    cms = AppConf("my_app.app", id="my_website", ...)
 
 Json: add "copyFrom" ::
 
     {
         "type":    "AppConf",
-        "copyFrom":"nive.cms.app",
+        "copyFrom":"my_app.app",
         "id":      "my_website",
         ...
     }    
@@ -242,13 +242,13 @@ class ILocalGroups(Interface):
 # interface extensions
 class IToolboxWidgetConf(Interface):
     """
-    IToolboxWidgetConf refers to the nive.cmsview toolbox plugin point. Use IToolboxWidgetConf as widgetType
+    IToolboxWidgetConf refers to toolbox plugin points. Use IToolboxWidgetConf as widgetType
     in your WidgetConf() to link a widget to the nive toolbox.
     """
 
 class IEditorWidgetConf(Interface):
     """
-    IEditorWidgetConf refers to the nive.cmsview editor tab plugin point. Use IEditorWidgetConf as widgetType
+    IEditorWidgetConf refers to editor tab plugin point. Use IEditorWidgetConf as widgetType
     in your WidgetConf() to link a new tab to the nive editor header.
     """
 
@@ -657,7 +657,7 @@ class ObjectConf(baseConf):
         template : Template file name to render the default view. If file name is a
                    relative path ('text.pt') the template is looked up in the active 
                    design or view module templatePath. The file name can also be a 
-                   absolute dotted python name ('nive.cms.templates:text.pt').
+                   absolute dotted python name ('my_app.templates:text.pt').
         views :    List of object view definitions. Either nive.definitions.ViewConf or 
                    nive.definitions.ViewModuleConf.
         forms :    Configuration of object form subsets and actions. Refer to nive.Form.
@@ -776,7 +776,7 @@ class RootConf(baseConf):
         template : Template file name to render the default view. If file name is a
                    relative path ('root.pt') the template is looked up in the active 
                    design or view module templatePath. The file name can also be a 
-                   absolute dotted python name ('nive.cms.templates:root.pt').
+                   absolute dotted python name ('my_app.templates:root.pt').
         views    : List of object view definitions. Either nive.definitions.ViewConf 
                    or nive.definitions.ViewModuleConf.
         default  : Use this root as default root
@@ -1228,7 +1228,7 @@ class WidgetConf(baseConf):
     
     Use this configuration to link existing views to plugin points
     in user interfaces. 
-    Currently used for `nive.cms.cmsview` ToolboxWidget and EditorWidget
+    Currently used for ToolboxWidget and EditorWidget
 
     Values ::    
 

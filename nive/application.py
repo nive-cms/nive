@@ -43,6 +43,7 @@ from nive.i18n import _
 from nive.definitions import AppConf, DatabaseConf, MetaTbl, ReadonlySystemFlds
 from nive.definitions import IViewModuleConf, IViewConf, IRootConf, IObjectConf, IToolConf 
 from nive.definitions import IAppConf, IDatabaseConf, IModuleConf, IWidgetConf
+from nive.definitions import ConfigurationError
 
 from nive.security import User, authenticated_userid
 from nive.helper import ResolveName, ResolveConfiguration, FormatConfTestFailure, GetClassRef, ClassFactory
@@ -1029,6 +1030,8 @@ class AppFactory:
         """
         creates the database object
         """
+        if not self.dbConfiguration:
+            raise ConfigurationError, "Database configuration empty. application.dbConfiguration is None."
         poolTag = self.dbConfiguration.context
         if not poolTag:
             raise TypeError, "Database type not set. application.dbConfiguration.context is empty. Use Sqlite or Mysql!"

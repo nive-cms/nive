@@ -23,8 +23,8 @@ requires = [
 
 setupkw = dict(
       name='nive',
-      version='0.9.11',
-      description='Nive cms - out of the box content management system for mobile and desktop websites based on the webframework pyramid',
+      version='0.9.12',
+      description='Nive base package',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
@@ -37,20 +37,15 @@ setupkw = dict(
       ],
       author='Arndt Droullier, Nive GmbH',
       author_email='info@nive.co',
-      url='http://cms.nive.co',
-      keywords='cms website publisher pyramid',
+      url='http://www.nive.co/website/en/open_source.html',
+      keywords='cms datastore userdb pyramid',
       license='GPL 3',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
       tests_require=requires,
-      test_suite="nive",
-      entry_points = """\
-        [pyramid.scaffold]
-        defaultSqlite=nive.scaffolds:DefaultSqliteTemplate
-        defaultMysql=nive.scaffolds:DefaultMysqlTemplate
-      """
+      test_suite="nive"
 )
 
 # uses babel and lingua

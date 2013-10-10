@@ -1,7 +1,7 @@
 {
 	"type": "nive.definitions.AppConf",
-	"copyFrom": "nive.cms.app",
-    "title": "Nive CMS", 
-    "id": "cms",
+	"copyFrom": "nive.tests.db_app.appconf",
+    "title": "Nive App", 
+    "id": "testapp",
     "dbConfiguration": "nive.tests:db.json"
 }

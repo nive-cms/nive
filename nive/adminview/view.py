@@ -16,8 +16,6 @@
 #----------------------------------------------------------------------
 __doc__ = """
 Administration interface module
-
-Requires `nive.cms.cmsview.view` static definitions for css and js.
 """
 
 from pyramid.renderers import get_renderer, render_to_response, render
@@ -39,11 +37,18 @@ from nive.utils.utils import SortConfigurationList, ConvertDictToStr
 configuration = ViewModuleConf(
     id = "administration",
     name = _(u"Administration"),
-    static = "",
     context = IApplication,
     view = "nive.adminview.view.AdminView",
     templates = "nive.adminview:",
-    permission = "administration"
+    permission = "administration",
+    static = "nive.adminview:static",
+    assets = [
+        # jquery and jquery-ui
+        ('jquery.js', 'nive.adminview:static/mods/jquery.min.js'),
+        ('jquery-ui.js', 'nive.adminview:static/mods/ui/jquery-ui-1.8.24.custom.min.js'),
+        # nive specific
+        ('nive.js', 'nive.adminview:static/nive.css'),
+    ],
 )
 t = configuration.templates
 configuration.views = [

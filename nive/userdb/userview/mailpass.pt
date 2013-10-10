@@ -1,9 +1,0 @@
-<tal:block metal:use-macro="view.index_tmpl('nive.userdb.userview:main.pt').macros['main']" i18n:domain="nive">
-<tal:block metal:fill-slot="tmpls">
-
-<div class="mailpass">
-  <span tal:replace="structure content"/>
-</div>
-
-</tal:block>
-</tal:block>

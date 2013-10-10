@@ -105,7 +105,7 @@ class BaseView(object):
                   
          to reference a file in a different directory you must include the python module like ::
 
-            <link tal:attributes="href view.StaticUrl('nive.cms.design:static/layout2.css')" 
+            <link tal:attributes="href view.StaticUrl('my_app.design:static/layout2.css')" 
                   rel="stylesheet" type="text/css" media="all" />
                   
         returns url

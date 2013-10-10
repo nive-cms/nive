@@ -19,20 +19,21 @@ def getRequest():
     return r
 
 class viewModule(object):
-    mainTemplate = "nive.cms.design:templates/index.pt"
-    templates = u"nive.cms.design:templates/"
+    mainTemplate = "nive.tests:index.pt"
+    templates = u"nive.tests:"
     parent = None
     static = u""
 
 class viewTest(unittest.TestCase):
 
     def setUp(self):
-        testing.setUp()
+        self.config = testing.setUp()
         self.request = testing.DummyRequest()
         self.request._LOCALE_ = "en"
         self.request.subpath = ["file1.txt"]
         self.request.context = None
-        self.app = db_app.app_db()
+        self.app = db_app.app_db(["nive.adminview.view"])
+        self.app.Startup(self.config)
         #self.request = getRequest()
         user = User(u"test")
         r = self.app.root()
@@ -115,13 +116,13 @@ class viewTest(unittest.TestCase):
     def test_render(self):
         view = BaseView(self.context2, self.request)
         self.assert_(view.index_tmpl(path=None)==None)
-        self.assert_(view.index_tmpl(path="nive.cms.design:templates/index.pt"))
+        self.assert_(view.index_tmpl(path="nive.tests:index.pt"))
         
         view.viewModule=viewModule()
         self.assert_(view.index_tmpl(path=None))
         
         self.assertRaises(ValueError, view.DefaultTemplateRenderer, {}, templatename = None)
-        view.DefaultTemplateRenderer({}, templatename = "spacer.pt")
+        view.DefaultTemplateRenderer({}, templatename = "test.pt")
 
         #views
         view.RenderView(self.context, name="", secure=True, raiseUnauthorized=False)

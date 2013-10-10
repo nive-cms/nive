@@ -26,7 +26,7 @@ class tViews(unittest.TestCase):
         self.portal.Register(self.app, "nive")
         self.app.Register(view.configuration)
         self.app.Register(view.dbAdminConfiguration)
-        self.app.Register("nive.cms.cmsview")
+        self.app.Register("nive.components.reform")
         self.app.Startup(self.config)
         self.request.context = self.app
     
@@ -89,7 +89,7 @@ class tTemplates(unittest.TestCase):
         self.portal.Register(self.app, "nive")
         self.app.Register(view.configuration)
         self.app.Register(view.dbAdminConfiguration)
-        self.app.Register("nive.cms.cmsview")
+        self.app.Register("nive.components.reform")
         self.app.Startup(self.config)
         self.request.context = self.app
 
